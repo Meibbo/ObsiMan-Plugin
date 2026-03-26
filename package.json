@@ -1,0 +1,20 @@
+{
+	"name": "obsiman",
+	"version": "0.1.0",
+	"description": "Bulk property & file editor for vault management in Obsidian.",
+	"main": "main.js",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "node esbuild.config.mjs production"
+	},
+	"keywords": [],
+	"author": "Meibbo",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^22.0.0",
+		"builtin-modules": "^4.0.0",
+		"esbuild": "^0.25.0",
+		"obsidian": "latest",
+		"typescript": "~5.8.0"
+	}
+}

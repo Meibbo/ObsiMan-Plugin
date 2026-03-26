@@ -126,6 +126,71 @@ title: ObsiMan
 ---
 # Roadmap
 Qué pasos debo seguir para el desarrollo y publicación de este proyecto
+## Development
+Necessary steps to conclude this project efficiently
+### Structure
+- Obsidian Plugin
+- Python Script
+### User Interface
+The combination of elements in different spaces that gives control to the user
+#### Theme
+- [ ] theme selector in settings
+- python specifics
+	- [ ] dark contrast
+	- [ ] dracula
+	- [ ] make rename file window more stretched
+#### Windows
+- file section
+- properties section
+- queue tree
+- file operations tree
+- navbar
+- status bar
+- sidebar
+#### Widgets
+- Auto-suggestion Combobox
+- Draggable list box
+- expandable list
+- Checkbox
+- Tabs
+- Buttons
+- Slider
+- Date & Time chooser
+### Properties
+#### search & filter
+explain
+#### selection box
+explain
+#### operations
+- Set / Create property
+	- Replace all values option
+	- Append values option
+		- only available when the property type is text or lust
+- Change type
+- Rename
+	- Properties option
+	- values option
+- Delete
+	- Clean empty properties
+### Files
+#### file mixer
+#### file renamer
+#### files to folder
+### Tools
+#### función plantillas
+- filtros y grupos lógicos
+- queue changes
+	- [ ] los cambios en la vista previa del archivo en la sección de operaciones muestra los cambios que se van a realizar según los pending changes, pero la ventana específica de diff hace lo mismo
+- templater plugin support
+#### función linter
+- ordenar según plantillas
+#### Importe de datos
+	- HabitKit `json`
+	- Dailyo `json`
+	- LaunchBox `xml`
+	- Contacts `csv`, `vcf`
+### [[Archived tasks#ObsiMan|Archived tasks]]
+
 ## Publishing
 Debo compartir el proyecto para recibir opiniones, críticas y sugerencias.
 ### Identity
@@ -139,67 +204,6 @@ Debo compartir el proyecto para recibir opiniones, críticas y sugerencias.
 	- ObsiMan ✅
 		- suena como PepsiMan lol
 		- hace más referencia a la aplicación de Obsidian, lo que puede gustar a propios pero confundir a extraños
-## Development
-Necessary steps to conclude this project efficiently
-### Structure
-- Obsidian Plugin
-- Python Script
-### GUI
-- ***Theme***
-	- [ ] theme selector in settings
-	- python specifics
-		- [ ] dark contrast
-		- [ ] dracula
-		- [ ] make rename file window more stretched
-- ***Windows***
-	- file section
-	- properties section
-	- queue tree
-	- file operations tree
-	- navbar
-	- status bar
-	- sidebar
-- ***Widgets***
-	- Auto-suggestion Combobox
-	- Draggable list box
-	- expandable list
-	- Checkbox
-	- Tabs
-	- Buttons
-	- Slider
-	- Date & Time chooser
-### Properties
-- ***search & filter***
-- selection box
-- ***operations***
-	- Set
-		- Replace option
-		- Append option
-			- only available when the property type is text or lust
-	- Change type
-	- Rename
-		- Properties option
-		- values option
-	- Delete
-		- Clean empty properties
-### Files
-- ***file mixer***
-- ***file renamer***
-- [ ] Move files to folder
-### Tools
-- ***función plantillas***
-	- filtros y grupos lógicos
-	- queue changes
-		- [ ] los cambios en la vista previa del archivo en la sección de operaciones muestra los cambios que se van a realizar según los pending changes, pero la ventana específica de diff hace lo mismo
-	- templater plugin support
-- ***función linter***
-	- ordenar según plantillas
-- ***Importe de datos***
-	- HabitKit `json`
-	- Dailyo `json`
-	- LaunchBox `xml`
-	- Contacts `csv`, `vcf`
-### [[Archived tasks#ObsiMan|Archived tasks]]
 # Presentation
 De qué trata el proyecto y cómo se presentará a los participantes, herramientas IA y al público en general.
 ## Product
@@ -242,4 +246,6 @@ Plugins de referencia utilizados durante el desarrollo del plugin de Obsidian:
 	- **notebook-navigator** — inspiración para crear un plugin que abarcase las funciones de muchos otros, UI de árbol jerárquico con orden manual arrastrable para las property tree.
 	- **obsidian-bases-cms** — selección masiva, capas de caché
 	- **obsidian-multi-properties** — formularios reactivos Svelte 5, patrones de `processFrontMatter()`
-	- **obsidian-
+	- **obsidian-linter** — delegación de ordenamiento YAML via `app.commands.executeCommandById()`
+	- **file-diff** — inspiración para visualización de diff
+	- **tasknotes** — inspiración para ciclo de vida de sesiones/working sets

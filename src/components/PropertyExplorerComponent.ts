@@ -1,0 +1,1018 @@
+import { Menu, Modal, Notice, Setting, setIcon, type App, type TFile } from 'obsidian';
+import type { ObsiManPlugin } from '../../main';
+import type { PendingChange } from '../types/operation';
+import { DELETE_PROP } from '../types/operation';
+import { PropertySuggest } from '../utils/autocomplete';
+import { t } from '../i18n/index';
+
+type SortMode = 'alpha' | 'count' | 'type' | 'values';
+type ValueSortMode = 'value_alpha' | 'value_count';
+type FilterScope = 'all' | 'filtered' | 'selected';
+
+/** Default icons for property types (used when Iconic plugin is unavailable) */
+const TYPE_ICON_MAP: Record<string, string> = {
+	text: 'lucide-text',
+	number: 'lucide-hash',
+	checkbox: 'lucide-check-square',
+	list: 'lucide-chevron-right',
+	date: 'lucide-calendar',
+	datetime: 'lucide-calendar-clock',
+	aliases: 'lucide-forward',
+	tags: 'lucide-tag',
+	multitext: 'lucide-text-cursor-input',
+};
+
+/**
+ * Hierarchical property explorer with nav toolbar, Iconic icons,
+ * right-click context menus, Ctrl+click search, and queue preview.
+ *
+ * Level 1: Property name + icon + count
+ * Level 2: Property values + count
+ */
+export class PropertyExplorerComponent {
+	private containerEl: HTMLElement;
+	private plugin: ObsiManPlugin;
+
+	private treeEl: HTMLElement | null = null;
+	private searchEl: HTMLInputElement | null = null;
+	private searchWrapper: HTMLElement | null = null;
+	private searchTerm = '';
+	private searchVisible = false;
+
+	private expandedProps = new Set<string>();
+	private sortMode: SortMode = 'count';
+	private valueSortMode: ValueSortMode = 'value_count';
+	private filterScope: FilterScope = 'all';
+	private filterByType: string | null = null;
+
+	/** Reference to selected file paths from the file tree */
+	private selectedFilePaths = new Set<string>();
+
+	/** Cached file count map — invalidated on render */
+	private cachedFileCounts: Map<string, Map<string, number>> | null = null;
+	private cachedPropFileCounts: Map<string, number> | null = null;
+
+	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin) {
+		this.containerEl = containerEl;
+		this.plugin = plugin;
+	}
+
+	render(): void {
+		this.containerEl.empty();
+		this.containerEl.addClass('obsiman-explorer');
+		this.invalidateCache();
+
+		// Collapsible search
+		this.searchWrapper = this.containerEl.createDiv({
+			cls: `obsiman-explorer-search-collapsible ${this.searchVisible ? 'is-open' : ''}`,
+		});
+		this.searchEl = this.searchWrapper.createEl('input', {
+			cls: 'obsiman-explorer-search-input',
+			attr: { type: 'text', placeholder: t('explorer.search') },
+		});
+		this.searchEl.value = this.searchTerm;
+		this.searchEl.addEventListener('input', () => {
+			this.searchTerm = this.searchEl?.value ?? '';
+			this.renderTree();
+		});
+
+		// Tree container
+		this.treeEl = this.containerEl.createDiv({ cls: 'obsiman-explorer-tree' });
+		this.renderTree();
+	}
+
+	refresh(): void {
+		this.invalidateCache();
+		this.renderTree();
+	}
+
+	setSelectedFiles(paths: Set<string>): void {
+		this.selectedFilePaths = paths;
+		if (this.filterScope === 'selected') {
+			this.invalidateCache();
+			this.renderTree();
+		}
+	}
+
+	// ── Nav Toolbar ──────────────────────────────────────────
+
+	/** Toggle search input visibility */
+	toggleSearch(): void {
+		this.searchVisible = !this.searchVisible;
+		this.searchWrapper?.toggleClass('is-open', this.searchVisible);
+		if (this.searchVisible) this.searchEl?.focus();
+		if (!this.searchVisible && this.searchTerm) {
+			this.searchTerm = '';
+			if (this.searchEl) this.searchEl.value = '';
+			this.renderTree();
+		}
+	}
+
+	showFilterMenu(e: MouseEvent): void {
+		const menu = new Menu();
+
+		// Scope options
+		const scopes: { value: FilterScope; label: string }[] = [
+			{ value: 'all', label: t('explorer.filter.all_vault') },
+			{ value: 'filtered', label: t('explorer.filter.filtered') },
+			{ value: 'selected', label: t('explorer.filter.selected') },
+		];
+		for (const s of scopes) {
+			menu.addItem((item) =>
+				item
+					.setTitle(s.label)
+					.setChecked(this.filterScope === s.value)
+					.onClick(() => {
+						this.filterScope = s.value;
+						this.invalidateCache();
+						this.render();
+					})
+			);
+		}
+
+		menu.addSeparator();
+
+		// By type submenu
+		const types = this.plugin.propertyTypeService.getAllTypes();
+		if (types.length > 0) {
+			menu.addItem((item) => {
+				item.setTitle(t('explorer.filter.by_type'));
+				const sub = (item as any).setSubmenu();
+				// "All types" option
+				sub.addItem((si: any) =>
+					si
+						.setTitle('—')
+						.setChecked(this.filterByType === null)
+						.onClick(() => {
+							this.filterByType = null;
+							this.invalidateCache();
+							this.render();
+						})
+				);
+				for (const type of types) {
+					sub.addItem((si: any) =>
+						si
+							.setTitle(type)
+							.setIcon(TYPE_ICON_MAP[type] ?? 'lucide-text')
+							.setChecked(this.filterByType === type)
+							.onClick(() => {
+								this.filterByType = type;
+								this.invalidateCache();
+								this.render();
+							})
+					);
+				}
+			});
+		}
+
+		menu.showAtMouseEvent(e);
+	}
+
+	showSortMenu(e: MouseEvent): void {
+		const menu = new Menu();
+
+		// Properties section header
+		menu.addItem((item) => item.setTitle(t('explorer.sort.section_props')).setDisabled(true));
+		const propModes: { value: SortMode; label: string }[] = [
+			{ value: 'alpha', label: t('explorer.sort.alpha') },
+			{ value: 'count', label: t('explorer.sort.count') },
+			{ value: 'type', label: t('explorer.sort.type') },
+			{ value: 'values', label: t('explorer.sort.values') },
+		];
+		for (const m of propModes) {
+			menu.addItem((item) =>
+				item
+					.setTitle(m.label)
+					.setChecked(this.sortMode === m.value)
+					.onClick(() => {
+						this.sortMode = m.value;
+						this.render();
+					})
+			);
+		}
+
+		menu.addSeparator();
+
+		// Values section header
+		menu.addItem((item) => item.setTitle(t('explorer.sort.section_values')).setDisabled(true));
+		const valueModes: { value: ValueSortMode; label: string }[] = [
+			{ value: 'value_alpha', label: t('explorer.sort.value_name') },
+			{ value: 'value_count', label: t('explorer.sort.value_count') },
+		];
+		for (const m of valueModes) {
+			menu.addItem((item) =>
+				item
+					.setTitle(m.label)
+					.setChecked(this.valueSortMode === m.value)
+					.onClick(() => {
+						this.valueSortMode = m.value;
+						this.render();
+					})
+			);
+		}
+
+		menu.showAtMouseEvent(e);
+	}
+
+	openCreateProperty(): void {
+		if (this.selectedFilePaths.size === 0) {
+			new Notice(t('explorer.warn.no_files_selected'));
+			return;
+		}
+		new CreatePropertyModal(
+			this.plugin.app,
+			this.plugin,
+			this.getOperationFiles()
+		).open();
+	}
+
+	// ── Tree Rendering ──────────────────────────────────────
+
+	private renderTree(): void {
+		if (!this.treeEl) return;
+		this.treeEl.empty();
+
+		const index = this.plugin.propertyIndex.index;
+		const fileCounts = this.getFileCountMap();
+		const propFileCounts = this.getPropFileCounts();
+
+		// Get property names
+		let propNames = [...index.keys()];
+
+		// Filter by search
+		if (this.searchTerm) {
+			const term = this.searchTerm.toLowerCase();
+			propNames = propNames.filter((n) => n.toLowerCase().includes(term));
+		}
+
+		// Filter by type
+		if (this.filterByType) {
+			propNames = propNames.filter(
+				(n) => this.plugin.propertyTypeService.getType(n) === this.filterByType
+			);
+		}
+
+		// Sort
+		propNames = this.sortProperties(propNames, index, propFileCounts);
+
+		if (propNames.length === 0) {
+			this.treeEl.createDiv({ cls: 'obsiman-explorer-empty', text: t('explorer.empty') });
+			return;
+		}
+
+		for (const propName of propNames) {
+			this.renderPropertyNode(this.treeEl, propName, index, fileCounts, propFileCounts);
+		}
+
+		// Queue preview
+		if (this.plugin.settings.explorerShowQueuePreview) {
+			this.renderQueuePreview();
+		}
+	}
+
+	private sortProperties(
+		names: string[],
+		index: Map<string, Set<string>>,
+		propFileCounts: Map<string, number>
+	): string[] {
+		switch (this.sortMode) {
+			case 'count':
+				return names.sort((a, b) => (propFileCounts.get(b) ?? 0) - (propFileCounts.get(a) ?? 0));
+			case 'type':
+				return names.sort((a, b) => {
+					const typeA = this.plugin.propertyTypeService.getType(a) ?? 'zzz';
+					const typeB = this.plugin.propertyTypeService.getType(b) ?? 'zzz';
+					if (typeA !== typeB) return typeA.localeCompare(typeB);
+					return a.localeCompare(b, undefined, { sensitivity: 'base' });
+				});
+			case 'values':
+				return names.sort((a, b) => (index.get(b)?.size ?? 0) - (index.get(a)?.size ?? 0));
+			default:
+				return names.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+		}
+	}
+
+	private renderPropertyNode(
+		parent: HTMLElement,
+		propName: string,
+		index: Map<string, Set<string>>,
+		fileCounts: Map<string, Map<string, number>>,
+		propFileCounts: Map<string, number>
+	): void {
+		const values = index.get(propName);
+		if (!values || values.size === 0) return;
+
+		const isExpanded = this.expandedProps.has(propName);
+		const totalFiles = propFileCounts.get(propName) ?? 0;
+
+		const nodeEl = parent.createDiv({ cls: 'obsiman-explorer-node' });
+		const headerEl = nodeEl.createDiv({
+			cls: `obsiman-explorer-header ${isExpanded ? 'is-expanded' : ''}`,
+		});
+
+		// Toggle arrow
+		headerEl.createSpan({ cls: 'obsiman-explorer-toggle', text: isExpanded ? '▼' : '▶' });
+
+		// Property icon (Iconic custom → fallback to type icon)
+		const iconData = this.plugin.iconicService.getIcon(propName);
+		const iconSpan = headerEl.createSpan({ cls: 'obsiman-explorer-icon' });
+		if (iconData) {
+			setIcon(iconSpan, iconData.icon);
+			if (iconData.color) iconSpan.style.color = `var(--color-${iconData.color})`;
+		} else {
+			const propType = this.plugin.propertyTypeService.getType(propName) ?? 'text';
+			setIcon(iconSpan, TYPE_ICON_MAP[propType] ?? 'lucide-text');
+			iconSpan.addClass('obsiman-explorer-icon-default');
+		}
+
+		// Property name
+		headerEl.createSpan({ cls: 'obsiman-explorer-prop-name', text: propName });
+
+		// Count (plain text, no background)
+		headerEl.createSpan({ cls: 'obsiman-explorer-badge', text: String(totalFiles) });
+
+		// Left click: expand/collapse (or Ctrl+click: search)
+		headerEl.addEventListener('click', (e) => {
+			if ((e.ctrlKey || e.metaKey) && this.plugin.settings.explorerCtrlClickSearch) {
+				e.preventDefault();
+				e.stopPropagation();
+				this.openCoreSearch(`["${propName}"]`);
+				return;
+			}
+			if (this.expandedProps.has(propName)) {
+				this.expandedProps.delete(propName);
+			} else {
+				this.expandedProps.add(propName);
+			}
+			this.renderTree();
+		});
+
+		// Right click: context menu
+		headerEl.addEventListener('contextmenu', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			this.showPropertyContextMenu(e, propName);
+		});
+
+		// Level 2: Values
+		if (isExpanded) {
+			const childrenEl = nodeEl.createDiv({ cls: 'obsiman-explorer-children' });
+			const valueCounts = fileCounts.get(propName) ?? new Map();
+			const sortedValues = [...values].sort((a, b) => {
+				if (this.valueSortMode === 'value_alpha') {
+					const cmp = a.localeCompare(b, undefined, { sensitivity: 'base' });
+					if (cmp !== 0) return cmp;
+					return (valueCounts.get(b) ?? 0) - (valueCounts.get(a) ?? 0);
+				}
+				const countA = valueCounts.get(a) ?? 0;
+				const countB = valueCounts.get(b) ?? 0;
+				if (countB !== countA) return countB - countA;
+				return a.localeCompare(b, undefined, { sensitivity: 'base' });
+			});
+
+			for (const value of sortedValues) {
+				const count = valueCounts.get(value) ?? 0;
+				const valueEl = childrenEl.createDiv({ cls: 'obsiman-explorer-value' });
+				valueEl.createSpan({ cls: 'obsiman-explorer-value-text', text: value });
+				valueEl.createSpan({ cls: 'obsiman-explorer-badge', text: String(count) });
+
+				// Left click: add filter (or Ctrl+click: search)
+				valueEl.addEventListener('click', (e) => {
+					e.stopPropagation();
+					if ((e.ctrlKey || e.metaKey) && this.plugin.settings.explorerCtrlClickSearch) {
+						e.preventDefault();
+						this.openCoreSearch(`["${propName}": ${value}]`);
+						return;
+					}
+					this.plugin.filterService.addNode({
+						type: 'rule',
+						filterType: 'specific_value',
+						property: propName,
+						values: [value],
+					});
+				});
+
+				// Right click: value context menu
+				valueEl.addEventListener('contextmenu', (e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					this.showValueContextMenu(e, propName, value);
+				});
+			}
+		}
+	}
+
+	// ── Queue Preview ────────────────────────────────────────
+
+	private renderQueuePreview(): void {
+		if (!this.treeEl) return;
+		const queue = this.plugin.queueService.queue;
+		if (queue.length === 0) return;
+
+		const existingProps = new Set(this.plugin.propertyIndex.index.keys());
+
+		for (const change of queue) {
+			if (change.action === 'set' && change.property && !existingProps.has(change.property)) {
+				// New property being added
+				const pendingEl = this.treeEl.createDiv({ cls: 'obsiman-explorer-node obsiman-explorer-pending' });
+				const headerEl = pendingEl.createDiv({ cls: 'obsiman-explorer-header' });
+				headerEl.createSpan({ cls: 'obsiman-explorer-toggle', text: '▶' });
+				headerEl.createSpan({ cls: 'obsiman-explorer-prop-name', text: change.property });
+				headerEl.createSpan({ cls: 'obsiman-explorer-badge', text: `+${change.files.length}` });
+			}
+			if (change.action === 'delete' && change.property) {
+				// Mark existing property as pending deletion
+				const existing = this.treeEl.querySelector(
+					`.obsiman-explorer-header .obsiman-explorer-prop-name`
+				);
+				// We mark via class on the node — handled by finding matching name nodes
+				const nodes = this.treeEl.querySelectorAll('.obsiman-explorer-prop-name');
+				for (const node of nodes) {
+					if (node.textContent === change.property) {
+						node.closest('.obsiman-explorer-node')?.addClass('obsiman-explorer-deleting');
+					}
+				}
+			}
+		}
+	}
+
+	// ── Context Menus ────────────────────────────────────────
+
+	private showPropertyContextMenu(e: MouseEvent, propName: string): void {
+		const menu = new Menu();
+
+		// Rename
+		menu.addItem((item) =>
+			item.setTitle(t('explorer.ctx.rename')).setIcon('lucide-pencil').onClick(() => {
+				new RenamePropertyModal(this.plugin.app, this.plugin, propName, this.getOperationFiles()).open();
+			})
+		);
+
+		// Property Type submenu
+		menu.addItem((item) => {
+			item.setTitle(t('explorer.ctx.type')).setIcon('lucide-type');
+			const sub = (item as any).setSubmenu();
+			const currentType = this.plugin.propertyTypeService.getType(propName);
+			const types = ['text', 'number', 'checkbox', 'list', 'date', 'datetime'];
+			for (const type of types) {
+				sub.addItem((si: any) =>
+					si
+						.setTitle(t(`prop.type.${type}`))
+						.setIcon(TYPE_ICON_MAP[type] ?? 'lucide-text')
+						.setChecked(currentType === type)
+						.onClick(async () => {
+							await this.plugin.propertyTypeService.setType(propName, type);
+							this.refresh();
+						})
+				);
+			}
+		});
+
+		// Icon (Iconic)
+		if (this.plugin.iconicService.isAvailable()) {
+			menu.addItem((item) =>
+				item.setTitle(t('explorer.ctx.icon')).setIcon('lucide-palette').onClick(() => {
+					new Notice('Use the Iconic plugin settings to change property icons.');
+				})
+			);
+		}
+
+		menu.addSeparator();
+
+		// Add Value
+		menu.addItem((item) =>
+			item.setTitle(t('explorer.ctx.add_value')).setIcon('lucide-plus-circle').onClick(() => {
+				new AddValueModal(this.plugin.app, this.plugin, propName, this.getOperationFiles()).open();
+			})
+		);
+
+		// Delete Property
+		menu.addItem((item) =>
+			item.setTitle(t('explorer.ctx.delete_prop')).setIcon('lucide-trash-2').onClick(() => {
+				const files = this.getOperationFiles();
+				const change: PendingChange = {
+					property: propName,
+					action: 'delete',
+					details: `delete ${propName} (${files.length} files)`,
+					files,
+					logicFunc: () => ({ [DELETE_PROP]: propName }),
+					customLogic: false,
+				};
+				this.plugin.queueService.add(change);
+				this.refresh();
+			})
+		);
+
+		menu.showAtMouseEvent(e);
+	}
+
+	private showValueContextMenu(e: MouseEvent, propName: string, value: string): void {
+		const menu = new Menu();
+
+		// Rename Value
+		menu.addItem((item) =>
+			item.setTitle(t('explorer.ctx.rename_value')).setIcon('lucide-pencil').onClick(() => {
+				new RenameValueModal(this.plugin.app, this.plugin, propName, value, this.getOperationFiles()).open();
+			})
+		);
+
+		// Move Value
+		menu.addItem((item) =>
+			item.setTitle(t('explorer.ctx.move_value')).setIcon('lucide-move').onClick(() => {
+				new MoveValueModal(this.plugin.app, this.plugin, propName, value, this.getOperationFiles()).open();
+			})
+		);
+
+		// Convert submenu
+		menu.addItem((item) => {
+			item.setTitle(t('explorer.ctx.convert')).setIcon('lucide-repeat');
+			const sub = (item as any).setSubmenu();
+			const conversions: { label: string; fn: (v: string) => string }[] = [
+				{ label: t('explorer.ctx.wikilink'), fn: (v) => `[[${v.replace(/^\[\[|\]\]$/g, '')}]]` },
+				{ label: t('explorer.ctx.wikilink_alias'), fn: (v) => `[[${v.replace(/^\[\[|\]\]$/g, '')}|${v.replace(/^\[\[|\]\]$/g, '')}]]` },
+				{ label: t('explorer.ctx.md_link'), fn: (v) => `[${v.replace(/^\[\[|\]\]$/g, '')}](${v.replace(/^\[\[|\]\]$/g, '')})` },
+				{ label: t('explorer.ctx.uppercase'), fn: (v) => v.toUpperCase() },
+				{ label: t('explorer.ctx.lowercase'), fn: (v) => v.toLowerCase() },
+				{ label: t('explorer.ctx.capitalize'), fn: (v) => v.replace(/\b\w/g, (c) => c.toUpperCase()) },
+			];
+			for (const conv of conversions) {
+				sub.addItem((si: any) =>
+					si.setTitle(conv.label).onClick(() => {
+						this.queueValueTransform(propName, value, conv.fn);
+					})
+				);
+			}
+		});
+
+		menu.addSeparator();
+
+		// Delete Value
+		menu.addItem((item) =>
+			item.setTitle(t('explorer.ctx.delete_value')).setIcon('lucide-trash-2').onClick(() => {
+				this.queueValueDelete(propName, value);
+			})
+		);
+
+		menu.showAtMouseEvent(e);
+	}
+
+	// ── Operation Helpers ────────────────────────────────────
+
+	private getOperationFiles(): TFile[] {
+		const scope = this.plugin.settings.explorerOperationScope;
+		if (scope === 'selected' || (scope === 'auto' && this.selectedFilePaths.size > 0)) {
+			const files = this.plugin.app.vault.getMarkdownFiles().filter((f) => this.selectedFilePaths.has(f.path));
+			if (files.length === 0 && scope === 'auto') {
+				return this.plugin.filterService.filteredFiles;
+			}
+			return files;
+		}
+		if (scope === 'filtered') return this.plugin.filterService.filteredFiles;
+		if (scope === 'all') return this.plugin.app.vault.getMarkdownFiles();
+		// auto fallback
+		return this.plugin.filterService.filteredFiles.length > 0
+			? this.plugin.filterService.filteredFiles
+			: this.plugin.app.vault.getMarkdownFiles();
+	}
+
+	private queueValueTransform(propName: string, oldValue: string, transform: (v: string) => string): void {
+		const newValue = transform(oldValue);
+		if (newValue === oldValue) return;
+		const files = this.getOperationFiles();
+		const change: PendingChange = {
+			property: propName,
+			action: 'set',
+			details: `${propName}: "${oldValue}" → "${newValue}"`,
+			files,
+			logicFunc: (_file, metadata) => {
+				const current = metadata[propName];
+				if (Array.isArray(current)) {
+					return { [propName]: current.map((v) => String(v) === oldValue ? newValue : v) };
+				}
+				if (String(current) === oldValue) {
+					return { [propName]: newValue };
+				}
+				return null;
+			},
+			customLogic: false,
+		};
+		this.plugin.queueService.add(change);
+		this.refresh();
+	}
+
+	private queueValueDelete(propName: string, value: string): void {
+		const files = this.getOperationFiles();
+		const change: PendingChange = {
+			property: propName,
+			action: 'set',
+			details: `${propName}: remove "${value}"`,
+			files,
+			logicFunc: (_file, metadata) => {
+				const current = metadata[propName];
+				if (Array.isArray(current)) {
+					const filtered = current.filter((v) => String(v) !== value);
+					return { [propName]: filtered };
+				}
+				if (String(current) === value) {
+					return { [DELETE_PROP]: propName };
+				}
+				return null;
+			},
+			customLogic: false,
+		};
+		this.plugin.queueService.add(change);
+		this.refresh();
+	}
+
+	// ── Core Search ──────────────────────────────────────────
+
+	private openCoreSearch(query: string): void {
+		this.plugin.app.commands.executeCommandById('global-search:open');
+		setTimeout(() => {
+			const input = document.querySelector('.search-input-container input') as HTMLInputElement;
+			if (input) {
+				input.value = query;
+				input.dispatchEvent(new Event('input'));
+			}
+		}, 150);
+	}
+
+	// ── File Count Caching ───────────────────────────────────
+
+	private invalidateCache(): void {
+		this.cachedFileCounts = null;
+		this.cachedPropFileCounts = null;
+	}
+
+	private getScopedFiles(): TFile[] {
+		switch (this.filterScope) {
+			case 'filtered':
+				return this.plugin.filterService.filteredFiles;
+			case 'selected':
+				return this.plugin.app.vault.getMarkdownFiles().filter((f) => this.selectedFilePaths.has(f.path));
+			default:
+				return this.plugin.app.vault.getMarkdownFiles();
+		}
+	}
+
+	private getFileCountMap(): Map<string, Map<string, number>> {
+		if (this.cachedFileCounts) return this.cachedFileCounts;
+		const result = new Map<string, Map<string, number>>();
+		const files = this.getScopedFiles();
+
+		for (const file of files) {
+			const cache = this.plugin.app.metadataCache.getFileCache(file);
+			const fm = cache?.frontmatter;
+			if (!fm) continue;
+
+			for (const [key, value] of Object.entries(fm)) {
+				if (key === 'position') continue;
+				if (!result.has(key)) result.set(key, new Map());
+				const valueCounts = result.get(key)!;
+				if (Array.isArray(value)) {
+					for (const v of value) {
+						if (v != null) {
+							const s = String(v);
+							valueCounts.set(s, (valueCounts.get(s) ?? 0) + 1);
+						}
+					}
+				} else if (value != null) {
+					const s = String(value);
+					valueCounts.set(s, (valueCounts.get(s) ?? 0) + 1);
+				}
+			}
+		}
+
+		this.cachedFileCounts = result;
+		return result;
+	}
+
+	private getPropFileCounts(): Map<string, number> {
+		if (this.cachedPropFileCounts) return this.cachedPropFileCounts;
+		const result = new Map<string, number>();
+		const files = this.getScopedFiles();
+
+		for (const file of files) {
+			const cache = this.plugin.app.metadataCache.getFileCache(file);
+			if (!cache?.frontmatter) continue;
+			for (const key of Object.keys(cache.frontmatter)) {
+				if (key === 'position') continue;
+				result.set(key, (result.get(key) ?? 0) + 1);
+			}
+		}
+
+		this.cachedPropFileCounts = result;
+		return result;
+	}
+}
+
+// ── Mini Modals for Context Menu Actions ─────────────────────
+
+class CreatePropertyModal extends Modal {
+	private plugin: ObsiManPlugin;
+	private files: TFile[];
+	private propName = '';
+	private propValue = '';
+	private propType = 'text';
+
+	constructor(app: App, plugin: ObsiManPlugin, files: TFile[]) {
+		super(app);
+		this.plugin = plugin;
+		this.files = files;
+	}
+
+	onOpen(): void {
+		const { contentEl } = this;
+		contentEl.empty();
+		contentEl.addClass('obsiman-modal');
+		contentEl.createEl('h3', { text: t('explorer.btn.create') });
+
+		new Setting(contentEl).setName(t('prop.property')).addText((text) => {
+			text.setPlaceholder('property name...').onChange((v) => { this.propName = v; });
+			new PropertySuggest(this.app, text.inputEl, this.plugin.propertyIndex.getPropertyNames(), (v) => { this.propName = v; text.setValue(v); });
+		});
+
+		new Setting(contentEl).setName(t('prop.type')).addDropdown((dd) =>
+			dd.addOptions({ text: t('prop.type.text'), number: t('prop.type.number'), checkbox: t('prop.type.checkbox'), list: t('prop.type.list'), date: t('prop.type.date') })
+				.setValue(this.propType).onChange((v) => { this.propType = v; })
+		);
+
+		new Setting(contentEl).setName(t('prop.value')).addText((text) =>
+			text.setPlaceholder('value (optional)').onChange((v) => { this.propValue = v; })
+		);
+
+		new Setting(contentEl).addButton((btn) =>
+			btn.setButtonText(t('prop.add_to_queue')).setCta().onClick(() => { this.submit(); this.close(); })
+		).addButton((btn) => btn.setButtonText('Cancel').onClick(() => this.close()));
+	}
+
+	private submit(): void {
+		if (!this.propName) return;
+		let value: unknown = this.propValue;
+		if (this.propType === 'number') value = Number(this.propValue) || 0;
+		if (this.propType === 'checkbox') value = !['false', '0', 'no', ''].includes(this.propValue.toLowerCase());
+		if (this.propType === 'list') value = this.propValue.split(',').map((s) => s.trim()).filter(Boolean);
+
+		const change: PendingChange = {
+			property: this.propName,
+			action: 'set',
+			details: `${this.propName} = ${String(value)}`,
+			files: this.files,
+			logicFunc: () => ({ [this.propName]: value }),
+			customLogic: false,
+		};
+		this.plugin.queueService.add(change);
+	}
+
+	onClose(): void { this.contentEl.empty(); }
+}
+
+class RenamePropertyModal extends Modal {
+	private plugin: ObsiManPlugin;
+	private oldName: string;
+	private files: TFile[];
+	private newName = '';
+	private conflictMode: 'append' | 'replace' = 'append';
+
+	constructor(app: App, plugin: ObsiManPlugin, oldName: string, files: TFile[]) {
+		super(app);
+		this.plugin = plugin;
+		this.oldName = oldName;
+		this.files = files;
+	}
+
+	onOpen(): void {
+		const { contentEl } = this;
+		contentEl.empty();
+		contentEl.addClass('obsiman-modal');
+		contentEl.createEl('h3', { text: `${t('explorer.ctx.rename')}: ${this.oldName}` });
+
+		new Setting(contentEl).setName(t('prop.new_name')).addText((text) => {
+			text.setPlaceholder('new name...').onChange((v) => { this.newName = v; });
+			new PropertySuggest(this.app, text.inputEl, this.plugin.propertyIndex.getPropertyNames(), (v) => { this.newName = v; text.setValue(v); });
+		});
+
+		// Conflict resolution
+		new Setting(contentEl).setName(t('explorer.rename.target_exists')).addDropdown((dd) =>
+			dd.addOptions({ append: t('explorer.rename.append'), replace: t('explorer.rename.replace') })
+				.setValue(this.conflictMode).onChange((v) => { this.conflictMode = v as 'append' | 'replace'; })
+		);
+
+		new Setting(contentEl).addButton((btn) =>
+			btn.setButtonText(t('prop.add_to_queue')).setCta().onClick(() => { this.submit(); this.close(); })
+		).addButton((btn) => btn.setButtonText('Cancel').onClick(() => this.close()));
+	}
+
+	private submit(): void {
+		if (!this.newName || this.newName === this.oldName) return;
+		const change: PendingChange = {
+			property: this.oldName,
+			action: 'rename',
+			details: `${this.oldName} → ${this.newName}`,
+			files: this.files,
+			logicFunc: (_file, metadata) => {
+				if (!(this.oldName in metadata)) return null;
+				const oldVal = metadata[this.oldName];
+				const existingVal = metadata[this.newName];
+
+				let newVal: unknown;
+				if (existingVal != null && this.conflictMode === 'append') {
+					// Merge values
+					const existArr = Array.isArray(existingVal) ? existingVal : [existingVal];
+					const oldArr = Array.isArray(oldVal) ? oldVal : [oldVal];
+					newVal = [...existArr, ...oldArr];
+				} else {
+					newVal = oldVal;
+				}
+				return { [this.newName]: newVal, [DELETE_PROP]: this.oldName };
+			},
+			customLogic: false,
+		};
+		this.plugin.queueService.add(change);
+	}
+
+	onClose(): void { this.contentEl.empty(); }
+}
+
+class AddValueModal extends Modal {
+	private plugin: ObsiManPlugin;
+	private propName: string;
+	private files: TFile[];
+	private value = '';
+	private replaceMode = false;
+	private asWikilink = false;
+
+	constructor(app: App, plugin: ObsiManPlugin, propName: string, files: TFile[]) {
+		super(app);
+		this.plugin = plugin;
+		this.propName = propName;
+		this.files = files;
+	}
+
+	onOpen(): void {
+		const { contentEl } = this;
+		contentEl.empty();
+		contentEl.addClass('obsiman-modal');
+		contentEl.createEl('h3', { text: `${t('explorer.ctx.add_value')}: ${this.propName}` });
+
+		new Setting(contentEl).setName(t('prop.value')).addText((text) => {
+			text.setPlaceholder('value...').onChange((v) => { this.value = v; });
+			new PropertySuggest(this.app, text.inputEl, this.plugin.propertyIndex.getPropertyValues(this.propName), (v) => { this.value = v; text.setValue(v); });
+		});
+
+		new Setting(contentEl).setName(t('explorer.add_value.replace')).setDesc(t('explorer.add_value.append'))
+			.addToggle((toggle) => toggle.setValue(this.replaceMode).onChange((v) => { this.replaceMode = v; }));
+
+		new Setting(contentEl).setName(t('explorer.add_value.as_wikilink'))
+			.addToggle((toggle) => toggle.setValue(this.asWikilink).onChange((v) => { this.asWikilink = v; }));
+
+		new Setting(contentEl).addButton((btn) =>
+			btn.setButtonText(t('prop.add_to_queue')).setCta().onClick(() => { this.submit(); this.close(); })
+		).addButton((btn) => btn.setButtonText('Cancel').onClick(() => this.close()));
+	}
+
+	private submit(): void {
+		if (!this.value) return;
+		const finalValue = this.asWikilink ? `[[${this.value}]]` : this.value;
+		const change: PendingChange = {
+			property: this.propName,
+			action: 'set',
+			details: `${this.propName} += "${finalValue}"`,
+			files: this.files,
+			logicFunc: (_file, metadata) => {
+				if (this.replaceMode) {
+					return { [this.propName]: finalValue };
+				}
+				const existing = metadata[this.propName];
+				const list = Array.isArray(existing) ? [...existing] : existing != null ? [existing] : [];
+				list.push(finalValue);
+				return { [this.propName]: list };
+			},
+			customLogic: false,
+		};
+		this.plugin.queueService.add(change);
+	}
+
+	onClose(): void { this.contentEl.empty(); }
+}
+
+class RenameValueModal extends Modal {
+	private plugin: ObsiManPlugin;
+	private propName: string;
+	private oldValue: string;
+	private files: TFile[];
+	private newValue = '';
+
+	constructor(app: App, plugin: ObsiManPlugin, propName: string, oldValue: string, files: TFile[]) {
+		super(app);
+		this.plugin = plugin;
+		this.propName = propName;
+		this.oldValue = oldValue;
+		this.files = files;
+	}
+
+	onOpen(): void {
+		const { contentEl } = this;
+		contentEl.empty();
+		contentEl.addClass('obsiman-modal');
+		contentEl.createEl('h3', { text: `${t('explorer.ctx.rename_value')}: "${this.oldValue}"` });
+
+		new Setting(contentEl).setName(t('prop.new_name')).addText((text) => {
+			text.setPlaceholder('new value...').setValue(this.newValue).onChange((v) => { this.newValue = v; });
+			new PropertySuggest(this.app, text.inputEl, this.plugin.propertyIndex.getPropertyValues(this.propName), (v) => { this.newValue = v; text.setValue(v); });
+		});
+
+		new Setting(contentEl).addButton((btn) =>
+			btn.setButtonText(t('prop.add_to_queue')).setCta().onClick(() => { this.submit(); this.close(); })
+		).addButton((btn) => btn.setButtonText('Cancel').onClick(() => this.close()));
+	}
+
+	private submit(): void {
+		if (!this.newValue || this.newValue === this.oldValue) return;
+		const change: PendingChange = {
+			property: this.propName,
+			action: 'set',
+			details: `${this.propName}: "${this.oldValue}" → "${this.newValue}"`,
+			files: this.files,
+			logicFunc: (_file, metadata) => {
+				const current = metadata[this.propName];
+				if (Array.isArray(current)) {
+					return { [this.propName]: current.map((v) => String(v) === this.oldValue ? this.newValue : v) };
+				}
+				if (String(current) === this.oldValue) return { [this.propName]: this.newValue };
+				return null;
+			},
+			customLogic: false,
+		};
+		this.plugin.queueService.add(change);
+	}
+
+	onClose(): void { this.contentEl.empty(); }
+}
+
+class MoveValueModal extends Modal {
+	private plugin: ObsiManPlugin;
+	private sourceProp: string;
+	private value: string;
+	private files: TFile[];
+	private targetProp = '';
+
+	constructor(app: App, plugin: ObsiManPlugin, sourceProp: string, value: string, files: TFile[]) {
+		super(app);
+		this.plugin = plugin;
+		this.sourceProp = sourceProp;
+		this.value = value;
+		this.files = files;
+	}
+
+	onOpen(): void {
+		const { contentEl } = this;
+		contentEl.empty();
+		contentEl.addClass('obsiman-modal');
+		contentEl.createEl('h3', { text: `${t('explorer.ctx.move_value')}: "${this.value}"` });
+
+		new Setting(contentEl).setName(t('prop.property')).addText((text) => {
+			text.setPlaceholder('target property...').onChange((v) => { this.targetProp = v; });
+			new PropertySuggest(this.app, text.inputEl, this.plugin.propertyIndex.getPropertyNames(), (v) => { this.targetProp = v; text.setValue(v); });
+		});
+
+		new Setting(contentEl).addButton((btn) =>
+			btn.setButtonText(t('prop.add_to_queue')).setCta().onClick(() => { this.submit(); this.close(); })
+		).addButton((btn) => btn.setButtonText('Cancel').onClick(() => this.close()));
+	}
+
+	private submit(): void {
+		if (!this.targetProp) return;
+		const change: PendingChange = {
+			property: this.sourceProp,
+			action: 'set',
+			details: `move "${this.value}" from ${this.sourceProp} → ${this.targetProp}`,
+			files: this.files,
+			logicFunc: (_file, metadata) => {
+				const current = metadata[this.sourceProp];
+				const updates: Record<string, unknown> = {};
+
+				// Remove from source
+				if (Array.isArray(current)) {
+					updates[this.sourceProp] = current.filter((v) => String(v) !== this.value);
+				} else if (String(current) === this.value) {
+					updates[DELETE_PROP] = this.sourceProp;
+				} else {
+					return null;
+				}
+
+				// Add to target
+				const targetCurrent = metadata[this.targetProp];
+				const targetList = Array.isArray(targetCurrent) ? [...targetCurrent] : targetCurrent != null ? [targetCurrent] : [];
+				targetList.push(this.value);
+				updates[this.targetProp] = targetList;
+
+				return updates;
+			},
+			customLogic: false,
+		};
+		this.plugin.queueService.add(change);
+	}
+
+	onClose(): void { this.contentEl.empty(); }
+}
