@@ -1,0 +1,16 @@
+{
+  "language": "en",
+  "defaultPropertyType": "text",
+  "filterTemplates": [],
+  "sessionFilePath": "",
+  "gridColumns": [
+    "type",
+    "tags",
+    "in",
+    "up"
+  ],
+  "explorerCtrlClickSearch": true,
+  "explorerShowQueuePreview": true,
+  "explorerContentSearch": true,
+  "explorerOperationScope": "auto"
+}

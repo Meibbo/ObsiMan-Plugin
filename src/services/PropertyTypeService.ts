@@ -1,0 +1,52 @@
+import type { App } from 'obsidian';
+
+/**
+ * Reads property type assignments from .obsidian/types.json
+ * and provides lookup/mutation helpers.
+ */
+export class PropertyTypeService {
+	private types = new Map<string, string>();
+	private app: App | null = null;
+
+	async load(app: App): Promise<void> {
+		this.app = app;
+		try {
+			const raw = await app.vault.adapter.read('.obsidian/types.json');
+			const data = JSON.parse(raw);
+			if (data.types && typeof data.types === 'object') {
+				for (const [name, type] of Object.entries(data.types)) {
+					this.types.set(name, type as string);
+				}
+			}
+		} catch {
+			// types.json missing or unreadable
+		}
+	}
+
+	getType(propName: string): string | null {
+		return this.types.get(propName) ?? null;
+	}
+
+	getAllTypes(): string[] {
+		const unique = new Set(this.types.values());
+		return [...unique].sort();
+	}
+
+	/** Write a type assignment to .obsidian/types.json */
+	async setType(propName: string, type: string): Promise<void> {
+		if (!this.app) return;
+		this.types.set(propName, type);
+		try {
+			const raw = await this.app.vault.adapter.read('.obsidian/types.json');
+			const data = JSON.parse(raw);
+			if (!data.types) data.types = {};
+			data.types[propName] = type;
+			await this.app.vault.adapter.write(
+				'.obsidian/types.json',
+				JSON.stringify(data, null, 2)
+			);
+		} catch {
+			// Could not write types.json
+		}
+	}
+}
