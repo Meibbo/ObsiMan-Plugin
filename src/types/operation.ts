@@ -26,7 +26,7 @@ export type PropertyType =
  */
 export interface PendingChange {
 	property: string;
-	action: PropertyAction | string;
+	action: string;
 	details: string;
 	files: TFile[];
 	logicFunc: (

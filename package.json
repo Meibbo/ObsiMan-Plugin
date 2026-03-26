@@ -3,18 +3,25 @@
 	"version": "0.1.0",
 	"description": "Bulk property & file editor for vault management in Obsidian.",
 	"main": "main.js",
+	"type": "module",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
-		"build": "node esbuild.config.mjs production"
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"version": "node version-bump.mjs && git add manifest.json versions.json",
+		"lint": "eslint ."
 	},
 	"keywords": [],
 	"author": "Meibbo",
 	"license": "MIT",
 	"devDependencies": {
+		"@eslint/js": "9.30.1",
 		"@types/node": "^22.0.0",
-		"builtin-modules": "^4.0.0",
 		"esbuild": "^0.25.0",
+		"eslint-plugin-obsidianmd": "0.1.9",
+		"globals": "14.0.0",
+		"jiti": "2.6.1",
 		"obsidian": "latest",
-		"typescript": "~5.8.0"
+		"typescript": "~5.8.0",
+		"typescript-eslint": "8.35.1"
 	}
 }

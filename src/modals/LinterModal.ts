@@ -246,7 +246,7 @@ export class LinterModal extends Modal {
 				await new Promise((r) => setTimeout(r, 50));
 
 				// Execute linter command
-				await (this.app as unknown as { commands: { executeCommandById: (id: string) => boolean } })
+				(this.app as unknown as { commands: { executeCommandById: (id: string) => boolean } })
 					.commands.executeCommandById(commandId);
 
 				success++;

@@ -5,6 +5,10 @@ interface IconEntry {
 	color?: string;
 }
 
+interface IconicData {
+	propertyIcons?: Record<string, IconEntry>;
+}
+
 /**
  * Reads property icons from the Iconic plugin's data.json.
  * Gracefully handles missing plugin.
@@ -15,12 +19,12 @@ export class IconicService {
 
 	async load(app: App): Promise<void> {
 		try {
-			const path = '.obsidian/plugins/iconic/data.json';
+			const path = `${app.vault.configDir}/plugins/iconic/data.json`;
 			const raw = await app.vault.adapter.read(path);
-			const data = JSON.parse(raw);
+			const data = JSON.parse(raw) as IconicData;
 			if (data.propertyIcons && typeof data.propertyIcons === 'object') {
 				for (const [name, entry] of Object.entries(data.propertyIcons)) {
-					this.propertyIcons.set(name, entry as IconEntry);
+					this.propertyIcons.set(name, entry);
 				}
 			}
 			this.loaded = true;

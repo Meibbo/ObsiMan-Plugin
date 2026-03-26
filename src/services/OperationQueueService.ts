@@ -109,13 +109,12 @@ export class OperationQueueService extends Component {
 		}
 
 		// Apply frontmatter changes
-		await this.app.fileManager.processFrontMatter(file, (fm) => {
+		await this.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 			for (const [key, value] of Object.entries(updates)) {
 				if (key === DELETE_PROP) {
 					// value is the property name to delete
 					delete fm[value as string];
 				} else if (key === REORDER_ALL) {
-					// value is the ordered key array — rebuild fm in order
 					const ordered = value as string[];
 					const copy = { ...fm };
 					for (const k of Object.keys(fm)) delete fm[k];
@@ -160,7 +159,7 @@ export class OperationQueueService extends Component {
 					} else if (key === REORDER_ALL) {
 						// Simulate key reordering
 						const ordered = value as string[];
-						const copy = { ...after };
+						const copy: Record<string, unknown> = { ...after };
 						for (const k of Object.keys(after)) delete after[k];
 						for (const k of ordered) {
 							if (k in copy) after[k] = copy[k];

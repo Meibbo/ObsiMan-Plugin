@@ -3,7 +3,7 @@ import type { ObsiManPlugin } from '../../main';
 import type { PendingChange } from '../types/operation';
 import { t } from '../i18n/index';
 
-export type SortColumn = 'name' | string;
+export type SortColumn = string;
 export type SortDirection = 'asc' | 'desc';
 
 export interface GridCallbacks {
@@ -129,7 +129,7 @@ export class PropertyGridComponent {
 		const thCheck = headerRow.createEl('th', { cls: 'obsiman-grid-th-check' });
 		const checkAll = thCheck.createEl('input', {
 			attr: { type: 'checkbox' },
-		}) as HTMLInputElement;
+		});
 		checkAll.addEventListener('change', () => {
 			if (checkAll.checked) {
 				for (const f of this.sortedFiles) this.selectedPaths.add(f.path);
@@ -209,7 +209,6 @@ export class PropertyGridComponent {
 		const scrollTop = this.tableWrapperEl.scrollTop;
 		const viewportHeight = this.tableWrapperEl.clientHeight;
 		const totalRows = this.sortedFiles.length;
-		const totalHeight = totalRows * ROW_HEIGHT;
 
 		// Calculate visible range
 		const startIdx = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN);
@@ -243,7 +242,7 @@ export class PropertyGridComponent {
 		const tdCheck = tr.createEl('td', { cls: 'obsiman-grid-td-check' });
 		const cb = tdCheck.createEl('input', {
 			attr: { type: 'checkbox' },
-		}) as HTMLInputElement;
+		});
 		cb.checked = this.selectedPaths.has(file.path);
 		cb.addEventListener('change', (e) => {
 			// Shift+click range selection
@@ -276,12 +275,12 @@ export class PropertyGridComponent {
 			text: file.basename,
 		});
 		nameLink.addEventListener('click', () => {
-			this.app.workspace.openLinkText(file.path, '', false);
+			void this.app.workspace.openLinkText(file.path, '', false);
 		});
 
 		// Property columns
 		const cache = this.app.metadataCache.getFileCache(file);
-		const fm = cache?.frontmatter ?? {};
+		const fm = (cache?.frontmatter ?? {}) as Record<string, unknown>;
 
 		for (const col of this.columns) {
 			const td = tr.createEl('td', { cls: 'obsiman-grid-td-prop' });
@@ -363,7 +362,7 @@ export class PropertyGridComponent {
 		if (val === null || val === undefined) return '';
 		if (Array.isArray(val)) return val.map(String).join(', ');
 		if (typeof val === 'boolean') return val ? 'true' : 'false';
-		return String(val);
+		return String(val as string | number | boolean);
 	}
 
 	private parseEditedValue(text: string, original: unknown): unknown {

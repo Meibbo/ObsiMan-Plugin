@@ -44,7 +44,7 @@ export class FilterTreeComponent {
 				cls: 'obsiman-filter-remove-btn clickable-icon',
 				attr: { 'aria-label': 'Remove group' },
 			});
-			removeBtn.innerHTML = '×';
+			removeBtn.setText('×');
 			removeBtn.addEventListener('click', () =>
 				this.onRemove(group, parentGroup)
 			);
@@ -97,7 +97,7 @@ export class FilterTreeComponent {
 			cls: 'obsiman-filter-remove-btn clickable-icon',
 			attr: { 'aria-label': 'Remove filter' },
 		});
-		removeBtn.innerHTML = '×';
+		removeBtn.setText('×');
 		removeBtn.addEventListener('click', () =>
 			this.onRemove(rule, parentGroup)
 		);

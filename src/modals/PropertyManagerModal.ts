@@ -85,7 +85,7 @@ export class PropertyManagerModal extends Modal {
 			.setName(t('prop.property'))
 			.addText((text) => {
 				text
-					.setPlaceholder('property name...')
+					.setPlaceholder('Property name...')
 					.setValue(this.property)
 					.onChange((v) => {
 						this.property = v;
@@ -159,7 +159,7 @@ export class PropertyManagerModal extends Modal {
 			.setName(t('prop.value'))
 			.addText((text) => {
 				text
-					.setPlaceholder('value')
+					.setPlaceholder('Value')
 					.setValue(this.value)
 					.onChange((v) => {
 						this.value = v;
@@ -203,7 +203,7 @@ export class PropertyManagerModal extends Modal {
 			.setName(t('prop.new_name'))
 			.addText((text) => {
 				text
-					.setPlaceholder('new property name')
+					.setPlaceholder('New property name')
 					.setValue(this.newName)
 					.onChange((v) => {
 						this.newName = v;
@@ -248,18 +248,19 @@ export class PropertyManagerModal extends Modal {
 		switch (this.action) {
 			case 'set': {
 				const parsedValue = this.parseValue(this.value, this.propertyType);
-				const finalValue = this.asWikilink ? `[[${parsedValue}]]` : parsedValue;
+				const strParsed = String(parsedValue as string | number | boolean | null | undefined);
+				const finalValue = this.asWikilink ? `[[${strParsed}]]` : parsedValue;
 				return {
 					property: this.property,
 					action: 'set',
-					details: `${this.property} = ${String(finalValue)}`,
+					details: `${this.property} = ${String(finalValue as string | number | boolean | null | undefined)}`,
 					files,
 					logicFunc: (_file, metadata) => {
 						if (this.propertyType === 'list' && this.appendToList) {
 							const existing = metadata[this.property];
-							const list = Array.isArray(existing) ? [...existing] : [];
+							const list = Array.isArray(existing) ? [...(existing as unknown[])] : [];
 							if (Array.isArray(finalValue)) {
-								list.push(...finalValue);
+								list.push(...(finalValue as unknown[]));
 							} else {
 								list.push(finalValue);
 							}
@@ -361,7 +362,7 @@ export class PropertyManagerModal extends Modal {
 			case 'wikilink': {
 				// Wrap in [[...]] if not already wrapped
 				const toWikilink = (v: unknown): string => {
-					const s = String(v ?? '').replace(/^\[\[|\]\]$/g, '');
+					const s = String((v as string | number | boolean) ?? '').replace(/^\[\[|\]\]$/g, '');
 					return s ? `[[${s}]]` : '';
 				};
 				if (Array.isArray(value)) return value.map(toWikilink);
@@ -370,10 +371,10 @@ export class PropertyManagerModal extends Modal {
 			case 'text':
 				if (Array.isArray(value)) return value.map(String).join(', ');
 				// Strip wikilink brackets if present
-				return String(value ?? '').replace(/^\[\[|\]\]$/g, '');
+				return String((value as string | number | boolean) ?? '').replace(/^\[\[|\]\]$/g, '');
 			case 'number': {
 				if (Array.isArray(value)) {
-					const first = value[0];
+					const first = (value as unknown[])[0];
 					const n = Number(first);
 					return isNaN(n) ? 0 : n;
 				}
@@ -393,10 +394,10 @@ export class PropertyManagerModal extends Modal {
 				if (typeof value === 'string') {
 					return value.split(',').map((s) => s.trim()).filter(Boolean);
 				}
-				return value != null ? [String(value)] : [];
+				return value != null ? [String(value as string | number | boolean)] : [];
 			case 'date': {
 				if (Array.isArray(value)) return String(value[0] ?? '');
-				const str = String(value ?? '');
+				const str = String((value as string | number | boolean) ?? '');
 				// Try to extract ISO date pattern
 				const dateMatch = str.match(
 					/(\d{4}-\d{2}-\d{2})(?:T|\s)?(\d{2}:\d{2}:\d{2})?/

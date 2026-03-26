@@ -11,11 +11,12 @@ export class PropertyTypeService {
 	async load(app: App): Promise<void> {
 		this.app = app;
 		try {
-			const raw = await app.vault.adapter.read('.obsidian/types.json');
-			const data = JSON.parse(raw);
+			const path = `${this.app.vault.configDir}/types.json`;
+			const raw = await app.vault.adapter.read(path);
+			const data = JSON.parse(raw) as { types?: Record<string, string> };
 			if (data.types && typeof data.types === 'object') {
 				for (const [name, type] of Object.entries(data.types)) {
-					this.types.set(name, type as string);
+					this.types.set(name, type);
 				}
 			}
 		} catch {
@@ -37,12 +38,13 @@ export class PropertyTypeService {
 		if (!this.app) return;
 		this.types.set(propName, type);
 		try {
-			const raw = await this.app.vault.adapter.read('.obsidian/types.json');
-			const data = JSON.parse(raw);
+			const path = `${this.app.vault.configDir}/types.json`;
+			const raw = await this.app.vault.adapter.read(path);
+			const data = JSON.parse(raw) as { types?: Record<string, string> };
 			if (!data.types) data.types = {};
 			data.types[propName] = type;
 			await this.app.vault.adapter.write(
-				'.obsidian/types.json',
+				path,
 				JSON.stringify(data, null, 2)
 			);
 		} catch {

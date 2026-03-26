@@ -134,7 +134,7 @@ export class FileRenameModal extends Modal {
 		const today = new Date().toISOString().slice(0, 10);
 		return this.targetFiles.map((file, index) => {
 			const cache = this.app.metadataCache.getFileCache(file);
-			const fm = cache?.frontmatter ?? {};
+			const fm = (cache?.frontmatter ?? {}) as Record<string, unknown>;
 
 			let newName = this.pattern;
 			newName = newName.replace(/\{basename\}/g, file.basename);
@@ -142,11 +142,11 @@ export class FileRenameModal extends Modal {
 			newName = newName.replace(/\{counter\}/g, String(index + 1).padStart(3, '0'));
 
 			// Replace {propertyName} with property values
-			newName = newName.replace(/\{(\w[\w-]*)\}/g, (_match, prop) => {
-				const val = fm[prop];
+			newName = newName.replace(/\{(\w[\w-]*)\}/g, (_match: string, prop: string) => {
+				const val: unknown = fm[prop];
 				if (val == null) return '';
 				if (Array.isArray(val)) return val.map(String).join('-');
-				return String(val);
+				return String(val as string | number | boolean);
 			});
 
 			// Sanitize filename

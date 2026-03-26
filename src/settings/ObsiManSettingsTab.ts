@@ -15,7 +15,7 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl('h2', { text: 'ObsiMan' });
+		;
 
 		// Language
 		new Setting(containerEl)
@@ -54,7 +54,7 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 			);
 
 		// Explorer settings
-		containerEl.createEl('h3', { text: t('explorer.title') });
+		new Setting(containerEl).setName("").setHeading();
 
 		new Setting(containerEl)
 			.setName(t('settings.ctrl_click_search'))
@@ -111,7 +111,7 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 			);
 
 		// Layout section
-		containerEl.createEl('h3', { text: t('settings.layout') });
+		new Setting(containerEl).setName("").setHeading();
 
 		new Setting(containerEl)
 			.setName(t('settings.ops_position'))
@@ -131,7 +131,7 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 			);
 
 		// Filter templates section
-		containerEl.createEl('h3', { text: t('settings.templates') });
+		new Setting(containerEl).setName("").setHeading();
 
 		if (this.plugin.settings.filterTemplates.length === 0) {
 			containerEl.createEl('p', {

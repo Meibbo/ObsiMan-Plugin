@@ -66,19 +66,21 @@ export class ToolbarComponent {
 
 		const currentPath = this.plugin.settings.sessionFilePath;
 
-		this.sessionSelect.addEventListener('change', async () => {
-			const val = this.sessionSelect.value;
-			if (val === '__new__') {
-				this.sessionSelect.value = currentPath || '';
-				this.openCreateSessionModal();
-			} else if (val === '') {
-				this.callbacks.onSessionChange(null);
-			} else {
-				const file = this.plugin.app.vault.getFileByPath(val);
-				if (file) {
-					this.callbacks.onSessionChange(file);
+		this.sessionSelect.addEventListener('change', () => {
+			void (async () => {
+				const val = this.sessionSelect.value;
+				if (val === '__new__') {
+					this.sessionSelect.value = currentPath || '';
+					this.openCreateSessionModal();
+				} else if (val === '') {
+					this.callbacks.onSessionChange(null);
+				} else {
+					const file = this.plugin.app.vault.getFileByPath(val);
+					if (file) {
+						this.callbacks.onSessionChange(file);
+					}
 				}
-			}
+			})();
 		});
 
 		// Sync status indicator (●)

@@ -16,7 +16,7 @@ export interface NavbarCallbacks {
  */
 export class NavbarComponent {
 	private containerEl: HTMLElement;
-	private plugin: ObsiManPlugin;
+
 	private explorer: PropertyExplorerComponent;
 	private callbacks: NavbarCallbacks;
 	private filterPopover: FileFilterPopoverComponent;
@@ -32,7 +32,7 @@ export class NavbarComponent {
 		callbacks: NavbarCallbacks
 	) {
 		this.containerEl = containerEl;
-		this.plugin = plugin;
+
 		this.explorer = explorer;
 		this.callbacks = callbacks;
 
