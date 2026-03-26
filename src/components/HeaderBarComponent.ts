@@ -41,21 +41,23 @@ export class HeaderBarComponent {
 		});
 		this.populateSessionSelect();
 
-		this.sessionSelect.addEventListener('change', async () => {
-			const val = this.sessionSelect.value;
-			if (val === '__new__') {
-				this.sessionSelect.value = this.plugin.settings.sessionFilePath || '';
-				new CreateSessionModal(
-					this.plugin.app,
-					this.plugin,
-					(file) => this.callbacks.onSessionChange(file)
-				).open();
-			} else if (val === '') {
-				this.callbacks.onSessionChange(null);
-			} else {
-				const file = this.plugin.app.vault.getFileByPath(val);
-				if (file) this.callbacks.onSessionChange(file);
-			}
+		this.sessionSelect.addEventListener('change', () => {
+			void (async () => {
+				const val = this.sessionSelect.value;
+				if (val === '__new__') {
+					this.sessionSelect.value = this.plugin.settings.sessionFilePath || '';
+					new CreateSessionModal(
+						this.plugin.app,
+						this.plugin,
+						(file) => this.callbacks.onSessionChange(file)
+					).open();
+				} else if (val === '') {
+					this.callbacks.onSessionChange(null);
+				} else {
+					const file = this.plugin.app.vault.getFileByPath(val);
+					if (file) this.callbacks.onSessionChange(file);
+				}
+			})();
 		});
 
 		// Sync indicator

@@ -100,14 +100,14 @@ function matchesFile(
 
 		case 'specific_value': {
 			if (!(rule.property in fm)) return false;
-			const val = fm[rule.property];
+			const val: unknown = fm[rule.property];
 			const target = rule.values[0] ?? '';
 			return matchValue(val, target);
 		}
 
 		case 'multiple_values': {
 			if (!(rule.property in fm)) return false;
-			const val = fm[rule.property];
+			const val: unknown = fm[rule.property];
 			// File matches if its value matches ANY of the specified values
 			return rule.values.some((target) => matchValue(val, target));
 		}

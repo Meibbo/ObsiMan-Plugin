@@ -17,6 +17,10 @@ AI-Agent:
   - "[[Claude]]"
 dateCreated: 2026-03-24T00:00:00
 dateModified: 2026-03-25T20:03:00
+cssclasses:
+  - no-title
+  - color
+  - teal
 ---
 # ObsiMan Plugin — Design & Architecture
 

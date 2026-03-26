@@ -185,10 +185,10 @@ explain
 #### función linter
 - ordenar según plantillas
 #### Importe de datos
-	- HabitKit `json`
-	- Dailyo `json`
-	- LaunchBox `xml`
-	- Contacts `csv`, `vcf`
+- HabitKit `json`
+- Dailyo `json`
+- LaunchBox `xml`
+- Contacts `csv`, `vcf`
 ### [[Archived tasks#ObsiMan|Archived tasks]]
 
 ## Publishing

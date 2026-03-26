@@ -82,7 +82,7 @@ export class PropertyIndexService extends Component {
 				if (v != null) target.add(String(v));
 			}
 		} else {
-			target.add(String(value));
+			target.add(typeof value === 'object' ? JSON.stringify(value) : String(value as string | number | boolean | null | undefined));
 		}
 	}
 

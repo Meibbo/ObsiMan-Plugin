@@ -59,7 +59,7 @@ export class QueueDetailsModal extends Modal {
 		const toggleLabel = toggleRow.createEl('label', { cls: 'obsiman-diff-toggle' });
 		const toggleCb = toggleLabel.createEl('input', {
 			attr: { type: 'checkbox' },
-		}) as HTMLInputElement;
+		});
 		toggleCb.checked = this.showUnchanged;
 		toggleLabel.createSpan({ text: ` ${t('queue.show_unchanged')}` });
 		toggleCb.addEventListener('change', () => {
@@ -202,7 +202,7 @@ export class QueueDetailsModal extends Modal {
 			// YAML-like list for longer arrays
 			return val.map((v) => `  - ${v}`).join('\n');
 		}
-		return String(val);
+		return String(val as string | number | boolean);
 	}
 
 	onClose(): void {

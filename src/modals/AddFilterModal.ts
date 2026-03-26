@@ -110,11 +110,11 @@ export class AddFilterModal extends Modal {
 			].includes(this.filterType);
 
 			if (needsProperty) {
-				const propSetting = new Setting(formEl as HTMLElement)
+				new Setting(formEl as HTMLElement)
 					.setName(t('prop.property'))
 					.addText((text) => {
 						text
-							.setPlaceholder('property name...')
+							.setPlaceholder('Property name...')
 							.setValue(this.property)
 							.onChange((v) => {
 								this.property = v;

@@ -77,7 +77,7 @@ export class FileListComponent {
 		this.headerCheckbox = colHeaderEl.createEl('input', {
 			cls: 'obsiman-file-checkbox',
 			attr: { type: 'checkbox' },
-		}) as HTMLInputElement;
+		});
 		this.headerCheckbox.addEventListener('change', () => {
 			if (this.headerCheckbox!.checked) {
 				for (const f of this.displayedFiles) this.selectedFiles.add(f.path);
@@ -186,7 +186,7 @@ export class FileListComponent {
 		const checkbox = rowEl.createEl('input', {
 			cls: 'obsiman-file-checkbox',
 			attr: { type: 'checkbox' },
-		}) as HTMLInputElement;
+		});
 		checkbox.checked = this.selectedFiles.has(file.path);
 		checkbox.addEventListener('change', () => {
 			if (checkbox.checked) {
@@ -204,7 +204,7 @@ export class FileListComponent {
 			text: file.basename,
 		});
 		nameEl.addEventListener('click', () => {
-			this.app.workspace.openLinkText(file.path, '', false);
+			void this.app.workspace.openLinkText(file.path, '', false);
 		});
 
 		// Property count

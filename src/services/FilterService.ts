@@ -65,7 +65,7 @@ export class FilterService extends Component {
 
 	/** Load a saved filter template */
 	loadTemplate(template: FilterTemplate): void {
-		this.activeFilter = JSON.parse(JSON.stringify(template.root));
+		this.activeFilter = JSON.parse(JSON.stringify(template.root)) as FilterGroup;
 		this.applyFilters();
 	}
 

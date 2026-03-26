@@ -55,7 +55,7 @@ export class SaveTemplateModal extends Modal {
 					.setCta()
 					.onClick(() => {
 						if (!this.templateName) return;
-						this.saveTemplate();
+						void this.saveTemplate();
 						this.close();
 					})
 			)
@@ -67,7 +67,7 @@ export class SaveTemplateModal extends Modal {
 	private async saveTemplate(): Promise<void> {
 		const template: FilterTemplate = {
 			name: this.templateName,
-			root: JSON.parse(JSON.stringify(this.filterRoot)),
+			root: JSON.parse(JSON.stringify(this.filterRoot)) as FilterGroup,
 		};
 
 		// Replace existing template with same name, or append

@@ -30,7 +30,7 @@ export class CreateSessionModal extends Modal {
 			.setName(t('session.name'))
 			.addText((text) =>
 				text
-					.setPlaceholder('e.g., Tasks Session')
+					.setPlaceholder('Example session')
 					.onChange((v) => {
 						this.sessionName = v;
 					})

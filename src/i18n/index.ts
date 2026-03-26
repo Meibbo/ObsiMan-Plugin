@@ -15,7 +15,9 @@ function resolveLanguage(lang: Language): ResolvedLanguage {
 	if (lang === 'en' || lang === 'es') return lang;
 
 	// Obsidian stores the user's language choice in localStorage
+	// eslint-disable-next-line no-restricted-globals
 	const stored = typeof localStorage !== 'undefined'
+		// eslint-disable-next-line no-restricted-globals
 		? localStorage.getItem('language')
 		: null;
 	if (stored === 'es') return 'es';
@@ -23,7 +25,7 @@ function resolveLanguage(lang: Language): ResolvedLanguage {
 
 	// Fallback: moment.js locale (Obsidian includes moment globally)
 	try {
-		const locale = (window as any).moment?.locale?.() as string | undefined;
+		const locale = (window as unknown as { moment?: { locale?: () => string } }).moment?.locale?.();
 		if (locale?.startsWith('es')) return 'es';
 	} catch { /* ignore */ }
 

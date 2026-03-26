@@ -137,9 +137,9 @@ export class PropertyExplorerComponent {
 		if (types.length > 0) {
 			menu.addItem((item) => {
 				item.setTitle(t('explorer.filter.by_type'));
-				const sub = (item as any).setSubmenu();
+				const sub = (item as unknown as { setSubmenu: () => Menu }).setSubmenu();
 				// "All types" option
-				sub.addItem((si: any) =>
+				sub.addItem((si) =>
 					si
 						.setTitle('—')
 						.setChecked(this.filterByType === null)
@@ -150,7 +150,7 @@ export class PropertyExplorerComponent {
 						})
 				);
 				for (const type of types) {
-					sub.addItem((si: any) =>
+					sub.addItem((si) =>
 						si
 							.setTitle(type)
 							.setIcon(TYPE_ICON_MAP[type] ?? 'lucide-text')
@@ -357,7 +357,7 @@ export class PropertyExplorerComponent {
 		// Level 2: Values
 		if (isExpanded) {
 			const childrenEl = nodeEl.createDiv({ cls: 'obsiman-explorer-children' });
-			const valueCounts = fileCounts.get(propName) ?? new Map();
+			const valueCounts = fileCounts.get(propName) ?? new Map<string, number>();
 			const sortedValues = [...values].sort((a, b) => {
 				if (this.valueSortMode === 'value_alpha') {
 					const cmp = a.localeCompare(b, undefined, { sensitivity: 'base' });
@@ -422,9 +422,6 @@ export class PropertyExplorerComponent {
 			}
 			if (change.action === 'delete' && change.property) {
 				// Mark existing property as pending deletion
-				const existing = this.treeEl.querySelector(
-					`.obsiman-explorer-header .obsiman-explorer-prop-name`
-				);
 				// We mark via class on the node — handled by finding matching name nodes
 				const nodes = this.treeEl.querySelectorAll('.obsiman-explorer-prop-name');
 				for (const node of nodes) {
@@ -451,11 +448,11 @@ export class PropertyExplorerComponent {
 		// Property Type submenu
 		menu.addItem((item) => {
 			item.setTitle(t('explorer.ctx.type')).setIcon('lucide-type');
-			const sub = (item as any).setSubmenu();
+			const sub = (item as unknown as { setSubmenu: () => Menu }).setSubmenu();
 			const currentType = this.plugin.propertyTypeService.getType(propName);
 			const types = ['text', 'number', 'checkbox', 'list', 'date', 'datetime'];
 			for (const type of types) {
-				sub.addItem((si: any) =>
+				sub.addItem((si) =>
 					si
 						.setTitle(t(`prop.type.${type}`))
 						.setIcon(TYPE_ICON_MAP[type] ?? 'lucide-text')
@@ -472,7 +469,7 @@ export class PropertyExplorerComponent {
 		if (this.plugin.iconicService.isAvailable()) {
 			menu.addItem((item) =>
 				item.setTitle(t('explorer.ctx.icon')).setIcon('lucide-palette').onClick(() => {
-					new Notice('Use the Iconic plugin settings to change property icons.');
+					new Notice('Change property icons in settings');
 				})
 			);
 		}
@@ -526,7 +523,7 @@ export class PropertyExplorerComponent {
 		// Convert submenu
 		menu.addItem((item) => {
 			item.setTitle(t('explorer.ctx.convert')).setIcon('lucide-repeat');
-			const sub = (item as any).setSubmenu();
+			const sub = (item as unknown as { setSubmenu: () => Menu }).setSubmenu();
 			const conversions: { label: string; fn: (v: string) => string }[] = [
 				{ label: t('explorer.ctx.wikilink'), fn: (v) => `[[${v.replace(/^\[\[|\]\]$/g, '')}]]` },
 				{ label: t('explorer.ctx.wikilink_alias'), fn: (v) => `[[${v.replace(/^\[\[|\]\]$/g, '')}|${v.replace(/^\[\[|\]\]$/g, '')}]]` },
@@ -536,7 +533,7 @@ export class PropertyExplorerComponent {
 				{ label: t('explorer.ctx.capitalize'), fn: (v) => v.replace(/\b\w/g, (c) => c.toUpperCase()) },
 			];
 			for (const conv of conversions) {
-				sub.addItem((si: any) =>
+				sub.addItem((si) =>
 					si.setTitle(conv.label).onClick(() => {
 						this.queueValueTransform(propName, value, conv.fn);
 					})
@@ -587,7 +584,7 @@ export class PropertyExplorerComponent {
 			logicFunc: (_file, metadata) => {
 				const current = metadata[propName];
 				if (Array.isArray(current)) {
-					return { [propName]: current.map((v) => String(v) === oldValue ? newValue : v) };
+					return { [propName]: (current as unknown[]).map((v) => String(v) === oldValue ? newValue : v) };
 				}
 				if (String(current) === oldValue) {
 					return { [propName]: newValue };
@@ -627,7 +624,7 @@ export class PropertyExplorerComponent {
 	// ── Core Search ──────────────────────────────────────────
 
 	private openCoreSearch(query: string): void {
-		this.plugin.app.commands.executeCommandById('global-search:open');
+		(this.plugin.app as unknown as { commands: { executeCommandById: (id: string) => void } }).commands.executeCommandById('global-search:open');
 		setTimeout(() => {
 			const input = document.querySelector('.search-input-container input') as HTMLInputElement;
 			if (input) {
@@ -728,7 +725,7 @@ class CreatePropertyModal extends Modal {
 		contentEl.createEl('h3', { text: t('explorer.btn.create') });
 
 		new Setting(contentEl).setName(t('prop.property')).addText((text) => {
-			text.setPlaceholder('property name...').onChange((v) => { this.propName = v; });
+			text.setPlaceholder('Property name...').onChange((v) => { this.propName = v; });
 			new PropertySuggest(this.app, text.inputEl, this.plugin.propertyIndex.getPropertyNames(), (v) => { this.propName = v; text.setValue(v); });
 		});
 
@@ -738,7 +735,7 @@ class CreatePropertyModal extends Modal {
 		);
 
 		new Setting(contentEl).setName(t('prop.value')).addText((text) =>
-			text.setPlaceholder('value (optional)').onChange((v) => { this.propValue = v; })
+			text.setPlaceholder('Value (optional)').onChange((v) => { this.propValue = v; })
 		);
 
 		new Setting(contentEl).addButton((btn) =>
@@ -788,7 +785,7 @@ class RenamePropertyModal extends Modal {
 		contentEl.createEl('h3', { text: `${t('explorer.ctx.rename')}: ${this.oldName}` });
 
 		new Setting(contentEl).setName(t('prop.new_name')).addText((text) => {
-			text.setPlaceholder('new name...').onChange((v) => { this.newName = v; });
+			text.setPlaceholder('New name...').onChange((v) => { this.newName = v; });
 			new PropertySuggest(this.app, text.inputEl, this.plugin.propertyIndex.getPropertyNames(), (v) => { this.newName = v; text.setValue(v); });
 		});
 
@@ -818,8 +815,8 @@ class RenamePropertyModal extends Modal {
 				let newVal: unknown;
 				if (existingVal != null && this.conflictMode === 'append') {
 					// Merge values
-					const existArr = Array.isArray(existingVal) ? existingVal : [existingVal];
-					const oldArr = Array.isArray(oldVal) ? oldVal : [oldVal];
+					const existArr: unknown[] = Array.isArray(existingVal) ? existingVal : [existingVal];
+					const oldArr: unknown[] = Array.isArray(oldVal) ? oldVal : [oldVal];
 					newVal = [...existArr, ...oldArr];
 				} else {
 					newVal = oldVal;
@@ -856,7 +853,7 @@ class AddValueModal extends Modal {
 		contentEl.createEl('h3', { text: `${t('explorer.ctx.add_value')}: ${this.propName}` });
 
 		new Setting(contentEl).setName(t('prop.value')).addText((text) => {
-			text.setPlaceholder('value...').onChange((v) => { this.value = v; });
+			text.setPlaceholder('Value...').onChange((v) => { this.value = v; });
 			new PropertySuggest(this.app, text.inputEl, this.plugin.propertyIndex.getPropertyValues(this.propName), (v) => { this.value = v; text.setValue(v); });
 		});
 
@@ -884,7 +881,7 @@ class AddValueModal extends Modal {
 					return { [this.propName]: finalValue };
 				}
 				const existing = metadata[this.propName];
-				const list = Array.isArray(existing) ? [...existing] : existing != null ? [existing] : [];
+				const list: unknown[] = Array.isArray(existing) ? [...(existing as unknown[])] : existing != null ? [existing] : [];
 				list.push(finalValue);
 				return { [this.propName]: list };
 			},
@@ -918,7 +915,7 @@ class RenameValueModal extends Modal {
 		contentEl.createEl('h3', { text: `${t('explorer.ctx.rename_value')}: "${this.oldValue}"` });
 
 		new Setting(contentEl).setName(t('prop.new_name')).addText((text) => {
-			text.setPlaceholder('new value...').setValue(this.newValue).onChange((v) => { this.newValue = v; });
+			text.setPlaceholder('New value...').setValue(this.newValue).onChange((v) => { this.newValue = v; });
 			new PropertySuggest(this.app, text.inputEl, this.plugin.propertyIndex.getPropertyValues(this.propName), (v) => { this.newValue = v; text.setValue(v); });
 		});
 
@@ -937,7 +934,7 @@ class RenameValueModal extends Modal {
 			logicFunc: (_file, metadata) => {
 				const current = metadata[this.propName];
 				if (Array.isArray(current)) {
-					return { [this.propName]: current.map((v) => String(v) === this.oldValue ? this.newValue : v) };
+					return { [this.propName]: (current as unknown[]).map((v) => String(v) === this.oldValue ? this.newValue : v) };
 				}
 				if (String(current) === this.oldValue) return { [this.propName]: this.newValue };
 				return null;
@@ -972,7 +969,7 @@ class MoveValueModal extends Modal {
 		contentEl.createEl('h3', { text: `${t('explorer.ctx.move_value')}: "${this.value}"` });
 
 		new Setting(contentEl).setName(t('prop.property')).addText((text) => {
-			text.setPlaceholder('target property...').onChange((v) => { this.targetProp = v; });
+			text.setPlaceholder('Target property...').onChange((v) => { this.targetProp = v; });
 			new PropertySuggest(this.app, text.inputEl, this.plugin.propertyIndex.getPropertyNames(), (v) => { this.targetProp = v; text.setValue(v); });
 		});
 
@@ -1003,7 +1000,7 @@ class MoveValueModal extends Modal {
 
 				// Add to target
 				const targetCurrent = metadata[this.targetProp];
-				const targetList = Array.isArray(targetCurrent) ? [...targetCurrent] : targetCurrent != null ? [targetCurrent] : [];
+				const targetList: unknown[] = Array.isArray(targetCurrent) ? [...(targetCurrent as unknown[])] : targetCurrent != null ? [targetCurrent] : [];
 				targetList.push(this.value);
 				updates[this.targetProp] = targetList;
 

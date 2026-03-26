@@ -1,4 +1,4 @@
-import { Component, Events, type App, type TFile, type TAbstractFile } from 'obsidian';
+import { Component, Events, TFile, type App, type TAbstractFile } from 'obsidian';
 import type { FilterGroup } from '../types/filter';
 import type { ObsiManSession } from '../types/session';
 import {
@@ -74,7 +74,9 @@ export class SessionFileService extends Component {
 		this.registerEvent(
 			this.app.vault.on('rename', (file: TAbstractFile, oldPath: string) => {
 				if (this.watchedFile && oldPath === this.watchedFile.path) {
-					this.watchedFile = file as TFile;
+					if (file instanceof TFile) {
+						this.watchedFile = file;
+					}
 				}
 			})
 		);
@@ -125,7 +127,7 @@ export class SessionFileService extends Component {
 
 		// Parse columns
 		const columns: string[] = Array.isArray(frontmatter[SESSION_COLUMNS_KEY])
-			? frontmatter[SESSION_COLUMNS_KEY]
+			? (frontmatter[SESSION_COLUMNS_KEY] as string[])
 			: [];
 
 		// Parse task list
@@ -232,7 +234,7 @@ export class SessionFileService extends Component {
 
 	/** Update the filter tree in the session file's frontmatter */
 	async syncFiltersToFile(file: TFile, filters: FilterGroup): Promise<void> {
-		await this.app.fileManager.processFrontMatter(file, (fm) => {
+		await this.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 			fm[SESSION_FILTERS_KEY] = this.serializeFilterGroup(filters);
 		});
 		this.lastWriteTime = Date.now();
@@ -240,7 +242,7 @@ export class SessionFileService extends Component {
 
 	/** Update the column list in the session file's frontmatter */
 	async syncColumnsToFile(file: TFile, columns: string[]): Promise<void> {
-		await this.app.fileManager.processFrontMatter(file, (fm) => {
+		await this.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 			fm[SESSION_COLUMNS_KEY] = columns;
 		});
 		this.lastWriteTime = Date.now();
@@ -285,15 +287,17 @@ export class SessionFileService extends Component {
 
 	private debouncedEmit(): void {
 		if (this.debounceTimer) clearTimeout(this.debounceTimer);
-		this.debounceTimer = setTimeout(async () => {
-			if (!this.watchedFile) return;
-			try {
-				const session = await this.loadFromFile(this.watchedFile);
-				this.events.trigger('file-changed', session);
-			} catch {
-				// File may have been deleted or corrupted
-				this.events.trigger('file-changed', null);
-			}
+		this.debounceTimer = setTimeout(() => {
+			void (async () => {
+				if (!this.watchedFile) return;
+				try {
+					const session = await this.loadFromFile(this.watchedFile);
+					this.events.trigger('file-changed', session);
+				} catch {
+					// File may have been deleted or corrupted
+					this.events.trigger('file-changed', null);
+				}
+			})();
 		}, this.DEBOUNCE_MS);
 	}
 
@@ -407,7 +411,7 @@ export class SessionFileService extends Component {
 
 		const tasks = session.allPaths.map((path) => {
 			const file = this.app.vault.getAbstractFileByPath(path);
-			const name = file ? (file as TFile).basename : path.replace(/\.md$/, '');
+			const name = (file instanceof TFile) ? file.basename : path.replace(/\.md$/, '');
 			const checked = session.selectedPaths.has(path) ? 'x' : ' ';
 			return `- [${checked}] [[${name}]]`;
 		});

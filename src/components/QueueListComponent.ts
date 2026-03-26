@@ -64,7 +64,7 @@ export class QueueListComponent {
 			cls: 'obsiman-filter-remove-btn clickable-icon',
 			attr: { 'aria-label': 'Remove from queue' },
 		});
-		removeBtn.innerHTML = '×';
+		removeBtn.setText('×');
 		removeBtn.addEventListener('click', () => this.onRemove(index));
 	}
 }

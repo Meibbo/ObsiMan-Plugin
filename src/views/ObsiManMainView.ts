@@ -70,7 +70,7 @@ export class ObsiManMainView extends ItemView {
 		// --- Header Bar ---
 		const headerBarEl = contentEl.createDiv();
 		this.headerBar = new HeaderBarComponent(headerBarEl, this.plugin, {
-			onSessionChange: (file) => this.handleSessionChange(file),
+			onSessionChange: (file) => { void this.handleSessionChange(file); },
 			onApplyQueue: () => this.openQueueDetails(),
 			onToggleShowSelected: (active) => this.handleShowSelectedToggle(active),
 		});
@@ -103,8 +103,9 @@ export class ObsiManMainView extends ItemView {
 		// --- Grid ---
 		const gridWrapper = contentArea.createDiv({ cls: 'obsiman-grid-wrapper' });
 		this.grid = new PropertyGridComponent(gridWrapper, this.app, this.plugin, {
-			onSelectionChange: (selectedPaths) =>
-				this.handleSelectionChange(selectedPaths),
+			onSelectionChange: (selectedPaths) => {
+				void this.handleSelectionChange(selectedPaths);
+			},
 			onInlineEdit: (change) => this.plugin.queueService.add(change),
 		});
 
@@ -260,7 +261,7 @@ export class ObsiManMainView extends ItemView {
 		this.refreshStatusBar();
 	}
 
-	private handleShowSelectedToggle(active: boolean): void {
+	private handleShowSelectedToggle(_active: boolean): void {
 		this.refreshGrid();
 	}
 
@@ -271,12 +272,12 @@ export class ObsiManMainView extends ItemView {
 		if (this.explorerVisible) {
 			this.explorerColumn.removeClass('is-collapsed');
 			this.navbar.setOrientation('horizontal');
-			this.explorerPanel.style.display = '';
+			this.explorerPanel.show();
 			this.explorer.render();
 		} else {
 			this.explorerColumn.addClass('is-collapsed');
 			this.navbar.setOrientation('vertical');
-			this.explorerPanel.style.display = 'none';
+			this.explorerPanel.hide();
 		}
 	}
 

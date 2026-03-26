@@ -123,7 +123,7 @@ export class OperationsPanelComponent {
 	}
 
 	private renderRenameTab(): void {
-		const desc = this.contentEl.createEl('p', {
+		this.contentEl.createEl('p', {
 			cls: 'obsiman-ops-tab-desc',
 			text: t('rename.title'),
 		});
