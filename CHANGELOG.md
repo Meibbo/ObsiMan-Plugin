@@ -10,15 +10,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Planned for 1.0.0-beta.1
+---
+
+## [1.0.0-beta.1] — 2026-03-27
+
+> First public beta. Core features are functional but several known regressions exist. Not recommended for production vaults.
+
+### Added
+- Nothing new since 0.9.0 — this release packages the current state for BRAT beta testing
+
+### Known issues in this release
+- Inline rename (double-click on name cell) is broken
+- Header checkbox lost its CSS styling
+- Grid re-render flash on click (chunked render mode)
+- Tags don't render exactly like Obsidian reading view
+
+### Placeholder / not yet implemented
 - File diff view for pending changes
-- File move operation (move files to folder)
-- Linter tab full implementation
-- Templates tab with Obsidian Templater support
-- Fix header checkbox CSS regression
-- Fix inline rename (broken in 0.9.0)
-- Fix tag rendering in grid (render like Obsidian reading view)
-- Fix grid re-render flash on click
+- File move operation
+- Linter tab
+- Templates tab (Templater support)
 
 ---
 
@@ -122,8 +133,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > Versions 0.2–0.6 correspond to the Python script predecessor (PKM Manager).
 > See `docs/pkm_manager_python_architecture.md` for that history.
 
-[Unreleased]: https://github.com/Meibbo/obsiman/compare/0.9.0...HEAD
-[0.9.0]: https://github.com/Meibbo/obsiman/compare/0.8.0...0.9.0
-[0.8.0]: https://github.com/Meibbo/obsiman/compare/0.7.0...0.8.0
-[0.7.0]: https://github.com/Meibbo/obsiman/compare/0.1.0...0.7.0
-[0.1.0]: https://github.com/Meibbo/obsiman/releases/tag/0.1.0
+[Unreleased]: https://github.com/Meibbo/ObsiMan-Plugin/compare/1.0.0-beta.1...HEAD
+[1.0.0-beta.1]: https://github.com/Meibbo/ObsiMan-Plugin/compare/0.9.0...1.0.0-beta.1
+[0.9.0]: https://github.com/Meibbo/ObsiMan-Plugin/compare/0.8.0...0.9.0
+[0.8.0]: https://github.com/Meibbo/ObsiMan-Plugin/compare/0.7.0...0.8.0
+[0.7.0]: https://github.com/Meibbo/ObsiMan-Plugin/compare/0.1.0...0.7.0
+[0.1.0]: https://github.com/Meibbo/ObsiMan-Plugin/releases/tag/0.1.0
