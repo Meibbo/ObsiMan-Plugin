@@ -1,7 +1,7 @@
 {
 	"id": "obsiman",
 	"name": "ObsiMan",
-	"version": "1.3.0",
+	"version": "0.9.0",
 	"minAppVersion": "1.7.0",
 	"description": "Bulk property editor and vault management tool for Obsidian.",
 	"author": "Meibbo",

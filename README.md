@@ -1,136 +1,159 @@
 # ObsiMan
 
-**Bulk property editor and vault management tool for Obsidian.**
-
-![Version](https://img.shields.io/badge/version-1.3.0-blue)
+![Version](https://img.shields.io/github/v/release/Meibbo/obsiman)
 ![Obsidian](https://img.shields.io/badge/Obsidian-%E2%89%A51.7.0-purple)
 
-ObsiMan provides a spreadsheet-like interface for managing YAML frontmatter properties across your entire vault. Filter files, batch-edit properties, and manage sessions — all from within Obsidian.
+> Bulk property editor and vault management tool for Obsidian.
 
-## Features
+ObsiMan grew out of frustration with Obsidian's native property tools. Once you have hundreds of notes and start managing them seriously, the built-in properties view gets limiting fast — you can see all your properties listed, you can rename one at a time, and that's about it. I wanted something closer to a spreadsheet: filter your whole vault, select the files you care about, queue up a batch of changes, preview exactly what's going to happen, and then apply everything at once.
 
-### Property Explorer
-- Hierarchical tree of all properties and their observed values across the vault
-- Sort by name, count, type, or values
-- Search and filter within the explorer
-- Right-click context menus for quick operations
-- Ctrl+click to search property values in Obsidian's core search
-- Integration with the [Iconic](https://github.com/gfxholo/iconic) plugin for custom property icons
+That's what ObsiMan is. It's not trying to replace Obsidian's native features — it sits on top of them as an extra layer. Think of it as a control panel for your frontmatter.
 
-### Spreadsheet Grid
-- Virtual-scrolled property grid with inline cell editing
-- Column customization, sortable headers, and resizable columns (drag header borders)
-- Excel-like selection: Ctrl+click toggle, Shift+click range, Ctrl+Shift range-add, header checkbox with indeterminate state
-- Inline file rename via double-click on the name cell
-- Live preview rendering: tags, wikilinks, and dates render with Obsidian formatting (configurable: plain, chunked, or all-at-once)
-- Fixed column widths independent of cell content
-- Mobile-responsive layout
+---
 
-### Advanced Filtering
-- Boolean filter trees with AND / OR / NOT logic
-- 8 filter types: has_property, missing_property, specific_value, multiple_values, folder, folder_exclude, file_name, file_name_exclude
-- Save and load filter templates for reuse
+> [!WARNING] **Early access — v0.9.0 is a private beta**
+>
+> This is the last development version before the first public beta (1.0.0-beta.1). Several features shown in the UI are **placeholders** for functionality that's still being built. See the [Known Issues](#known-issues) section before diving in so you don't waste time debugging things that are already on the list.
 
-### Operations Queue
-- Stage property operations before executing: set, rename, delete, clean empty, change type
-- Preview simulated changes before applying
-- Pinned queue section always visible at the bottom of the operations panel
-- Batch file renaming
-- Integration with the Obsidian Linter plugin
+---
 
-### Session Management
-- Persistent session files stored as `.md` in a `+/` folder
-- Store filters, column layouts, and file selections
-- Bidirectional sync — edit session files externally and see changes reflected
-- Google Drive conflict detection
+## What actually works in v0.9.0
 
-### .base File Integration
-- Bidirectional sync with Obsidian Bases `.base` files
-- Configure a `.base` file path in settings to import columns, sort, column widths, and filters
-- Changes in the plugin grid (sort, resize) are written back to the `.base` file
-- Full expression parser for Bases query syntax: comparisons, string methods, `file.*` builtins, `link()`, `date()`, nested AND/OR
+### Property explorer
+The left-side tree showing all your vault's properties and values. This part is solid — search, sort by name/count/type, right-click context menus, and icon integration with [Iconic](https://github.com/gfxholo/iconic) if you have it installed. Ctrl+click a property opens Obsidian's native search for that value.
 
-### Multi-Language Support
-- English and Spanish included
-- Auto-detection from Obsidian locale
+### Spreadsheet grid
+The main table view of your files and their properties. Virtual scrolling works well even with large vaults (tested with 1,100+ notes at ~60fps). Column resizing, sortable headers, and Excel-style selection all work — Ctrl+click to toggle, Shift+click for range, header checkbox for all. **Caveat**: the header checkbox lost its accent styling in this version (CSS regression, cosmetic only).
+
+### Filtering
+Boolean filter trees with AND / OR / NOT. Eight filter types: by property, missing property, specific value, multiple values, folder, filename, and their exclusion counterparts. Save templates and reload them later. This is probably the most-used feature and it's stable.
+
+### Operations queue
+The core workflow: stage operations (set property, rename, delete, change type, clean empty), preview what will change, then apply. The queue preview showing simulated changes works. The diff modal for individual files works too.
+
+### Sessions
+Store your current filter + column layout + selection as a session file (saved as `.md` in your `+/` folder). Bidirectional sync — edit the session `.md` externally and the plugin picks up the change. Google Drive sync conflict detection is included.
+
+### `.base` file sync
+If you use Obsidian Bases, you can point ObsiMan at a `.base` file and it'll import the column order, sort, and filters from it. Changes you make in ObsiMan (sort, column widths) get written back to the `.base` file too. The expression parser supports the full Bases query syntax.
+
+---
+
+## Known issues
+
+These are confirmed bugs in v0.9.0. Please don't report them as new issues — they're already tracked in [docs/Known Issues.md](docs/Known%20Issues.md).
+
+| Bug | Severity | Status |
+|-----|----------|--------|
+| **Inline rename broken** — double-clicking a name cell in the grid doesn't work | Medium | Fix planned for 1.0.0-beta.1 |
+| **Grid re-render flash** — when MarkdownRenderer updates, you can see the cell visually rebuild on each click | Low/cosmetic | Fix planned |
+| **Tags in grid** — `#tags` don't render like they do in Obsidian's reading view (hash symbol stays visible) | Low | Fix planned |
+| **Header checkbox lost CSS** — the "select all" checkbox in the grid header lost its accent/indeterminate styling | Cosmetic | Fix planned |
+
+---
+
+## What's placeholder / not yet implemented
+
+Some tabs and sections exist in the UI but aren't fully wired up yet. Honest rundown:
+
+- **File operations tab** — the Move, Rename (pattern-based), and Linter tabs in the operations panel exist but most of the underlying logic isn't fully implemented or has known issues. Don't rely on these for anything important yet.
+- **File diff view** — the idea is to show a side-by-side diff of a file's frontmatter before/after your pending changes. The modal skeleton exists but the diff rendering isn't implemented.
+- **Templates tab** — Obsidian Templater integration is stubbed but not functional.
+- **Mobile** — `isDesktopOnly` is set to `false` but mobile hasn't been properly tested. It may work, it may not. Consider it unsupported for now.
+
+---
+
+## Roadmap to 1.0.0
+
+The goal for `1.0.0-beta.1` (distributed via BRAT for public testing):
+
+- [ ] Fix inline rename
+- [ ] Fix tag rendering in grid
+- [ ] Fix header checkbox CSS
+- [ ] Fix grid re-render flash
+- [ ] Implement file diff view
+- [ ] File move operation (move selected files to a folder)
+- [ ] Basic Linter tab (apply property order template)
+
+The goal for `1.0.0` (official Obsidian community store submission):
+
+- [ ] All of the above stable
+- [ ] Mobile tested or explicitly disabled
+- [ ] Proper README screenshots/GIFs
+- [ ] Full testing pass on Obsidian 1.7.0+
+
+---
 
 ## Installation
 
-### Manual Install
-1. Download the latest release from the [Releases](https://github.com/Meibbo/obsiman/releases) page
-2. Extract `main.js`, `manifest.json`, and `styles.css` into your vault's `.obsidian/plugins/obsiman/` directory
-3. Enable **ObsiMan** in Obsidian Settings > Community Plugins
+### Via BRAT (recommended for now)
+1. Install [BRAT](https://github.com/TfTHacker/obsidian42-brat) from the Obsidian community plugins store
+2. In BRAT settings, click **Add Beta Plugin**
+3. Enter `Meibbo/obsiman`
+4. Enable **ObsiMan** in Settings → Community Plugins
 
-### BRAT (Beta Reviewers Auto-update Tester)
-1. Install the [BRAT plugin](https://github.com/TfTHacker/obsidian42-brat)
-2. Add `Meibbo/obsiman` as a beta plugin in BRAT settings
-3. Enable **ObsiMan** in Community Plugins
+### Manual
+1. Download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/Meibbo/obsiman/releases/latest)
+2. Create the folder `<vault>/.obsidian/plugins/obsiman/`
+3. Drop the three files in and reload Obsidian
+4. Enable in Settings → Community Plugins
 
-## Usage
+*ObsiMan is not yet in the official Obsidian plugin store. That's the goal for 1.0.0.*
 
-### Opening ObsiMan
-- **Ribbon icon**: Click the gear icon in the left sidebar
-- **Command palette**: `ObsiMan: Open ObsiMan (full view)` or `ObsiMan: Open ObsiMan sidebar`
+---
 
-### Main View (Full Screen)
-The main view provides a complete workspace with:
-- **Header bar** — session selector, sync status indicator, queue badge
-- **Explorer panel** — collapsible property tree on the left
-- **Property grid** — central spreadsheet showing files and their properties
-- **Operations panel** — collapsible panel for queuing and executing operations
-- **Status bar** — file count and selection statistics
+## How to use it
 
-### Sidebar View
-A compact version with four collapsible sections:
-1. **Explorer** — property tree browser
-2. **Filters** — filter editor
-3. **Files** — file list with checkboxes
-4. **Operations** — queue manager
+### Opening the plugin
+- **Ribbon**: click the ObsiMan icon in the left sidebar
+- **Command palette**: `ObsiMan: Open full view` or `ObsiMan: Open sidebar`
 
-### Working with Sessions
-1. Create a session via the header bar's session selector
-2. Session files are stored as markdown in the `+/` folder
-3. Filters, columns, and file selections persist across sessions
-4. Sessions sync bidirectionally — edit the `.md` file and ObsiMan updates
+### The main workflow
+1. Set up a filter (or don't — it works on all files too)
+2. Select the files you want to operate on using the grid (Ctrl/Shift/click)
+3. In the operations panel, queue up what you want to do to those files
+4. Review the queue — you can see a simulated preview before anything actually changes
+5. Hit "Apply pending operations"
 
-### Filtering Files
-1. Open the filter tree editor
-2. Add rules (property-based, folder-based, or filename-based)
-3. Combine rules with AND / OR / NOT logic groups
-4. Save frequently used filters as templates
+### Sessions
+If you're doing recurring work on the same set of files, save a session. The session file lives in your `+/` folder as a plain `.md` file, so you can read and edit it outside the plugin.
 
-### Editing Properties
-1. Select files in the grid or file list
-2. Right-click a property in the explorer, or use the operations panel
-3. Choose an action: set value, rename property, delete, clean empty, or change type
-4. Review queued operations
-5. Execute with `Apply pending operations` (also available via command palette)
+### .base sync
+Point the plugin at one of your `.base` files in settings and it'll pull in the column and filter configuration from there. Useful if you've already set up a Bases view that you want to replicate in ObsiMan.
 
-## Settings
+---
 
-| Setting | Description | Default |
+## Settings reference
+
+| Setting | What it does | Default |
 |---------|-------------|---------|
-| Language | UI language (Auto, English, Spanish) | Auto |
-| Default property type | Type assigned to new properties | text |
-| Ctrl+click search | Open Obsidian search on Ctrl+click | Enabled |
-| Queue preview | Show pending changes in explorer | Enabled |
-| Content search | Enable content search in file tree | Enabled |
-| Operation scope | Default scope: auto, selected, filtered, all | Auto |
-| Operations panel position | Panel placement: right, bottom, replace | Right |
-| Grid rendering mode | How property values render: plain, chunk, all | Chunk |
-| Editable columns | Columns allowing inline edit (comma-separated) | name |
+| Language | UI language — Auto, English, or Spanish | Auto |
+| Default property type | Type for new properties | text |
+| Ctrl+click search | Opens Obsidian search when you Ctrl+click a property | On |
+| Queue preview | Shows pending changes highlighted in the explorer | On |
+| Operation scope | What files operations apply to by default | Auto |
+| Operations panel position | Where the panel opens — right, bottom, or replace grid | Right |
+| Grid rendering mode | How values render in cells — plain, chunked, or all-at-once | Chunk |
+| Editable grid columns | Which columns allow inline editing | name |
 | Base file path | Path to a `.base` file for bidirectional sync | (empty) |
 
-## Compatibility
+---
 
-- **Obsidian**: 1.7.0 or later
-- **Iconic plugin**: Optional — provides custom property icons when installed
-- **Platforms**: Desktop and mobile
+## Development
+
+```bash
+git clone https://github.com/Meibbo/obsiman
+cd obsiman
+npm install
+npm run dev    # watch mode for development
+npm run build  # production build
+npm run lint   # eslint check
+```
+
+See [AGENTS.md](AGENTS.md) for architecture docs (primarily written for AI coding assistants, but readable for humans too).
+
+---
 
 ## License
 
-[MIT](LICENSE)
-
-## Author
-
-[Meibbo](https://github.com/Meibbo)
+[MIT](LICENSE) — [Meibbo](https://github.com/Meibbo)
