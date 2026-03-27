@@ -128,6 +128,54 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 					})
 			);
 
+		// Grid settings section
+		new Setting(containerEl).setName("").setHeading();
+
+		new Setting(containerEl)
+			.setName(t('settings.grid_render_mode'))
+			.setDesc(t('settings.grid_render_mode.desc'))
+			.addDropdown((dd) =>
+				dd
+					.addOptions({
+						plain: t('settings.grid_render_mode.plain'),
+						chunk: t('settings.grid_render_mode.chunk'),
+						all: t('settings.grid_render_mode.all'),
+					})
+					.setValue(this.plugin.settings.gridRenderMode)
+					.onChange(async (v) => {
+						this.plugin.settings.gridRenderMode = v as 'plain' | 'chunk' | 'all';
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName(t('settings.grid_editable_columns'))
+			.setDesc(t('settings.grid_editable_columns.desc'))
+			.addText((text) =>
+				text
+					.setValue((this.plugin.settings.gridEditableColumns ?? ['name']).join(', '))
+					.onChange(async (v) => {
+						this.plugin.settings.gridEditableColumns = v
+							.split(',')
+							.map((s) => s.trim())
+							.filter((s) => s.length > 0);
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName(t('settings.base_file'))
+			.setDesc(t('settings.base_file.desc'))
+			.addText((text) =>
+				text
+					.setPlaceholder('path/to/file.base')
+					.setValue(this.plugin.settings.baseFilePath)
+					.onChange(async (v) => {
+						this.plugin.settings.baseFilePath = v;
+						await this.plugin.saveSettings();
+					})
+			);
+
 		// Filter templates section
 		new Setting(containerEl).setName("").setHeading();
 

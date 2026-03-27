@@ -12,5 +12,13 @@
   "explorerCtrlClickSearch": true,
   "explorerShowQueuePreview": true,
   "explorerContentSearch": true,
-  "explorerOperationScope": "auto"
+  "explorerOperationScope": "auto",
+  "operationsPanelPosition": "right",
+  "gridRenderMode": "chunk",
+  "gridRenderChunkSize": 100,
+  "gridLivePreviewColumns": [],
+  "gridEditableColumns": [
+    "name"
+  ],
+  "baseFilePath": "+/Notes.base"
 }

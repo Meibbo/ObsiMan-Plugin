@@ -20,6 +20,16 @@ export interface ObsiManSettings {
 	explorerOperationScope: 'auto' | 'selected' | 'filtered' | 'all';
 	/** Position of the operations panel */
 	operationsPanelPosition: 'right' | 'bottom' | 'replace';
+	/** Grid cell rendering mode: plain text, chunked live preview, or all live preview */
+	gridRenderMode: 'plain' | 'chunk' | 'all';
+	/** Number of cells to render per chunk in live preview mode */
+	gridRenderChunkSize: number;
+	/** Columns to render with live preview (empty = all columns) */
+	gridLivePreviewColumns: string[];
+	/** Columns that allow inline editing (empty = all, includes 'name' for rename) */
+	gridEditableColumns: string[];
+	/** Path to a .base file for bidirectional sync */
+	baseFilePath: string;
 }
 
 export const DEFAULT_SETTINGS: ObsiManSettings = {
@@ -33,4 +43,9 @@ export const DEFAULT_SETTINGS: ObsiManSettings = {
 	explorerContentSearch: true,
 	explorerOperationScope: 'auto',
 	operationsPanelPosition: 'right',
+	gridRenderMode: 'chunk',
+	gridRenderChunkSize: 100,
+	gridLivePreviewColumns: [],
+	gridEditableColumns: ['name'],
+	baseFilePath: '',
 };

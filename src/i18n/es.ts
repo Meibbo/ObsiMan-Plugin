@@ -38,6 +38,7 @@ export const es: Record<string, string> = {
 	'files.search': 'Buscar archivos...',
 	'files.select_all': 'Seleccionar todo',
 	'files.select_none': 'Deseleccionar todo',
+	'files.show_checked_only': 'Mostrar solo archivos marcados',
 	'files.count': '{filtered} / {total} archivos',
 	'files.col.name': 'Nombre',
 	'files.col.props': '# Props',
@@ -252,4 +253,15 @@ export const es: Record<string, string> = {
 	'explorer.sort.section_values': 'Valores',
 	'explorer.sort.value_name': 'Por nombre',
 	'explorer.sort.value_count': 'Por ocurrencias',
+
+	// Grid settings
+	'settings.grid_render_mode': 'Modo de renderizado de la tabla',
+	'settings.grid_render_mode.desc': 'Cómo se renderizan los valores de propiedades en la tabla',
+	'settings.grid_render_mode.plain': 'Texto plano',
+	'settings.grid_render_mode.chunk': 'Vista previa (por bloques)',
+	'settings.grid_render_mode.all': 'Vista previa (todo a la vez)',
+	'settings.grid_editable_columns': 'Columnas editables',
+	'settings.grid_editable_columns.desc': 'Columnas que permiten edición en línea (separadas por coma, incluir "name" para renombrar)',
+	'settings.base_file': 'Ruta del archivo base',
+	'settings.base_file.desc': 'Ruta a un archivo .base para sincronización bidireccional con Obsidian Bases',
 };

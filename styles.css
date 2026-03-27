@@ -1303,9 +1303,16 @@
 	color: var(--text-normal);
 }
 
-.obsiman-grid-bulk {
-	display: flex;
-	gap: 4px;
+.obsiman-grid-filter-toggle {
+	padding: 4px;
+	border-radius: var(--radius-s);
+	color: var(--text-muted);
+	transition: color 0.15s ease, background 0.15s ease;
+}
+
+.obsiman-grid-filter-toggle.is-active {
+	color: var(--obsiman-accent);
+	background: color-mix(in srgb, var(--obsiman-accent) 12%, transparent);
 }
 
 /* --- Table --- */
@@ -1335,6 +1342,16 @@
 	text-align: center;
 	padding: 6px 4px;
 	border-bottom: 2px solid var(--obsiman-border);
+	transition: border-color 0.15s ease;
+}
+
+.obsiman-grid-th-check.is-indeterminate {
+	border-color: var(--obsiman-accent);
+}
+
+.obsiman-grid-th-check.is-indeterminate input[type="checkbox"] {
+	border-color: var(--obsiman-accent);
+	box-shadow: 0 0 0 1px var(--obsiman-accent);
 }
 
 .obsiman-grid-th-sortable {
@@ -1388,10 +1405,20 @@ body.obsiman-resizing {
 
 .obsiman-grid-row {
 	border-bottom: 1px solid var(--obsiman-border);
+	cursor: default;
+	user-select: none;
 }
 
 .obsiman-grid-row:hover {
 	background: var(--obsiman-bg-hover);
+}
+
+.obsiman-grid-row.is-selected {
+	background: color-mix(in srgb, var(--obsiman-accent) 12%, transparent);
+}
+
+.obsiman-grid-row.is-selected:hover {
+	background: color-mix(in srgb, var(--obsiman-accent) 18%, transparent);
 }
 
 .obsiman-grid-td-check {
@@ -1449,6 +1476,24 @@ body.obsiman-resizing {
 	background: var(--background-primary);
 	color: var(--text-normal);
 	outline: none;
+}
+
+/* Live preview cells */
+.obsiman-grid-live-cell {
+	overflow: hidden;
+}
+
+.obsiman-grid-live-cell p {
+	margin: 0;
+	line-height: inherit;
+}
+
+.obsiman-grid-live-cell .tag {
+	font-size: 0.85em;
+}
+
+.obsiman-grid-live-cell .internal-link {
+	cursor: pointer;
 }
 
 /* Mobile: taller rows for touch targets */
