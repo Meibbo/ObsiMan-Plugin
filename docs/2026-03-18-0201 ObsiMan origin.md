@@ -10,7 +10,7 @@ tags:
 dateCreated: 2026-03-18T01:53:00
 description: Qué me hizo crear este código en primer lugar
 author:
-  - "[[Victor|Meibbo]]"
+  - "[[Meibbo]]"
 ---
 # Problem
 Empecé el proyecto porque estaba insatisfecho con las capacidades nativas de Obsidian para gestionar múltiples propiedades en simultáneo en una gran cantidad de archivo markdown.

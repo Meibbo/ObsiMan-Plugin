@@ -20,7 +20,7 @@ projectStructure:
   - Presentation
   - Versions
 projectParticipants:
-  - "[[Victor|Meibbo]]"
+  - "[[Meibbo]]"
 projectTools:
   - "[[ChatGPT]]"
   - "[[Claude Code]]"

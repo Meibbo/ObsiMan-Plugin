@@ -4,7 +4,7 @@ in:
 type:
   - task
 author:
-  - "[[Victor|Meibbo]]"
+  - "[[Meibbo]]"
 related:
   - "[[ObsiMan - Structure]]"
   - "[[Obsiman - User Interface]]"
