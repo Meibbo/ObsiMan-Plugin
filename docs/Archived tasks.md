@@ -1,5 +1,5 @@
 # [[ObsiMan]]
-## v1.2.1 — Main View UI Overhaul (2026-03-25)
+## v0.9.0 — Main View UI Overhaul (2026-03-25)
 Rediseño completo de la vista principal del plugin:
 - [x] Auto-detección de idioma de Obsidian (language: 'auto') ✅
 - [x] Iconos para TODAS las propiedades (Iconic → fallback a íconos de tipo) ✅
@@ -16,7 +16,7 @@ Rediseño completo de la vista principal del plugin:
 - [x] CSS polish: mobile touch targets, navbar badges, explorer icon defaults ✅
 - [x] i18n: ~30 nuevas keys en en/es ✅
 
-## v1.2 — Obsidian Plugin Rebuild (2026-03-25)
+## v0.8.0 — Obsidian Plugin Rebuild (2026-03-25)
 Reconstrucción completa como plugin nativo de Obsidian (TypeScript):
 - [x] PropertyExplorerComponent — árbol jerárquico de propiedades con valores ✅
 - [x] LinterModal — integración con obsidian-linter ✅
@@ -36,7 +36,7 @@ Reconstrucción completa como plugin nativo de Obsidian (TypeScript):
 		- [x] check everything, deselect
 		- [x] etc
 	- [x] osea, todas las funciones de la tabla de bases más todas las funciones provenientes del python
-## v0.9 — Python script  2026-03-12
+## v0.7.0 — Python script  2026-03-12
 - [x] convierte el script de python en un plugin TypeScript de Obsidian ⏫
 	- [x] sigues las mejores prácticas para crear plugins de obsidian
 	- [x] revisa docs en línea o básate en los skills

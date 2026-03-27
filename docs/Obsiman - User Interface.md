@@ -54,7 +54,7 @@ explain
 - Set / Create property
 	- Replace all values option
 	- Append values option
-		- only available when the property type is text or lust
+		- only available when the property type is text or list
 - Change type
 - Rename
 	- Properties option

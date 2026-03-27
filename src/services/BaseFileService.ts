@@ -102,6 +102,8 @@ export class BaseFileService extends Component {
 			return this.config;
 		} catch (err) {
 			console.error('ObsiMan: Failed to parse .base file', err);
+			this.config = null;
+			this.rawData = null;
 			return null;
 		}
 	}
@@ -128,7 +130,7 @@ export class BaseFileService extends Component {
 		// Parse sort
 		const sort: BaseFileSort[] = (raw.sort ?? []).map((s) => ({
 			property: s.property,
-			direction: s.direction.toLowerCase() === 'desc' ? 'desc' : 'asc',
+			direction: s.direction?.toLowerCase() === 'desc' ? 'desc' : 'asc',
 		}));
 
 		// Column widths
@@ -181,7 +183,12 @@ export class BaseFileService extends Component {
 		if (!this.rawData?.views) return;
 		const tableView = this.rawData.views.find((v) => v.type === 'table');
 		if (!tableView) return;
-		tableView.columnSize = widths;
+		// Restore note. prefix to match .base file format
+		const prefixedWidths: Record<string, number> = {};
+		for (const [key, val] of Object.entries(widths)) {
+			prefixedWidths[`note.${key}`] = val;
+		}
+		tableView.columnSize = prefixedWidths;
 		this.scheduleWrite();
 	}
 
