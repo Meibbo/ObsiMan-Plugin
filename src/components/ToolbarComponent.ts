@@ -245,9 +245,11 @@ export class ToolbarComponent {
 		header.createEl('h4', { text: t('section.operations') });
 
 		const listContainer = this.queuePopover.createDiv({ cls: 'obsiman-queue-container' });
-		this.queueList = new QueueListComponent(listContainer, (index) => {
-			this.plugin.queueService.remove(index);
-			this.refreshQueueList();
+		this.queueList = new QueueListComponent(listContainer, {
+			onRemove: (index: number) => {
+				this.plugin.queueService.remove(index);
+				this.refreshQueueList();
+			},
 		});
 
 		const actionRow = this.queuePopover.createDiv({ cls: 'obsiman-queue-actions' });
@@ -353,25 +355,28 @@ export class ToolbarComponent {
 		const status = this.plugin.sessionService.getSyncStatus();
 		this.syncIndicator.empty();
 
+		// Reset to base class, then add status-specific modifier
+		this.syncIndicator.className = '';
+		this.syncIndicator.addClasses(['obsiman-sync-indicator']);
+
 		switch (status) {
 			case 'synced':
 				this.syncIndicator.setText('●');
-				this.syncIndicator.className = 'obsiman-sync-indicator obsiman-sync-ok';
+				this.syncIndicator.addClass('obsiman-sync-ok');
 				this.syncIndicator.title = t('session.synced');
 				break;
 			case 'conflict':
 				this.syncIndicator.setText('●');
-				this.syncIndicator.className = 'obsiman-sync-indicator obsiman-sync-conflict';
+				this.syncIndicator.addClass('obsiman-sync-conflict');
 				this.syncIndicator.title = t('session.conflict');
 				break;
 			case 'external':
 				this.syncIndicator.setText('●');
-				this.syncIndicator.className = 'obsiman-sync-indicator obsiman-sync-external';
+				this.syncIndicator.addClass('obsiman-sync-external');
 				this.syncIndicator.title = t('session.outdated');
 				break;
 			default:
 				this.syncIndicator.setText('');
-				this.syncIndicator.className = 'obsiman-sync-indicator';
 				break;
 		}
 	}

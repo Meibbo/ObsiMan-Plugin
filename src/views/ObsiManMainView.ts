@@ -1,13 +1,9 @@
-import { ItemView, type WorkspaceLeaf } from 'obsidian';
+import { ItemView, setIcon, type WorkspaceLeaf, type TFile } from 'obsidian';
 import type { ObsiManPlugin } from '../../main';
 import type { ObsiManSession } from '../types/session';
-import { HeaderBarComponent } from '../components/HeaderBarComponent';
-import { NavbarComponent } from '../components/NavbarComponent';
 import { PropertyExplorerComponent } from '../components/PropertyExplorerComponent';
 import { PropertyGridComponent } from '../components/PropertyGridComponent';
-import { StatusBarComponent } from '../components/StatusBarComponent';
 import { OperationsPanelComponent } from '../components/OperationsPanelComponent';
-import { QueueDetailsModal } from '../modals/QueueDetailsModal';
 import { t } from '../i18n/index';
 
 export const OBSIMAN_MAIN_VIEW_TYPE = 'obsiman-main';
@@ -15,32 +11,25 @@ export const OBSIMAN_MAIN_VIEW_TYPE = 'obsiman-main';
 /**
  * Full-screen main leaf view for ObsiMan.
  *
- * Layout:
+ * Layout (after v1.2.3 restructure):
  * ┌──────────────────────────────────────────────────────────┐
- * │ HEADER BAR: [Session▼] [●Sync]        [Queue 3] [Apply] │
- * ├──┬──────────────────┬────────────────────────────────────┤
- * │N │  Explorer Panel  │  PropertyGrid                      │
- * │A │  (animated width)│  (spreadsheet)                     │
- * │V │                  │                                    │
- * ├──┴──────────────────┴────────────────────────────────────┤
- * │ STATUS: files | filtered | selected | pending   props·vals│
- * └──────────────────────────────────────────────────────────┘
+ * │ Operations (left)  │  PropertyGrid     │ Properties      │
+ * │ [tabs vertical     │  (spreadsheet)    │ Explorer        │
+ * │  or horizontal]    │                   │ (right panel)   │
+ * │ [pinned queue]     │                   │                 │
+ * └────────────────────┴───────────────────┴─────────────────┘
+ * Status bar: Obsidian native
  */
 export class ObsiManMainView extends ItemView {
 	private plugin: ObsiManPlugin;
 
-	private headerBar!: HeaderBarComponent;
-	private navbar!: NavbarComponent;
 	private explorer!: PropertyExplorerComponent;
-	private explorerColumn!: HTMLElement;
 	private explorerPanel!: HTMLElement;
-	private explorerVisible = false;
+	private propertiesVisible = true;
 	private grid!: PropertyGridComponent;
-	private statusBar!: StatusBarComponent;
 
 	private operationsPanel!: OperationsPanelComponent;
-	private operationsEl!: HTMLElement;
-	private operationsVisible = false;
+	private operationsColumn!: HTMLElement;
 
 	/** Current session state (null = no session file loaded) */
 	private session: ObsiManSession | null = null;
@@ -59,7 +48,7 @@ export class ObsiManMainView extends ItemView {
 	}
 
 	getIcon(): string {
-		return 'settings-2';
+		return 'obsiman-icon';
 	}
 
 	async onOpen(): Promise<void> {
@@ -67,40 +56,31 @@ export class ObsiManMainView extends ItemView {
 		contentEl.empty();
 		contentEl.addClass('obsiman-main-view');
 
-		// --- Header Bar ---
-		const headerBarEl = contentEl.createDiv();
-		this.headerBar = new HeaderBarComponent(headerBarEl, this.plugin, {
-			onSessionChange: (file) => { void this.handleSessionChange(file); },
-			onApplyQueue: () => this.openQueueDetails(),
-			onToggleShowSelected: (active) => this.handleShowSelectedToggle(active),
-		});
-
-		// --- Content area: [ExplorerColumn | Grid | OperationsPanel] ---
+		// --- Content area: [OperationsColumn | Grid | PropertiesPanel] ---
 		const contentArea = contentEl.createDiv({ cls: 'obsiman-content-area' });
 
-		// Explorer column: navbar + explorer panel
-		this.explorerColumn = contentArea.createDiv({
-			cls: 'obsiman-explorer-column is-collapsed',
+		// --- Operations column (LEFT) ---
+		this.operationsColumn = contentArea.createDiv({
+			cls: 'obsiman-ops-column',
 		});
+		this.operationsPanel = new OperationsPanelComponent(
+			this.operationsColumn,
+			this.plugin,
+			{
+				onClearSelected: () => {
+					void this.handleSelectionChange(new Set());
+				},
+				onToggle: (expanded) => {
+					if (expanded) {
+						this.operationsColumn.removeClass('is-collapsed');
+					} else {
+						this.operationsColumn.addClass('is-collapsed');
+					}
+				},
+			}
+		);
 
-		// Explorer panel (hidden when collapsed)
-		this.explorerPanel = this.explorerColumn.createDiv({ cls: 'obsiman-explorer-panel' });
-		this.explorer = new PropertyExplorerComponent(this.explorerPanel, this.plugin);
-
-		// Navbar (inside explorer column, above explorer panel)
-		const navbarEl = this.explorerColumn.createDiv();
-		// Popover anchor goes in the content area so it can overlay
-		const popoverAnchorEl = contentArea.createDiv({ cls: 'obsiman-popover-anchor' });
-		this.navbar = new NavbarComponent(navbarEl, popoverAnchorEl, this.plugin, this.explorer, {
-			onToggleExplorer: () => this.toggleExplorer(),
-			onToggleOperations: () => this.toggleOperations(),
-			onFiltersChanged: () => this.refreshFromFilters(),
-		});
-
-		// Ensure navbar appears first visually
-		this.explorerColumn.insertBefore(navbarEl, this.explorerPanel);
-
-		// --- Grid ---
+		// --- Grid (CENTER) ---
 		const gridWrapper = contentArea.createDiv({ cls: 'obsiman-grid-wrapper' });
 		this.grid = new PropertyGridComponent(gridWrapper, this.app, this.plugin, {
 			onSelectionChange: (selectedPaths) => {
@@ -109,15 +89,19 @@ export class ObsiManMainView extends ItemView {
 			onInlineEdit: (change) => this.plugin.queueService.add(change),
 		});
 
-		// --- Operations panel ---
-		this.operationsEl = contentArea.createDiv({
-			cls: 'obsiman-operations-panel-right is-collapsed',
+		// --- Properties panel toggle + panel (RIGHT) ---
+		const propsToggle = contentArea.createDiv({ cls: 'obsiman-props-toggle-strip' });
+		const propsToggleBtn = propsToggle.createDiv({
+			cls: 'clickable-icon',
+			attr: { 'aria-label': t('explorer.toggle') },
 		});
-		this.operationsPanel = new OperationsPanelComponent(this.operationsEl, this.plugin);
+		setIcon(propsToggleBtn, 'lucide-panel-right');
+		propsToggleBtn.addEventListener('click', () => this.toggleProperties());
 
-		// --- Status Bar ---
-		const statusEl = contentEl.createDiv({ cls: 'obsiman-statusbar' });
-		this.statusBar = new StatusBarComponent(statusEl);
+		this.explorerPanel = contentArea.createDiv({
+			cls: 'obsiman-properties-panel-right',
+		});
+		this.buildPropertiesPanel();
 
 		// --- Subscribe to service events ---
 		const filterChanged = () => this.refreshFromFilters();
@@ -125,8 +109,7 @@ export class ObsiManMainView extends ItemView {
 		this.register(() => this.plugin.filterService.off('changed', filterChanged));
 
 		const queueChanged = () => {
-			this.refreshStatusBar();
-			this.headerBar.refreshQueueBadge(this.plugin.queueService.queue.length);
+			this.plugin.refreshStatusBar();
 			this.operationsPanel.refreshQueue();
 		};
 		this.plugin.queueService.on('changed', queueChanged);
@@ -145,7 +128,45 @@ export class ObsiManMainView extends ItemView {
 	}
 
 	async onClose(): Promise<void> {
+		this.explorer?.destroy();
 		this.contentEl.empty();
+	}
+
+	// --- Properties panel (right side) ---
+
+	private toggleProperties(): void {
+		this.propertiesVisible = !this.propertiesVisible;
+		if (this.propertiesVisible) {
+			this.explorerPanel.removeClass('is-collapsed');
+		} else {
+			this.explorerPanel.addClass('is-collapsed');
+		}
+	}
+
+	private buildPropertiesPanel(): void {
+		// Mini toolbar for explorer controls
+		const toolbar = this.explorerPanel.createDiv({ cls: 'obsiman-props-toolbar' });
+
+		const addBtn = (icon: string, label: string, onClick: (e: MouseEvent) => void) => {
+			const btn = toolbar.createDiv({
+				cls: 'clickable-icon',
+				attr: { 'aria-label': label },
+			});
+			setIcon(btn, icon);
+			btn.addEventListener('click', onClick);
+		};
+
+		addBtn('lucide-search', t('explorer.btn.search'), () => this.explorer.toggleSearch());
+		addBtn('lucide-list-filter', t('explorer.btn.filter'), (e) => this.explorer.showFilterMenu(e));
+		addBtn('lucide-arrow-up-down', t('explorer.btn.sort'), (e) => this.explorer.showSortMenu(e));
+		addBtn('lucide-plus', t('explorer.btn.create'), () => this.explorer.openCreateProperty());
+
+		// Explorer component (default to filtered files scope in main view)
+		const explorerContainer = this.explorerPanel.createDiv({ cls: 'obsiman-props-explorer-wrap' });
+		this.explorer = new PropertyExplorerComponent(explorerContainer, this.plugin, {
+			defaultScope: 'filtered',
+		});
+		this.explorer.render();
 	}
 
 	// --- Session management ---
@@ -160,7 +181,7 @@ export class ObsiManMainView extends ItemView {
 		}
 	}
 
-	private async handleSessionChange(file: import('obsidian').TFile | null): Promise<void> {
+	private async handleSessionChange(file: TFile | null): Promise<void> {
 		if (!file) {
 			this.session = null;
 			this.plugin.sessionService.unwatchFile();
@@ -175,7 +196,6 @@ export class ObsiManMainView extends ItemView {
 		this.plugin.settings.sessionFilePath = file.path;
 		await this.plugin.saveSettings();
 
-		// Apply filters from session
 		if (this.session.filters.children.length > 0) {
 			this.plugin.filterService.setFilter(this.session.filters);
 		} else {
@@ -187,15 +207,14 @@ export class ObsiManMainView extends ItemView {
 		if (!session) return;
 		this.session = session;
 		this.refreshGrid();
-		this.refreshStatusBar();
+		this.plugin.refreshStatusBar();
 	}
 
 	// --- Refresh cycle ---
 
 	private refreshFromFilters(): void {
 		this.refreshGrid();
-		this.refreshStatusBar();
-		this.navbar?.refreshFilterBadge();
+		this.plugin.refreshStatusBar();
 	}
 
 	private refreshGrid(): void {
@@ -203,45 +222,7 @@ export class ObsiManMainView extends ItemView {
 		const files = this.plugin.filterService.filteredFiles;
 		const columns = this.session?.columns ?? this.plugin.settings.gridColumns;
 		const selectedPaths = this.session?.selectedPaths ?? new Set<string>();
-
-		// Apply "show only selected" filter
-		const showSelected = this.headerBar?.isShowSelectedOnly();
-		const displayFiles = showSelected && selectedPaths.size > 0
-			? files.filter((f) => selectedPaths.has(f.path))
-			: files;
-
-		this.grid.render(displayFiles, selectedPaths, columns);
-	}
-
-	private refreshStatusBar(): void {
-		if (!this.statusBar) return;
-		const filteredFiles = this.plugin.filterService.filteredFiles;
-		const filtered = filteredFiles.length;
-		const total = this.plugin.propertyIndex.fileCount;
-		const selected = this.session?.selectedPaths.size ?? 0;
-		const queued = this.plugin.queueService.queue.length;
-
-		// Compute property and value counts from filtered files
-		const propSet = new Set<string>();
-		let valueCount = 0;
-		for (const file of filteredFiles) {
-			const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
-			if (!fm) continue;
-			for (const [key, val] of Object.entries(fm)) {
-				if (key === 'position') continue;
-				propSet.add(key);
-				valueCount += Array.isArray(val) ? val.length : 1;
-			}
-		}
-
-		this.statusBar.render({
-			filtered,
-			total,
-			selected,
-			queued,
-			propertyCount: propSet.size,
-			valueCount,
-		});
+		this.grid.render(files, selectedPaths, columns);
 	}
 
 	private async handleSelectionChange(selectedPaths: Set<string>): Promise<void> {
@@ -249,53 +230,13 @@ export class ObsiManMainView extends ItemView {
 			this.session.selectedPaths = selectedPaths;
 		}
 
-		// Sync explorer selection
 		this.explorer.setSelectedFiles(selectedPaths);
 
-		// Sync to file if a session is active
 		const file = this.plugin.sessionService.currentFile;
 		if (file) {
 			await this.plugin.sessionService.syncSelectionToFile(file, selectedPaths);
 		}
 
-		this.refreshStatusBar();
-	}
-
-	private handleShowSelectedToggle(_active: boolean): void {
-		this.refreshGrid();
-	}
-
-	// --- Explorer toggle (animated) ---
-
-	private toggleExplorer(): void {
-		this.explorerVisible = !this.explorerVisible;
-		if (this.explorerVisible) {
-			this.explorerColumn.removeClass('is-collapsed');
-			this.navbar.setOrientation('horizontal');
-			this.explorerPanel.show();
-			this.explorer.render();
-		} else {
-			this.explorerColumn.addClass('is-collapsed');
-			this.navbar.setOrientation('vertical');
-			this.explorerPanel.hide();
-		}
-	}
-
-	// --- Operations panel toggle (Phase 6 stub) ---
-
-	private toggleOperations(): void {
-		this.operationsVisible = !this.operationsVisible;
-		if (this.operationsVisible) {
-			this.operationsEl.removeClass('is-collapsed');
-		} else {
-			this.operationsEl.addClass('is-collapsed');
-		}
-	}
-
-	// --- Actions ---
-
-	private openQueueDetails(): void {
-		if (this.plugin.queueService.isEmpty) return;
-		new QueueDetailsModal(this.app, this.plugin.queueService).open();
+		this.plugin.refreshStatusBar();
 	}
 }

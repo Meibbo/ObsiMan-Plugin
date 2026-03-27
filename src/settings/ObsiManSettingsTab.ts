@@ -15,8 +15,6 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		;
-
 		// Language
 		new Setting(containerEl)
 			.setName(t('settings.language'))

@@ -1,4 +1,4 @@
-import { Plugin, type WorkspaceLeaf } from 'obsidian';
+import { addIcon, Plugin, type WorkspaceLeaf } from 'obsidian';
 import type { ObsiManSettings } from './src/types/settings';
 import { DEFAULT_SETTINGS } from './src/types/settings';
 import { PropertyIndexService } from './src/services/PropertyIndexService';
@@ -10,7 +10,10 @@ import { ObsiManMainView, OBSIMAN_MAIN_VIEW_TYPE } from './src/views/ObsiManMain
 import { IconicService } from './src/services/IconicService';
 import { PropertyTypeService } from './src/services/PropertyTypeService';
 import { ObsiManSettingsTab } from './src/settings/ObsiManSettingsTab';
-import { setLanguage } from './src/i18n/index';
+import { setLanguage, t } from './src/i18n/index';
+
+// Custom SVG icon for ObsiMan (100x100 viewBox, currentColor fill)
+const OBSIMAN_ICON_SVG = `<g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="10" width="72" height="80" rx="6"/><line x1="30" y1="30" x2="70" y2="30"/><line x1="30" y1="50" x2="70" y2="50"/><line x1="30" y1="70" x2="55" y2="70"/><circle cx="72" cy="72" r="18" fill="currentColor" stroke="none" opacity="0.15"/><path d="M64 72h16 M72 64v16" stroke-width="5"/></g>`;
 
 export class ObsiManPlugin extends Plugin {
 	settings!: ObsiManSettings;
@@ -23,29 +26,43 @@ export class ObsiManPlugin extends Plugin {
 	iconicService!: IconicService;
 	propertyTypeService!: PropertyTypeService;
 
+	// Native status bar element
+	private statusBarEl!: HTMLElement;
+
 	async onload(): Promise<void> {
 		await this.loadSettings();
 
 		// Initialize i18n
 		setLanguage(this.settings.language);
 
-		// Initialize services
+		// Register custom icon
+		addIcon('obsiman-icon', OBSIMAN_ICON_SVG);
+
+		// Initialize and register all services for lifecycle management
 		this.propertyIndex = new PropertyIndexService(this.app);
 		this.filterService = new FilterService(this.app);
 		this.queueService = new OperationQueueService(this.app);
 		this.sessionService = new SessionFileService(this.app);
-		this.iconicService = new IconicService();
-		this.propertyTypeService = new PropertyTypeService();
+		this.iconicService = new IconicService(this.app);
+		this.propertyTypeService = new PropertyTypeService(this.app);
 
-		// Load async services
-		this.iconicService.load(this.app);
-		this.propertyTypeService.load(this.app);
-
-		// Register services for lifecycle management
 		this.addChild(this.propertyIndex);
 		this.addChild(this.filterService);
 		this.addChild(this.queueService);
 		this.addChild(this.sessionService);
+		this.addChild(this.iconicService);
+		this.addChild(this.propertyTypeService);
+
+		// Re-apply filters when metadata cache finishes resolving
+		this.registerEvent(
+			this.app.metadataCache.on('resolved', () => {
+				this.filterService.applyFilters();
+			})
+		);
+
+		// Native status bar
+		this.statusBarEl = this.addStatusBarItem();
+		this.statusBarEl.addClass('obsiman-native-statusbar');
 
 		// Register views
 		this.registerView(OBSIMAN_VIEW_TYPE, (leaf) => new ObsiManView(leaf, this));
@@ -55,21 +72,21 @@ export class ObsiManPlugin extends Plugin {
 		);
 
 		// Ribbon icon opens the main (full-screen) view
-		this.addRibbonIcon('settings-2', 'ObsiMan', () => {
-			this.activateMainView();
+		this.addRibbonIcon('obsiman-icon', 'Open main view', () => {
+			void this.activateMainView();
 		});
 
 		// Commands
 		this.addCommand({
-			id: 'open-obsiman-main',
-			name: 'Open ObsiMan (full view)',
-			callback: () => this.activateMainView(),
+			id: 'open-main',
+			name: 'Open full view',
+			callback: () => void this.activateMainView(),
 		});
 
 		this.addCommand({
-			id: 'open-obsiman-sidebar',
-			name: 'Open ObsiMan sidebar',
-			callback: () => this.activateSidebarView(),
+			id: 'open-sidebar',
+			name: 'Open sidebar',
+			callback: () => void this.activateSidebarView(),
 		});
 
 		this.addCommand({
@@ -78,7 +95,7 @@ export class ObsiManPlugin extends Plugin {
 			checkCallback: (checking) => {
 				if (this.queueService.isEmpty) return false;
 				if (!checking) {
-					this.queueService.execute();
+					void this.queueService.execute();
 				}
 				return true;
 			},
@@ -86,20 +103,59 @@ export class ObsiManPlugin extends Plugin {
 
 		// Settings tab
 		this.addSettingTab(new ObsiManSettingsTab(this.app, this));
-
-		console.log('ObsiMan loaded');
 	}
 
-	onunload(): void {
-		console.log('ObsiMan unloaded');
+	async onExternalSettingsChange(): Promise<void> {
+		await this.loadSettings();
+		setLanguage(this.settings.language);
 	}
 
 	async loadSettings(): Promise<void> {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		const saved = ((await this.loadData()) ?? {}) as Partial<ObsiManSettings>;
+		this.settings = {
+			...(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)) as ObsiManSettings),
+			...saved,
+		};
 	}
 
 	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
+	}
+
+	/** Update Obsidian's native status bar with current stats */
+	refreshStatusBar(): void {
+		if (!this.statusBarEl) return;
+
+		const filteredFiles = this.filterService.filteredFiles;
+		const filtered = filteredFiles.length;
+		const total = this.propertyIndex.fileCount;
+		const queued = this.queueService.queue.length;
+
+		// Compute property and value counts
+		const propSet = new Set<string>();
+		let valueCount = 0;
+		for (const file of filteredFiles) {
+			const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
+			if (!fm) continue;
+			for (const [key, val] of Object.entries(fm)) {
+				if (key === 'position') continue;
+				propSet.add(key);
+				valueCount += Array.isArray(val) ? val.length : 1;
+			}
+		}
+
+		const parts: string[] = [
+			t('statusbar.files', { count: total }),
+			t('statusbar.filtered_label', { count: filtered }),
+			t('statusbar.props_label', { count: propSet.size }),
+			t('statusbar.values_label', { count: valueCount }),
+		];
+
+		if (queued > 0) {
+			parts.push(t('statusbar.pending', { count: queued }));
+		}
+
+		this.statusBarEl.setText(parts.join(' | '));
 	}
 
 	/** Open the main (full-screen) view in the center workspace */
@@ -108,7 +164,7 @@ export class ObsiManPlugin extends Plugin {
 
 		const leaves = workspace.getLeavesOfType(OBSIMAN_MAIN_VIEW_TYPE);
 		if (leaves.length > 0) {
-			workspace.revealLeaf(leaves[0]);
+			await workspace.revealLeaf(leaves[0]);
 			return;
 		}
 
@@ -117,7 +173,7 @@ export class ObsiManPlugin extends Plugin {
 			type: OBSIMAN_MAIN_VIEW_TYPE,
 			active: true,
 		});
-		workspace.revealLeaf(leaf);
+		await workspace.revealLeaf(leaf);
 	}
 
 	/** Open the sidebar view */
@@ -141,7 +197,7 @@ export class ObsiManPlugin extends Plugin {
 		}
 
 		if (leaf) {
-			workspace.revealLeaf(leaf);
+			await workspace.revealLeaf(leaf);
 		}
 	}
 }

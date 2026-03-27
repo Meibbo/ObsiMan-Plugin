@@ -1,4 +1,4 @@
-import { Component, type App, type TFile, type CachedMetadata } from 'obsidian';
+import { Component, type App, type TAbstractFile, type CachedMetadata } from 'obsidian';
 
 /**
  * Builds and maintains a live index of all frontmatter property names
@@ -16,73 +16,71 @@ export class PropertyIndexService extends Component {
 
 	private app: App;
 
+	/** Per-file property tracking for incremental removal */
+	private fileProperties: Map<string, Set<string>> = new Map();
+
+	/** Debounce timer for batching metadata changes */
+	private metadataTimer: ReturnType<typeof setTimeout> | null = null;
+	private pendingFiles: Set<string> = new Set();
+	private readonly METADATA_DEBOUNCE_MS = 50;
+
 	constructor(app: App) {
 		super();
 		this.app = app;
 	}
 
 	onload(): void {
+		// Build index immediately (cache may already be resolved)
 		this.rebuild();
 
-		// Live update on metadata changes
+		// Rebuild again when the metadata cache finishes resolving
+		// (handles large vaults where cache isn't ready during onload)
 		this.registerEvent(
-			this.app.metadataCache.on('changed', (file) => {
-				this.updateFile(file);
-			})
-		);
-
-		this.registerEvent(
-			this.app.vault.on('delete', (_file) => {
-				// Full rebuild on delete (simpler than tracking per-file contributions)
+			this.app.metadataCache.on('resolved', () => {
 				this.rebuild();
 			})
 		);
+
+		// Live update on metadata changes (debounced)
+		this.registerEvent(
+			this.app.metadataCache.on('changed', (file) => {
+				this.pendingFiles.add(file.path);
+				this.scheduleFlush();
+			})
+		);
+
+		// Incremental removal on file delete
+		this.registerEvent(
+			this.app.vault.on('delete', (file: TAbstractFile) => {
+				this.removeFile(file.path);
+			})
+		);
+
+		// Track new files for fileCount
+		this.registerEvent(
+			this.app.vault.on('create', () => {
+				this.fileCount = this.app.vault.getMarkdownFiles().length;
+			})
+		);
+	}
+
+	onunload(): void {
+		if (this.metadataTimer) {
+			clearTimeout(this.metadataTimer);
+			this.metadataTimer = null;
+		}
 	}
 
 	/** Full rebuild from all markdown files */
 	rebuild(): void {
 		this.index.clear();
+		this.fileProperties.clear();
 		const files = this.app.vault.getMarkdownFiles();
 		this.fileCount = files.length;
 
 		for (const file of files) {
 			const cache = this.app.metadataCache.getFileCache(file);
-			this.indexFrontmatter(cache);
-		}
-	}
-
-	/** Incrementally update index when a single file changes */
-	private updateFile(file: TFile): void {
-		const cache = this.app.metadataCache.getFileCache(file);
-		this.indexFrontmatter(cache);
-		// Recount (file may be new)
-		this.fileCount = this.app.vault.getMarkdownFiles().length;
-	}
-
-	private indexFrontmatter(cache: CachedMetadata | null): void {
-		const fm = cache?.frontmatter;
-		if (!fm) return;
-
-		for (const [key, value] of Object.entries(fm)) {
-			// Skip Obsidian's internal position key
-			if (key === 'position') continue;
-
-			if (!this.index.has(key)) {
-				this.index.set(key, new Set());
-			}
-			const values = this.index.get(key)!;
-			this.addValues(values, value);
-		}
-	}
-
-	private addValues(target: Set<string>, value: unknown): void {
-		if (value == null) return;
-		if (Array.isArray(value)) {
-			for (const v of value) {
-				if (v != null) target.add(String(v));
-			}
-		} else {
-			target.add(typeof value === 'object' ? JSON.stringify(value) : String(value as string | number | boolean | null | undefined));
+			this.indexFile(file.path, cache);
 		}
 	}
 
@@ -100,5 +98,67 @@ export class PropertyIndexService extends Component {
 		return [...values].sort((a, b) =>
 			a.localeCompare(b, undefined, { sensitivity: 'base' })
 		);
+	}
+
+	/** Schedule a debounced flush of pending metadata updates */
+	private scheduleFlush(): void {
+		if (this.metadataTimer) return;
+		this.metadataTimer = setTimeout(() => {
+			this.metadataTimer = null;
+			this.flushPending();
+		}, this.METADATA_DEBOUNCE_MS);
+	}
+
+	/** Process all pending metadata changes in one batch */
+	private flushPending(): void {
+		for (const path of this.pendingFiles) {
+			const file = this.app.vault.getFileByPath(path);
+			if (file) {
+				const cache = this.app.metadataCache.getFileCache(file);
+				this.indexFile(path, cache);
+			}
+		}
+		this.pendingFiles.clear();
+	}
+
+	/** Index a single file's frontmatter, replacing any previous contribution */
+	private indexFile(path: string, cache: CachedMetadata | null): void {
+		// Track which properties this file contributes
+		const props = new Set<string>();
+		this.fileProperties.set(path, props);
+
+		const fm = cache?.frontmatter;
+		if (!fm) return;
+
+		for (const [key, value] of Object.entries(fm)) {
+			if (key === 'position') continue;
+
+			props.add(key);
+			if (!this.index.has(key)) {
+				this.index.set(key, new Set());
+			}
+			const values = this.index.get(key)!;
+			this.addValues(values, value);
+		}
+	}
+
+	/** Remove a file's contributions from the index */
+	private removeFile(path: string): void {
+		this.fileProperties.delete(path);
+		this.fileCount = Math.max(0, this.fileCount - 1);
+		// Note: we don't remove values from the index since other files may
+		// contribute the same values. The index grows monotonically between
+		// full rebuilds, which is acceptable for autocomplete/suggestion use.
+	}
+
+	private addValues(target: Set<string>, value: unknown): void {
+		if (value == null) return;
+		if (Array.isArray(value)) {
+			for (const v of value) {
+				if (v != null) target.add(String(v));
+			}
+		} else {
+			target.add(typeof value === 'object' ? JSON.stringify(value) : String(value as string | number | boolean | null | undefined));
+		}
 	}
 }

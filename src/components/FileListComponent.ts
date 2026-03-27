@@ -253,10 +253,13 @@ export class FileListComponent {
 		return Object.keys(fm).filter((k) => k !== 'position').length;
 	}
 
-	/** Get TFile objects for currently selected files */
+	/** Get TFile objects for currently selected files (O(1) per file) */
 	getSelectedFiles(): TFile[] {
-		return this.app.vault
-			.getMarkdownFiles()
-			.filter((f) => this.selectedFiles.has(f.path));
+		const result: TFile[] = [];
+		for (const path of this.selectedFiles) {
+			const file = this.app.vault.getFileByPath(path);
+			if (file) result.push(file);
+		}
+		return result;
 	}
 }

@@ -245,7 +245,7 @@ export class LinterModal extends Modal {
 				// Small delay for metadataCache to sync
 				await new Promise((r) => setTimeout(r, 50));
 
-				// Execute linter command
+				// Execute linter command (internal Obsidian API — no public alternative)
 				(this.app as unknown as { commands: { executeCommandById: (id: string) => boolean } })
 					.commands.executeCommandById(commandId);
 
