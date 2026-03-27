@@ -3,11 +3,15 @@
 ![Version](https://img.shields.io/github/v/release/Meibbo/obsiman)
 ![Obsidian](https://img.shields.io/badge/Obsidian-%E2%89%A51.7.0-purple)
 
-> Bulk property editor and vault management tool for Obsidian.
+> Bulk YAML & file editor tool for a better vault management in Obsidian.
 
-ObsiMan grew out of frustration with Obsidian's native property tools. Once you have hundreds of notes and start managing them seriously, the built-in properties view gets limiting fast — you can see all your properties listed, you can rename one at a time, and that's about it. I wanted something closer to a spreadsheet: filter your whole vault, select the files you care about, queue up a batch of changes, preview exactly what's going to happen, and then apply everything at once.
+ObsiMan grew out of frustration with Obsidian's native & community tools for making property lists changes. Once you have hundreds of notes and start managing them seriously, the built-in properties view gets limiting fast... you can see all your properties listed, you can rename one at a time, and that's about it. 
 
-That's what ObsiMan is. It's not trying to replace Obsidian's native features — it sits on top of them as an extra layer. Think of it as a control panel for your frontmatter.
+I wanted something closer to what bases, tag wrangler and multiProperties do, but better and unified. 
+
+Think of it as a control panel for your frontmatter: filter your whole vault, select the files you care about, queue up a batch of changes, preview exactly what's going to happen, and then apply everything at once.
+
+That's what ObsiMan is.  
 
 ---
 
@@ -20,7 +24,7 @@ That's what ObsiMan is. It's not trying to replace Obsidian's native features �
 ## What actually works in v0.9.0
 
 ### Property explorer
-The left-side tree showing all your vault's properties and values. This part is solid — search, sort by name/count/type, right-click context menus, and icon integration with [Iconic](https://github.com/gfxholo/iconic) if you have it installed. Ctrl+click a property opens Obsidian's native search for that value.
+The right-side tree showing all your vault's properties and values. This part is solid — search, sort by name/count/type, right-click context menus, and icon integration with [Iconic](https://github.com/gfxholo/iconic) if you have it installed. Ctrl+click a property opens Obsidian's native search for that value.
 
 ### Spreadsheet grid
 The main table view of your files and their properties. Virtual scrolling works well even with large vaults (tested with 1,100+ notes at ~60fps). Column resizing, sortable headers, and Excel-style selection all work — Ctrl+click to toggle, Shift+click for range, header checkbox for all. **Caveat**: the header checkbox lost its accent styling in this version (CSS regression, cosmetic only).
