@@ -1,6 +1,6 @@
 {
 	"name": "obsiman",
-	"version": "1.3.0",
+	"version": "0.9.0",
 	"description": "Bulk property & file editor for vault management in Obsidian.",
 	"main": "main.js",
 	"type": "module",

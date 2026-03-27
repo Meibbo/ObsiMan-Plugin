@@ -1,5 +1,5 @@
 # [[ObsiMan]]
-## v1.3 — Main View UI Overhaul (2026-03-25)
+## v1.2.1 — Main View UI Overhaul (2026-03-25)
 Rediseño completo de la vista principal del plugin:
 - [x] Auto-detección de idioma de Obsidian (language: 'auto') ✅
 - [x] Iconos para TODAS las propiedades (Iconic → fallback a íconos de tipo) ✅

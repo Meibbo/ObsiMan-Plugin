@@ -8,6 +8,8 @@ aliases: Untitled 16
 tags:
 input: "[[WhatsApp]]"
 description: explicación detallada del flujo de trabajo con el plugin, con ejemplos de uso cotidiano
+author:
+  - "[[Meibbo]]"
 ---
 Diseñé una interfaz con lenguaje Python que busca archivos .md (archivos de texto modernos), lee sus propiedades YAML y los enlista en una matriz.
 
