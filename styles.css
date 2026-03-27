@@ -1345,6 +1345,11 @@
 	transition: border-color 0.15s ease;
 }
 
+.obsiman-grid-th-check input[type="checkbox"] {
+	width: 14px;
+	height: 14px;
+}
+
 .obsiman-grid-th-check.is-indeterminate {
 	border-color: var(--obsiman-accent);
 }

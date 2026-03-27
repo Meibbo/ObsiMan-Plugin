@@ -250,7 +250,7 @@ export class PropertyGridComponent {
 			}
 			this.callbacks.onSelectionChange(new Set(this.selectedPaths));
 			this.updateHeaderCheckbox();
-			this.renderVisibleRows(true);
+			if (this.showOnlyChecked) { this.rebuildBody(); } else { this.updateVisibleCheckStates(); }
 		});
 
 		// Name column
@@ -351,6 +351,7 @@ export class PropertyGridComponent {
 		const isSelected = this.selectedPaths.has(file.path);
 		const tr = tbody.createEl('tr', { cls: 'obsiman-grid-row' });
 		tr.style.height = `${ROW_HEIGHT}px`;
+		tr.dataset.rowIndex = String(rowIndex);
 		if (isSelected) tr.addClass('is-selected');
 
 		// Row-level click handler for Excel-like selection
@@ -393,7 +394,7 @@ export class PropertyGridComponent {
 			cb.checked = this.selectedPaths.has(file.path);
 			this.callbacks.onSelectionChange(new Set(this.selectedPaths));
 			this.updateHeaderCheckbox();
-			this.renderVisibleRows(true);
+			if (this.showOnlyChecked) { this.rebuildBody(); } else { this.updateVisibleCheckStates(); }
 		});
 
 		// File name: click text=open, dblclick cell=rename
@@ -412,9 +413,6 @@ export class PropertyGridComponent {
 		if (editableCols.includes('name')) {
 			tdName.addEventListener('dblclick', (e) => {
 				e.stopPropagation();
-				const target = e.target as HTMLElement;
-				// Don't trigger rename if dblclick was on the name link itself
-				if (target.hasClass('obsiman-grid-name-link')) return;
 				this.startNameEdit(tdName, file);
 			});
 		}
@@ -426,22 +424,31 @@ export class PropertyGridComponent {
 		for (const col of this.columns) {
 			const td = tr.createEl('td', { cls: 'obsiman-grid-td-prop' });
 			const value = fm[col];
-			const text = this.formatValue(value);
 
-			// Render with live preview or plain text
-			const renderMode = this.plugin.settings.gridRenderMode ?? 'plain';
-			const livePreviewCols = this.plugin.settings.gridLivePreviewColumns ?? [];
-			const shouldRenderLive = renderMode !== 'plain' &&
-				(livePreviewCols.length === 0 || livePreviewCols.includes(col));
+			// Render tag-type columns as Obsidian tag chips
+			const isTagCol = col === 'tags' ||
+				this.plugin.propertyTypeService.getType(col) === 'tags';
 
-			if (shouldRenderLive && text) {
-				td.addClass('obsiman-grid-live-cell');
-				// Queue for chunk rendering
-				td.dataset.liveText = text;
-				td.dataset.livePath = file.path;
-				td.setText(text); // Plain text as fallback until rendered
+			if (isTagCol && Array.isArray(value) && value.length > 0) {
+				this.renderTagChips(td, value as unknown[]);
 			} else {
-				td.setText(text);
+				const text = this.formatValue(value);
+
+				// Render with live preview or plain text
+				const renderMode = this.plugin.settings.gridRenderMode ?? 'plain';
+				const livePreviewCols = this.plugin.settings.gridLivePreviewColumns ?? [];
+				const shouldRenderLive = renderMode !== 'plain' &&
+					(livePreviewCols.length === 0 || livePreviewCols.includes(col));
+
+				if (shouldRenderLive && text) {
+					td.addClass('obsiman-grid-live-cell');
+					// Queue for chunk rendering
+					td.dataset.liveText = text;
+					td.dataset.livePath = file.path;
+					td.setText(text); // Plain text as fallback until rendered
+				} else {
+					td.setText(text);
+				}
 			}
 
 			// Inline editing on double-click
@@ -581,7 +588,7 @@ export class PropertyGridComponent {
 
 		this.callbacks.onSelectionChange(new Set(this.selectedPaths));
 		this.updateHeaderCheckbox();
-		this.renderVisibleRows(true);
+		if (this.showOnlyChecked) { this.rebuildBody(); } else { this.updateVisibleCheckStates(); }
 	}
 
 	/** Update header checkbox state: unchecked, checked, or indeterminate with accent border */
@@ -609,6 +616,22 @@ export class PropertyGridComponent {
 			this.headerCheckbox.checked = false;
 			this.headerCheckbox.indeterminate = true;
 			thCheck?.addClass('is-indeterminate');
+		}
+	}
+
+	/** Patches checked/selected state on already-rendered rows without a full rebuild. */
+	private updateVisibleCheckStates(): void {
+		if (!this.tbodyEl) return;
+		const rows = this.tbodyEl.querySelectorAll<HTMLTableRowElement>('tr.obsiman-grid-row');
+		for (const tr of rows) {
+			const idx = parseInt(tr.dataset.rowIndex ?? '', 10);
+			if (isNaN(idx)) continue;
+			const file = this.sortedFiles[idx];
+			if (!file) continue;
+			const isSelected = this.selectedPaths.has(file.path);
+			tr.toggleClass('is-selected', isSelected);
+			const cb = tr.querySelector<HTMLInputElement>('td.obsiman-grid-td-check input[type="checkbox"]');
+			if (cb) cb.checked = isSelected;
 		}
 	}
 
@@ -674,6 +697,23 @@ export class PropertyGridComponent {
 				}
 			}
 		});
+	}
+
+	/** Renders tag values as Obsidian-style tag chips inside a cell element. */
+	private renderTagChips(td: HTMLElement, values: unknown[]): void {
+		td.empty();
+		for (const val of values) {
+			const tag = String(val).replace(/^#/, '');
+			if (!tag) continue;
+			const chip = td.createEl('a', { cls: 'tag' });
+			chip.setAttribute('href', `#${tag}`);
+			chip.textContent = `#${tag}`;
+			chip.addEventListener('click', (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				void this.app.workspace.openLinkText(`#${tag}`, '', false);
+			});
+		}
 	}
 
 	private formatValue(val: unknown): string {
