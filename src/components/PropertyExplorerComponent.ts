@@ -38,6 +38,7 @@ export class PropertyExplorerComponent {
 	private searchWrapper: HTMLElement | null = null;
 	private searchTerm = '';
 	private searchVisible = false;
+	private searchMode: 'properties' | 'values' = 'properties';
 
 	private expandedProps = new Set<string>();
 	private sortMode: SortMode = 'count';
@@ -52,9 +53,15 @@ export class PropertyExplorerComponent {
 	private cachedFileCounts: Map<string, Map<string, number>> | null = null;
 	private cachedPropFileCounts: Map<string, number> | null = null;
 
-	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin) {
+	/** Pending timer IDs for cleanup */
+	private pendingTimers: ReturnType<typeof setTimeout>[] = [];
+
+	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin, options?: { defaultScope?: FilterScope }) {
 		this.containerEl = containerEl;
 		this.plugin = plugin;
+		if (options?.defaultScope) {
+			this.filterScope = options.defaultScope;
+		}
 	}
 
 	render(): void {
@@ -62,18 +69,41 @@ export class PropertyExplorerComponent {
 		this.containerEl.addClass('obsiman-explorer');
 		this.invalidateCache();
 
-		// Collapsible search
+		// Collapsible search with mode toggle
 		this.searchWrapper = this.containerEl.createDiv({
 			cls: `obsiman-explorer-search-collapsible ${this.searchVisible ? 'is-open' : ''}`,
 		});
-		this.searchEl = this.searchWrapper.createEl('input', {
+
+		const searchRow = this.searchWrapper.createDiv({ cls: 'obsiman-explorer-search-row' });
+
+		this.searchEl = searchRow.createEl('input', {
 			cls: 'obsiman-explorer-search-input',
-			attr: { type: 'text', placeholder: t('explorer.search') },
+			attr: {
+				type: 'text',
+				placeholder: this.searchMode === 'properties'
+					? t('explorer.search')
+					: (t('explorer.search_values') ?? 'Search values…'),
+			},
 		});
 		this.searchEl.value = this.searchTerm;
 		this.searchEl.addEventListener('input', () => {
 			this.searchTerm = this.searchEl?.value ?? '';
 			this.renderTree();
+		});
+
+		// Search mode toggle: properties (key icon) ↔ values (tag icon)
+		const modeBtn = searchRow.createDiv({
+			cls: `clickable-icon obsiman-search-mode-toggle${this.searchMode === 'values' ? ' is-active' : ''}`,
+			attr: {
+				'aria-label': this.searchMode === 'properties'
+					? (t('explorer.search_mode_values') ?? 'Search values')
+					: (t('explorer.search_mode_props') ?? 'Search properties'),
+			},
+		});
+		setIcon(modeBtn, this.searchMode === 'properties' ? 'lucide-tag' : 'lucide-key-round');
+		modeBtn.addEventListener('click', () => {
+			this.searchMode = this.searchMode === 'properties' ? 'values' : 'properties';
+			this.render();
 		});
 
 		// Tree container
@@ -239,10 +269,24 @@ export class PropertyExplorerComponent {
 		// Get property names
 		let propNames = [...index.keys()];
 
+		// In filtered/selected scope, hide properties with zero file count
+		if (this.filterScope !== 'all') {
+			propNames = propNames.filter((n) => (propFileCounts.get(n) ?? 0) > 0);
+		}
+
 		// Filter by search
 		if (this.searchTerm) {
 			const term = this.searchTerm.toLowerCase();
-			propNames = propNames.filter((n) => n.toLowerCase().includes(term));
+			if (this.searchMode === 'properties') {
+				propNames = propNames.filter((n) => n.toLowerCase().includes(term));
+			} else {
+				// Value search: keep properties that have at least one matching value
+				propNames = propNames.filter((n) => {
+					const vals = index.get(n);
+					if (!vals) return false;
+					return [...vals].some((v) => v.toLowerCase().includes(term));
+				});
+			}
 		}
 
 		// Filter by type
@@ -310,8 +354,9 @@ export class PropertyExplorerComponent {
 			cls: `obsiman-explorer-header ${isExpanded ? 'is-expanded' : ''}`,
 		});
 
-		// Toggle arrow
-		headerEl.createSpan({ cls: 'obsiman-explorer-toggle', text: isExpanded ? '▼' : '▶' });
+		// Toggle arrow (Lucide chevron)
+		const toggleSpan = headerEl.createSpan({ cls: 'obsiman-explorer-toggle' });
+		setIcon(toggleSpan, isExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right');
 
 		// Property icon (Iconic custom → fallback to type icon)
 		const iconData = this.plugin.iconicService.getIcon(propName);
@@ -624,14 +669,24 @@ export class PropertyExplorerComponent {
 	// ── Core Search ──────────────────────────────────────────
 
 	private openCoreSearch(query: string): void {
+		// Uses internal Obsidian API — no public alternative available
 		(this.plugin.app as unknown as { commands: { executeCommandById: (id: string) => void } }).commands.executeCommandById('global-search:open');
-		setTimeout(() => {
-			const input = document.querySelector('.search-input-container input') as HTMLInputElement;
+		const timer = setTimeout(() => {
+			const input = this.containerEl.ownerDocument.querySelector('.search-input-container input') as HTMLInputElement;
 			if (input) {
 				input.value = query;
 				input.dispatchEvent(new Event('input'));
 			}
 		}, 150);
+		this.pendingTimers.push(timer);
+	}
+
+	/** Clean up any pending timers */
+	destroy(): void {
+		for (const timer of this.pendingTimers) {
+			clearTimeout(timer);
+		}
+		this.pendingTimers.length = 0;
 	}
 
 	// ── File Count Caching ───────────────────────────────────

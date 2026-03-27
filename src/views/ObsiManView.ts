@@ -47,7 +47,7 @@ export class ObsiManView extends ItemView {
 	}
 
 	getIcon(): string {
-		return 'settings-2';
+		return 'obsiman-icon';
 	}
 
 	async onOpen(): Promise<void> {
@@ -75,6 +75,7 @@ export class ObsiManView extends ItemView {
 	}
 
 	async onClose(): Promise<void> {
+		this.explorer?.destroy();
 		this.contentEl.empty();
 	}
 
@@ -228,8 +229,10 @@ export class ObsiManView extends ItemView {
 
 		// Queue container
 		const queueContainer = this.opsSection.createDiv({ cls: 'obsiman-queue-container' });
-		this.queueList = new QueueListComponent(queueContainer, (index) => {
-			this.plugin.queueService.remove(index);
+		this.queueList = new QueueListComponent(queueContainer, {
+			onRemove: (index: number) => {
+				this.plugin.queueService.remove(index);
+			},
 		});
 
 		// Apply / Clear buttons

@@ -1,18 +1,26 @@
-import type { App } from 'obsidian';
+import { Component, type App } from 'obsidian';
 
 /**
  * Reads property type assignments from .obsidian/types.json
  * and provides lookup/mutation helpers.
  */
-export class PropertyTypeService {
+export class PropertyTypeService extends Component {
 	private types = new Map<string, string>();
-	private app: App | null = null;
+	private app: App;
 
-	async load(app: App): Promise<void> {
+	constructor(app: App) {
+		super();
 		this.app = app;
+	}
+
+	onload(): void {
+		void this.loadTypes();
+	}
+
+	private async loadTypes(): Promise<void> {
 		try {
 			const path = `${this.app.vault.configDir}/types.json`;
-			const raw = await app.vault.adapter.read(path);
+			const raw = await this.app.vault.adapter.read(path);
 			const data = JSON.parse(raw) as { types?: Record<string, string> };
 			if (data.types && typeof data.types === 'object') {
 				for (const [name, type] of Object.entries(data.types)) {
@@ -35,7 +43,6 @@ export class PropertyTypeService {
 
 	/** Write a type assignment to .obsidian/types.json */
 	async setType(propName: string, type: string): Promise<void> {
-		if (!this.app) return;
 		this.types.set(propName, type);
 		try {
 			const path = `${this.app.vault.configDir}/types.json`;

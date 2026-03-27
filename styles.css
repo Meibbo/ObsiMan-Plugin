@@ -314,6 +314,12 @@
 	border-bottom: 1px solid var(--obsiman-border);
 }
 
+.obsiman-queue-checkbox {
+	width: 14px;
+	height: 14px;
+	flex-shrink: 0;
+}
+
 .obsiman-queue-index {
 	color: var(--obsiman-text-faint);
 	font-size: 0.85em;
@@ -652,6 +658,37 @@
 	max-height: 40px;
 }
 
+.obsiman-explorer-search-row {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.obsiman-explorer-search-row .obsiman-explorer-search-input {
+	flex: 1;
+}
+
+.obsiman-search-mode-toggle {
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--radius-s);
+	color: var(--text-muted);
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+.obsiman-search-mode-toggle:hover {
+	background: var(--obsiman-bg-hover);
+	color: var(--text-normal);
+}
+
+.obsiman-search-mode-toggle.is-active {
+	color: var(--obsiman-accent);
+}
+
 /* Iconic icon in explorer */
 .obsiman-explorer-icon {
 	width: 16px;
@@ -838,23 +875,39 @@
 	position: relative;
 }
 
-/* --- Header Bar --- */
-.obsiman-header-bar {
+/* --- (session row removed in dev) --- */
+
+.obsiman-hidden {
+	display: none !important;
+}
+
+/* --- Operations Column (LEFT — smart vertical/horizontal tabs) --- */
+.obsiman-ops-column {
 	display: flex;
-	align-items: center;
-	gap: 8px;
-	padding: 4px 12px;
-	border-bottom: 1px solid var(--obsiman-border);
-	background: var(--obsiman-bg-section);
+	flex-direction: column;
+	width: 280px;
 	flex-shrink: 0;
-	min-height: 32px;
+	border-right: 1px solid var(--obsiman-border);
+	transition: width 0.2s ease;
+	overflow: hidden;
 }
 
-.obsiman-header-spacer {
-	flex: 1;
+.obsiman-ops-column.is-collapsed {
+	width: 36px;
 }
 
-.obsiman-header-bar .clickable-icon {
+/* Collapsed: vertical icon strip */
+.obsiman-ops-strip {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	padding: 4px 0;
+	width: 36px;
+	height: 100%;
+}
+
+.obsiman-ops-strip .clickable-icon {
 	width: 28px;
 	height: 28px;
 	display: flex;
@@ -865,97 +918,131 @@
 	cursor: pointer;
 }
 
-.obsiman-header-bar .clickable-icon:hover {
+.obsiman-ops-strip .clickable-icon:hover {
 	background: var(--obsiman-bg-hover);
 	color: var(--text-normal);
 }
 
-.obsiman-header-bar .clickable-icon.is-active {
+.obsiman-ops-strip .clickable-icon.is-active {
 	color: var(--obsiman-accent);
 }
 
-.obsiman-header-queue-badge {
-	cursor: pointer;
-	color: var(--text-warning);
-	font-size: 0.85em;
-	font-weight: 500;
-	padding: 2px 8px;
-	border-radius: var(--radius-s);
+.obsiman-ops-strip-toggle {
+	margin-bottom: 4px;
+	padding-bottom: 4px;
+	border-bottom: 1px solid var(--obsiman-border);
 }
 
-.obsiman-header-queue-badge:hover {
-	background: var(--obsiman-bg-hover);
-}
-
-.obsiman-header-apply {
-	font-size: 0.85em;
-}
-
-.obsiman-hidden {
-	display: none !important;
-}
-
-/* --- Explorer Column (navbar + explorer panel) --- */
-.obsiman-explorer-column {
+/* Expanded: horizontal tab bar + content */
+.obsiman-ops-expanded {
 	display: flex;
 	flex-direction: column;
-	width: 296px;
+	height: 100%;
+}
+
+.obsiman-ops-tabbar {
+	display: flex;
+	align-items: center;
+	gap: 0;
+	border-bottom: 1px solid var(--obsiman-border);
+	background: var(--obsiman-bg-section);
 	flex-shrink: 0;
-	border-right: 1px solid var(--obsiman-border);
-	transition: width 0.2s ease;
-	overflow: hidden;
+	overflow-x: auto;
 }
 
-.obsiman-explorer-column.is-collapsed {
-	width: 36px;
+.obsiman-ops-tabbar-toggle {
+	width: 28px;
+	height: 28px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--radius-s);
+	color: var(--text-muted);
+	cursor: pointer;
+	flex-shrink: 0;
+	margin: 2px 4px;
 }
 
-.obsiman-explorer-column.is-collapsed .obsiman-explorer-panel {
-	display: none;
+.obsiman-ops-tabbar-toggle:hover {
+	background: var(--obsiman-bg-hover);
+	color: var(--text-normal);
 }
 
-.obsiman-explorer-panel {
-	flex: 1;
-	overflow-y: auto;
-}
-
-.obsiman-popover-anchor {
-	position: relative;
-}
-
-/* --- Operations Panel (right, default) --- */
-.obsiman-operations-panel-right {
-	width: 260px;
+/* --- Properties Panel (RIGHT) --- */
+.obsiman-properties-panel-right {
+	width: 240px;
 	flex-shrink: 0;
 	border-left: 1px solid var(--obsiman-border);
 	overflow: hidden;
-	transition: width 0.2s ease;
 	display: flex;
 	flex-direction: column;
+	transition: width 0.2s ease;
 }
 
-.obsiman-operations-panel-right.is-collapsed {
+.obsiman-properties-panel-right.is-collapsed {
 	width: 0;
 	border-left: none;
 }
 
-/* Operations panel — bottom variant */
-.obsiman-operations-panel-bottom {
-	border-top: 1px solid var(--obsiman-border);
-	overflow: hidden;
-	transition: height 0.2s ease;
-	flex-shrink: 0;
+/* Toggle strip between grid and properties */
+.obsiman-props-toggle-strip {
 	display: flex;
 	flex-direction: column;
+	align-items: center;
+	padding: 4px 0;
+	flex-shrink: 0;
 }
 
-.obsiman-operations-panel-bottom.is-collapsed {
-	height: 0;
-	border-top: none;
+.obsiman-props-toggle-strip .clickable-icon {
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--radius-s);
+	color: var(--text-muted);
+	cursor: pointer;
 }
 
-.obsiman-operations-panel-bottom:not(.is-collapsed) {
-	height: 200px;
+.obsiman-props-toggle-strip .clickable-icon:hover {
+	background: var(--obsiman-bg-hover);
+	color: var(--text-normal);
+}
+
+.obsiman-props-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	padding: 4px;
+	border-bottom: 1px solid var(--obsiman-border);
+	background: var(--obsiman-bg-section);
+	flex-shrink: 0;
+}
+
+.obsiman-props-toolbar .clickable-icon {
+	width: 28px;
+	height: 28px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--radius-s);
+	color: var(--text-muted);
+	cursor: pointer;
+}
+
+.obsiman-props-toolbar .clickable-icon:hover {
+	background: var(--obsiman-bg-hover);
+	color: var(--text-normal);
+}
+
+.obsiman-props-explorer-wrap {
+	flex: 1;
+	overflow-y: auto;
+	padding: 8px;
+}
+
+.obsiman-popover-anchor {
+	position: relative;
 }
 
 /* Operations panel tabs */
@@ -1027,6 +1114,73 @@
 
 .obsiman-text-muted {
 	color: var(--text-muted);
+}
+
+/* --- Operations panel split layout (pinned queue) --- */
+.obsiman-operations-split {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.obsiman-operations-top {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.obsiman-operations-top .obsiman-operations-content {
+	flex: 1;
+	overflow-y: auto;
+}
+
+/* Pinned queue section (always visible at bottom) */
+.obsiman-operations-pinned-queue {
+	flex-shrink: 0;
+	max-height: 45%;
+	overflow-y: auto;
+	border-top: 1px solid var(--obsiman-border);
+	padding: 6px 8px;
+	background: var(--obsiman-bg-section);
+}
+
+.obsiman-pinned-queue-header {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 4px;
+}
+
+.obsiman-pinned-queue-title {
+	font-size: 0.8em;
+	font-weight: 600;
+	text-transform: uppercase;
+	color: var(--obsiman-text-muted);
+}
+
+.obsiman-pinned-queue-badge {
+	font-size: 0.75em;
+	font-weight: 600;
+	color: var(--text-on-accent);
+	background: var(--obsiman-accent);
+	border-radius: 8px;
+	padding: 0 5px;
+	min-width: 16px;
+	text-align: center;
+	line-height: 16px;
+}
+
+.obsiman-pinned-queue-list {
+	margin-bottom: 6px;
+}
+
+.obsiman-pinned-queue-actions {
+	display: flex;
+	gap: 4px;
+	flex-wrap: wrap;
 }
 
 /* --- Toolbar --- */
@@ -1161,9 +1315,12 @@
 }
 
 .obsiman-grid-table {
-	width: 100%;
 	border-collapse: collapse;
 	font-size: 0.85em;
+}
+
+.obsiman-grid-fixed {
+	table-layout: fixed;
 }
 
 .obsiman-grid-table thead {
@@ -1181,15 +1338,21 @@
 }
 
 .obsiman-grid-th-sortable {
+	position: relative;
 	padding: 6px 8px;
 	text-align: left;
 	font-weight: 600;
 	font-size: 0.9em;
 	color: var(--obsiman-text-muted);
-	cursor: pointer;
 	white-space: nowrap;
 	border-bottom: 2px solid var(--obsiman-border);
 	user-select: none;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.obsiman-grid-th-label {
+	cursor: pointer;
 }
 
 .obsiman-grid-th-sortable:hover {
@@ -1199,6 +1362,28 @@
 
 .obsiman-grid-th-active {
 	color: var(--text-normal);
+}
+
+/* Column resize handle */
+.obsiman-grid-resize-handle {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 5px;
+	height: 100%;
+	cursor: col-resize;
+	z-index: 3;
+}
+
+.obsiman-grid-resize-handle:hover,
+body.obsiman-resizing .obsiman-grid-resize-handle {
+	background: var(--obsiman-accent);
+	opacity: 0.4;
+}
+
+body.obsiman-resizing {
+	cursor: col-resize !important;
+	user-select: none !important;
 }
 
 .obsiman-grid-row {
@@ -1223,7 +1408,6 @@
 .obsiman-grid-td-name {
 	padding: 4px 8px;
 	white-space: nowrap;
-	max-width: 250px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
@@ -1240,7 +1424,6 @@
 
 .obsiman-grid-td-prop {
 	padding: 4px 8px;
-	max-width: 200px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -1268,21 +1451,6 @@
 	outline: none;
 }
 
-/* Virtual scroll spacers */
-.obsiman-grid-spacer {
-	flex-shrink: 0;
-}
-
-.obsiman-grid-body-table {
-	width: 100%;
-	border-collapse: collapse;
-	font-size: 0.85em;
-}
-
-.obsiman-grid-body-table td {
-	box-sizing: border-box;
-}
-
 /* Mobile: taller rows for touch targets */
 @media (pointer: coarse) {
 	.obsiman-grid-row {
@@ -1290,41 +1458,10 @@
 	}
 }
 
-/* --- Status bar --- */
-.obsiman-statusbar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 4px 12px;
-	border-top: 1px solid var(--obsiman-border);
-	background: var(--obsiman-bg-section);
-	flex-shrink: 0;
-	font-size: 0.8em;
-	color: var(--obsiman-text-faint);
-}
-
-.obsiman-statusbar-left,
-.obsiman-statusbar-right {
-	display: flex;
-	align-items: center;
-}
-
-.obsiman-statusbar-item {
-	color: var(--obsiman-text-muted);
-}
-
-.obsiman-statusbar-selected {
-	color: var(--obsiman-accent);
-	font-weight: 500;
-}
-
-.obsiman-statusbar-queued {
-	color: var(--text-warning);
-	font-weight: 500;
-}
-
-.obsiman-statusbar-separator {
-	color: var(--obsiman-text-faint);
+/* --- Native Status bar item --- */
+.obsiman-native-statusbar {
+	font-size: 0.85em;
+	color: var(--text-muted);
 }
 
 /* --- File Filter Popover --- */

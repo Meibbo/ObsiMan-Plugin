@@ -1,20 +1,28 @@
 import type { PendingChange } from '../types/operation';
 import { t } from '../i18n/index';
 
+export interface QueueListCallbacks {
+	onRemove: (index: number) => void;
+	selectable?: boolean;
+}
+
 /**
- * Renders the operation queue as a simple list with remove buttons.
+ * Renders the operation queue as a list.
+ * When selectable=true, items get checkboxes for batch operations.
  */
 export class QueueListComponent {
 	private containerEl: HTMLElement;
-	private onRemove: (index: number) => void;
+	private callbacks: QueueListCallbacks;
+	private selectedIndices = new Set<number>();
 
-	constructor(containerEl: HTMLElement, onRemove: (index: number) => void) {
+	constructor(containerEl: HTMLElement, callbacks: QueueListCallbacks) {
 		this.containerEl = containerEl;
-		this.onRemove = onRemove;
+		this.callbacks = callbacks;
 	}
 
 	render(queue: PendingChange[]): void {
 		this.containerEl.empty();
+		this.selectedIndices.clear();
 
 		if (queue.length === 0) {
 			this.containerEl.createDiv({
@@ -36,8 +44,27 @@ export class QueueListComponent {
 		}
 	}
 
+	getSelectedIndices(): number[] {
+		return [...this.selectedIndices];
+	}
+
 	private renderItem(parent: HTMLElement, change: PendingChange, index: number): void {
 		const itemEl = parent.createDiv({ cls: 'obsiman-queue-item' });
+
+		// Checkbox for selection (when selectable)
+		if (this.callbacks.selectable) {
+			const cb = itemEl.createEl('input', {
+				cls: 'obsiman-queue-checkbox',
+				attr: { type: 'checkbox' },
+			});
+			cb.addEventListener('change', () => {
+				if (cb.checked) {
+					this.selectedIndices.add(index);
+				} else {
+					this.selectedIndices.delete(index);
+				}
+			});
+		}
 
 		itemEl.createSpan({
 			cls: 'obsiman-queue-index',
@@ -64,7 +91,7 @@ export class QueueListComponent {
 			cls: 'obsiman-filter-remove-btn clickable-icon',
 			attr: { 'aria-label': 'Remove from queue' },
 		});
-		removeBtn.setText('×');
-		removeBtn.addEventListener('click', () => this.onRemove(index));
+		removeBtn.setText('\u00d7');
+		removeBtn.addEventListener('click', () => this.callbacks.onRemove(index));
 	}
 }

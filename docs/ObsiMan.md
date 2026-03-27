@@ -6,7 +6,9 @@ in:
   - "[[+/Obsidian|Obsidian]]"
 up:
   - "[[Plugin ideas]]"
-type: task
+type:
+  - task
+  - index
 status: in-progress
 priority: normal
 due: 2026-03-27
@@ -103,15 +105,13 @@ level:
   - Review
   - Transform
 googleCalendarEventId: 9pr6hihfh2el2v46evq7poj58o
-version: 1.3
+version: 1.2.2
 appElements:
   - GUI
 language:
   - "[[English]]"
   - Spanish
 cssclasses:
-  - color
-  - red
 dateCreated: 2026-03-06T00:43:00
 dateModified: 2026-03-25T19:53:38.182-05:00
 structure:
@@ -129,81 +129,14 @@ Qué pasos debo seguir para el desarrollo y publicación de este proyecto
 ## Development
 Necessary steps to conclude this project efficiently
 ### Structure
-- Obsidian Plugin
-- Python Script
-### User Interface
-The combination of elements in different spaces that gives control to the user
-#### Theme
-- [ ] theme selector in settings
-- python specifics
-	- [ ] dark contrast
-	- [ ] dracula
-	- [ ] make rename file window more stretched
-#### Windows
-- file section
-- properties section
-- queue tree
-- file operations tree
-- navbar
-- status bar
-- sidebar
-#### Widgets
-- Auto-suggestion Combobox
-- Draggable list box
-- expandable list
-- Checkbox
-- Tabs
-- Buttons
-- Slider
-- Date & Time chooser
-### Properties
-#### search & filter
-explain
-#### selection box
-explain
-#### operations
-- Set / Create property
-	- Replace all values option
-	- Append values option
-		- only available when the property type is text or lust
-- Change type
-- Rename
-	- Properties option
-	- values option
-- Delete
-	- Clean empty properties
-### Files
-#### file mixer
-#### file renamer
-#### files to folder
-### Tools
-#### función plantillas
-- filtros y grupos lógicos
-- queue changes
-	- [ ] los cambios en la vista previa del archivo en la sección de operaciones muestra los cambios que se van a realizar según los pending changes, pero la ventana específica de diff hace lo mismo
-- templater plugin support
-#### función linter
-- ordenar según plantillas
-#### Importe de datos
-- HabitKit `json`
-- Dailyo `json`
-- LaunchBox `xml`
-- Contacts `csv`, `vcf`
-### [[Archived tasks#ObsiMan|Archived tasks]]
-
+- [[Obsiman - User Interface]]
+- [[obsiman project drafts|Version control]]
+	- Obsidian Plugin
+	- Python Script
+- [[Archived tasks#ObsiMan|Archived tasks]]
 ## Publishing
 Debo compartir el proyecto para recibir opiniones, críticas y sugerencias.
-### Identity
-- [ ] #effort/Research si es mejor convertirlo en un plugin particular, un producto aparte. O si es mejor adherir los ideales a otro proyecto
-- [ ] #effort/Ask search if there’s any competition to your idea, that might be already available for public consumption
-- [x] escoge un nombre para publicarlo ✅ 2026-03-24
-	se me ocurrían distintos nombres que atrapen al público y le den una identidad al plugin
-	- PKM Manager 
-		- es un poco más profesional, pero tendrían que saber primero qué es Personal Knowledge Management
-		- o si realmente el nombre cubre todas las funciones que tendrá
-	- ObsiMan ✅
-		- suena como PepsiMan lol
-		- hace más referencia a la aplicación de Obsidian, lo que puede gustar a propios pero confundir a extraños
+[[ObsiMan - Marketing]]
 # Presentation
 De qué trata el proyecto y cómo se presentará a los participantes, herramientas IA y al público en general.
 ## Product
@@ -211,7 +144,7 @@ lo que le dará personalidad y lo hará distinguir del resto
 ### Review
 vistas previas, capturas de pantalla mientras progresa el desarrollo para una futura vista de cómo evolucionó las fases del proyecto
 ### Design & Architecture
-> [!note]- Main structure
+> [!note]+ Main structure
 > ```base
 > filters:
 >   and:
@@ -243,9 +176,15 @@ Plugins de referencia utilizados durante el desarrollo del plugin de Obsidian:
 	- **iconic**
 	- **templater**
 - % References
-	- **notebook-navigator** — inspiración para crear un plugin que abarcase las funciones de muchos otros, UI de árbol jerárquico con orden manual arrastrable para las property tree.
-	- **obsidian-bases-cms** — selección masiva, capas de caché
-	- **obsidian-multi-properties** — formularios reactivos Svelte 5, patrones de `processFrontMatter()`
-	- **obsidian-linter** — delegación de ordenamiento YAML via `app.commands.executeCommandById()`
-	- **file-diff** — inspiración para visualización de diff
-	- **tasknotes** — inspiración para ciclo de vida de sesiones/working sets
+	- **notebook-navigator** 
+		- inspiración para crear un plugin que abarcase las funciones de muchos otros
+		- UI de árbol jerárquico con orden manual arrastrable para las property tree.
+	- **obsidian-bases-cms** 
+		- selección masiva
+		- capas de caché
+	- **obsidian-multi-properties** 
+		- formularios reactivos
+	- **file-diff** 
+		- inspiración para visualización de diff en operaciones
+	- **tasknotes**
+		- implementación con archivos `.base`

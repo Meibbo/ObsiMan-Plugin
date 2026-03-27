@@ -46,6 +46,13 @@ export class SessionFileService extends Component {
 		this.app = app;
 	}
 
+	onunload(): void {
+		if (this.debounceTimer) {
+			clearTimeout(this.debounceTimer);
+			this.debounceTimer = null;
+		}
+	}
+
 	onload(): void {
 		// Listen to vault file modifications for watched session file
 		this.registerEvent(
@@ -260,19 +267,26 @@ export class SessionFileService extends Component {
 
 	/**
 	 * Detect Google Drive conflict files near the watched session file.
+	 * Scopes search to the parent folder instead of scanning the full vault.
 	 * Pattern: "filename (conflict YYYY-MM-DD-HH-MM-SS).md"
 	 */
 	detectConflicts(): TFile[] {
 		if (!this.watchedFile) return [];
 		const baseName = this.watchedFile.basename;
-		const folder = this.watchedFile.parent?.path ?? '';
+		const parent = this.watchedFile.parent;
+		if (!parent) return [];
 
-		return this.app.vault.getMarkdownFiles().filter((f) => {
-			if (f.path === this.watchedFile?.path) return false;
-			const inSameFolder = (f.parent?.path ?? '') === folder;
-			return inSameFolder && f.basename.startsWith(baseName) &&
-				/\(conflict \d{4}-\d{2}-\d{2}/.test(f.basename);
-		});
+		const conflicts: TFile[] = [];
+		for (const child of parent.children) {
+			if (!(child instanceof TFile)) continue;
+			if (child.path === this.watchedFile.path) continue;
+			if (child.extension !== 'md') continue;
+			if (child.basename.startsWith(baseName) &&
+				/\(conflict \d{4}-\d{2}-\d{2}/.test(child.basename)) {
+				conflicts.push(child);
+			}
+		}
+		return conflicts;
 	}
 
 	/** Get sync status for the current session file */

@@ -15,12 +15,18 @@ export interface GridCallbacks {
 const ROW_HEIGHT = Platform.isMobile ? 44 : 28;
 /** Extra rows rendered above/below the visible area */
 const OVERSCAN = 8;
+/** Default column width in pixels */
+const DEFAULT_COL_WIDTH = 150;
+/** Checkbox column width */
+const CHECK_COL_WIDTH = 30;
+/** Minimum column width during resize */
+const MIN_COL_WIDTH = 60;
 
 /**
  * Full-screen spreadsheet-like property grid with true virtual scrolling.
  *
- * Only renders rows visible in the viewport + overscan buffer.
- * Spacer divs above/below maintain correct scroll height.
+ * Uses a single table with sticky thead for perfect column alignment.
+ * Columns are resizable via drag handles on header borders.
  */
 export class PropertyGridComponent {
 	private containerEl: HTMLElement;
@@ -39,11 +45,14 @@ export class PropertyGridComponent {
 	private sortColumn: SortColumn = 'name';
 	private sortDirection: SortDirection = 'asc';
 
+	/** Column widths in pixels (index 0 = name, rest = property columns) */
+	private colWidths: number[] = [];
+
 	// Virtual scroll DOM elements
 	private tableWrapperEl: HTMLElement | null = null;
+	private tableEl: HTMLTableElement | null = null;
+	private theadEl: HTMLElement | null = null;
 	private tbodyEl: HTMLElement | null = null;
-	private topSpacerEl: HTMLElement | null = null;
-	private bottomSpacerEl: HTMLElement | null = null;
 
 	/** Currently rendered row range (inclusive start, exclusive end) */
 	private renderedStart = 0;
@@ -74,6 +83,14 @@ export class PropertyGridComponent {
 		this.containerEl.empty();
 		this.columns = columns;
 		this.allFiles = files;
+
+		// Initialize column widths if needed
+		const totalCols = 1 + columns.length; // name + property columns
+		if (this.colWidths.length !== totalCols) {
+			this.colWidths = Array.from<number>({ length: totalCols }).map((_, i) =>
+				i === 0 ? 220 : DEFAULT_COL_WIDTH
+			);
+		}
 
 		// Merge incoming selection
 		this.selectedPaths.clear();
@@ -115,15 +132,69 @@ export class PropertyGridComponent {
 			this.renderVisibleRows();
 		});
 
-		// --- Table ---
+		// --- Single table with sticky header ---
 		this.tableWrapperEl = this.containerEl.createDiv({
 			cls: 'obsiman-grid-table-wrapper',
 		});
-		const table = this.tableWrapperEl.createEl('table', { cls: 'obsiman-grid-table' });
+
+		this.tableEl = this.tableWrapperEl.createEl('table', {
+			cls: 'obsiman-grid-table obsiman-grid-fixed',
+		});
+
+		// Colgroup for explicit column widths
+		this.rebuildColgroup();
 
 		// Thead
-		const thead = table.createEl('thead');
-		const headerRow = thead.createEl('tr');
+		this.theadEl = this.tableEl.createEl('thead');
+		this.buildHeaderRow();
+
+		// Tbody (virtual rows)
+		this.tbodyEl = this.tableEl.createEl('tbody') as unknown as HTMLElement;
+
+		// Scroll listener
+		if (this.scrollHandler) {
+			this.tableWrapperEl.removeEventListener('scroll', this.scrollHandler);
+		}
+		this.scrollHandler = () => this.onScroll();
+		this.tableWrapperEl.addEventListener('scroll', this.scrollHandler, { passive: true });
+
+		this.rebuildBody();
+	}
+
+	/** Get TFile objects for currently selected paths (O(1) per file) */
+	getSelectedFiles(): TFile[] {
+		const result: TFile[] = [];
+		for (const path of this.selectedPaths) {
+			const file = this.app.vault.getFileByPath(path);
+			if (file) result.push(file);
+		}
+		return result;
+	}
+
+	// --- Column width management ---
+
+	private rebuildColgroup(): void {
+		if (!this.tableEl) return;
+		// Remove existing colgroup
+		const existing = this.tableEl.querySelector('colgroup');
+		if (existing) existing.remove();
+
+		const colgroup = this.tableEl.createEl('colgroup');
+		// Checkbox column
+		const checkCol = colgroup.createEl('col');
+		checkCol.style.width = `${CHECK_COL_WIDTH}px`;
+
+		// Data columns (name + properties)
+		for (let i = 0; i < this.colWidths.length; i++) {
+			const col = colgroup.createEl('col');
+			col.style.width = `${this.colWidths[i]}px`;
+		}
+	}
+
+	private buildHeaderRow(): void {
+		if (!this.theadEl) return;
+		this.theadEl.empty();
+		const headerRow = this.theadEl.createEl('tr');
 
 		// Checkbox column header
 		const thCheck = headerRow.createEl('th', { cls: 'obsiman-grid-th-check' });
@@ -141,38 +212,12 @@ export class PropertyGridComponent {
 		});
 
 		// Name column
-		this.createSortableHeader(headerRow, 'name', t('files.col.name'));
+		this.createSortableHeader(headerRow, 'name', t('files.col.name'), 0);
 
 		// Dynamic property columns
-		for (const col of this.columns) {
-			this.createSortableHeader(headerRow, col, col);
+		for (let i = 0; i < this.columns.length; i++) {
+			this.createSortableHeader(headerRow, this.columns[i], this.columns[i], i + 1);
 		}
-
-		// Top spacer
-		this.topSpacerEl = this.tableWrapperEl.createDiv({ cls: 'obsiman-grid-spacer' });
-
-		// Tbody (will hold only visible rows)
-		const tbodyTable = this.tableWrapperEl.createEl('table', { cls: 'obsiman-grid-table obsiman-grid-body-table' });
-		this.tbodyEl = tbodyTable.createEl('tbody') as unknown as HTMLElement;
-
-		// Bottom spacer
-		this.bottomSpacerEl = this.tableWrapperEl.createDiv({ cls: 'obsiman-grid-spacer' });
-
-		// Scroll listener
-		if (this.scrollHandler) {
-			this.tableWrapperEl.removeEventListener('scroll', this.scrollHandler);
-		}
-		this.scrollHandler = () => this.onScroll();
-		this.tableWrapperEl.addEventListener('scroll', this.scrollHandler, { passive: true });
-
-		this.rebuildBody();
-	}
-
-	/** Get TFile objects for currently selected paths */
-	getSelectedFiles(): TFile[] {
-		return this.app.vault
-			.getMarkdownFiles()
-			.filter((f) => this.selectedPaths.has(f.path));
 	}
 
 	// --- Virtual scroll core ---
@@ -204,22 +249,22 @@ export class PropertyGridComponent {
 	}
 
 	private renderVisibleRows(): void {
-		if (!this.tableWrapperEl || !this.tbodyEl || !this.topSpacerEl || !this.bottomSpacerEl) return;
+		if (!this.tableWrapperEl || !this.tbodyEl) return;
 
 		const scrollTop = this.tableWrapperEl.scrollTop;
 		const viewportHeight = this.tableWrapperEl.clientHeight;
 		const totalRows = this.sortedFiles.length;
 
+		// Account for thead height
+		const theadHeight = this.theadEl?.offsetHeight ?? 0;
+		const adjustedScrollTop = Math.max(0, scrollTop - theadHeight);
+
 		// Calculate visible range
-		const startIdx = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN);
+		const startIdx = Math.max(0, Math.floor(adjustedScrollTop / ROW_HEIGHT) - OVERSCAN);
 		const endIdx = Math.min(
 			totalRows,
-			Math.ceil((scrollTop + viewportHeight) / ROW_HEIGHT) + OVERSCAN
+			Math.ceil((adjustedScrollTop + viewportHeight) / ROW_HEIGHT) + OVERSCAN
 		);
-
-		// Update spacers
-		this.topSpacerEl.style.height = `${startIdx * ROW_HEIGHT}px`;
-		this.bottomSpacerEl.style.height = `${Math.max(0, (totalRows - endIdx) * ROW_HEIGHT)}px`;
 
 		// Only re-render if the range changed
 		if (startIdx === this.renderedStart && endIdx === this.renderedEnd) return;
@@ -227,10 +272,25 @@ export class PropertyGridComponent {
 		this.renderedStart = startIdx;
 		this.renderedEnd = endIdx;
 
-		// Clear and re-render visible rows
+		// Clear and re-render visible rows with spacer rows for virtual scroll
 		this.tbodyEl.empty();
+
+		// Top spacer row
+		if (startIdx > 0) {
+			const spacerRow = this.tbodyEl.createEl('tr');
+			spacerRow.style.height = `${startIdx * ROW_HEIGHT}px`;
+		}
+
+		// Visible rows
 		for (let i = startIdx; i < endIdx; i++) {
 			this.renderRow(this.tbodyEl, this.sortedFiles[i], i);
+		}
+
+		// Bottom spacer row
+		const remaining = totalRows - endIdx;
+		if (remaining > 0) {
+			const spacerRow = this.tbodyEl.createEl('tr');
+			spacerRow.style.height = `${remaining * ROW_HEIGHT}px`;
 		}
 	}
 
@@ -385,30 +445,63 @@ export class PropertyGridComponent {
 	private createSortableHeader(
 		row: HTMLElement,
 		column: string,
-		label: string
+		label: string,
+		colIndex: number
 	): void {
 		const th = row.createEl('th', { cls: 'obsiman-grid-th-sortable' });
+
+		// Label + sort arrow
+		const labelSpan = th.createSpan({ cls: 'obsiman-grid-th-label' });
 		const arrow =
 			this.sortColumn === column
 				? this.sortDirection === 'asc'
-					? ' ↑'
-					: ' ↓'
+					? ' \u2191'
+					: ' \u2193'
 				: '';
-		th.setText(label + arrow);
+		labelSpan.setText(label + arrow);
 
 		if (this.sortColumn === column) {
 			th.addClass('obsiman-grid-th-active');
 		}
 
-		th.addEventListener('click', () => {
+		labelSpan.addEventListener('click', () => {
 			if (this.sortColumn === column) {
 				this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
 			} else {
 				this.sortColumn = column;
 				this.sortDirection = 'asc';
 			}
+			this.buildHeaderRow();
 			this.rebuildBody();
 		});
+
+		// Resize handle
+		const handle = th.createDiv({ cls: 'obsiman-grid-resize-handle' });
+		handle.addEventListener('mousedown', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			this.startResize(colIndex, e.clientX);
+		});
+	}
+
+	private startResize(colIndex: number, startX: number): void {
+		const startWidth = this.colWidths[colIndex];
+
+		const onMove = (e: MouseEvent) => {
+			const delta = e.clientX - startX;
+			this.colWidths[colIndex] = Math.max(MIN_COL_WIDTH, startWidth + delta);
+			this.rebuildColgroup();
+		};
+
+		const onUp = () => {
+			document.removeEventListener('mousemove', onMove);
+			document.removeEventListener('mouseup', onUp);
+			document.body.removeClass('obsiman-resizing');
+		};
+
+		document.body.addClass('obsiman-resizing');
+		document.addEventListener('mousemove', onMove);
+		document.addEventListener('mouseup', onUp);
 	}
 
 	private sortFiles(files: TFile[]): TFile[] {
