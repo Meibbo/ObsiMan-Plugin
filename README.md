@@ -2,7 +2,7 @@
 
 **Bulk property editor and vault management tool for Obsidian.**
 
-![Version](https://img.shields.io/badge/version-1.2.3-blue)
+![Version](https://img.shields.io/badge/version-1.3.0-blue)
 ![Obsidian](https://img.shields.io/badge/Obsidian-%E2%89%A51.7.0-purple)
 
 ObsiMan provides a spreadsheet-like interface for managing YAML frontmatter properties across your entire vault. Filter files, batch-edit properties, and manage sessions — all from within Obsidian.
@@ -20,7 +20,10 @@ ObsiMan provides a spreadsheet-like interface for managing YAML frontmatter prop
 ### Spreadsheet Grid
 - Virtual-scrolled property grid with inline cell editing
 - Column customization, sortable headers, and resizable columns (drag header borders)
-- Row selection with checkbox, Shift+click ranges
+- Excel-like selection: Ctrl+click toggle, Shift+click range, Ctrl+Shift range-add, header checkbox with indeterminate state
+- Inline file rename via double-click on the name cell
+- Live preview rendering: tags, wikilinks, and dates render with Obsidian formatting (configurable: plain, chunked, or all-at-once)
+- Fixed column widths independent of cell content
 - Mobile-responsive layout
 
 ### Advanced Filtering
@@ -40,6 +43,12 @@ ObsiMan provides a spreadsheet-like interface for managing YAML frontmatter prop
 - Store filters, column layouts, and file selections
 - Bidirectional sync — edit session files externally and see changes reflected
 - Google Drive conflict detection
+
+### .base File Integration
+- Bidirectional sync with Obsidian Bases `.base` files
+- Configure a `.base` file path in settings to import columns, sort, column widths, and filters
+- Changes in the plugin grid (sort, resize) are written back to the `.base` file
+- Full expression parser for Bases query syntax: comparisons, string methods, `file.*` builtins, `link()`, `date()`, nested AND/OR
 
 ### Multi-Language Support
 - English and Spanish included
@@ -108,13 +117,14 @@ A compact version with four collapsible sections:
 | Content search | Enable content search in file tree | Enabled |
 | Operation scope | Default scope: auto, selected, filtered, all | Auto |
 | Operations panel position | Panel placement: right, bottom, replace | Right |
+| Grid rendering mode | How property values render: plain, chunk, all | Chunk |
+| Editable columns | Columns allowing inline edit (comma-separated) | name |
+| Base file path | Path to a `.base` file for bidirectional sync | (empty) |
 
 ## Compatibility
 
 - **Obsidian**: 1.7.0 or later
 - **Iconic plugin**: Optional — provides custom property icons when installed
-- **Obsidian Linter**: Optional — batch linting via the operations panel
-- **Google Drive**: Session files detect and flag sync conflicts
 - **Platforms**: Desktop and mobile
 
 ## License

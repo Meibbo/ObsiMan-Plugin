@@ -5,6 +5,25 @@ All notable changes to ObsiMan will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-03-27
+
+### Added
+- **Inline file rename**: double-click a name cell to rename files directly in the grid (configurable via `gridEditableColumns` setting)
+- **Live preview rendering**: property values can render with Obsidian formatting (tags, wikilinks, dates) via `MarkdownRenderer` — supports plain, chunked, and full render modes
+- **.base file integration**: bidirectional sync between the plugin grid and Obsidian Bases `.base` YAML files — columns, sort, column widths, and filters
+- **Base filter parser**: full expression parser for Obsidian Bases query syntax (comparisons, `.contains()`, `.containsAny()`, `file.hasTag()`, `link()`, `date()`, nested AND/OR)
+- New settings: `gridRenderMode`, `gridRenderChunkSize`, `gridLivePreviewColumns`, `gridEditableColumns`, `baseFilePath`
+- New grid callbacks: `onSortChange` and `onColumnResize` for external sync
+- i18n keys for all new settings (English and Spanish)
+
+### Fixed
+- **Checkbox toggle**: clicking a checkbox now correctly toggles selection (was always clearing and re-adding, making uncheck impossible)
+- **Show only checked**: now correctly shows all selected files (was showing only the last due to checkbox bug)
+- **Select all**: header checkbox now immediately updates all row checkboxes without requiring a column sort (added `force` parameter to `renderVisibleRows`)
+- **Column widths**: table now has explicit pixel width matching colgroup sum, preventing columns from shifting with text content
+- **Header checkbox accent**: indeterminate/accent styling now only appears when more than one file is selected (no group indication for single selection)
+- **Ctrl/Shift selection**: separated checkbox click logic from row click logic so modifier keys work correctly on both paths
+
 ## [1.2.3] - 2026-03-26
 
 ### Added

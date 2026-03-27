@@ -9,6 +9,7 @@ import { ObsiManView, OBSIMAN_VIEW_TYPE } from './src/views/ObsiManView';
 import { ObsiManMainView, OBSIMAN_MAIN_VIEW_TYPE } from './src/views/ObsiManMainView';
 import { IconicService } from './src/services/IconicService';
 import { PropertyTypeService } from './src/services/PropertyTypeService';
+import { BaseFileService } from './src/services/BaseFileService';
 import { ObsiManSettingsTab } from './src/settings/ObsiManSettingsTab';
 import { setLanguage, t } from './src/i18n/index';
 
@@ -25,6 +26,7 @@ export class ObsiManPlugin extends Plugin {
 	sessionService!: SessionFileService;
 	iconicService!: IconicService;
 	propertyTypeService!: PropertyTypeService;
+	baseFileService!: BaseFileService;
 
 	// Native status bar element
 	private statusBarEl!: HTMLElement;
@@ -45,6 +47,7 @@ export class ObsiManPlugin extends Plugin {
 		this.sessionService = new SessionFileService(this.app);
 		this.iconicService = new IconicService(this.app);
 		this.propertyTypeService = new PropertyTypeService(this.app);
+		this.baseFileService = new BaseFileService(this.app, this);
 
 		this.addChild(this.propertyIndex);
 		this.addChild(this.filterService);
@@ -52,6 +55,7 @@ export class ObsiManPlugin extends Plugin {
 		this.addChild(this.sessionService);
 		this.addChild(this.iconicService);
 		this.addChild(this.propertyTypeService);
+		this.addChild(this.baseFileService);
 
 		// Re-apply filters when metadata cache finishes resolving
 		this.registerEvent(

@@ -1,4 +1,4 @@
-import { Platform, type App, type TFile } from 'obsidian';
+import { Component, MarkdownRenderer, Platform, setIcon, type App, type TFile } from 'obsidian';
 import type { ObsiManPlugin } from '../../main';
 import type { PendingChange } from '../types/operation';
 import { t } from '../i18n/index';
@@ -9,6 +9,8 @@ export type SortDirection = 'asc' | 'desc';
 export interface GridCallbacks {
 	onSelectionChange: (selectedPaths: Set<string>) => void;
 	onInlineEdit: (change: PendingChange) => void;
+	onSortChange?: (column: string, direction: SortDirection) => void;
+	onColumnResize?: (colWidths: number[], columns: string[]) => void;
 }
 
 /** Row height in pixels — used for virtual scroll calculations */
@@ -31,6 +33,7 @@ const MIN_COL_WIDTH = 60;
 export class PropertyGridComponent {
 	private containerEl: HTMLElement;
 	private app: App;
+	private plugin: ObsiManPlugin;
 	private callbacks: GridCallbacks;
 
 	/** Currently displayed files (after filter + sort) */
@@ -58,20 +61,36 @@ export class PropertyGridComponent {
 	private renderedStart = 0;
 	private renderedEnd = 0;
 
-	/** Last checkbox index for shift-click range selection */
-	private lastCheckboxIndex = -1;
+	/** Last clicked row index for shift-click range selection */
+	private lastClickedIndex = -1;
+
+	/** Whether to show only checked (selected) files */
+	private showOnlyChecked = false;
+
+	/** Reference to the header checkbox for indeterminate state updates */
+	private headerCheckbox: HTMLInputElement | null = null;
 
 	/** Bound scroll handler for cleanup */
 	private scrollHandler: (() => void) | null = null;
 
+	/** Tracks cells already rendered with MarkdownRenderer to avoid re-processing */
+	private renderedCells: WeakSet<HTMLElement> = new WeakSet();
+
+	/** Chunk rendering queue for live preview */
+	private renderChunkTimer: ReturnType<typeof setTimeout> | null = null;
+
+	/** Lightweight Component for MarkdownRenderer lifecycle */
+	private renderComponent = new Component();
+
 	constructor(
 		containerEl: HTMLElement,
 		app: App,
-		_plugin: ObsiManPlugin,
+		plugin: ObsiManPlugin,
 		callbacks: GridCallbacks
 	) {
 		this.containerEl = containerEl;
 		this.app = app;
+		this.plugin = plugin;
 		this.callbacks = callbacks;
 	}
 
@@ -80,6 +99,11 @@ export class PropertyGridComponent {
 		selectedPaths: Set<string>,
 		columns: string[]
 	): void {
+		// Clean up previous render component children
+		this.renderComponent.unload();
+		this.renderComponent = new Component();
+		this.renderComponent.load();
+
 		this.containerEl.empty();
 		this.columns = columns;
 		this.allFiles = files;
@@ -110,26 +134,17 @@ export class PropertyGridComponent {
 			this.rebuildBody();
 		});
 
-		// Bulk select
-		const bulkEl = headerBar.createDiv({ cls: 'obsiman-grid-bulk' });
-		const selectAllBtn = bulkEl.createEl('button', {
-			cls: 'obsiman-btn-small',
-			text: t('files.select_all'),
+		// Show-only-checked toggle
+		const filterToggle = headerBar.createDiv({
+			cls: 'obsiman-grid-filter-toggle clickable-icon',
+			attr: { 'aria-label': t('files.show_checked_only') },
 		});
-		selectAllBtn.addEventListener('click', () => {
-			for (const f of this.sortedFiles) this.selectedPaths.add(f.path);
-			this.callbacks.onSelectionChange(new Set(this.selectedPaths));
-			this.renderVisibleRows();
-		});
-
-		const deselectBtn = bulkEl.createEl('button', {
-			cls: 'obsiman-btn-small',
-			text: t('files.select_none'),
-		});
-		deselectBtn.addEventListener('click', () => {
-			this.selectedPaths.clear();
-			this.callbacks.onSelectionChange(new Set(this.selectedPaths));
-			this.renderVisibleRows();
+		setIcon(filterToggle, 'lucide-list-checks');
+		if (this.showOnlyChecked) filterToggle.addClass('is-active');
+		filterToggle.addEventListener('click', () => {
+			this.showOnlyChecked = !this.showOnlyChecked;
+			filterToggle.toggleClass('is-active', this.showOnlyChecked);
+			this.rebuildBody();
 		});
 
 		// --- Single table with sticky header ---
@@ -185,10 +200,16 @@ export class PropertyGridComponent {
 		checkCol.style.width = `${CHECK_COL_WIDTH}px`;
 
 		// Data columns (name + properties)
+		let totalWidth = CHECK_COL_WIDTH;
 		for (let i = 0; i < this.colWidths.length; i++) {
 			const col = colgroup.createEl('col');
 			col.style.width = `${this.colWidths[i]}px`;
+			totalWidth += this.colWidths[i];
 		}
+
+		// Set explicit table width so table-layout:fixed respects colgroup
+		this.tableEl.style.width = `${totalWidth}px`;
+		this.tableEl.style.minWidth = `${totalWidth}px`;
 	}
 
 	private buildHeaderRow(): void {
@@ -196,19 +217,40 @@ export class PropertyGridComponent {
 		this.theadEl.empty();
 		const headerRow = this.theadEl.createEl('tr');
 
-		// Checkbox column header
+		// Checkbox column header with indeterminate support
 		const thCheck = headerRow.createEl('th', { cls: 'obsiman-grid-th-check' });
 		const checkAll = thCheck.createEl('input', {
 			attr: { type: 'checkbox' },
 		});
-		checkAll.addEventListener('change', () => {
-			if (checkAll.checked) {
+		this.headerCheckbox = checkAll;
+		this.updateHeaderCheckbox();
+
+		checkAll.addEventListener('click', (e) => {
+			e.preventDefault();
+			const someSelected = this.selectedPaths.size > 0;
+			const allSelected =
+				someSelected &&
+				this.sortedFiles.every((f) => this.selectedPaths.has(f.path));
+
+			if (someSelected && !allSelected) {
+				// Indeterminate → select all visible (promote partial to full)
 				for (const f of this.sortedFiles) this.selectedPaths.add(f.path);
-			} else {
+				checkAll.checked = true;
+				checkAll.indeterminate = false;
+			} else if (allSelected) {
+				// All selected → deselect all
 				this.selectedPaths.clear();
+				checkAll.checked = false;
+				checkAll.indeterminate = false;
+			} else {
+				// None selected → select all visible
+				for (const f of this.sortedFiles) this.selectedPaths.add(f.path);
+				checkAll.checked = true;
+				checkAll.indeterminate = false;
 			}
 			this.callbacks.onSelectionChange(new Set(this.selectedPaths));
-			this.renderVisibleRows();
+			this.updateHeaderCheckbox();
+			this.renderVisibleRows(true);
 		});
 
 		// Name column
@@ -227,9 +269,14 @@ export class PropertyGridComponent {
 		let files = this.allFiles;
 		if (this.searchTerm) {
 			const term = this.searchTerm.toLowerCase();
-			files = this.allFiles.filter((f) =>
+			files = files.filter((f) =>
 				f.basename.toLowerCase().includes(term)
 			);
+		}
+
+		// Filter to only checked files if toggle is active
+		if (this.showOnlyChecked) {
+			files = files.filter((f) => this.selectedPaths.has(f.path));
 		}
 
 		// Sort
@@ -248,7 +295,7 @@ export class PropertyGridComponent {
 		this.renderVisibleRows();
 	}
 
-	private renderVisibleRows(): void {
+	private renderVisibleRows(force = false): void {
 		if (!this.tableWrapperEl || !this.tbodyEl) return;
 
 		const scrollTop = this.tableWrapperEl.scrollTop;
@@ -266,8 +313,8 @@ export class PropertyGridComponent {
 			Math.ceil((adjustedScrollTop + viewportHeight) / ROW_HEIGHT) + OVERSCAN
 		);
 
-		// Only re-render if the range changed
-		if (startIdx === this.renderedStart && endIdx === this.renderedEnd) return;
+		// Only re-render if the range changed (unless forced by selection change)
+		if (!force && startIdx === this.renderedStart && endIdx === this.renderedEnd) return;
 
 		this.renderedStart = startIdx;
 		this.renderedEnd = endIdx;
@@ -292,51 +339,85 @@ export class PropertyGridComponent {
 			const spacerRow = this.tbodyEl.createEl('tr');
 			spacerRow.style.height = `${remaining * ROW_HEIGHT}px`;
 		}
+
+		// Schedule live preview rendering if enabled
+		const renderMode = this.plugin.settings.gridRenderMode ?? 'plain';
+		if (renderMode !== 'plain') {
+			this.scheduleLivePreviewChunk();
+		}
 	}
 
 	private renderRow(tbody: HTMLElement, file: TFile, rowIndex: number): void {
+		const isSelected = this.selectedPaths.has(file.path);
 		const tr = tbody.createEl('tr', { cls: 'obsiman-grid-row' });
 		tr.style.height = `${ROW_HEIGHT}px`;
+		if (isSelected) tr.addClass('is-selected');
+
+		// Row-level click handler for Excel-like selection
+		tr.addEventListener('click', (e) => {
+			// Ignore clicks on checkboxes, links, and edit inputs
+			const target = e.target as HTMLElement;
+			if (
+				target.tagName === 'INPUT' ||
+				target.hasClass('obsiman-grid-name-link')
+			)
+				return;
+
+			this.handleRowClick(rowIndex, e);
+		});
 
 		// Checkbox
 		const tdCheck = tr.createEl('td', { cls: 'obsiman-grid-td-check' });
 		const cb = tdCheck.createEl('input', {
 			attr: { type: 'checkbox' },
 		});
-		cb.checked = this.selectedPaths.has(file.path);
-		cb.addEventListener('change', (e) => {
-			// Shift+click range selection
-			if ((e as MouseEvent).shiftKey && this.lastCheckboxIndex >= 0) {
-				const start = Math.min(this.lastCheckboxIndex, rowIndex);
-				const end = Math.max(this.lastCheckboxIndex, rowIndex);
+		cb.checked = isSelected;
+		cb.addEventListener('click', (e) => {
+			e.stopPropagation();
+			// Checkbox always toggles (never clears others like row click does)
+			if (e.shiftKey && this.lastClickedIndex >= 0) {
+				const start = Math.min(this.lastClickedIndex, rowIndex);
+				const end = Math.max(this.lastClickedIndex, rowIndex);
+				if (!e.ctrlKey && !e.metaKey) this.selectedPaths.clear();
 				for (let i = start; i <= end; i++) {
-					if (cb.checked) {
-						this.selectedPaths.add(this.sortedFiles[i].path);
-					} else {
-						this.selectedPaths.delete(this.sortedFiles[i].path);
-					}
+					this.selectedPaths.add(this.sortedFiles[i].path);
 				}
-				this.renderVisibleRows();
 			} else {
-				if (cb.checked) {
-					this.selectedPaths.add(file.path);
-				} else {
+				if (this.selectedPaths.has(file.path)) {
 					this.selectedPaths.delete(file.path);
+				} else {
+					this.selectedPaths.add(file.path);
 				}
 			}
-			this.lastCheckboxIndex = rowIndex;
+			this.lastClickedIndex = rowIndex;
+			cb.checked = this.selectedPaths.has(file.path);
 			this.callbacks.onSelectionChange(new Set(this.selectedPaths));
+			this.updateHeaderCheckbox();
+			this.renderVisibleRows(true);
 		});
 
-		// File name (clickable)
+		// File name: click text=open, dblclick cell=rename
 		const tdName = tr.createEl('td', { cls: 'obsiman-grid-td-name' });
 		const nameLink = tdName.createSpan({
 			cls: 'obsiman-grid-name-link',
 			text: file.basename,
 		});
-		nameLink.addEventListener('click', () => {
+		nameLink.addEventListener('click', (e) => {
+			e.stopPropagation();
 			void this.app.workspace.openLinkText(file.path, '', false);
 		});
+
+		// Rename on double-click (if name column is editable)
+		const editableCols = this.plugin.settings.gridEditableColumns ?? ['name'];
+		if (editableCols.includes('name')) {
+			tdName.addEventListener('dblclick', (e) => {
+				e.stopPropagation();
+				const target = e.target as HTMLElement;
+				// Don't trigger rename if dblclick was on the name link itself
+				if (target.hasClass('obsiman-grid-name-link')) return;
+				this.startNameEdit(tdName, file);
+			});
+		}
 
 		// Property columns
 		const cache = this.app.metadataCache.getFileCache(file);
@@ -345,12 +426,189 @@ export class PropertyGridComponent {
 		for (const col of this.columns) {
 			const td = tr.createEl('td', { cls: 'obsiman-grid-td-prop' });
 			const value = fm[col];
-			td.setText(this.formatValue(value));
+			const text = this.formatValue(value);
+
+			// Render with live preview or plain text
+			const renderMode = this.plugin.settings.gridRenderMode ?? 'plain';
+			const livePreviewCols = this.plugin.settings.gridLivePreviewColumns ?? [];
+			const shouldRenderLive = renderMode !== 'plain' &&
+				(livePreviewCols.length === 0 || livePreviewCols.includes(col));
+
+			if (shouldRenderLive && text) {
+				td.addClass('obsiman-grid-live-cell');
+				// Queue for chunk rendering
+				td.dataset.liveText = text;
+				td.dataset.livePath = file.path;
+				td.setText(text); // Plain text as fallback until rendered
+			} else {
+				td.setText(text);
+			}
 
 			// Inline editing on double-click
-			td.addEventListener('dblclick', () => {
-				this.startInlineEdit(td, file, col, value);
+			if (editableCols.length === 0 || editableCols.includes(col)) {
+				td.addEventListener('dblclick', (e) => {
+					e.stopPropagation();
+					this.startInlineEdit(td, file, col, value);
+				});
+			}
+		}
+	}
+
+	/** Rename a file via inline edit in the name cell */
+	private startNameEdit(td: HTMLElement, file: TFile): void {
+		const currentName = file.basename;
+		td.empty();
+		td.addClass('obsiman-grid-editing');
+
+		const input = td.createEl('input', {
+			cls: 'obsiman-grid-edit-input',
+			attr: { type: 'text', value: currentName },
+		});
+		input.focus();
+		input.select();
+
+		const restoreNameLink = (name: string) => {
+			td.empty();
+			td.removeClass('obsiman-grid-editing');
+			const nameLink = td.createSpan({
+				cls: 'obsiman-grid-name-link',
+				text: name,
 			});
+			nameLink.addEventListener('click', (ev) => {
+				ev.stopPropagation();
+				void this.app.workspace.openLinkText(file.path, '', false);
+			});
+		};
+
+		const commit = async () => {
+			const newName = input.value.trim();
+			if (newName && newName !== currentName) {
+				const newPath = file.path.replace(/[^/]+$/, newName + '.' + file.extension);
+				try {
+					await this.app.fileManager.renameFile(file, newPath);
+					restoreNameLink(newName);
+					return;
+				} catch (err) {
+					console.error('ObsiMan: rename failed', err);
+				}
+			}
+			restoreNameLink(currentName);
+		};
+
+		input.addEventListener('blur', () => void commit());
+		input.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				input.blur();
+			} else if (e.key === 'Escape') {
+				input.removeEventListener('blur', () => void commit());
+				restoreNameLink(currentName);
+			}
+		});
+	}
+
+	/** Process live preview cells in chunks after rendering */
+	private scheduleLivePreviewChunk(): void {
+		if (this.renderChunkTimer) clearTimeout(this.renderChunkTimer);
+		this.renderChunkTimer = setTimeout(() => this.processLivePreviewChunk(), 16);
+	}
+
+	private processLivePreviewChunk(): void {
+		if (!this.tbodyEl) return;
+		const chunkSize = this.plugin.settings.gridRenderChunkSize ?? 100;
+		const cells = this.tbodyEl.querySelectorAll('.obsiman-grid-live-cell');
+		let processed = 0;
+
+		for (const cell of cells) {
+			const el = cell as HTMLElement;
+			if (this.renderedCells.has(el)) continue;
+			this.renderedCells.add(el);
+
+			const text = el.dataset.liveText;
+			const path = el.dataset.livePath;
+			if (!text || !path) continue;
+
+			el.empty();
+			void MarkdownRenderer.render(this.app, text, el, path, this.renderComponent);
+			processed++;
+			if (processed >= chunkSize) {
+				// Schedule next chunk
+				this.renderChunkTimer = setTimeout(() => this.processLivePreviewChunk(), 16);
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Excel-like selection logic:
+	 * - Plain click: select only this row (clear others)
+	 * - Ctrl+click: toggle this row without affecting others
+	 * - Shift+click: range select from last clicked row
+	 * - Ctrl+Shift+click: add range to existing selection
+	 */
+	private handleRowClick(rowIndex: number, e: MouseEvent): void {
+		const file = this.sortedFiles[rowIndex];
+		if (!file) return;
+
+		if (e.shiftKey && this.lastClickedIndex >= 0) {
+			// Range selection
+			const start = Math.min(this.lastClickedIndex, rowIndex);
+			const end = Math.max(this.lastClickedIndex, rowIndex);
+
+			if (!e.ctrlKey && !e.metaKey) {
+				// Shift only: replace selection with range
+				this.selectedPaths.clear();
+			}
+
+			// Add range to selection
+			for (let i = start; i <= end; i++) {
+				this.selectedPaths.add(this.sortedFiles[i].path);
+			}
+		} else if (e.ctrlKey || e.metaKey) {
+			// Toggle individual row
+			if (this.selectedPaths.has(file.path)) {
+				this.selectedPaths.delete(file.path);
+			} else {
+				this.selectedPaths.add(file.path);
+			}
+			this.lastClickedIndex = rowIndex;
+		} else {
+			// Plain click: select only this row
+			this.selectedPaths.clear();
+			this.selectedPaths.add(file.path);
+			this.lastClickedIndex = rowIndex;
+		}
+
+		this.callbacks.onSelectionChange(new Set(this.selectedPaths));
+		this.updateHeaderCheckbox();
+		this.renderVisibleRows(true);
+	}
+
+	/** Update header checkbox state: unchecked, checked, or indeterminate with accent border */
+	private updateHeaderCheckbox(): void {
+		if (!this.headerCheckbox) return;
+		const total = this.sortedFiles.length;
+		const selectedCount = this.sortedFiles.filter((f) =>
+			this.selectedPaths.has(f.path)
+		).length;
+
+		const thCheck = this.headerCheckbox.closest('th');
+
+		if (selectedCount === 0 || selectedCount === 1) {
+			// No accent for 0 or 1 selected (no group operation for single file)
+			this.headerCheckbox.checked = false;
+			this.headerCheckbox.indeterminate = false;
+			thCheck?.removeClass('is-indeterminate');
+		} else if (selectedCount === total) {
+			// All selected — checked with accent
+			this.headerCheckbox.checked = true;
+			this.headerCheckbox.indeterminate = false;
+			thCheck?.addClass('is-indeterminate');
+		} else {
+			// Partial (>1) — indeterminate with accent
+			this.headerCheckbox.checked = false;
+			this.headerCheckbox.indeterminate = true;
+			thCheck?.addClass('is-indeterminate');
 		}
 	}
 
@@ -473,6 +731,7 @@ export class PropertyGridComponent {
 			}
 			this.buildHeaderRow();
 			this.rebuildBody();
+			this.callbacks.onSortChange?.(this.sortColumn, this.sortDirection);
 		});
 
 		// Resize handle
@@ -497,6 +756,7 @@ export class PropertyGridComponent {
 			document.removeEventListener('mousemove', onMove);
 			document.removeEventListener('mouseup', onUp);
 			document.body.removeClass('obsiman-resizing');
+			this.callbacks.onColumnResize?.(this.colWidths, this.columns);
 		};
 
 		document.body.addClass('obsiman-resizing');
