@@ -9,9 +9,8 @@ tags:
   - obsidian/plugin
   - bugs
 dateCreated: 2026-03-27
-dateModified: 2026-03-27
+dateModified: 2026-03-28
 ---
-
 # Known Issues
 
 This is the living bug log for ObsiMan. When you find something broken, add it here with the version you're on. AI agents read this before working on fixes — it's the source of truth for what's already known.
@@ -25,12 +24,24 @@ Mark a bug as fixed with `[x]` and add `→ Fixed in X.Y.Z` at the end.
 
 ---
 
-## v0.9.0 — Active bugs
+## v1.0.0-beta.2 — Pending review
 
-- [ ] **Inline rename broken** — double-clicking the name cell in the property grid does nothing (the edit input doesn't appear). Expected: the cell becomes editable in place. How to reproduce: open the main view, hover over any file name cell, double-click. Version: 0.9.0
-- [ ] **Header checkbox lost CSS** — the "select all" checkbox in the grid header has lost its accent/indeterminate styling. Still functions, just visually unstyled. Version: 0.9.0
-- [ ] **Grid re-render flash** — when MarkdownRenderer updates a cell (chunked or all-at-once mode), you can visually see the render happening on each click or row update. Most noticeable when clicking between rows quickly. Version: 0.9.0
-- [ ] **Tags don't render like reading view** — `#hashtags` in property values show the `#` symbol and the tag text as plain text instead of rendering as styled tag chips like Obsidian's live/reading preview. Version: 0.9.0
+*(These fixes were applied in beta.2. Test each one and leave your notes below — new bugs go in the next section.)*
+
+- [x] **Inline rename broken** — double-clicking the name cell in the property grid does nothing (the edit input doesn't appear). Expected: the cell becomes editable in place. How to reproduce: open the main view, hover over any file name cell, double-click. Version: 0.9.0 → Fixed in 1.0.0-beta.2
+	-
+- [x] **Header checkbox lost CSS** — the "select all" checkbox in the grid header has lost its accent/indeterminate styling. Still functions, just visually unstyled. Version: 0.9.0 → Fixed in 1.0.0-beta.2
+	-
+- [x] **Grid re-render flash** — when MarkdownRenderer updates a cell (chunked or all-at-once mode), you can visually see the render happening on each click or row update. Most noticeable when clicking between rows quickly. Version: 0.9.0 → Fixed in 1.0.0-beta.2
+	-
+- [x] **Tags don't render like reading view** — `#hashtags` in property values show the `#` symbol and the tag text as plain text instead of rendering as styled tag chips like Obsidian's live/reading preview. Version: 0.9.0 → Fixed in 1.0.0-beta.2
+	-
+
+---
+
+## v1.0.0-beta.2 — Active bugs
+
+*(Add new bugs found after testing beta.2 here)*
 
 ---
 
