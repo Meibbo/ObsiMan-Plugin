@@ -9,8 +9,26 @@
 - **Date**: 2026-04-07
 - **Agent**: Claude Code (claude-sonnet-4-6)
 - **Branch**: `add-functions`
-- **Last commit**: `857a3e5` (fix: ribbon opens sidebar, CSS layout, pointer-based reorder, add Scope tab)
-- **Build status**: ✅ `npm run build` passes, 0 errors, 1 acceptable Svelte warning (state initial-value capture in activePage init)
+- **Last commit**: `ea5f321` (feat: add main view (3-section layout), recover PropertyGridComponent)
+- **Build status**: ✅ `npm run build` passes, 0 errors, 1 acceptable Svelte warning
+
+---
+
+## What was completed this session (2026-04-07, session 3+4)
+
+### Main View — Iter.4 ✅
+- `src/components/PropertyGridComponent.ts` — recovered from git commit `c30ea02` (831 lines; virtual-scroll spreadsheet grid with inline editing)
+- `src/views/ObsiManMainView.ts` — new thin shell, mounts `ObsiManMainView.svelte`
+- `src/views/ObsiManMainView.svelte` — new 3-section layout:
+  - **Top**: Filters section (collapsible — chevron toggle, Add/Clear/Save template buttons, FilterTreeComponent)
+  - **Center**: Files grid (PropertyGridComponent, fills remaining space, flex: 1)
+  - **Bottom**: Operations section (collapsible — OperationsPanelComponent)
+- `main.ts`: registered `OBSIMAN_MAIN_VIEW_TYPE`, added `activateMainView()`, added `open-main-view` command
+- `src/types/settings.ts`: added optional `gridRenderMode`, `gridEditableColumns`, `gridLivePreviewColumns`, `gridRenderChunkSize`, `gridColumns` fields (PropertyGridComponent references these)
+- `styles.css`: added `obsiman-main-layout` + section CSS at end of file
+
+⚠️ **Pill navbar is broken** (user chose to ignore for now — continue roadmap)
+⚠️ **Not yet tested** in Obsidian
 
 ---
 
@@ -125,13 +143,7 @@
 ## Pending iterations (priority order)
 
 ### ~~Iteración 3 — Scope tab inside Filters page~~ ✅ Done
-
-### Iteración 4 — Main View complete (3-section layout)
-- Full-screen view with 3 collapsible sections (Filters top, Files grid center, Ops bottom)
-- Recover `PropertyGridComponent`: `git show HEAD~5:src/components/PropertyGridComponent.ts`
-- `ObsiManMainView.ts` was deleted — needs to come back as a Svelte component
-**Key files**: `src/views/ObsiManMainView.svelte` (new), `main.ts`
-**Complexity**: High
+### ~~Iteración 4 — Main View complete (3-section layout)~~ ✅ Done
 
 ### Iteración 5 — Operations: logic for existing stubs
 - Move to folder (UI exists, logic missing)
