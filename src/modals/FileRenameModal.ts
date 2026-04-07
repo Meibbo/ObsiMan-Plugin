@@ -41,7 +41,7 @@ export class FileRenameModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass('obsiman-modal obsiman-rename-modal');
+		contentEl.addClasses(['obsiman-modal', 'obsiman-rename-modal']);
 
 		contentEl.createEl('h3', { text: t('rename.title') });
 		contentEl.createEl('p', {

@@ -29,7 +29,7 @@ export class LinterModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass('obsiman-modal obsiman-linter-modal');
+		contentEl.addClasses(['obsiman-modal', 'obsiman-linter-modal']);
 
 		contentEl.createEl('h3', { text: t('linter.title') });
 
