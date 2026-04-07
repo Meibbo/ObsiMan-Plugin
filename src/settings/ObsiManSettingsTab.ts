@@ -1,4 +1,4 @@
-import { PluginSettingTab, Setting, setIcon, type App } from 'obsidian';
+import { PluginSettingTab, Setting, type App } from 'obsidian';
 import type { ObsiManPlugin } from '../../main';
 import type { Language } from '../types/settings';
 import { t, setLanguage } from '../i18n/index';
@@ -127,13 +127,6 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			);
-
-		// Page order — drag-and-drop reorder list
-		new Setting(containerEl)
-			.setName(t('settings.page_order'))
-			.setDesc(t('settings.page_order.desc'));
-
-		this.buildPageOrderList(containerEl);
 
 		// Layout section
 		new Setting(containerEl).setName("").setHeading();
@@ -267,92 +260,4 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 		}
 	}
 
-	/**
-	 * Renders a drag-and-drop list for reordering sidebar pages.
-	 * Uses HTML5 native drag-and-drop on custom rows (not Obsidian's Setting API,
-	 * which doesn't support drag handles natively).
-	 */
-	private buildPageOrderList(containerEl: HTMLElement): void {
-		const pageLabels: Record<string, string> = {
-			files: t('settings.page.files'),
-			filters: t('settings.page.filters'),
-			ops: t('settings.page.ops'),
-		};
-
-		const list = containerEl.createDiv({ cls: 'obsiman-page-order-list' });
-
-		const order = [...this.plugin.settings.pageOrder];
-		let dragSourceIndex = -1;
-
-		const renderRows = () => {
-			list.empty();
-			for (let i = 0; i < order.length; i++) {
-				const pageId = order[i];
-				const row = list.createDiv({
-					cls: 'obsiman-page-order-row',
-					attr: { draggable: 'true' },
-				});
-
-				// Drag handle
-				const handle = row.createDiv({ cls: 'obsiman-page-order-handle' });
-				setIcon(handle, 'lucide-grip-vertical');
-
-				// Position badge
-				row.createDiv({ cls: 'obsiman-page-order-pos', text: String(i + 1) });
-
-				// Page label
-				row.createSpan({ cls: 'obsiman-page-order-label', text: pageLabels[pageId] ?? pageId });
-
-				// Drag events
-				const idx = i; // capture
-
-				row.addEventListener('dragstart', (e: DragEvent) => {
-					dragSourceIndex = idx;
-					row.addClass('is-dragging');
-					if (e.dataTransfer) {
-						e.dataTransfer.effectAllowed = 'move';
-					}
-				});
-
-				row.addEventListener('dragend', () => {
-					row.removeClass('is-dragging');
-					list.querySelectorAll('.obsiman-page-order-row').forEach((el) => {
-						el.removeClass('drag-over');
-					});
-				});
-
-				row.addEventListener('dragover', (e: DragEvent) => {
-					e.preventDefault();
-					if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
-					list.querySelectorAll('.obsiman-page-order-row').forEach((el) => {
-						el.removeClass('drag-over');
-					});
-					row.addClass('drag-over');
-				});
-
-				row.addEventListener('dragleave', () => {
-					row.removeClass('drag-over');
-				});
-
-				row.addEventListener('drop', (e: DragEvent) => {
-					e.preventDefault();
-					row.removeClass('drag-over');
-					if (dragSourceIndex === idx || dragSourceIndex === -1) return;
-
-					// Reorder: move dragged item to drop position
-					const moved = order.splice(dragSourceIndex, 1)[0];
-					order.splice(idx, 0, moved);
-					dragSourceIndex = -1;
-
-					void (async () => {
-						this.plugin.settings.pageOrder = [...order];
-						await this.plugin.saveSettings();
-						renderRows();
-					})();
-				});
-			}
-		};
-
-		renderRows();
-	}
 }

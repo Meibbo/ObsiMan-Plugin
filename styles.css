@@ -92,7 +92,6 @@
 }
 
 .obsiman-filter-tree {
-	max-height: 200px;
 	overflow-y: auto;
 }
 
@@ -1837,6 +1836,22 @@ body.obsiman-bases-column-separators table th {
   justify-content: center;
   padding: 0 2px;
   pointer-events: none;
+}
+
+/* Navbar reorder mode */
+.obsiman-nav-pill.is-reordering {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.obsiman-nav-pill.is-reordering .obsiman-nav-icon {
+  cursor: grab;
+  opacity: 0.75;
+}
+
+.obsiman-nav-pill.is-reordering .obsiman-nav-icon:active {
+  cursor: grabbing;
+  opacity: 0.45;
 }
 
 /* Floating action buttons — filled with accent color */

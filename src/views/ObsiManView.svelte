@@ -12,9 +12,7 @@
 	import { SaveTemplateModal } from '../modals/SaveTemplateModal';
 	import { PropertyManagerModal } from '../modals/PropertyManagerModal';
 	import { t } from '../i18n/index';
-	import { OBSIMAN_EXPLORER_VIEW_TYPE } from './ObsiManExplorerView';
-
-	type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search';
+type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search';
 	type OpsTab = 'fileops' | 'linter' | 'template' | 'content';
 
 	// ─── Props ────────────────────────────────────────────────────────────────
@@ -29,10 +27,10 @@
 		if (Array.isArray(order) && order.length === 3 && valid.every((p) => order.includes(p))) {
 			return order;
 		}
-		return ['files', 'filters', 'ops'];
+		return ['ops', 'files', 'filters'];
 	}
 
-	const pageOrder = resolvedPageOrder();
+	let pageOrder = $state(resolvedPageOrder());
 	const pageLabels: Record<string, string> = {
 		files: t('nav.files'),
 		filters: t('nav.filters'),
@@ -93,6 +91,51 @@
 		}
 	}
 
+	// ─── Navbar long-press reorder ────────────────────────────────────────────
+
+	let isReordering = $state(false);
+	let longPressTimer: ReturnType<typeof setTimeout> | null = null;
+	let dragSourceIdx = -1;
+
+	function startLongPress() {
+		longPressTimer = setTimeout(() => { isReordering = true; }, 2000);
+	}
+
+	function cancelLongPress() {
+		if (longPressTimer !== null) {
+			clearTimeout(longPressTimer);
+			longPressTimer = null;
+		}
+	}
+
+	function onNavDragStart(e: DragEvent, idx: number) {
+		e.stopPropagation();
+		dragSourceIdx = idx;
+		e.dataTransfer?.setData('text/plain', String(idx));
+	}
+
+	function onNavDrop(targetIdx: number) {
+		if (dragSourceIdx < 0 || dragSourceIdx === targetIdx) {
+			isReordering = false;
+			dragSourceIdx = -1;
+			return;
+		}
+		const order = [...pageOrder];
+		const [moved] = order.splice(dragSourceIdx, 1);
+		order.splice(targetIdx, 0, moved);
+		pageOrder = order;
+		plugin.settings.pageOrder = order;
+		void plugin.saveSettings();
+		dragSourceIdx = -1;
+		isReordering = false;
+	}
+
+	function exitReorder() {
+		isReordering = false;
+		dragSourceIdx = -1;
+		cancelLongPress();
+	}
+
 	// ─── Popup ────────────────────────────────────────────────────────────────
 
 	let activePopup = $state<PopupType | null>(null);
@@ -144,17 +187,56 @@
 		filterRuleCount = plugin.filterService.activeFilter?.children?.length ?? 0;
 	}
 
-	// ─── Native component refs ────────────────────────────────────────────────
+	let fileList: FileListComponent | undefined;
+	let filterTree: FilterTreeComponent | undefined;
+	let queueList: QueueListComponent | undefined;
+	let popupFilterTree: FilterTreeComponent | undefined;
 
-	let fileListEl: HTMLElement;
-	let filterTreeEl: HTMLElement;
-	let queueListEl: HTMLElement;
-	let popupFilterTreeEl: HTMLElement;
+	// ─── Actions for native components ────────────────────────────────────────
 
-	let fileList: FileListComponent;
-	let filterTree: FilterTreeComponent;
-	let queueList: QueueListComponent;
-	let popupFilterTree: FilterTreeComponent;
+	function initFileList(node: HTMLElement) {
+		fileList = new FileListComponent(node, plugin.app, () => {});
+		refreshFiles();
+		return {
+			destroy() { fileList = undefined; }
+		};
+	}
+
+	function initFilterTree(node: HTMLElement) {
+		filterTree = new FilterTreeComponent(node, (n: unknown, parentNode: unknown) => {
+			plugin.filterService.removeNode(n, parentNode);
+			refreshFilterTree();
+			updateStats();
+		});
+		refreshFilterTree();
+		return {
+			destroy() { filterTree = undefined; }
+		};
+	}
+
+	function initQueueList(node: HTMLElement) {
+		queueList = new QueueListComponent(node, {
+			onRemove: (index: number) => { plugin.queueService.remove(index); },
+		});
+		refreshQueue();
+		return {
+			destroy() { queueList = undefined; }
+		};
+	}
+
+	function initPopupFilterTree(node: HTMLElement) {
+		popupFilterTree = new FilterTreeComponent(node, (n: unknown, parentNode: unknown) => {
+			plugin.filterService.removeNode(n, parentNode);
+			popupFilterTree?.render(plugin.filterService.activeFilter);
+			updateStats();
+		});
+		if (activePopup === 'active-filters') {
+			popupFilterTree.render(plugin.filterService.activeFilter);
+		}
+		return {
+			destroy() { popupFilterTree = undefined; }
+		};
+	}
 
 	// ─── Refresh ─────────────────────────────────────────────────────────────
 
@@ -210,18 +292,6 @@
 		const selected = fileList?.getSelectedFiles() ?? [];
 		const targets = selected.length > 0 ? selected : plugin.filterService.filteredFiles;
 		new LinterModal(plugin.app, plugin.propertyIndex, targets).open();
-	}
-
-	async function openMainView() {
-		const { workspace } = plugin.app;
-		const leaves = workspace.getLeavesOfType(OBSIMAN_EXPLORER_VIEW_TYPE);
-		if (leaves.length > 0) {
-			await workspace.revealLeaf(leaves[0]);
-			return;
-		}
-		const leaf = workspace.getLeaf('split');
-		await leaf.setViewState({ type: OBSIMAN_EXPLORER_VIEW_TYPE, active: true });
-		await workspace.revealLeaf(leaf);
 	}
 
 	// ─── Scope popup ──────────────────────────────────────────────────────────
@@ -280,30 +350,13 @@
 	// ─── Lifecycle ────────────────────────────────────────────────────────────
 
 	onMount(() => {
-		fileList = new FileListComponent(fileListEl, plugin.app, () => {});
-
-		filterTree = new FilterTreeComponent(filterTreeEl, (node: unknown, parentNode: unknown) => {
-			plugin.filterService.removeNode(node, parentNode);
-			refreshFilterTree();
-			updateStats();
-		});
-
-		queueList = new QueueListComponent(queueListEl, {
-			onRemove: (index: number) => { plugin.queueService.remove(index); },
-		});
-
-		popupFilterTree = new FilterTreeComponent(popupFilterTreeEl, (node: unknown, parentNode: unknown) => {
-			plugin.filterService.removeNode(node, parentNode);
-			popupFilterTree.render(plugin.filterService.activeFilter);
-			updateStats();
-		});
 
 		const onFilterChanged = () => {
 			refreshFiles();
 			refreshFilterTree();
 			updateStats();
 			if (activePopup === 'active-filters') {
-				popupFilterTree.render(plugin.filterService.activeFilter);
+				popupFilterTree?.render(plugin.filterService.activeFilter);
 			}
 		};
 		const onQueueChanged = () => { refreshQueue(); };
@@ -312,11 +365,17 @@
 		plugin.queueService.on('changed', onQueueChanged);
 
 		refreshFiles();
+		refreshFilterTree();
 		refreshQueue();
+
+		// Re-render file list when vault finishes indexing (PropertyIndexService has no events)
+		const onResolved = () => { refreshFiles(); };
+		plugin.app.metadataCache.on('resolved', onResolved);
 
 		return () => {
 			plugin.filterService.off('changed', onFilterChanged);
 			plugin.queueService.off('changed', onQueueChanged);
+			plugin.app.metadataCache.off('resolved', onResolved);
 		};
 	});
 </script>
@@ -324,14 +383,6 @@
 <!-- ─── Header ─────────────────────────────────────────────────────────────── -->
 <div class="obsiman-view-header">
 	<span class="obsiman-view-title">{t('plugin.name')}</span>
-	<div
-		class="obsiman-view-expand clickable-icon"
-		aria-label={t('nav.expand')}
-		use:icon={'lucide-expand'}
-		onclick={() => void openMainView()}
-		role="button"
-		tabindex="0"
-	></div>
 </div>
 
 <!-- ─── Page container (horizontal slide strip) ────────────────────────────── -->
@@ -341,7 +392,7 @@
 	style:--page-index={pageIndex}
 	ontransitionend={onContainerTransitionEnd}
 >
-	{#each pageOrder as pageId}
+	{#each pageOrder as pageId (pageId)}
 		<div class="obsiman-page" data-page={pageId}>
 
 			<!-- FILES PAGE -->
@@ -361,7 +412,7 @@
 					/>
 					<label for="obsiman-toggle-all">{t('files.select_all')}</label>
 				</div>
-				<div class="obsiman-file-list-container" bind:this={fileListEl}></div>
+				<div class="obsiman-file-list-container" use:initFileList></div>
 
 			<!-- FILTERS PAGE -->
 			{:else if pageId === 'filters'}
@@ -376,7 +427,7 @@
 						new SaveTemplateModal(plugin.app, plugin, plugin.filterService.activeFilter).open()
 					}>{t('filter.template.save')}</button>
 				</div>
-				<div class="obsiman-filter-tree" bind:this={filterTreeEl}></div>
+				<div class="obsiman-filter-tree" use:initFilterTree></div>
 
 			<!-- OPS PAGE -->
 			{:else if pageId === 'ops'}
@@ -408,7 +459,7 @@
 								{t('ops.add_property')}
 							</button>
 						</div>
-						<div class="obsiman-queue-container" bind:this={queueListEl}></div>
+						<div class="obsiman-queue-container" use:initQueueList></div>
 						<div class="obsiman-queue-actions">
 							<button class="obsiman-btn mod-cta" onclick={() => {
 								if (!plugin.queueService.isEmpty)
@@ -459,21 +510,35 @@
 	{/if}
 
 	<!-- Center: frosted glass pill with page icons -->
-	<div class="obsiman-nav-pill">
-		{#each pageOrder as pageId}
+	<!-- Long-press 2s any icon to enter reorder mode, then drag to reorder -->
+	<div
+		class="obsiman-nav-pill"
+		class:is-reordering={isReordering}
+		onpointerleave={exitReorder}
+	>
+		{#each pageOrder as pageId, i}
 			<div
 				class="obsiman-nav-icon"
-				class:is-active={activePage === pageId}
-				aria-label={pageLabels[pageId] ?? pageId}
+				class:is-active={activePage === pageId && !isReordering}
+				aria-label={isReordering ? pageLabels[pageId] : (pageLabels[pageId] ?? pageId)}
+				draggable={isReordering}
 				use:icon={pageIcons[pageId] ?? 'lucide-circle'}
-				onclick={() => navigateTo(pageId)}
+				onpointerdown={startLongPress}
+				onpointermove={cancelLongPress}
+				onpointerup={cancelLongPress}
+				onpointercancel={cancelLongPress}
+				ondragstart={(e) => onNavDragStart(e, i)}
+				ondragover={(e) => { e.preventDefault(); e.stopPropagation(); }}
+				ondrop={(e) => { e.preventDefault(); e.stopPropagation(); onNavDrop(i); }}
+				ondragend={exitReorder}
+				onclick={() => { if (!isReordering) navigateTo(pageId); }}
 				role="tab"
 				tabindex="0"
 			>
-				{#if pageId === 'filters' && filterRuleCount > 0}
+				{#if !isReordering && pageId === 'filters' && filterRuleCount > 0}
 					<div class="obsiman-nav-dot-badge">{filterRuleCount}</div>
 				{/if}
-				{#if pageId === 'ops' && queuedCount > 0}
+				{#if !isReordering && pageId === 'ops' && queuedCount > 0}
 					<div class="obsiman-nav-dot-badge">{queuedCount}</div>
 				{/if}
 			</div>
@@ -511,7 +576,7 @@
 				<span class="obsiman-popup-title">{t('filters.active')}</span>
 				<div class="clickable-icon" aria-label="Close" use:icon={'lucide-x'} onclick={closePopup} role="button" tabindex="0"></div>
 			</div>
-			<div class="obsiman-filter-tree obsiman-popup-filter-tree" bind:this={popupFilterTreeEl}></div>
+			<div class="obsiman-filter-tree obsiman-popup-filter-tree" use:initPopupFilterTree></div>
 			<div class="obsiman-popup-actions">
 				<button class="obsiman-btn" onclick={() => {
 					plugin.filterService.clearFilters();
