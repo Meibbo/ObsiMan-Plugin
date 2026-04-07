@@ -290,10 +290,13 @@ export const en: Record<string, string> = {
 	'ops.linter.run': 'Run Linter',
 	'filters.active': 'Active filters',
 	'scope.title': 'Operation scope',
+	'scope.desc': 'Determines which files\' properties appear in the filter list.',
 	'scope.all': 'All vault files',
 	'scope.filtered': 'Filtered files',
 	'scope.selected': 'Selected files',
 	'scope.by_type': 'By property type',
+	'filter.tab.rules': 'Rules',
+	'filter.tab.scope': 'Scope',
 
 	// Grid settings
 	'settings.grid_render_mode': 'Grid rendering mode',
