@@ -91,14 +91,21 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search';
 		}
 	}
 
-	// ─── Navbar long-press reorder ────────────────────────────────────────────
+	// ─── Navbar long-press + pointer-based reorder ───────────────────────────
+	// Uses pointer events only — HTML5 DnD is avoided because Obsidian's
+	// workspace intercepts it and creates tab groups.
 
 	let isReordering = $state(false);
 	let longPressTimer: ReturnType<typeof setTimeout> | null = null;
-	let dragSourceIdx = -1;
+	let reorderSourceIdx = -1;
+	let reorderTargetIdx = $state(-1);
+	let pillEl: HTMLElement | null = null;
 
-	function startLongPress() {
-		longPressTimer = setTimeout(() => { isReordering = true; }, 2000);
+	function startLongPress(idx: number) {
+		longPressTimer = setTimeout(() => {
+			isReordering = true;
+			reorderSourceIdx = idx;
+		}, 2000);
 	}
 
 	function cancelLongPress() {
@@ -108,32 +115,47 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search';
 		}
 	}
 
-	function onNavDragStart(e: DragEvent, idx: number) {
-		e.stopPropagation();
-		dragSourceIdx = idx;
-		e.dataTransfer?.setData('text/plain', String(idx));
+	function onNavIconPointerDown(e: PointerEvent, idx: number) {
+		e.preventDefault();
+		// Capture to pill so pointermove fires even outside the icon
+		if (pillEl) pillEl.setPointerCapture(e.pointerId);
+		startLongPress(idx);
 	}
 
-	function onNavDrop(targetIdx: number) {
-		if (dragSourceIdx < 0 || dragSourceIdx === targetIdx) {
-			isReordering = false;
-			dragSourceIdx = -1;
-			return;
+	function onPillPointerMove(e: PointerEvent) {
+		if (!isReordering || reorderSourceIdx < 0 || !pillEl) return;
+		// Find which icon the pointer is currently over
+		const el = document.elementFromPoint(e.clientX, e.clientY);
+		const iconEl = el?.closest?.('.obsiman-nav-icon') as HTMLElement | null;
+		if (iconEl && pillEl.contains(iconEl)) {
+			const icons = pillEl.querySelectorAll('.obsiman-nav-icon');
+			const idx = Array.from(icons).indexOf(iconEl);
+			if (idx >= 0 && idx !== reorderSourceIdx) {
+				reorderTargetIdx = idx;
+			}
 		}
-		const order = [...pageOrder];
-		const [moved] = order.splice(dragSourceIdx, 1);
-		order.splice(targetIdx, 0, moved);
-		pageOrder = order;
-		plugin.settings.pageOrder = order;
-		void plugin.saveSettings();
-		dragSourceIdx = -1;
+	}
+
+	function onPillPointerUp() {
+		cancelLongPress();
+		if (isReordering && reorderSourceIdx >= 0 && reorderTargetIdx >= 0 && reorderSourceIdx !== reorderTargetIdx) {
+			const order = [...pageOrder];
+			const [moved] = order.splice(reorderSourceIdx, 1);
+			order.splice(reorderTargetIdx, 0, moved);
+			pageOrder = order;
+			plugin.settings.pageOrder = order;
+			void plugin.saveSettings();
+		}
 		isReordering = false;
+		reorderSourceIdx = -1;
+		reorderTargetIdx = -1;
 	}
 
 	function exitReorder() {
-		isReordering = false;
-		dragSourceIdx = -1;
 		cancelLongPress();
+		isReordering = false;
+		reorderSourceIdx = -1;
+		reorderTargetIdx = -1;
 	}
 
 	// ─── Popup ────────────────────────────────────────────────────────────────
@@ -152,6 +174,11 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search';
 		// Wait for the 0.3s spring transition before clearing content
 		setTimeout(() => { activePopup = null; }, 320);
 	}
+
+	// ─── Filters sub-tabs ────────────────────────────────────────────────────
+
+	type FiltersTab = 'rules' | 'scope';
+	let filtersTab = $state<FiltersTab>('rules');
 
 	// ─── Ops sub-tabs ─────────────────────────────────────────────────────────
 
@@ -416,18 +443,64 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search';
 
 			<!-- FILTERS PAGE -->
 			{:else if pageId === 'filters'}
-				<div class="obsiman-filter-buttons">
-					<button class="obsiman-btn" onclick={openAddFilterModal}>{t('filter.add_rule')}</button>
-					<button class="obsiman-btn" onclick={() => {
-						plugin.filterService.clearFilters();
-						refreshFilterTree();
-						updateStats();
-					}}>{t('filter.clear')}</button>
-					<button class="obsiman-btn" onclick={() =>
-						new SaveTemplateModal(plugin.app, plugin, plugin.filterService.activeFilter).open()
-					}>{t('filter.template.save')}</button>
+				<!-- Tab bar: Rules | Scope -->
+				<div class="obsiman-subtab-bar">
+					<div
+						class="obsiman-subtab"
+						class:is-active={filtersTab === 'rules'}
+						onclick={() => { filtersTab = 'rules'; }}
+						role="tab"
+						tabindex="0"
+					><span>{t('filter.tab.rules')}</span></div>
+					<div
+						class="obsiman-subtab"
+						class:is-active={filtersTab === 'scope'}
+						onclick={() => { filtersTab = 'scope'; }}
+						role="tab"
+						tabindex="0"
+					><span>{t('filter.tab.scope')}</span></div>
 				</div>
-				<div class="obsiman-filter-tree" use:initFilterTree></div>
+
+				<div class="obsiman-subtab-area">
+					<!-- Rules tab -->
+					<div class="obsiman-subtab-content" class:is-active={filtersTab === 'rules'}>
+						<div class="obsiman-filter-buttons">
+							<button class="obsiman-btn" onclick={openAddFilterModal}>{t('filter.add_rule')}</button>
+							<button class="obsiman-btn" onclick={() => {
+								plugin.filterService.clearFilters();
+								refreshFilterTree();
+								updateStats();
+							}}>{t('filter.clear')}</button>
+							<button class="obsiman-btn" onclick={() =>
+								new SaveTemplateModal(plugin.app, plugin, plugin.filterService.activeFilter).open()
+							}>{t('filter.template.save')}</button>
+						</div>
+						<div class="obsiman-filter-tree" use:initFilterTree></div>
+					</div>
+
+					<!-- Scope tab -->
+					<div class="obsiman-subtab-content" class:is-active={filtersTab === 'scope'}>
+						<div class="obsiman-scope-desc">{t('scope.desc')}</div>
+						<div class="obsiman-scope-list">
+							{#each scopeOptions as opt}
+								<div
+									class="obsiman-scope-item"
+									class:is-active={plugin.settings.explorerOperationScope === opt.value}
+									onclick={() => {
+										plugin.settings.explorerOperationScope = opt.value as 'auto' | 'selected' | 'filtered' | 'all';
+										void plugin.saveSettings();
+									}}
+									role="option"
+									aria-selected={plugin.settings.explorerOperationScope === opt.value}
+									tabindex="0"
+								>
+									<div class="obsiman-scope-icon" use:icon={opt.icon}></div>
+									<span>{opt.label}</span>
+								</div>
+							{/each}
+						</div>
+					</div>
+				</div>
 
 			<!-- OPS PAGE -->
 			{:else if pageId === 'ops'}
@@ -510,27 +583,25 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search';
 	{/if}
 
 	<!-- Center: frosted glass pill with page icons -->
-	<!-- Long-press 2s any icon to enter reorder mode, then drag to reorder -->
+	<!-- Long-press 2s any icon to enter reorder mode, then move pointer to target icon and release -->
 	<div
 		class="obsiman-nav-pill"
 		class:is-reordering={isReordering}
+		bind:this={pillEl}
+		onpointermove={onPillPointerMove}
+		onpointerup={onPillPointerUp}
 		onpointerleave={exitReorder}
+		role="tablist"
 	>
 		{#each pageOrder as pageId, i}
 			<div
 				class="obsiman-nav-icon"
 				class:is-active={activePage === pageId && !isReordering}
-				aria-label={isReordering ? pageLabels[pageId] : (pageLabels[pageId] ?? pageId)}
-				draggable={isReordering}
+				class:is-reorder-target={isReordering && reorderTargetIdx === i}
+				aria-label={pageLabels[pageId] ?? pageId}
 				use:icon={pageIcons[pageId] ?? 'lucide-circle'}
-				onpointerdown={startLongPress}
-				onpointermove={cancelLongPress}
-				onpointerup={cancelLongPress}
-				onpointercancel={cancelLongPress}
-				ondragstart={(e) => onNavDragStart(e, i)}
-				ondragover={(e) => { e.preventDefault(); e.stopPropagation(); }}
-				ondrop={(e) => { e.preventDefault(); e.stopPropagation(); onNavDrop(i); }}
-				ondragend={exitReorder}
+				onpointerdown={(e) => onNavIconPointerDown(e, i)}
+				onpointercancel={exitReorder}
 				onclick={() => { if (!isReordering) navigateTo(pageId); }}
 				role="tab"
 				tabindex="0"

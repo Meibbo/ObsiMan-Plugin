@@ -14,11 +14,7 @@
 	--obsiman-badge-bg: var(--background-modifier-hover);
 }
 
-/* === View Layout === */
-.obsiman-view {
-	padding: 0;
-	overflow-y: auto;
-}
+/* === View Layout (overridden by Svelte redesign rules below) === */
 
 /* === Sections === */
 .obsiman-section {
@@ -1550,11 +1546,6 @@ body.obsiman-resizing {
    Bases attach architecture (v1.1+)
    ============================================================ */
 
-/* === Sidebar sliding panels === */
-.obsiman-view {
-  position: relative;
-  overflow: hidden;
-}
 
 .obsiman-sidebar-toggle-bar {
   display: flex;
@@ -1713,9 +1704,9 @@ body.obsiman-bases-column-separators table th {
 .obsiman-view {
   display: flex;
   flex-direction: column;
-  height: 100%;
   overflow: hidden;
   position: relative; /* anchor for the popup overlay */
+  padding: 0;
 }
 
 /* === Header bar === */
@@ -1849,9 +1840,10 @@ body.obsiman-bases-column-separators table th {
   opacity: 0.75;
 }
 
-.obsiman-nav-pill.is-reordering .obsiman-nav-icon:active {
-  cursor: grabbing;
-  opacity: 0.45;
+.obsiman-nav-icon.is-reorder-target {
+  background: color-mix(in srgb, var(--color-accent) 25%, transparent);
+  border-radius: 50%;
+  opacity: 1;
 }
 
 /* Floating action buttons — filled with accent color */
@@ -2113,7 +2105,15 @@ body.obsiman-bases-column-separators table th {
   overflow-y: auto;
 }
 
-/* Scope popup */
+/* Scope tab description */
+.obsiman-scope-desc {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+/* Scope popup / tab */
 .obsiman-scope-list {
   display: flex;
   flex-direction: column;

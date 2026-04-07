@@ -67,8 +67,8 @@ export class ObsiManPlugin extends Plugin {
 		this.registerView(OBSIMAN_OPS_VIEW_TYPE, (leaf) => new ObsiManOpsView(leaf, this));
 		this.registerView(OBSIMAN_EXPLORER_VIEW_TYPE, (leaf) => new ObsiManExplorerView(leaf, this));
 
-		this.addRibbonIcon('obsiman-icon', 'Attach ObsiMan to .base file', () => {
-			void this.runAttachCommand();
+		this.addRibbonIcon('obsiman-icon', 'Open ObsiMan', () => {
+			void this.activateSidebarView();
 		});
 
 		this.addCommand({
