@@ -328,4 +328,8 @@ export const en: Record<string, string> = {
 	'content.preview_more': '…and {count} more files',
 	'content.no_matches': 'No matches found',
 	'content.invalid_regex': 'Invalid regular expression',
+	'filter.prop_browser.empty': 'No properties in vault',
+	'filter.prop_browser.title': 'Properties',
+	'queue.content_changes': 'Content changes',
+	'queue.content_no_matches': 'No matches in this file',
 };
