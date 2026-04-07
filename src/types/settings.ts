@@ -36,6 +36,8 @@ export interface ObsiManSettings {
 	openMode: 'sidebar' | 'main' | 'both';
 	/** Order of pages in the sidebar bottom nav (page IDs: 'files', 'filters', 'ops') */
 	pageOrder: string[];
+	/** File list view mode in the sidebar Files page */
+	viewMode: 'list' | 'selected';
 }
 
 export const DEFAULT_SETTINGS: ObsiManSettings = {
@@ -56,5 +58,6 @@ export const DEFAULT_SETTINGS: ObsiManSettings = {
 	basesInjectCheckboxes: true,
 	basesShowColumnSeparators: false,
 	openMode: 'sidebar',
-	pageOrder: ['files', 'filters', 'ops'],
+	pageOrder: ['ops', 'files', 'filters'],
+	viewMode: 'list',
 };

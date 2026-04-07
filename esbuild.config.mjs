@@ -1,6 +1,7 @@
 import esbuild from "esbuild";
 import process from "process";
 import { builtinModules as builtins } from "module";
+import esbuildSvelte from "esbuild-svelte";
 
 const prod = process.argv[2] === "production";
 
@@ -30,6 +31,16 @@ const context = await esbuild.context({
 	treeShaking: true,
 	minify: prod,
 	outfile: "main.js",
+	plugins: [
+		esbuildSvelte({
+			compilerOptions: {
+				css: "injected",
+			},
+			// Suppress Svelte a11y warnings — Obsidian plugins are desktop apps,
+			// not public web pages, so strict a11y lint isn't applicable here.
+			filterWarnings: (w) => !w.code.startsWith('a11y_') && w.code !== 'non_reactive_update',
+		}),
+	],
 });
 
 if (prod) {

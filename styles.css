@@ -1746,8 +1746,9 @@ body.obsiman-bases-column-separators table th {
 .obsiman-page-container {
   display: flex;
   flex: 1;
+  min-height: 0; /* critical: allows flex children to scroll correctly */
   overflow: hidden;
-  /* No transform transition by default — added dynamically with .is-animating */
+  transform: translateX(calc(-1 * var(--page-index, 0) * 100%));
 }
 
 .obsiman-page-container.is-animating {
@@ -1756,6 +1757,7 @@ body.obsiman-bases-column-separators table th {
 
 .obsiman-page {
   min-width: 100%;
+  min-height: 0; /* critical: allows overflow-y: auto to work inside flex */
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -1764,53 +1766,65 @@ body.obsiman-bases-column-separators table th {
   box-sizing: border-box;
 }
 
-/* === Bottom navigation dots === */
+/* === Bottom navigation: [FAB] [icon pill] [FAB] === */
 .obsiman-bottom-nav {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-  padding: 8px 0;
+  padding: 10px 12px;
   flex-shrink: 0;
-  border-top: 1px solid var(--background-modifier-border);
 }
 
-.obsiman-nav-dot {
+/* Frosted glass pill containing page icons */
+.obsiman-nav-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--background-modifier-hover);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 999px;
+  padding: 4px 6px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Individual icon nav items inside pill */
+.obsiman-nav-icon {
   position: relative;
-  width: 8px;
-  height: 8px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: var(--background-modifier-border-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  /* Enlarge the click area without changing visual size */
-  padding: 18px;
-  margin: -18px;
-  box-sizing: content-box;
-  transition: background 0.15s ease;
+  color: var(--text-muted);
+  transition: color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
 }
 
-.obsiman-nav-dot::after {
-  content: '';
-  position: absolute;
-  inset: 50%;
-  transform: translate(-50%, -50%);
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--background-modifier-border-hover);
-  transition: background 0.15s ease, width 0.15s ease, height 0.15s ease;
+.obsiman-nav-icon:hover {
+  color: var(--text-normal);
+  background: var(--background-modifier-hover);
 }
 
-.obsiman-nav-dot.is-active::after {
-  background: var(--color-accent);
-  width: 10px;
-  height: 10px;
+.obsiman-nav-icon.is-active {
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--color-accent) 40%, transparent);
 }
 
+.obsiman-nav-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Badge on nav icon (queue / filter count) */
 .obsiman-nav-dot-badge {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 2px;
+  right: 2px;
   min-width: 14px;
   height: 14px;
   border-radius: 7px;
@@ -1825,8 +1839,37 @@ body.obsiman-bases-column-separators table th {
   pointer-events: none;
 }
 
-.obsiman-nav-dot-badge.is-hidden {
-  display: none;
+/* Floating action buttons — filled with accent color */
+.obsiman-nav-fab {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+.obsiman-nav-fab:hover {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
+
+.obsiman-nav-fab svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Invisible placeholder to keep pill centered when one FAB is absent */
+.obsiman-nav-fab-placeholder {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
 }
 
 /* === Files page === */
@@ -2091,6 +2134,66 @@ body.obsiman-bases-column-separators table th {
 .obsiman-scope-icon svg {
   width: 15px;
   height: 15px;
+}
+
+/* Disabled scope/view-mode item */
+.obsiman-scope-item.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Coming soon badge inside a disabled item */
+.obsiman-coming-soon-badge {
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--background-modifier-border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Search popup inputs */
+.obsiman-search-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.obsiman-search-input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: var(--radius-s);
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary-alt);
+  color: var(--text-normal);
+  font-size: var(--font-ui-small);
+  box-sizing: border-box;
+}
+
+.obsiman-search-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+/* Active filters count badge on the filter button */
+.obsiman-active-filters-count {
+  margin-left: 4px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+  font-size: 9px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
 }
 
 /* === Settings — drag-and-drop page order list === */
