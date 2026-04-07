@@ -2493,3 +2493,154 @@ body.obsiman-bases-column-separators table th {
 	border-radius: 2px;
 	padding: 0 1px;
 }
+
+/* ─── Property Browser (Filters page Rules tab) ──────────────────────── */
+.obsiman-prop-browser {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	margin-top: 8px;
+	overflow-y: auto;
+	flex: 1;
+	min-height: 0;
+}
+
+.obsiman-prop-browser-empty {
+	color: var(--text-muted);
+	font-size: var(--font-smallest);
+	padding: 8px 4px;
+}
+
+.obsiman-prop-browser-row {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 6px;
+	border-radius: 4px;
+	cursor: pointer;
+	min-height: 28px;
+}
+
+.obsiman-prop-browser-row:hover {
+	background: var(--background-modifier-hover);
+}
+
+.obsiman-prop-browser-expand {
+	background: none;
+	border: none;
+	padding: 0;
+	width: 16px;
+	height: 16px;
+	font-size: 10px;
+	color: var(--text-muted);
+	cursor: pointer;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 2px;
+}
+
+.obsiman-prop-browser-expand:hover {
+	color: var(--text-normal);
+	background: var(--background-modifier-hover);
+}
+
+.obsiman-prop-browser-name {
+	flex: 1;
+	font-size: var(--font-ui-small);
+	color: var(--text-normal);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.obsiman-prop-browser-count {
+	font-size: var(--font-smallest);
+	color: var(--text-muted);
+	flex-shrink: 0;
+}
+
+.obsiman-prop-browser-values {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	padding-left: 20px;
+}
+
+.obsiman-prop-browser-value {
+	padding: 3px 6px;
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+	border-radius: 3px;
+	cursor: pointer;
+	min-height: 24px;
+	display: flex;
+	align-items: center;
+}
+
+.obsiman-prop-browser-value:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+/* ─── Queue Details — Content Op Snippets ─────────────────────────────── */
+.obsiman-diff-content-section {
+	margin-top: 12px;
+	border-top: 1px solid var(--background-modifier-border);
+	padding-top: 8px;
+}
+
+.obsiman-diff-content-section-title {
+	font-size: var(--font-ui-small);
+	font-weight: 600;
+	color: var(--text-muted);
+	margin-bottom: 8px;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.obsiman-diff-content-file {
+	margin-bottom: 8px;
+}
+
+.obsiman-diff-content-file-path {
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+	margin-bottom: 4px;
+	font-style: italic;
+}
+
+.obsiman-diff-snippet {
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-smaller);
+	padding: 4px 8px;
+	background: var(--background-secondary);
+	border-radius: 4px;
+	margin-bottom: 2px;
+	line-height: 1.5;
+	word-break: break-all;
+}
+
+.obsiman-diff-snippet mark {
+	background: var(--obsiman-diff-deleted);
+	color: inherit;
+	border-radius: 2px;
+}
+
+.obsiman-diff-replace-arrow {
+	color: var(--text-muted);
+	margin: 0 4px;
+}
+
+.obsiman-diff-replace-new {
+	background: var(--obsiman-diff-added);
+	border-radius: 2px;
+	padding: 0 2px;
+}
+
+.obsiman-diff-content-no-matches {
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	padding: 2px 8px;
+}
