@@ -7,8 +7,8 @@
   "explorerShowQueuePreview": true,
   "explorerContentSearch": true,
   "explorerOperationScope": "auto",
-  "operationsPanelPosition": "right",
-  "basesLastUsedPath": "+/books.base",
+  "operationsPanelPosition": "replace",
+  "basesLastUsedPath": "+/Calendar.base",
   "basesOpenMode": "picker",
   "basesOpsPanelSide": "left",
   "basesExplorerSide": "right",
@@ -17,10 +17,11 @@
   "basesShowColumnSeparators": false,
   "openMode": "sidebar",
   "pageOrder": [
-    "filters",
     "ops",
+    "filters",
     "files"
   ],
+  "viewMode": "list",
   "gridColumns": [
     "type",
     "tags",

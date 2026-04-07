@@ -84,12 +84,6 @@ export class ObsiManPlugin extends Plugin {
 		});
 
 		this.addCommand({
-			id: 'open-main-view',
-			name: 'Open main view (full-width)',
-			callback: () => void this.activateMainView(),
-		});
-
-		this.addCommand({
 			id: 'apply-queue',
 			name: 'Apply pending operations',
 			checkCallback: (checking) => {
@@ -223,17 +217,6 @@ export class ObsiManPlugin extends Plugin {
 	}
 
 	async activateSidebarView(): Promise<void> {
-
-		if (this.settings.openMode === 'main') {
-			await this.activateMainView();
-			return;
-		}
-
-		if (this.settings.openMode === 'both') {
-			await Promise.all([this.openSidebarLeaf(), this.activateMainView()]);
-			return;
-		}
-
 		await this.openSidebarLeaf();
 	}
 
@@ -258,18 +241,6 @@ export class ObsiManPlugin extends Plugin {
 		await workspace.revealLeaf(leaf);
 	}
 
-	async activateMainView(): Promise<void> {
-		const leaves = this.app.workspace.getLeavesOfType(OBSIMAN_EXPLORER_VIEW_TYPE);
-
-		if (leaves.length > 0) {
-			await this.app.workspace.revealLeaf(leaves[0]);
-			return;
-		}
-
-		const leaf = this.app.workspace.getLeaf('split');
-		await leaf.setViewState({ type: OBSIMAN_EXPLORER_VIEW_TYPE, active: true });
-		await this.app.workspace.revealLeaf(leaf);
-	}
 }
 
 class BasesFilePicker extends SuggestModal<TFile> {
