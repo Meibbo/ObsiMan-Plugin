@@ -12,6 +12,89 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.0-beta.5] — 2026-04-07
+
+> Property browser, queue snippet diffs, and content replace UX polish.
+
+### Added
+- **Filters → Property Browser**: the Rules tab now shows a live, scrollable list of all vault properties directly in the Filters page. Click a property name to immediately add a `has_property` filter; expand any property with ▶ to see its known values and click one to add a `specific_value` filter — no modal required. The filter tree (active rules) moved exclusively to the Active Filters popup (FAB).
+- **Queue Details → Content Snippet Diff**: when a Find & Replace Content operation is queued, opening Queue Details now shows a dedicated "Content changes" section below the property diffs. Each affected file renders async snippets: `…before context [MATCH → replacement] after context…` with the original match highlighted in red and the replacement in green.
+
+### Fixed
+- `simulateChanges()` no longer stores `MOVE_FILE` and `FIND_REPLACE_CONTENT` signal keys as fake property entries in the diff — this was causing `[object Object]` to appear in the Queue Details property diff table for content-replace and move operations.
+
+### Internal
+- `src/services/OperationQueueService.ts`: `simulateChanges()` now skips `MOVE_FILE` and `FIND_REPLACE_CONTENT` alongside the existing `RENAME_FILE` skip
+- `src/modals/QueueDetailsModal.ts`: new async `renderContentOps()` method reads files via `vault.read()` and renders snippet-style diffs for `find_replace_content` ops
+- `src/views/ObsiManView.svelte`: `propBrowserItems` reactive state + `refreshPropBrowser()` reads from `PropertyIndexService`; refreshes on mount and `metadataCache.resolved`
+- `styles.css`: new `.obsiman-prop-browser*` and `.obsiman-diff-content-*` CSS utility classes
+
+---
+
+## [1.0.0-beta.4] — 2026-04-07
+
+> Find & Replace in file content, Move to folder, batch queue performance, UI navigation overhaul.
+
+### Added
+- **Find & Replace Content tab**: search and replace raw file content (including frontmatter) using plain text or regex. Features case-sensitive toggle (`Aa`), regex toggle (`.*`), inline Preview (shows match count + collapsible per-file snippet list), and Queue Replace to stage the operation. Scope adapts to selected files or filtered files automatically.
+- **Move to folder**: in-frame slide-up popup (following wireframe UX) to move selected/filtered files to a target folder with folder autocomplete
+- **Scope tab inside Filters page**: sub-tab bar (Rules | Scope) in the Filters page — scope selection (All vault / Filtered files / Selected files) is now inline in the Filters page instead of a popup
+- **Long-press nav icon reorder** (2s hold → drag to swap): pages can be reordered without leaving the sidebar; visual `.is-reorder-target` highlight during drag; order saved to settings
+- **Bottom nav float + blur**: nav bar now floats over page content (`position: absolute; bottom: 0`) with a gradient fade and `padding-bottom: 80px` so content scrolls clear of the nav
+- **Active filter badge** on Filters nav icon showing rule count; queue badge on Ops nav icon
+- `addBatch()` on `OperationQueueService` — batches multiple queue additions into a single UI re-render event (prevents UI freeze when queuing 1000+ files)
+- Chunked execution in `OperationQueueService.execute()` (20 files/tick, `setTimeout(0)` yield) + live progress Notice
+
+### Fixed
+- Ribbon icon now opens the sidebar (was incorrectly calling the bases picker)
+- Navbar click navigation (was broken after pointer-capture refactor in Iter.3)
+- Blank pages 2 & 3 — root cause: `overflow: hidden` was on the same element as `translateX`, clipping pages in local space. Fixed by adding `.obsiman-pages-viewport` wrapper
+- `addClass('class1 class2')` → `addClasses(['class1', 'class2'])` in all 4 modals
+
+### Internal
+- `FIND_REPLACE_CONTENT` and `MOVE_FILE` signal constants in `src/types/operation.ts`
+- `FolderSuggest` added to `src/utils/autocomplete.ts`
+- Svelte 5 `$state` + `$derived` for all reactive UI — no framework bindings
+- `.obsiman-pages-viewport` overflow wrapper pattern for horizontal slide navigation
+
+---
+
+## [1.0.0-beta.3] — 2026-04-06
+
+> Full Svelte 5 migration, redesigned navigation, major layout fixes.
+
+### Added
+- **Svelte 5 sidebar**: `ObsiManView.svelte` replaces the old imperative TypeScript view — 3-page horizontal slide navigation (Ops | Files | Filters) with CSS `translateX` and `transitionend` guard
+- **Frosted glass pill nav**: Lucide icons per page, active glow via `color-mix`, `backdrop-filter: blur`, per-page FABs on outer edges following the wireframe spec
+- **Per-page FABs**: Files page always gets both FABs (View mode popup, Search popup); Ops page gets left FAB (Queue Details modal); Filters page gets right FAB (Active Filters popup)
+- **View mode popup, Search popup, Active Filters popup, Scope popup**: all as in-frame overlays (slide-up spring animation)
+- **Queue Details modal** (`QueueDetailsModal`): collapsible file sections, color-coded property diffs (green/red), "Show unchanged" toggle, live progress during execution
+- **Linter batch modal** (`LinterModal`): runs Obsidian Linter on all filtered/selected files
+- **File Move modal** (`FileMoveModal`): folder autocomplete via `FolderSuggest`
+
+### Fixed
+- Empty Files/Filters pages — `refreshFilterTree()` now called in `onMount`; `metadataCache.on('resolved')` triggers file re-render after vault indexes
+- Page order default corrected to `['ops', 'files', 'filters']` (matches wireframe)
+- HTML5 drag-and-drop replaced with pointer events (Obsidian intercepted native drag events and created tab groups)
+
+### Internal
+- `esbuild.config.mjs` updated with `esbuild-svelte@0.9.4` plugin (`css: "injected"`)
+- `src/svelte.d.ts` created for TypeScript `.svelte` module declarations
+
+---
+
+## [1.0.0-beta.2] — 2026-03-28
+
+> Bug-fix release addressing four known regressions from v0.9.0.
+
+### Fixed
+- **Inline rename**: double-clicking a name cell in the property grid now correctly opens the inline edit input
+- **Header checkbox CSS**: "select all" checkbox in the grid header restored to accent/indeterminate styling
+- **Grid re-render flash**: `MarkdownRenderer` cell updates no longer produce a visible rebuild flash on each click
+- **Tags in grid**: `#hashtag` property values now render as styled tag chips matching Obsidian's live preview
+
+---
+
 ## [1.0.0-beta.1] — 2026-03-27
 
 > First public beta. Core features are functional but several known regressions exist. Not recommended for production vaults.
@@ -133,7 +216,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > Versions 0.2–0.6 correspond to the Python script predecessor (PKM Manager).
 > See `docs/pkm_manager_python_architecture.md` for that history.
 
-[Unreleased]: https://github.com/Meibbo/ObsiMan-Plugin/compare/1.0.0-beta.1...HEAD
+[Unreleased]: https://github.com/Meibbo/ObsiMan-Plugin/compare/1.0.0-beta.5...HEAD
+[1.0.0-beta.5]: https://github.com/Meibbo/ObsiMan-Plugin/compare/1.0.0-beta.4...1.0.0-beta.5
+[1.0.0-beta.4]: https://github.com/Meibbo/ObsiMan-Plugin/compare/1.0.0-beta.3...1.0.0-beta.4
+[1.0.0-beta.3]: https://github.com/Meibbo/ObsiMan-Plugin/compare/1.0.0-beta.2...1.0.0-beta.3
+[1.0.0-beta.2]: https://github.com/Meibbo/ObsiMan-Plugin/compare/1.0.0-beta.1...1.0.0-beta.2
 [1.0.0-beta.1]: https://github.com/Meibbo/ObsiMan-Plugin/compare/0.9.0...1.0.0-beta.1
 [0.9.0]: https://github.com/Meibbo/ObsiMan-Plugin/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/Meibbo/ObsiMan-Plugin/compare/0.7.0...0.8.0
