@@ -1,5 +1,6 @@
 import { Modal, Notice, Setting, type App } from 'obsidian';
 import type { OperationQueueService } from '../services/OperationQueueService';
+import { FIND_REPLACE_CONTENT } from '../types/operation';
 import { t } from '../i18n/index';
 
 /**
@@ -22,7 +23,7 @@ export class QueueDetailsModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass('obsiman-modal obsiman-queue-details');
+		contentEl.addClasses(['obsiman-modal', 'obsiman-queue-details']);
 
 		contentEl.createEl('h3', { text: t('queue.title') });
 
@@ -70,6 +71,10 @@ export class QueueDetailsModal extends Modal {
 		// --- File diffs ---
 		const diffContainer = contentEl.createEl('div', { cls: 'obsiman-diff-container' });
 		this.renderDiffs(diffContainer, diffs);
+
+		// --- Async content-op snippet section (below property diffs) ---
+		const contentOpsContainer = contentEl.createDiv();
+		void this.renderContentOps(contentOpsContainer);
 
 		// --- Apply / Cancel buttons ---
 		new Setting(contentEl)
@@ -203,6 +208,101 @@ export class QueueDetailsModal extends Modal {
 			return val.map((v) => `  - ${v}`).join('\n');
 		}
 		return String(val as string | number | boolean);
+	}
+
+	private async renderContentOps(container: HTMLElement): Promise<void> {
+		const contentOps = this.queueService.queue.filter(
+			(op) => op.action === 'find_replace_content'
+		);
+		if (contentOps.length === 0) return;
+
+		const section = container.createDiv({ cls: 'obsiman-diff-content-section' });
+		section.createDiv({
+			cls: 'obsiman-diff-content-section-title',
+			text: t('queue.content_changes'),
+		});
+
+		const MAX_FILES_SHOWN = 10;
+		const MAX_SNIPPETS_PER_FILE = 3;
+		const CONTEXT_LEN = 60;
+
+		for (const op of contentOps) {
+			// Extract pattern data from logicFunc closure (file/metadata args are ignored for content ops)
+			const logicResult = op.logicFunc(op.files[0], {});
+			if (!logicResult || !(FIND_REPLACE_CONTENT in logicResult)) continue;
+			const { pattern, replacement, isRegex, caseSensitive } = logicResult[FIND_REPLACE_CONTENT] as {
+				pattern: string;
+				replacement: string;
+				isRegex: boolean;
+				caseSensitive: boolean;
+			};
+
+			const flags = 'g' + (caseSensitive ? '' : 'i');
+			const escaped = isRegex ? pattern : pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+			try {
+				new RegExp(escaped, flags); // validate regex before iterating files
+			} catch {
+				continue;
+			}
+
+			const filesToShow = op.files.slice(0, MAX_FILES_SHOWN);
+
+			for (const file of filesToShow) {
+				const fileEl = section.createDiv({ cls: 'obsiman-diff-content-file' });
+				fileEl.createDiv({
+					cls: 'obsiman-diff-content-file-path',
+					text: file.path,
+				});
+
+				let content: string;
+				try {
+					content = await this.app.vault.read(file);
+				} catch {
+					continue;
+				}
+
+				const matches = [...content.matchAll(new RegExp(escaped, flags))];
+				if (matches.length === 0) {
+					fileEl.createDiv({
+						cls: 'obsiman-diff-content-no-matches',
+						text: t('queue.content_no_matches'),
+					});
+					continue;
+				}
+
+				for (const m of matches.slice(0, MAX_SNIPPETS_PER_FILE)) {
+					const start = m.index ?? 0;
+					const end = start + m[0].length;
+					const before = content.slice(Math.max(0, start - CONTEXT_LEN), start);
+					const matchText = m[0];
+					const after = content.slice(end, end + CONTEXT_LEN);
+					const replText = isRegex
+						? matchText.replace(new RegExp(escaped, flags.replace('g', '')), replacement)
+						: replacement;
+
+					const snippetEl = fileEl.createDiv({ cls: 'obsiman-diff-snippet' });
+					snippetEl.createSpan({ text: (start > CONTEXT_LEN ? '…' : '') + before });
+					snippetEl.createEl('mark', { text: matchText });
+					snippetEl.createSpan({ cls: 'obsiman-diff-replace-arrow', text: '→' });
+					snippetEl.createEl('mark', { cls: 'obsiman-diff-replace-new', text: replText });
+					snippetEl.createSpan({ text: after + (end + CONTEXT_LEN < content.length ? '…' : '') });
+				}
+
+				if (matches.length > MAX_SNIPPETS_PER_FILE) {
+					fileEl.createDiv({
+						cls: 'obsiman-diff-content-no-matches',
+						text: `…and ${matches.length - MAX_SNIPPETS_PER_FILE} more match(es)`,
+					});
+				}
+			}
+
+			if (op.files.length > MAX_FILES_SHOWN) {
+				section.createDiv({
+					cls: 'obsiman-diff-content-no-matches',
+					text: `…and ${op.files.length - MAX_FILES_SHOWN} more files`,
+				});
+			}
+		}
 	}
 
 	onClose(): void {
