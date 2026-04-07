@@ -39,54 +39,69 @@
 
 ## Architecture Overview
 
+The sidebar view is built with **Svelte 5** (`$state`, `$derived`, `{#each}` blocks). All other views and components use Obsidian's TypeScript DOM helpers directly.
+
 ```
-main.ts                    # Plugin entry point — lifecycle, commands, ribbon
+main.ts                    # Plugin entry point — lifecycle, commands, ribbon, services
 src/
-  services/                # Core business logic (extend Component)
-    PropertyIndexService   # Live index of all frontmatter properties/values
-    FilterService          # Filter tree management and evaluation
-    OperationQueueService  # Stages and executes property operations
-    SessionFileService     # Session .md file read/write and sync
-    IconicService          # Iconic plugin icon lookup
-    PropertyTypeService    # .obsidian/types.json read/write
-  views/                   # Obsidian ItemView implementations
-    ObsiManView            # Sidebar view (4 collapsible sections)
-    ObsiManMainView        # Full-screen view (header, grid, explorer)
-  components/              # UI components (plain classes)
-    PropertyExplorerComponent  # Hierarchical property tree
-    PropertyGridComponent      # Virtual-scrolled spreadsheet
-    FileListComponent          # Checkable file list
-    FilterTreeComponent        # Visual filter tree editor
-    QueueListComponent         # Pending operations list
-    HeaderBarComponent         # Top bar controls
-    NavbarComponent            # Explorer toggle + filter buttons
-    OperationsPanelComponent   # Operation queuing UI
-    ToolbarComponent           # Alternate toolbar (sidebar)
-    FileFilterPopoverComponent # Popover for file filtering
-    StatusBarComponent         # Status bar statistics
+  services/                # Core business logic (extend Component, use addChild())
+    PropertyIndexService   # Live frontmatter index (property name → Set<values>)
+    FilterService          # Filter tree state + filteredFiles list
+    OperationQueueService  # Stages and executes file/property operations
+    SessionFileService     # Session .md file read/write
+    BasesCheckboxInjector  # Injects checkboxes into Obsidian Bases table DOM
+  views/                   # Obsidian ItemView subclasses
+    ObsiManView.ts         # Thin shell — mounts/unmounts ObsiManView.svelte
+    ObsiManView.svelte     # Main sidebar UI (Svelte 5): 3-page nav, all tabs
+    ObsiManExplorerView.ts # Full-width property explorer (legacy, not in active use)
+    ObsiManOpsView.ts      # Full-width operations panel (legacy, not in active use)
+  components/              # Plain TypeScript UI classes (no framework)
+    PropertyGridComponent  # Virtual-scrolled spreadsheet grid with inline editing
+    FileListComponent      # Checkable file list with search filtering
+    FilterTreeComponent    # Visual filter rule tree (rendered in Active Filters popup)
+    QueueListComponent     # Pending operations mini-list (inside Ops tab)
   modals/                  # Modal dialogs (extend Modal)
-    AddFilterModal         # Create filter rules/groups
-    PropertyManagerModal   # Queue property operations
-    QueueDetailsModal      # View/manage queued operations
+    AddFilterModal         # Create filter rules/groups (property autocomplete)
+    PropertyManagerModal   # Queue property operations (set/rename/delete/type)
+    QueueDetailsModal      # Diff view + execute (property diffs + content snippets)
     FileRenameModal        # Batch file renaming
-    LinterModal            # Obsidian Linter integration
+    FileMoveModal          # Move files to target folder
+    LinterModal            # Obsidian Linter batch integration
     SaveTemplateModal      # Save filter template
-    CreateSessionModal     # Create new session file
-  types/                   # TypeScript type definitions
-    filter.ts              # FilterNode, FilterGroup, FilterRule
-    operation.ts           # PendingChange, OperationResult
-    session.ts             # ObsiManSession
+  types/                   # TypeScript interfaces only
+    filter.ts              # FilterNode, FilterGroup, FilterRule, FilterType
+    operation.ts           # PendingChange, OperationResult, signal constants
     settings.ts            # ObsiManSettings, DEFAULT_SETTINGS
-  utils/                   # Utility functions
-    filter-evaluator.ts    # Pure function: evalNode() for filter evaluation
-    autocomplete.ts        # PropertySuggest (AbstractInputSuggest)
+  utils/                   # Pure functions
+    filter-evaluator.ts    # evalNode() — pure filter evaluation function
+    autocomplete.ts        # PropertySuggest, FolderSuggest (AbstractInputSuggest)
   i18n/                    # Internationalization
-    index.ts               # t() function, setLanguage()
-    en.ts                  # English translations
+    index.ts               # t() function, setLanguage(), auto-detect
+    en.ts                  # English translations (source of truth)
     es.ts                  # Spanish translations
   settings/
     ObsiManSettingsTab.ts  # Plugin settings tab
 ```
+
+### ObsiManView.svelte — key patterns
+
+The sidebar Svelte component manages all page/tab state. Key rules:
+- All user-visible strings use `t('key')` from `src/i18n/index.ts`
+- DOM elements created by TypeScript components (FileListComponent, FilterTreeComponent, QueueListComponent) are initialized via Svelte `use:action` directives
+- State is `$state` runes; derived values are `$derived.by()`
+- Never assign `element.style.*` directly — use CSS classes
+
+### Operation signals
+
+`src/types/operation.ts` defines special string constants used as keys in `logicFunc()` return values to signal non-standard operations:
+
+| Constant | Value | Effect |
+|----------|-------|--------|
+| `RENAME_FILE` | `_RENAME_FILE` | Rename file via `fileManager.renameFile` |
+| `MOVE_FILE` | `_MOVE_FILE` | Move file to target folder |
+| `FIND_REPLACE_CONTENT` | `_FIND_REPLACE_CONTENT` | Replace content in raw file via `vault.read/modify` |
+| `DELETE_PROP` | `_DELETE_PROP` | Delete a frontmatter property |
+| `REORDER_ALL` | `_REORDER_ALL` | Reorder all frontmatter keys |
 
 ## Key Development Patterns
 
@@ -164,17 +179,18 @@ const file = this.app.vault.getMarkdownFiles().find(f => f.path === path);
 
 Before submitting changes, verify manually in Obsidian:
 
-- [ ] Plugin loads without console errors
-- [ ] Sidebar and main views open and display correctly
-- [ ] Property explorer shows all vault properties
-- [ ] Filters apply correctly (AND/OR/NOT logic)
-- [ ] Grid displays files with correct property values
-- [ ] Inline cell editing saves changes
-- [ ] Operations queue: add, preview, execute, clear
-- [ ] Sessions: create, load, save, switch
-- [ ] Disable and re-enable plugin (no memory leaks)
-- [ ] Build passes: `npm run build`
-- [ ] Lint passes: `npm run lint`
+- [ ] Plugin reloads without console errors (`obsidian 'vault=...' 'plugin:reload' 'id=obsiman'` then `dev:errors`)
+- [ ] Build passes: `npm run build` (1 pre-existing Svelte warning, 0 errors)
+- [ ] Sidebar opens via ribbon icon
+- [ ] All 3 pages navigate correctly (Ops | Files | Filters)
+- [ ] Files page: file list renders with correct count
+- [ ] Filters → Rules tab: property browser shows vault properties; clicking adds filter rules
+- [ ] Filters → Scope tab: scope selection updates correctly
+- [ ] Active Filters popup (FAB): shows current filter tree correctly
+- [ ] Ops → File Ops tab: queue operations, review diff, execute
+- [ ] Ops → Content tab: preview finds matches, queue replace stages correctly
+- [ ] Queue Details: property diffs show for property ops; snippet diffs show for content ops
+- [ ] Disable and re-enable plugin (no memory leaks / console errors)
 
 ## Release Process
 
