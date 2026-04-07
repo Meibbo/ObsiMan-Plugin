@@ -25,5 +25,5 @@
 			"@i18n/*": ["src/i18n/*"]
 		}
 	},
-	"include": ["main.ts", "src/**/*.ts"]
+	"include": ["main.ts", "src/**/*.ts", "src/**/*.svelte"]
 }

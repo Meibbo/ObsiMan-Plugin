@@ -239,22 +239,23 @@ export class ObsiManPlugin extends Plugin {
 
 	private async openSidebarLeaf(): Promise<void> {
 		const { workspace } = this.app;
-		let leaf: WorkspaceLeaf | null = null;
 		const leaves = workspace.getLeavesOfType(OBSIMAN_VIEW_TYPE);
+
+		let leaf: WorkspaceLeaf;
 
 		if (leaves.length > 0) {
 			leaf = leaves[0];
+			// Always rebuild so page order syncs with current settings
+			await leaf.setViewState({ type: OBSIMAN_VIEW_TYPE, active: true });
 		} else {
-			const rightLeaf = workspace.getRightLeaf(false);
-			if (rightLeaf) {
-				leaf = rightLeaf;
-				await leaf.setViewState({ type: OBSIMAN_VIEW_TYPE, active: true });
-			}
+			// getRightLeaf(false) may return null if no right panel; fall back to creating one
+			const rightLeaf = workspace.getRightLeaf(false) ?? workspace.getRightLeaf(true);
+			if (!rightLeaf) return;
+			leaf = rightLeaf;
+			await leaf.setViewState({ type: OBSIMAN_VIEW_TYPE, active: true });
 		}
 
-		if (leaf) {
-			await workspace.revealLeaf(leaf);
-		}
+		await workspace.revealLeaf(leaf);
 	}
 
 	async activateMainView(): Promise<void> {

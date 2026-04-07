@@ -18,6 +18,9 @@ export class FileListComponent {
 	readonly selectedFiles: Set<string> = new Set();
 
 	private searchTerm = '';
+	private searchName = '';
+	private searchFolder = '';
+	private filterSelectedOnly = false;
 	private sortColumn: SortColumn = 'name';
 	private sortDirection: SortDirection = 'asc';
 
@@ -125,11 +128,20 @@ export class FileListComponent {
 		if (!listEl) return;
 		listEl.empty();
 
-		// Apply search filter
+		// Apply search filters
 		let filtered = this.currentFiles;
 		if (this.searchTerm) {
 			const term = this.searchTerm.toLowerCase();
-			filtered = this.currentFiles.filter((f) => f.basename.toLowerCase().includes(term));
+			filtered = filtered.filter((f) => f.basename.toLowerCase().includes(term));
+		}
+		if (this.searchName) {
+			filtered = filtered.filter((f) => f.basename.toLowerCase().includes(this.searchName));
+		}
+		if (this.searchFolder) {
+			filtered = filtered.filter((f) => f.path.toLowerCase().includes(this.searchFolder));
+		}
+		if (this.filterSelectedOnly) {
+			filtered = filtered.filter((f) => this.selectedFiles.has(f.path));
 		}
 
 		// Sort
@@ -275,5 +287,18 @@ export class FileListComponent {
 			if (file) result.push(file);
 		}
 		return result;
+	}
+
+	/** Filter list by file name and/or folder substring (case-insensitive) */
+	setSearchFilter(name: string, folder: string): void {
+		this.searchName = name.toLowerCase().trim();
+		this.searchFolder = folder.toLowerCase().trim();
+		this.render(this.currentFiles, this.currentTotal);
+	}
+
+	/** Show only selected files or all files */
+	showSelectedOnly(on: boolean): void {
+		this.filterSelectedOnly = on;
+		this.render(this.currentFiles, this.currentTotal);
 	}
 }
