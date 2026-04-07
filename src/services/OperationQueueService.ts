@@ -236,7 +236,7 @@ export class OperationQueueService extends Component {
 						for (const k of Object.keys(copy)) {
 							if (!(k in after)) after[k] = copy[k];
 						}
-					} else if (key !== RENAME_FILE) {
+					} else if (key !== RENAME_FILE && key !== MOVE_FILE && key !== FIND_REPLACE_CONTENT) {
 						after[key] = value;
 					}
 				}
