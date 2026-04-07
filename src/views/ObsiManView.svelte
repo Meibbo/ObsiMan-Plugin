@@ -368,6 +368,47 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		fileList?.setSearchFilter(searchName, searchFolder);
 	});
 
+	// ─── Property browser (Filters page Rules tab) ───────────────────────────
+	type PropBrowserItem = { name: string; values: string[]; expanded: boolean };
+	let propBrowserItems = $state<PropBrowserItem[]>([]);
+
+	function refreshPropBrowser(): void {
+		const names = plugin.propertyIndex.getPropertyNames();
+		const expandedSet = new Set(propBrowserItems.filter((i) => i.expanded).map((i) => i.name));
+		propBrowserItems = names.map((name) => ({
+			name,
+			values: plugin.propertyIndex.getPropertyValues(name),
+			expanded: expandedSet.has(name),
+		}));
+	}
+
+	function addPropFilter(propName: string): void {
+		plugin.filterService.addNode({
+			type: 'rule',
+			filterType: 'has_property',
+			property: propName,
+			values: [],
+		});
+		refreshFilterTree();
+		updateStats();
+	}
+
+	function addValueFilter(propName: string, value: string): void {
+		plugin.filterService.addNode({
+			type: 'rule',
+			filterType: 'specific_value',
+			property: propName,
+			values: [value],
+		});
+		refreshFilterTree();
+		updateStats();
+	}
+
+	function togglePropExpanded(propName: string): void {
+		const item = propBrowserItems.find((i) => i.name === propName);
+		if (item) item.expanded = !item.expanded;
+	}
+
 	// ─── Content tab — Find & Replace ────────────────────────────────────────
 
 	let contentFind = $state('');
@@ -565,6 +606,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 				popupFilterTree?.render(plugin.filterService.activeFilter);
 			}
 		};
+		const onVaultResolved = () => { refreshFiles(); refreshPropBrowser(); };
 		const onQueueChanged = () => { refreshQueue(); };
 
 		plugin.filterService.on('changed', onFilterChanged);
@@ -573,15 +615,15 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		refreshFiles();
 		refreshFilterTree();
 		refreshQueue();
+		refreshPropBrowser();
 
-		// Re-render file list when vault finishes indexing (PropertyIndexService has no events)
-		const onResolved = () => { refreshFiles(); };
-		plugin.app.metadataCache.on('resolved', onResolved);
+		// Re-render file list + prop browser when vault finishes indexing
+		plugin.app.metadataCache.on('resolved', onVaultResolved);
 
 		return () => {
 			plugin.filterService.off('changed', onFilterChanged);
 			plugin.queueService.off('changed', onQueueChanged);
-			plugin.app.metadataCache.off('resolved', onResolved);
+			plugin.app.metadataCache.off('resolved', onVaultResolved);
 		};
 	});
 </script>
@@ -685,10 +727,43 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 									>{t("filter.template.save")}</button
 								>
 							</div>
-							<div
-								class="obsiman-filter-tree"
-								use:initFilterTree
-							></div>
+							<!-- Property browser: click property → has_property filter, click value → specific_value filter -->
+							<div class="obsiman-prop-browser">
+								{#if propBrowserItems.length === 0}
+									<div class="obsiman-prop-browser-empty">{t("filter.prop_browser.empty")}</div>
+								{:else}
+									{#each propBrowserItems as item (item.name)}
+										<div
+											class="obsiman-prop-browser-row"
+											onclick={() => addPropFilter(item.name)}
+											role="option"
+											aria-selected="false"
+											tabindex="0"
+										>
+											<button
+												class="obsiman-prop-browser-expand"
+												aria-label={item.expanded ? "Collapse" : "Expand"}
+												onclick={(e) => { e.stopPropagation(); togglePropExpanded(item.name); }}
+											>{item.expanded ? "▼" : "▶"}</button>
+											<span class="obsiman-prop-browser-name">{item.name}</span>
+											<span class="obsiman-prop-browser-count">{item.values.length}</span>
+										</div>
+										{#if item.expanded}
+											<div class="obsiman-prop-browser-values">
+												{#each item.values as val (val)}
+													<div
+														class="obsiman-prop-browser-value"
+														onclick={() => addValueFilter(item.name, val)}
+														role="option"
+														aria-selected="false"
+														tabindex="0"
+													>{val}</div>
+												{/each}
+											</div>
+										{/if}
+									{/each}
+								{/if}
+							</div>
 						</div>
 
 						<!-- Scope tab -->
