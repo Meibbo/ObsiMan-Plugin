@@ -1,6 +1,6 @@
 import { Component, Events, Notice, type App, type TFile } from 'obsidian';
 import type { PendingChange, OperationResult } from '../types/operation';
-import { DELETE_PROP, RENAME_FILE, REORDER_ALL } from '../types/operation';
+import { DELETE_PROP, RENAME_FILE, REORDER_ALL, MOVE_FILE, FIND_REPLACE_CONTENT } from '../types/operation';
 import { t } from '../i18n/index';
 
 /**
@@ -28,9 +28,20 @@ export class OperationQueueService extends Component {
 		this.events.off(name, callback as (...data: unknown[]) => unknown);
 	}
 
-	/** Add an operation to the queue */
+	/** Add a single operation to the queue */
 	add(change: PendingChange): void {
 		this.queue.push(change);
+		this.events.trigger('changed');
+	}
+
+	/**
+	 * Add multiple operations at once — fires only ONE 'changed' event.
+	 * Use this instead of calling add() in a loop to avoid freezing the UI
+	 * with thousands of re-renders (one per file).
+	 */
+	addBatch(changes: PendingChange[]): void {
+		if (changes.length === 0) return;
+		this.queue.push(...changes);
 		this.events.trigger('changed');
 	}
 
@@ -54,7 +65,18 @@ export class OperationQueueService extends Component {
 
 	/**
 	 * Execute all queued operations.
-	 * Re-reads metadata per file before applying (handles concurrent edits).
+	 *
+	 * - Re-reads metadata per file before applying (handles concurrent edits).
+	 * - Processes in chunks of 20 files, yielding to the UI thread between
+	 *   chunks so Obsidian stays responsive during large batches.
+	 * - Shows a persistent Notice with a live progress counter.
+	 *
+	 * Note: Obsidian's metadataCache indexes each renamed/moved file
+	 * individually via a 'rename' event (one at a time, single-threaded).
+	 * This is expected OS-level behavior — files move instantly at the
+	 * filesystem level, but Obsidian's vault view updates incrementally
+	 * as each file is re-indexed. The queue clears when execution finishes,
+	 * regardless of how far Obsidian's indexing has progressed.
 	 */
 	async execute(): Promise<OperationResult> {
 		const result: OperationResult = { success: 0, errors: 0, messages: [] };
@@ -64,19 +86,41 @@ export class OperationQueueService extends Component {
 			return result;
 		}
 
+		// Flatten all (file, change) pairs for progress tracking
+		const ops: Array<{ file: TFile; change: PendingChange }> = [];
 		for (const change of this.queue) {
 			for (const file of change.files) {
-				try {
-					await this.applyChange(file, change);
-					result.success++;
-				} catch (err) {
-					result.errors++;
-					result.messages.push(`${file.path}: ${String(err)}`);
-				}
+				ops.push({ file, change });
 			}
 		}
 
-		// Clear queue after execution
+		const total = ops.length;
+		const CHUNK = 20; // yield to UI after every N files
+
+		// Persistent notice — updated live as files are processed
+		const notice = new Notice('', 0);
+
+		for (let i = 0; i < ops.length; i++) {
+			const { file, change } = ops[i];
+			notice.setMessage(`${t('result.applying')} ${i + 1} / ${total}`);
+
+			try {
+				await this.applyChange(file, change);
+				result.success++;
+			} catch (err) {
+				result.errors++;
+				result.messages.push(`${file.path}: ${String(err)}`);
+			}
+
+			// Yield to UI thread every CHUNK files to keep the app responsive
+			if ((i + 1) % CHUNK === 0) {
+				await new Promise<void>((r) => setTimeout(r, 0));
+			}
+		}
+
+		notice.hide();
+
+		// Clear queue after all operations complete
 		this.queue.length = 0;
 
 		new Notice(
@@ -105,6 +149,31 @@ export class OperationQueueService extends Component {
 			const newName = updates[RENAME_FILE] as string;
 			const newPath = file.path.replace(file.name, newName);
 			await this.app.fileManager.renameFile(file, newPath);
+			return;
+		}
+
+		if (MOVE_FILE in updates) {
+			const targetFolder = updates[MOVE_FILE] as string;
+			const newPath = targetFolder ? `${targetFolder}/${file.name}` : file.name;
+			await this.app.fileManager.renameFile(file, newPath);
+			return;
+		}
+
+		if (FIND_REPLACE_CONTENT in updates) {
+			const { pattern, replacement, isRegex, caseSensitive } = updates[FIND_REPLACE_CONTENT] as {
+				pattern: string;
+				replacement: string;
+				isRegex: boolean;
+				caseSensitive: boolean;
+			};
+			const flags = 'g' + (caseSensitive ? '' : 'i');
+			const escaped = isRegex ? pattern : pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+			const regex = new RegExp(escaped, flags);
+			const content = await this.app.vault.read(file);
+			const newContent = content.replace(regex, replacement);
+			if (newContent !== content) {
+				await this.app.vault.modify(file, newContent);
+			}
 			return;
 		}
 
