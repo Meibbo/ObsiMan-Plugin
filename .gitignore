@@ -1,4 +1,6 @@
 node_modules/
+docs/
+img/
 main.js
 AGENTS.md
 CLAUDE.md
@@ -6,3 +8,4 @@ settings.local.json
 .DS_Store
 .env
 .claude/*
+.obsidian

@@ -56,11 +56,16 @@ export class PropertyExplorerComponent {
 	/** Pending timer IDs for cleanup */
 	private pendingTimers: ReturnType<typeof setTimeout>[] = [];
 
-	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin, options?: { defaultScope?: FilterScope }) {
+	private onPropertyFilter?: (property: string, value: string) => void;
+
+	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin, options?: { defaultScope?: FilterScope; onPropertyFilter?: (property: string, value: string) => void }) {
 		this.containerEl = containerEl;
 		this.plugin = plugin;
 		if (options?.defaultScope) {
 			this.filterScope = options.defaultScope;
+		}
+		if (options?.onPropertyFilter) {
+			this.onPropertyFilter = options.onPropertyFilter;
 		}
 	}
 
@@ -435,6 +440,7 @@ export class PropertyExplorerComponent {
 						property: propName,
 						values: [value],
 					});
+					this.onPropertyFilter?.(propName, value);
 				});
 
 				// Right click: value context menu

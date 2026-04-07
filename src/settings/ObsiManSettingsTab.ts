@@ -1,4 +1,4 @@
-import { PluginSettingTab, Setting, type App } from 'obsidian';
+import { PluginSettingTab, Setting, setIcon, type App } from 'obsidian';
 import type { ObsiManPlugin } from '../../main';
 import type { Language } from '../types/settings';
 import { t, setLanguage } from '../i18n/index';
@@ -108,6 +108,33 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 					})
 			);
 
+		// View section
+		new Setting(containerEl).setName(t('settings.view_section')).setHeading();
+
+		new Setting(containerEl)
+			.setName(t('settings.open_mode'))
+			.setDesc(t('settings.open_mode.desc'))
+			.addDropdown((dd) =>
+				dd
+					.addOptions({
+						sidebar: t('settings.open_mode.sidebar'),
+						main: t('settings.open_mode.main'),
+						both: t('settings.open_mode.both'),
+					})
+					.setValue(this.plugin.settings.openMode)
+					.onChange(async (v) => {
+						this.plugin.settings.openMode = v as 'sidebar' | 'main' | 'both';
+						await this.plugin.saveSettings();
+					})
+			);
+
+		// Page order — drag-and-drop reorder list
+		new Setting(containerEl)
+			.setName(t('settings.page_order'))
+			.setDesc(t('settings.page_order.desc'));
+
+		this.buildPageOrderList(containerEl);
+
 		// Layout section
 		new Setting(containerEl).setName("").setHeading();
 
@@ -128,51 +155,85 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 					})
 			);
 
-		// Grid settings section
-		new Setting(containerEl).setName("").setHeading();
+		// Bases integration section
+		new Setting(containerEl).setName('Bases Integration').setHeading();
 
 		new Setting(containerEl)
-			.setName(t('settings.grid_render_mode'))
-			.setDesc(t('settings.grid_render_mode.desc'))
+			.setName('Open mode')
+			.setDesc('How to open a .base file when none is active: reopen last used, or show a picker.')
 			.addDropdown((dd) =>
 				dd
 					.addOptions({
-						plain: t('settings.grid_render_mode.plain'),
-						chunk: t('settings.grid_render_mode.chunk'),
-						all: t('settings.grid_render_mode.all'),
+						'last-used': 'Reopen last used',
+						picker: 'Always show picker',
 					})
-					.setValue(this.plugin.settings.gridRenderMode)
+					.setValue(this.plugin.settings.basesOpenMode)
 					.onChange(async (v) => {
-						this.plugin.settings.gridRenderMode = v as 'plain' | 'chunk' | 'all';
+						this.plugin.settings.basesOpenMode = v as 'last-used' | 'picker';
 						await this.plugin.saveSettings();
 					})
 			);
 
 		new Setting(containerEl)
-			.setName(t('settings.grid_editable_columns'))
-			.setDesc(t('settings.grid_editable_columns.desc'))
-			.addText((text) =>
-				text
-					.setValue((this.plugin.settings.gridEditableColumns ?? ['name']).join(', '))
+			.setName('Operations panel side')
+			.setDesc('Which side the operations panel opens on when attaching to a .base file.')
+			.addDropdown((dd) =>
+				dd
+					.addOptions({ left: 'Left', right: 'Right' })
+					.setValue(this.plugin.settings.basesOpsPanelSide)
 					.onChange(async (v) => {
-						this.plugin.settings.gridEditableColumns = v
-							.split(',')
-							.map((s) => s.trim())
-							.filter((s) => s.length > 0);
+						this.plugin.settings.basesOpsPanelSide = v as 'left' | 'right';
 						await this.plugin.saveSettings();
 					})
 			);
 
 		new Setting(containerEl)
-			.setName(t('settings.base_file'))
-			.setDesc(t('settings.base_file.desc'))
-			.addText((text) =>
-				text
-					.setPlaceholder('path/to/file.base')
-					.setValue(this.plugin.settings.baseFilePath)
+			.setName('Properties explorer side')
+			.setDesc('Which side the property explorer panel opens on.')
+			.addDropdown((dd) =>
+				dd
+					.addOptions({ left: 'Left', right: 'Right' })
+					.setValue(this.plugin.settings.basesExplorerSide)
 					.onChange(async (v) => {
-						this.plugin.settings.baseFilePath = v;
+						this.plugin.settings.basesExplorerSide = v as 'left' | 'right';
 						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName('Auto-attach to .base files')
+			.setDesc('Automatically open ObsiMan panels whenever the active leaf becomes a .base file.')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.basesAutoAttach)
+					.onChange(async (v) => {
+						this.plugin.settings.basesAutoAttach = v;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName('Inject checkbox column')
+			.setDesc('Add a selection checkbox column to the Bases table.')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.basesInjectCheckboxes)
+					.onChange(async (v) => {
+						this.plugin.settings.basesInjectCheckboxes = v;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName('Show column separators')
+			.setDesc('Show vertical borders between columns in the Bases table.')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.basesShowColumnSeparators)
+					.onChange(async (v) => {
+						this.plugin.settings.basesShowColumnSeparators = v;
+						await this.plugin.saveSettings();
+						document.body.toggleClass('obsiman-bases-column-separators', v);
 					})
 			);
 
@@ -204,5 +265,94 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 					);
 			}
 		}
+	}
+
+	/**
+	 * Renders a drag-and-drop list for reordering sidebar pages.
+	 * Uses HTML5 native drag-and-drop on custom rows (not Obsidian's Setting API,
+	 * which doesn't support drag handles natively).
+	 */
+	private buildPageOrderList(containerEl: HTMLElement): void {
+		const pageLabels: Record<string, string> = {
+			files: t('settings.page.files'),
+			filters: t('settings.page.filters'),
+			ops: t('settings.page.ops'),
+		};
+
+		const list = containerEl.createDiv({ cls: 'obsiman-page-order-list' });
+
+		const order = [...this.plugin.settings.pageOrder];
+		let dragSourceIndex = -1;
+
+		const renderRows = () => {
+			list.empty();
+			for (let i = 0; i < order.length; i++) {
+				const pageId = order[i];
+				const row = list.createDiv({
+					cls: 'obsiman-page-order-row',
+					attr: { draggable: 'true' },
+				});
+
+				// Drag handle
+				const handle = row.createDiv({ cls: 'obsiman-page-order-handle' });
+				setIcon(handle, 'lucide-grip-vertical');
+
+				// Position badge
+				row.createDiv({ cls: 'obsiman-page-order-pos', text: String(i + 1) });
+
+				// Page label
+				row.createSpan({ cls: 'obsiman-page-order-label', text: pageLabels[pageId] ?? pageId });
+
+				// Drag events
+				const idx = i; // capture
+
+				row.addEventListener('dragstart', (e: DragEvent) => {
+					dragSourceIndex = idx;
+					row.addClass('is-dragging');
+					if (e.dataTransfer) {
+						e.dataTransfer.effectAllowed = 'move';
+					}
+				});
+
+				row.addEventListener('dragend', () => {
+					row.removeClass('is-dragging');
+					list.querySelectorAll('.obsiman-page-order-row').forEach((el) => {
+						el.removeClass('drag-over');
+					});
+				});
+
+				row.addEventListener('dragover', (e: DragEvent) => {
+					e.preventDefault();
+					if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+					list.querySelectorAll('.obsiman-page-order-row').forEach((el) => {
+						el.removeClass('drag-over');
+					});
+					row.addClass('drag-over');
+				});
+
+				row.addEventListener('dragleave', () => {
+					row.removeClass('drag-over');
+				});
+
+				row.addEventListener('drop', (e: DragEvent) => {
+					e.preventDefault();
+					row.removeClass('drag-over');
+					if (dragSourceIndex === idx || dragSourceIndex === -1) return;
+
+					// Reorder: move dragged item to drop position
+					const moved = order.splice(dragSourceIndex, 1)[0];
+					order.splice(idx, 0, moved);
+					dragSourceIndex = -1;
+
+					void (async () => {
+						this.plugin.settings.pageOrder = [...order];
+						await this.plugin.saveSettings();
+						renderRows();
+					})();
+				});
+			}
+		};
+
+		renderRows();
 	}
 }

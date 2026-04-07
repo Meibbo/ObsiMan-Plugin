@@ -54,7 +54,7 @@ export class CreateSessionModal extends Modal {
 					const file = await this.plugin.sessionService.createSessionFile(
 						this.sessionName.trim(),
 						this.plugin.filterService.activeFilter,
-						this.plugin.settings.gridColumns,
+						[],
 						this.plugin.filterService.filteredFiles
 					);
 

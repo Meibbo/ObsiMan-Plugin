@@ -8,8 +8,6 @@ export interface ObsiManSettings {
 	filterTemplates: FilterTemplate[];
 	/** Path to the active session .md file (empty = no session) */
 	sessionFilePath: string;
-	/** Default property columns for the grid view */
-	gridColumns: string[];
 	/** Ctrl+click on property/value opens Obsidian core search */
 	explorerCtrlClickSearch: boolean;
 	/** Show pending queue changes in the explorer tree */
@@ -20,16 +18,24 @@ export interface ObsiManSettings {
 	explorerOperationScope: 'auto' | 'selected' | 'filtered' | 'all';
 	/** Position of the operations panel */
 	operationsPanelPosition: 'right' | 'bottom' | 'replace';
-	/** Grid cell rendering mode: plain text, chunked live preview, or all live preview */
-	gridRenderMode: 'plain' | 'chunk' | 'all';
-	/** Number of cells to render per chunk in live preview mode */
-	gridRenderChunkSize: number;
-	/** Columns to render with live preview (empty = all columns) */
-	gridLivePreviewColumns: string[];
-	/** Columns that allow inline editing (empty = all, includes 'name' for rename) */
-	gridEditableColumns: string[];
-	/** Path to a .base file for bidirectional sync */
-	baseFilePath: string;
+	/** Path to last .base file used with ObsiMan */
+	basesLastUsedPath: string;
+	/** Fallback when no .base file is open */
+	basesOpenMode: 'last-used' | 'picker';
+	/** Side for operations panel */
+	basesOpsPanelSide: 'left' | 'right';
+	/** Side for explorer panel */
+	basesExplorerSide: 'left' | 'right';
+	/** Auto-open panels when active leaf becomes .base */
+	basesAutoAttach: boolean;
+	/** Inject checkbox column into .base table */
+	basesInjectCheckboxes: boolean;
+	/** Show column separators in .base table */
+	basesShowColumnSeparators: boolean;
+	/** What to open when the ribbon icon is clicked: sidebar only, main view only, or both */
+	openMode: 'sidebar' | 'main' | 'both';
+	/** Order of pages in the sidebar bottom nav (page IDs: 'files', 'filters', 'ops') */
+	pageOrder: string[];
 }
 
 export const DEFAULT_SETTINGS: ObsiManSettings = {
@@ -37,15 +43,18 @@ export const DEFAULT_SETTINGS: ObsiManSettings = {
 	defaultPropertyType: 'text',
 	filterTemplates: [],
 	sessionFilePath: '',
-	gridColumns: ['type', 'tags', 'in', 'up'],
 	explorerCtrlClickSearch: true,
 	explorerShowQueuePreview: true,
 	explorerContentSearch: true,
 	explorerOperationScope: 'auto',
 	operationsPanelPosition: 'right',
-	gridRenderMode: 'chunk',
-	gridRenderChunkSize: 100,
-	gridLivePreviewColumns: [],
-	gridEditableColumns: ['name'],
-	baseFilePath: '',
+	basesLastUsedPath: '',
+	basesOpenMode: 'last-used',
+	basesOpsPanelSide: 'left',
+	basesExplorerSide: 'right',
+	basesAutoAttach: false,
+	basesInjectCheckboxes: true,
+	basesShowColumnSeparators: false,
+	openMode: 'sidebar',
+	pageOrder: ['files', 'filters', 'ops'],
 };
