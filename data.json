@@ -17,8 +17,8 @@
   "basesShowColumnSeparators": false,
   "openMode": "sidebar",
   "pageOrder": [
-    "ops",
     "filters",
+    "ops",
     "files"
   ],
   "viewMode": "list",

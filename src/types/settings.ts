@@ -38,6 +38,16 @@ export interface ObsiManSettings {
 	pageOrder: string[];
 	/** File list view mode in the sidebar Files page */
 	viewMode: 'list' | 'selected';
+	/** Property grid render mode */
+	gridRenderMode?: 'plain' | 'chunk' | 'all';
+	/** Columns that allow inline editing in the grid */
+	gridEditableColumns?: string[];
+	/** Columns that use live preview in the grid */
+	gridLivePreviewColumns?: string[];
+	/** Chunk size for live-preview rendering */
+	gridRenderChunkSize?: number;
+	/** Columns shown in the property grid */
+	gridColumns?: string[];
 }
 
 export const DEFAULT_SETTINGS: ObsiManSettings = {

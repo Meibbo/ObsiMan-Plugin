@@ -6,6 +6,7 @@ import { FilterService } from './src/services/FilterService';
 import { OperationQueueService } from './src/services/OperationQueueService';
 import { SessionFileService } from './src/services/SessionFileService';
 import { ObsiManView, OBSIMAN_VIEW_TYPE } from './src/views/ObsiManView';
+import { ObsiManMainView, OBSIMAN_MAIN_VIEW_TYPE } from './src/views/ObsiManMainView';
 import { ObsiManOpsView, OBSIMAN_OPS_VIEW_TYPE } from './src/views/ObsiManOpsView';
 import { ObsiManExplorerView, OBSIMAN_EXPLORER_VIEW_TYPE } from './src/views/ObsiManExplorerView';
 import { IconicService } from './src/services/IconicService';
@@ -64,6 +65,7 @@ export class ObsiManPlugin extends Plugin {
 		this.statusBarEl.addClass('obsiman-native-statusbar');
 
 		this.registerView(OBSIMAN_VIEW_TYPE, (leaf) => new ObsiManView(leaf, this));
+		this.registerView(OBSIMAN_MAIN_VIEW_TYPE, (leaf) => new ObsiManMainView(leaf, this));
 		this.registerView(OBSIMAN_OPS_VIEW_TYPE, (leaf) => new ObsiManOpsView(leaf, this));
 		this.registerView(OBSIMAN_EXPLORER_VIEW_TYPE, (leaf) => new ObsiManExplorerView(leaf, this));
 
@@ -81,6 +83,12 @@ export class ObsiManPlugin extends Plugin {
 			id: 'open-sidebar',
 			name: 'Open sidebar',
 			callback: () => void this.activateSidebarView(),
+		});
+
+		this.addCommand({
+			id: 'open-main-view',
+			name: 'Open main view (full screen)',
+			callback: () => void this.activateMainView(),
 		});
 
 		this.addCommand({
@@ -218,6 +226,18 @@ export class ObsiManPlugin extends Plugin {
 
 	async activateSidebarView(): Promise<void> {
 		await this.openSidebarLeaf();
+	}
+
+	async activateMainView(): Promise<void> {
+		const { workspace } = this.app;
+		const leaves = workspace.getLeavesOfType(OBSIMAN_MAIN_VIEW_TYPE);
+		if (leaves.length > 0) {
+			await workspace.revealLeaf(leaves[0]);
+			return;
+		}
+		const leaf = workspace.getLeaf('tab');
+		await leaf.setViewState({ type: OBSIMAN_MAIN_VIEW_TYPE, active: true });
+		await workspace.revealLeaf(leaf);
 	}
 
 	private async openSidebarLeaf(): Promise<void> {

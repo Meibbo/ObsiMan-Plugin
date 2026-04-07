@@ -2268,3 +2268,104 @@ body.obsiman-bases-column-separators table th {
   color: var(--text-normal);
   flex: 1;
 }
+
+/* ============================================================
+   Main view — 3-section layout (Filters | Grid | Ops)
+   ============================================================ */
+
+.obsiman-main-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Section shell */
+.obsiman-main-section {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--background-modifier-border);
+  flex-shrink: 0;
+  min-height: 0;
+}
+
+/* Grid section grows to fill remaining space */
+.obsiman-main-grid {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Section header row */
+.obsiman-main-section-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  flex-shrink: 0;
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.obsiman-main-section-toggle {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.obsiman-main-section-title {
+  font-size: var(--font-ui-small);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.obsiman-main-badge {
+  font-size: var(--font-ui-smaller);
+  font-weight: 600;
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+  border-radius: 8px;
+  padding: 0 5px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.obsiman-main-stats {
+  flex: 1;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+.obsiman-main-section-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+/* Section body — scrolls if collapsed */
+.obsiman-main-section-body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 6px 8px;
+}
+
+/* Grid body — no extra padding, grid manages its own scroll */
+.obsiman-main-grid-body {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Collapsed sections: show only header */
+.obsiman-main-section.is-collapsed .obsiman-main-section-body,
+.obsiman-main-section.is-collapsed .obsiman-main-ops-body {
+  display: none;
+}
+
+/* Ops body: slightly taller default, component owns layout */
+.obsiman-main-ops-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
