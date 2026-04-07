@@ -1733,11 +1733,18 @@ body.obsiman-bases-column-separators table th {
 }
 
 /* === Page container — slides horizontally === */
+/* Viewport: clips the sliding strip and contains the floating bottom nav */
+.obsiman-pages-viewport {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative; /* needed so bottom-nav can position: absolute inside it */
+}
+
+/* Sliding strip: translateX moves this inside the clipped viewport */
 .obsiman-page-container {
   display: flex;
-  flex: 1;
-  min-height: 0; /* critical: allows flex children to scroll correctly */
-  overflow: hidden;
+  height: 100%;
   transform: translateX(calc(-1 * var(--page-index, 0) * 100%));
 }
 
@@ -1747,23 +1754,47 @@ body.obsiman-bases-column-separators table th {
 
 .obsiman-page {
   min-width: 100%;
-  min-height: 0; /* critical: allows overflow-y: auto to work inside flex */
+  height: 100%;
+  min-height: 0;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  padding: 8px 10px;
+  /* Bottom padding reserves space under the floating nav bar so content
+     is never permanently hidden beneath it when scrolled to the bottom */
+  padding: 8px 10px 80px;
   box-sizing: border-box;
 }
 
-/* === Bottom navigation: [FAB] [icon pill] [FAB] === */
+/* === Bottom navigation: floats over page content === */
+/* position: absolute makes it overlay the viewport instead of pushing content up.
+   A gradient pseudo-element fades content into the nav, signalling scrollability
+   and keeping the nav legible against any background. */
 .obsiman-bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   padding: 10px 12px;
-  flex-shrink: 0;
+  z-index: 10;
+}
+
+/* Fade gradient behind the floating nav — content bleeds through, nav stays legible */
+.obsiman-bottom-nav::before {
+  content: '';
+  position: absolute;
+  inset: -48px 0 0 0; /* extends 48px above the nav bar */
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--background-primary) 70%
+  );
+  pointer-events: none;
+  z-index: -1;
 }
 
 /* Frosted glass pill containing page icons */
@@ -2368,4 +2399,97 @@ body.obsiman-bases-column-separators table th {
   flex: 1;
   min-height: 0;
   overflow: hidden;
+}
+
+/* ─── Content tab — Find & Replace ─────────────────────────────────────── */
+
+.obsiman-content-find-row {
+	display: flex;
+	gap: 4px;
+	align-items: center;
+	margin-bottom: 6px;
+}
+
+.obsiman-content-find-row .obsiman-search-input {
+	flex: 1;
+	margin-bottom: 0;
+}
+
+.obsiman-icon-toggle {
+	background: var(--background-modifier-form-field);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	color: var(--text-muted);
+	padding: 4px 7px;
+	font-size: var(--font-ui-smaller);
+	cursor: pointer;
+	flex-shrink: 0;
+	min-width: 28px;
+	text-align: center;
+	line-height: 1.4;
+}
+
+.obsiman-icon-toggle.is-active {
+	background: var(--color-accent);
+	color: var(--text-on-accent);
+	border-color: var(--color-accent);
+}
+
+.obsiman-content-regex-error {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-error);
+	margin: -2px 0 6px;
+}
+
+.obsiman-content-scope-hint {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	margin: 4px 0 8px;
+}
+
+.obsiman-content-actions {
+	display: flex;
+	gap: 6px;
+	margin-bottom: 8px;
+}
+
+.obsiman-content-actions .obsiman-btn {
+	flex: 1;
+}
+
+.obsiman-content-preview {
+	font-size: var(--font-ui-smaller);
+}
+
+.obsiman-content-preview-header {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	cursor: pointer;
+	color: var(--text-normal);
+	margin-bottom: 4px;
+	user-select: none;
+}
+
+.obsiman-preview-chevron {
+	color: var(--text-muted);
+	font-size: 10px;
+}
+
+.obsiman-content-preview-file {
+	color: var(--color-accent);
+	margin-top: 4px;
+}
+
+.obsiman-content-preview-snippet {
+	color: var(--text-muted);
+	padding-left: 10px;
+	word-break: break-word;
+}
+
+.obsiman-content-preview-snippet mark {
+	background: var(--text-highlight-bg);
+	color: var(--text-normal);
+	border-radius: 2px;
+	padding: 0 1px;
 }
