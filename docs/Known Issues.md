@@ -23,6 +23,7 @@ This is the living bug log for ObsiMan. When you find something broken, add it h
 Mark a bug as fixed with `[x]` and add `→ Fixed in X.Y.Z` at the end.
 
 ---
+- [ ] **cola de mover archivos se rompe al añadir más apply changes mientras se está procesando otra cola** — el medidor de progreso se cancela y desaparece si no había terminado de procesar el mover de la cola anterior, que al aplicar cambios de una nueva cola, esta se indexara al final de la que ya estaba en proceso (aunque los archivos como tal ya se hayan movido, pero como dentro de obsidian el proceso es más largo), aplicar cambios de una cola move files y luego otra antes de que la primera termine. Version: 1.0.0-beta.5
 
 ## v1.0.0-beta.2 — Pending review
 
