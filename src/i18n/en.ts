@@ -89,6 +89,7 @@ export const en: Record<string, string> = {
 	'queue.show_unchanged': 'Show unchanged properties',
 
 	// Results
+	'result.applying': 'Applying changes…',
 	'result.success': '{count} files updated successfully',
 	'result.errors': '{count} errors occurred',
 	'result.no_changes': 'No changes to apply',
@@ -239,6 +240,11 @@ export const en: Record<string, string> = {
 	'ops.tab.templates': 'Templates',
 	'ops.tab.move': 'Move',
 	'ops.move.coming_soon': 'Coming soon',
+	'ops.move': 'Move to folder',
+	'move.title': 'Move Files',
+	'move.target_folder': 'Destination folder',
+	'move.target_folder_placeholder': 'Type to search folders…',
+	'move.root_hint': 'Leave empty to move to vault root',
 
 	// Layout settings
 	'settings.layout': 'Layout',
@@ -308,4 +314,18 @@ export const en: Record<string, string> = {
 	'settings.grid_editable_columns.desc': 'Columns that allow inline editing (comma-separated, include "name" for rename)',
 	'settings.base_file': 'Base file path',
 	'settings.base_file.desc': 'Path to a .base file for bidirectional sync with Obsidian Bases',
+
+	// Content tab — Find & Replace
+	'content.find_placeholder': 'Find in content…',
+	'content.replace_placeholder': 'Replace with…',
+	'content.toggle_case': 'Case sensitive',
+	'content.toggle_regex': 'Regular expression',
+	'content.scope_hint_selected': 'Scope: {count} selected file(s)',
+	'content.scope_hint_filtered': 'Scope: {count} filtered file(s)',
+	'content.preview': 'Preview',
+	'content.queue_replace': 'Queue replace',
+	'content.preview_count': '{matches} matches in {files} file(s)',
+	'content.preview_more': '…and {count} more files',
+	'content.no_matches': 'No matches found',
+	'content.invalid_regex': 'Invalid regular expression',
 };
