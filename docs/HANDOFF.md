@@ -30,6 +30,32 @@
 
 ---
 
+## What was completed this session (2026-04-07, session 7)
+
+### Filters page — Property Browser ✅
+- `src/views/ObsiManView.svelte`: Rules tab now shows an inline property browser instead of the FilterTreeComponent
+  - `propBrowserItems` state + `refreshPropBrowser()` function reads from `PropertyIndexService`
+  - Click a property name → adds a `has_property` filter directly (no modal)
+  - Expand arrow shows values; click a value → adds a `specific_value` filter directly
+  - The FilterTreeComponent is still used in the Active Filters popup (FAB) — unchanged
+  - Browser refreshes on mount and on `metadataCache.on('resolved')`
+
+### QueueDetailsModal — Snippet diff for FIND_REPLACE_CONTENT ✅
+- `src/services/OperationQueueService.ts`: `simulateChanges()` now skips `MOVE_FILE` and `FIND_REPLACE_CONTENT` keys — no more `[object Object]` in property diff
+- `src/modals/QueueDetailsModal.ts`: new async `renderContentOps()` method
+  - Detects `find_replace_content` ops by `op.action`
+  - Reads each affected file via `vault.read()` asynchronously
+  - Shows snippet-style diffs: `before_context [MATCH → replacement] after_context`
+  - Renders below the property diff section
+- `src/i18n/en.ts`: added `queue.content_changes`, `queue.content_no_matches` keys
+- `styles.css`: added `.obsiman-prop-browser*` and `.obsiman-diff-content-*` CSS
+
+### Tested in Obsidian ✅
+- Plugin reloads with no errors
+- ⚠️ Filters property browser + queue snippet diff need manual verification
+
+---
+
 ## What was completed this session (2026-04-07, session 6)
 
 ### Plugin philosophy + agent workflow ✅
