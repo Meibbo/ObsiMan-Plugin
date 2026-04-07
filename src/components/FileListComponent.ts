@@ -253,6 +253,20 @@ export class FileListComponent {
 		return Object.keys(fm).filter((k) => k !== 'position').length;
 	}
 
+	/** Select all currently displayed files */
+	selectAll(): void {
+		for (const f of this.currentFiles) this.selectedFiles.add(f.path);
+		this.updateList();
+		this.onSelectionChange();
+	}
+
+	/** Deselect all files */
+	deselectAll(): void {
+		this.selectedFiles.clear();
+		this.updateList();
+		this.onSelectionChange();
+	}
+
 	/** Get TFile objects for currently selected files (O(1) per file) */
 	getSelectedFiles(): TFile[] {
 		const result: TFile[] = [];

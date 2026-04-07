@@ -27,3 +27,5 @@ Este plugin busca unificar, pulir y mejorar las funciones de los siguientes plug
 - CMS bases
 # Vision
 Quería una combinación de los queries de bases, administrador de archivos, gestor de propiedades, scripts de importación y una queue list (lista de cambios pendientes) para gran multitud de archivos en un amplio rango de situaciones.
+
+# publicación 1

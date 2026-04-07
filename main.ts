@@ -1,4 +1,4 @@
-import { addIcon, Plugin, type WorkspaceLeaf } from 'obsidian';
+import { addIcon, Plugin, SuggestModal, TFile, type WorkspaceLeaf } from 'obsidian';
 import type { ObsiManSettings } from './src/types/settings';
 import { DEFAULT_SETTINGS } from './src/types/settings';
 import { PropertyIndexService } from './src/services/PropertyIndexService';
@@ -6,10 +6,11 @@ import { FilterService } from './src/services/FilterService';
 import { OperationQueueService } from './src/services/OperationQueueService';
 import { SessionFileService } from './src/services/SessionFileService';
 import { ObsiManView, OBSIMAN_VIEW_TYPE } from './src/views/ObsiManView';
-import { ObsiManMainView, OBSIMAN_MAIN_VIEW_TYPE } from './src/views/ObsiManMainView';
+import { ObsiManOpsView, OBSIMAN_OPS_VIEW_TYPE } from './src/views/ObsiManOpsView';
+import { ObsiManExplorerView, OBSIMAN_EXPLORER_VIEW_TYPE } from './src/views/ObsiManExplorerView';
 import { IconicService } from './src/services/IconicService';
 import { PropertyTypeService } from './src/services/PropertyTypeService';
-import { BaseFileService } from './src/services/BaseFileService';
+import { BasesCheckboxInjector } from './src/services/BasesCheckboxInjector';
 import { ObsiManSettingsTab } from './src/settings/ObsiManSettingsTab';
 import { setLanguage, t } from './src/i18n/index';
 
@@ -26,7 +27,7 @@ export class ObsiManPlugin extends Plugin {
 	sessionService!: SessionFileService;
 	iconicService!: IconicService;
 	propertyTypeService!: PropertyTypeService;
-	baseFileService!: BaseFileService;
+	basesInjector!: BasesCheckboxInjector;
 
 	// Native status bar element
 	private statusBarEl!: HTMLElement;
@@ -34,20 +35,16 @@ export class ObsiManPlugin extends Plugin {
 	async onload(): Promise<void> {
 		await this.loadSettings();
 
-		// Initialize i18n
 		setLanguage(this.settings.language);
-
-		// Register custom icon
 		addIcon('obsiman-icon', OBSIMAN_ICON_SVG);
 
-		// Initialize and register all services for lifecycle management
 		this.propertyIndex = new PropertyIndexService(this.app);
 		this.filterService = new FilterService(this.app);
 		this.queueService = new OperationQueueService(this.app);
 		this.sessionService = new SessionFileService(this.app);
 		this.iconicService = new IconicService(this.app);
 		this.propertyTypeService = new PropertyTypeService(this.app);
-		this.baseFileService = new BaseFileService(this.app, this);
+		this.basesInjector = new BasesCheckboxInjector();
 
 		this.addChild(this.propertyIndex);
 		this.addChild(this.filterService);
@@ -55,42 +52,41 @@ export class ObsiManPlugin extends Plugin {
 		this.addChild(this.sessionService);
 		this.addChild(this.iconicService);
 		this.addChild(this.propertyTypeService);
-		this.addChild(this.baseFileService);
+		this.addChild(this.basesInjector);
 
-		// Re-apply filters when metadata cache finishes resolving
 		this.registerEvent(
 			this.app.metadataCache.on('resolved', () => {
 				this.filterService.applyFilters();
 			})
 		);
 
-		// Native status bar
 		this.statusBarEl = this.addStatusBarItem();
 		this.statusBarEl.addClass('obsiman-native-statusbar');
 
-		// Register views
 		this.registerView(OBSIMAN_VIEW_TYPE, (leaf) => new ObsiManView(leaf, this));
-		this.registerView(
-			OBSIMAN_MAIN_VIEW_TYPE,
-			(leaf) => new ObsiManMainView(leaf, this)
-		);
+		this.registerView(OBSIMAN_OPS_VIEW_TYPE, (leaf) => new ObsiManOpsView(leaf, this));
+		this.registerView(OBSIMAN_EXPLORER_VIEW_TYPE, (leaf) => new ObsiManExplorerView(leaf, this));
 
-		// Ribbon icon opens the main (full-screen) view
-		this.addRibbonIcon('obsiman-icon', 'Open main view', () => {
-			void this.activateMainView();
+		this.addRibbonIcon('obsiman-icon', 'Attach ObsiMan to .base file', () => {
+			void this.runAttachCommand();
 		});
 
-		// Commands
 		this.addCommand({
-			id: 'open-main',
-			name: 'Open full view',
-			callback: () => void this.activateMainView(),
+			id: 'attach-to-bases',
+			name: 'Attach to .base file',
+			callback: () => void this.runAttachCommand(),
 		});
 
 		this.addCommand({
 			id: 'open-sidebar',
 			name: 'Open sidebar',
 			callback: () => void this.activateSidebarView(),
+		});
+
+		this.addCommand({
+			id: 'open-main-view',
+			name: 'Open main view (full-width)',
+			callback: () => void this.activateMainView(),
 		});
 
 		this.addCommand({
@@ -105,7 +101,16 @@ export class ObsiManPlugin extends Plugin {
 			},
 		});
 
-		// Settings tab
+		this.registerEvent(
+			this.app.workspace.on('active-leaf-change', (leaf) => {
+				if (!this.settings.basesAutoAttach || !leaf) return;
+				const viewFile = (leaf.view as { file?: TFile }).file;
+				if (viewFile?.extension === 'base') {
+					void this.attachToBases(leaf);
+				}
+			})
+		);
+
 		this.addSettingTab(new ObsiManSettingsTab(this.app, this));
 	}
 
@@ -126,7 +131,6 @@ export class ObsiManPlugin extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	/** Update Obsidian's native status bar with current stats */
 	refreshStatusBar(): void {
 		if (!this.statusBarEl) return;
 
@@ -135,7 +139,6 @@ export class ObsiManPlugin extends Plugin {
 		const total = this.propertyIndex.fileCount;
 		const queued = this.queueService.queue.length;
 
-		// Compute property and value counts
 		const propSet = new Set<string>();
 		let valueCount = 0;
 		for (const file of filteredFiles) {
@@ -162,28 +165,80 @@ export class ObsiManPlugin extends Plugin {
 		this.statusBarEl.setText(parts.join(' | '));
 	}
 
-	/** Open the main (full-screen) view in the center workspace */
-	private async activateMainView(): Promise<void> {
-		const { workspace } = this.app;
+	private async runAttachCommand(): Promise<void> {
+		const activeLeaf = this.app.workspace.getMostRecentLeaf();
+		const activeFile = (activeLeaf?.view as { file?: TFile } | undefined)?.file;
 
-		const leaves = workspace.getLeavesOfType(OBSIMAN_MAIN_VIEW_TYPE);
-		if (leaves.length > 0) {
-			await workspace.revealLeaf(leaves[0]);
+		if (activeFile?.extension === 'base' && activeLeaf) {
+			this.settings.basesLastUsedPath = activeFile.path;
+			await this.saveSettings();
+			await this.attachToBases(activeLeaf);
 			return;
 		}
 
-		const leaf = workspace.getLeaf('tab');
-		await leaf.setViewState({
-			type: OBSIMAN_MAIN_VIEW_TYPE,
-			active: true,
-		});
-		await workspace.revealLeaf(leaf);
+		if (this.settings.basesOpenMode === 'last-used' && this.settings.basesLastUsedPath) {
+			const file = this.app.vault.getFileByPath(this.settings.basesLastUsedPath);
+			if (file) {
+				const leaf = this.app.workspace.getLeaf('tab');
+				await leaf.openFile(file);
+				await this.attachToBases(leaf);
+				return;
+			}
+		}
+
+		new BasesFilePicker(this.app, async (file) => {
+			this.settings.basesLastUsedPath = file.path;
+			await this.saveSettings();
+			const leaf = this.app.workspace.getLeaf('tab');
+			await leaf.openFile(file);
+			await this.attachToBases(leaf);
+		}).open();
 	}
 
-	/** Open the sidebar view */
-	private async activateSidebarView(): Promise<void> {
-		const { workspace } = this.app;
+	async attachToBases(baseLeaf: WorkspaceLeaf): Promise<void> {
+		const opsLeaf = this.app.workspace.createLeafBySplit(
+			baseLeaf,
+			'vertical',
+			this.settings.basesOpsPanelSide === 'left'
+		);
+		await opsLeaf.setViewState({ type: OBSIMAN_OPS_VIEW_TYPE, active: false });
 
+		const explorerLeaf = this.app.workspace.createLeafBySplit(
+			baseLeaf,
+			'vertical',
+			this.settings.basesExplorerSide === 'left'
+		);
+		await explorerLeaf.setViewState({ type: OBSIMAN_EXPLORER_VIEW_TYPE, active: false });
+
+		if (this.settings.basesInjectCheckboxes) {
+			this.basesInjector.attach(baseLeaf);
+		}
+
+		document.body.toggleClass(
+			'obsiman-bases-column-separators',
+			this.settings.basesShowColumnSeparators
+		);
+
+		this.app.workspace.setActiveLeaf(baseLeaf, { focus: true });
+	}
+
+	async activateSidebarView(): Promise<void> {
+
+		if (this.settings.openMode === 'main') {
+			await this.activateMainView();
+			return;
+		}
+
+		if (this.settings.openMode === 'both') {
+			await Promise.all([this.openSidebarLeaf(), this.activateMainView()]);
+			return;
+		}
+
+		await this.openSidebarLeaf();
+	}
+
+	private async openSidebarLeaf(): Promise<void> {
+		const { workspace } = this.app;
 		let leaf: WorkspaceLeaf | null = null;
 		const leaves = workspace.getLeavesOfType(OBSIMAN_VIEW_TYPE);
 
@@ -193,16 +248,52 @@ export class ObsiManPlugin extends Plugin {
 			const rightLeaf = workspace.getRightLeaf(false);
 			if (rightLeaf) {
 				leaf = rightLeaf;
-				await leaf.setViewState({
-					type: OBSIMAN_VIEW_TYPE,
-					active: true,
-				});
+				await leaf.setViewState({ type: OBSIMAN_VIEW_TYPE, active: true });
 			}
 		}
 
 		if (leaf) {
 			await workspace.revealLeaf(leaf);
 		}
+	}
+
+	async activateMainView(): Promise<void> {
+		const leaves = this.app.workspace.getLeavesOfType(OBSIMAN_EXPLORER_VIEW_TYPE);
+
+		if (leaves.length > 0) {
+			await this.app.workspace.revealLeaf(leaves[0]);
+			return;
+		}
+
+		const leaf = this.app.workspace.getLeaf('split');
+		await leaf.setViewState({ type: OBSIMAN_EXPLORER_VIEW_TYPE, active: true });
+		await this.app.workspace.revealLeaf(leaf);
+	}
+}
+
+class BasesFilePicker extends SuggestModal<TFile> {
+	private onChoose: (file: TFile) => void;
+
+	constructor(app: BasesFilePicker['app'], onChoose: (file: TFile) => void) {
+		super(app);
+		this.onChoose = onChoose;
+		this.setPlaceholder('Select a .base file…');
+	}
+
+	getSuggestions(query: string): TFile[] {
+		const q = query.toLowerCase();
+		return this.app.vault.getAllLoadedFiles().filter(
+			(f): f is TFile => f instanceof TFile && f.extension === 'base' && f.path.toLowerCase().includes(q)
+		);
+	}
+
+	renderSuggestion(file: TFile, el: HTMLElement): void {
+		el.createDiv({ text: file.basename, cls: 'suggestion-title' });
+		el.createDiv({ text: file.path, cls: 'suggestion-note' });
+	}
+
+	onChooseSuggestion(file: TFile): void {
+		this.onChoose(file);
 	}
 }
 
