@@ -8,9 +8,13 @@ export const OBSIMAN_FILES_VIEW_TYPE = 'obsiman-files';
  * When settings.separatePanes is true, this view hosts the Files page content.
  */
 export class ObsiManFilesView extends ItemView {
-	constructor(leaf: WorkspaceLeaf, _plugin: ObsiManPlugin) {
+	// plugin stored for Iter.8 implementation
+	private readonly plugin: ObsiManPlugin;
+
+	constructor(leaf: WorkspaceLeaf, plugin: ObsiManPlugin) {
 		super(leaf);
-		// Plugin reference available for future use in Iter.8
+		this.plugin = plugin;
+		void this.plugin; // suppress noUnusedLocals until Iter.8
 	}
 
 	getViewType(): string { return OBSIMAN_FILES_VIEW_TYPE; }

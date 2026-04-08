@@ -241,7 +241,6 @@ export const es: Record<string, string> = {
 	'ops.move.coming_soon': 'Próximamente',
 
 	// Layout settings
-	'settings.layout': 'Diseño',
 	'settings.ops_position': 'Posición del panel de operaciones',
 	'settings.ops_position.desc': 'Dónde aparece el panel de operaciones',
 	'settings.ops_position.right': 'Panel derecho',

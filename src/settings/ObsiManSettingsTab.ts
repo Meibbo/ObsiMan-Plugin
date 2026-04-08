@@ -231,7 +231,7 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 			);
 
 		// Layout section
-		containerEl.createEl('h3', { text: t('settings.layout.title') });
+		new Setting(containerEl).setName(t('settings.layout.title')).setHeading();
 
 		new Setting(containerEl)
 			.setName(t('settings.layout.separate_panes'))
@@ -239,8 +239,8 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.separatePanes)
-					.onChange(async (value) => {
-						this.plugin.settings.separatePanes = value;
+					.onChange(async (v) => {
+						this.plugin.settings.separatePanes = v;
 						await this.plugin.saveSettings();
 					})
 			);
