@@ -208,23 +208,30 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	const NAV_COLLAPSE_THRESHOLD = 220; // px — below this width the nav collapses
 	let navCollapsed = $state(false);
 	let navEl: HTMLElement | null = null;
+	let viewRootEl: HTMLElement | null = null;
 	let navExpandTimer: ReturnType<typeof setTimeout> | null = null;
 
 	function bindNav(el: HTMLElement) {
 		navEl = el;
-		return { destroy() { navEl = null; } };
+		return {
+			destroy() {
+				if (navExpandTimer) { clearTimeout(navExpandTimer); navExpandTimer = null; }
+				navEl = null;
+			}
+		};
 	}
 
 	// ResizeObserver on .obsiman-view updates nav state
 	function bindViewRoot(el: HTMLElement) {
 		const target = el.closest('.obsiman-view') as HTMLElement ?? el.parentElement ?? el;
+		viewRootEl = target;
 		const ro = new ResizeObserver((entries) => {
 			const w = entries[0]?.contentRect.width ?? target.offsetWidth;
 			navCollapsed = w < NAV_COLLAPSE_THRESHOLD;
 		});
 		ro.observe(target);
 		navCollapsed = target.offsetWidth < NAV_COLLAPSE_THRESHOLD;
-		return { destroy() { ro.disconnect(); } };
+		return { destroy() { ro.disconnect(); viewRootEl = null; } };
 	}
 
 	function onCollapsedNavClick() {
@@ -233,8 +240,8 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		navCollapsed = false;
 		if (navExpandTimer) clearTimeout(navExpandTimer);
 		navExpandTimer = setTimeout(() => {
-			// Re-check width — if still narrow, collapse again
-			if (navEl && navEl.offsetWidth < NAV_COLLAPSE_THRESHOLD) {
+			// Re-check width using the same element the ResizeObserver monitors
+			if (viewRootEl && viewRootEl.offsetWidth < NAV_COLLAPSE_THRESHOLD) {
 				navCollapsed = true;
 			}
 			navEl?.classList.remove('is-bar-expanding');
