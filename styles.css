@@ -2054,6 +2054,79 @@ body.obsiman-bases-column-separators table th {
   min-height: 0;
 }
 
+/* ─── Filters page ──────────────────────────────────────────────────────── */
+
+.obsiman-page[data-page="filters"] {
+  display: flex;
+  flex-direction: column;
+}
+
+.obsiman-filters-tabbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--obsiman-border);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.obsiman-filters-explorer-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.obsiman-filters-tab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+  user-select: none;
+  transition: color 0.15s ease, background 0.15s ease;
+  white-space: nowrap;
+}
+
+.obsiman-filters-tab:hover { color: var(--text-normal); background: var(--background-modifier-hover); }
+.obsiman-filters-tab.is-active { color: var(--color-accent); }
+
+@container (max-width: 220px) {
+  .obsiman-filters-tab-label { display: none; }
+}
+
+.obsiman-filters-view-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--background-primary);
+  border: 1px solid var(--obsiman-border);
+  border-radius: var(--radius-m);
+  padding: 10px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.obsiman-view-panel-section { display: flex; flex-direction: column; gap: 4px; }
+.obsiman-view-panel-label { font-size: var(--font-ui-small); color: var(--text-muted); font-weight: 600; }
+.obsiman-view-panel-option {
+  padding: 4px 8px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+}
+.obsiman-view-panel-option:hover { background: var(--background-modifier-hover); color: var(--text-normal); }
+.obsiman-view-panel-option.is-active { color: var(--color-accent); font-weight: 600; }
+.obsiman-view-panel-check { display: flex; align-items: flex-start; gap: 6px; font-size: var(--font-ui-small); cursor: pointer; }
+
 .obsiman-subtab-content {
   position: absolute;
   inset: 0;

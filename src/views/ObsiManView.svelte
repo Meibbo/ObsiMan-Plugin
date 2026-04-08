@@ -4,6 +4,7 @@
 	import type { ObsiManPlugin } from '../../main';
 	import { FileListComponent } from '../components/FileListComponent';
 	import { FilterTreeComponent } from '../components/FilterTreeComponent';
+	import { PropertyExplorerComponent } from '../components/PropertyExplorerComponent';
 	import { QueueListComponent } from '../components/QueueListComponent';
 	import { AddFilterModal } from '../modals/AddFilterModal';
 	import { QueueDetailsModal } from '../modals/QueueDetailsModal';
@@ -265,11 +266,6 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		setTimeout(() => { activePopup = null; }, 320);
 	}
 
-	// ─── Filters sub-tabs ────────────────────────────────────────────────────
-
-	type FiltersTab = 'rules' | 'scope';
-	let filtersTab = $state<FiltersTab>('rules');
-
 	// ─── Ops sub-tabs ─────────────────────────────────────────────────────────
 
 	let opsTab = $state<OpsTab>('fileops');
@@ -305,9 +301,13 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	}
 
 	let fileList: FileListComponent | undefined;
-	let filterTree: FilterTreeComponent | undefined;
 	let queueList: QueueListComponent | undefined;
 	let popupFilterTree: FilterTreeComponent | undefined;
+	let propExplorer: PropertyExplorerComponent | undefined;
+
+	// Active filter highlight state — passed to PropertyExplorer on each render
+	let activeFilterProps = $state(new Set<string>());
+	let activeFilterValues = $state(new Map<string, Set<string>>());
 
 	// ─── Actions for native components ────────────────────────────────────────
 
@@ -319,15 +319,15 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		};
 	}
 
-	function initFilterTree(node: HTMLElement) {
-		filterTree = new FilterTreeComponent(node, (n: unknown, parentNode: unknown) => {
-			plugin.filterService.removeNode(n, parentNode);
-			refreshFilterTree();
-			updateStats();
+	function initPropertyExplorer(node: HTMLElement) {
+		propExplorer = new PropertyExplorerComponent(node, plugin, {
+			defaultScope: 'filtered',
+			onPropertyFilter: (_prop, _val) => { /* handled by FilterService events */ },
 		});
-		refreshFilterTree();
+		propExplorer.render();
+		refreshActiveFilterHighlights();
 		return {
-			destroy() { filterTree = undefined; }
+			destroy() { propExplorer?.destroy(); propExplorer = undefined; }
 		};
 	}
 
@@ -362,8 +362,26 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		updateStats();
 	}
 
-	function refreshFilterTree() {
-		filterTree?.render(plugin.filterService.activeFilter);
+	function refreshActiveFilterHighlights(): void {
+		const props = new Set<string>();
+		const vals = new Map<string, Set<string>>();
+		function walk(node: import('../types/filter').FilterNode): void {
+			if (node.type === 'rule') {
+				if (node.property) {
+					props.add(node.property);
+					if (node.values && node.values.length > 0) {
+						if (!vals.has(node.property)) vals.set(node.property, new Set());
+						node.values.forEach((v) => vals.get(node.property!)!.add(v));
+					}
+				}
+			} else if (node.type === 'group') {
+				node.children.forEach(walk);
+			}
+		}
+		walk(plugin.filterService.activeFilter);
+		activeFilterProps = props;
+		activeFilterValues = vals;
+		propExplorer?.setActiveFilters(props, vals);
 	}
 
 	function refreshQueue() {
@@ -447,45 +465,43 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		fileList?.setSearchFilter(searchName, searchFolder);
 	});
 
-	// ─── Property browser (Filters page Rules tab) ───────────────────────────
-	type PropBrowserItem = { name: string; values: string[]; expanded: boolean };
-	let propBrowserItems = $state<PropBrowserItem[]>([]);
+	// ─── Filters page tab bar ────────────────────────────────────────────────
+	type FiltersTabAction = 'search' | 'scope' | 'sort' | 'view';
+	let filtersActiveTab = $state<FiltersTabAction | null>(null);
 
-	function refreshPropBrowser(): void {
-		const names = plugin.propertyIndex.getPropertyNames();
-		const expandedSet = new Set(propBrowserItems.filter((i) => i.expanded).map((i) => i.name));
-		propBrowserItems = names.map((name) => ({
-			name,
-			values: plugin.propertyIndex.getPropertyValues(name),
-			expanded: expandedSet.has(name),
-		}));
-	}
+	const filtersTabItems: Array<{ id: FiltersTabAction; icon: string; labelKey: string }> = [
+		{ id: 'search', icon: 'lucide-search', labelKey: 'filters.tab.search' },
+		{ id: 'scope', icon: 'lucide-layers', labelKey: 'filters.tab.scope' },
+		{ id: 'sort', icon: 'lucide-arrow-up-down', labelKey: 'filters.tab.sort' },
+		{ id: 'view', icon: 'lucide-layout-grid', labelKey: 'filters.tab.view' },
+	];
 
-	function addPropFilter(propName: string): void {
-		plugin.filterService.addNode({
-			type: 'rule',
-			filterType: 'has_property',
-			property: propName,
-			values: [],
+	let explorerViewFormat = $state<'tree' | 'grid' | 'cards'>('tree');
+	let explorerShowCount = $state(true);
+	let explorerShowValues = $state(true);
+	let explorerShowType = $state(true);
+	let explorerTagsOnly = $state(false);
+
+	$effect(() => {
+		propExplorer?.setViewOptions({
+			format: explorerViewFormat,
+			showCount: explorerShowCount,
+			showValues: explorerShowValues,
+			showType: explorerShowType,
+			tagsOnly: explorerTagsOnly,
 		});
-		refreshFilterTree();
-		updateStats();
-	}
+	});
 
-	function addValueFilter(propName: string, value: string): void {
-		plugin.filterService.addNode({
-			type: 'rule',
-			filterType: 'specific_value',
-			property: propName,
-			values: [value],
-		});
-		refreshFilterTree();
-		updateStats();
-	}
-
-	function togglePropExpanded(propName: string): void {
-		const item = propBrowserItems.find((i) => i.name === propName);
-		if (item) item.expanded = !item.expanded;
+	function toggleFiltersTab(tab: FiltersTabAction, e: MouseEvent) {
+		if (filtersActiveTab === tab) {
+			filtersActiveTab = null;
+		} else {
+			filtersActiveTab = tab;
+			if (tab === 'search') propExplorer?.toggleSearch();
+			else if (tab === 'scope') propExplorer?.showFilterMenu(e);
+			else if (tab === 'sort') propExplorer?.showSortMenu(e);
+			// 'view' — dropdown panel shown in template
+		}
 	}
 
 	// ─── Content tab — Find & Replace ────────────────────────────────────────
@@ -679,22 +695,20 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 		const onFilterChanged = () => {
 			refreshFiles();
-			refreshFilterTree();
+			refreshActiveFilterHighlights();
 			updateStats();
 			if (activePopup === 'active-filters') {
 				popupFilterTree?.render(plugin.filterService.activeFilter);
 			}
 		};
-		const onVaultResolved = () => { refreshFiles(); refreshPropBrowser(); };
+		const onVaultResolved = () => { refreshFiles(); };
 		const onQueueChanged = () => { refreshQueue(); };
 
 		plugin.filterService.on('changed', onFilterChanged);
 		plugin.queueService.on('changed', onQueueChanged);
 
 		refreshFiles();
-		refreshFilterTree();
 		refreshQueue();
-		refreshPropBrowser();
 
 		// Re-render file list + prop browser when vault finishes indexing
 		plugin.app.metadataCache.on('resolved', onVaultResolved);
@@ -748,142 +762,67 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 					<!-- FILTERS PAGE -->
 				{:else if pageId === "filters"}
-					<!-- Tab bar: Rules | Scope -->
-					<div class="obsiman-subtab-bar">
-						<div
-							class="obsiman-subtab"
-							class:is-active={filtersTab === "rules"}
-							onclick={() => {
-								filtersTab = "rules";
-							}}
-							role="tab"
-							tabindex="0"
-						>
-							<span>{t("filter.tab.rules")}</span>
-						</div>
-						<div
-							class="obsiman-subtab"
-							class:is-active={filtersTab === "scope"}
-							onclick={() => {
-								filtersTab = "scope";
-							}}
-							role="tab"
-							tabindex="0"
-						>
-							<span>{t("filter.tab.scope")}</span>
-						</div>
-					</div>
-
-					<div class="obsiman-subtab-area">
-						<!-- Rules tab -->
-						<div
-							class="obsiman-subtab-content"
-							class:is-active={filtersTab === "rules"}
-						>
-							<div class="obsiman-filter-buttons">
-								<button
-									class="obsiman-btn"
-									onclick={openAddFilterModal}
-									>{t("filter.add_rule")}</button
-								>
-								<button
-									class="obsiman-btn"
-									onclick={() => {
-										plugin.filterService.clearFilters();
-										refreshFilterTree();
-										updateStats();
-									}}>{t("filter.clear")}</button
-								>
-								<button
-									class="obsiman-btn"
-									onclick={() =>
-										new SaveTemplateModal(
-											plugin.app,
-											plugin,
-											plugin.filterService.activeFilter,
-										).open()}
-									>{t("filter.template.save")}</button
-								>
+					<!-- 4-tab toolbar: Search · Scope · Sort · View -->
+					<div class="obsiman-filters-tabbar">
+						{#each filtersTabItems as tab}
+							<div
+								class="obsiman-filters-tab"
+								class:is-active={filtersActiveTab === tab.id}
+								onclick={(e) => toggleFiltersTab(tab.id, e)}
+								use:icon={tab.icon}
+								aria-label={t(tab.labelKey)}
+								role="tab"
+								tabindex="0"
+							>
+								<span class="obsiman-filters-tab-label">{t(tab.labelKey)}</span>
 							</div>
-							<!-- Property browser: click property → has_property filter, click value → specific_value filter -->
-							<div class="obsiman-prop-browser">
-								{#if propBrowserItems.length === 0}
-									<div class="obsiman-prop-browser-empty">{t("filter.prop_browser.empty")}</div>
-								{:else}
-									{#each propBrowserItems as item (item.name)}
+						{/each}
+
+						{#if filtersActiveTab === 'view'}
+							<div class="obsiman-filters-view-panel">
+								<div class="obsiman-view-panel-section">
+									<span class="obsiman-view-panel-label">{t('filters.view.format')}</span>
+									{#each (['tree', 'grid', 'cards'] as const) as fmt}
 										<div
-											class="obsiman-prop-browser-row"
-											onclick={() => addPropFilter(item.name)}
+											class="obsiman-view-panel-option"
+											class:is-active={explorerViewFormat === fmt}
+											onclick={() => { explorerViewFormat = fmt; filtersActiveTab = null; }}
 											role="option"
-											aria-selected="false"
+											aria-selected={explorerViewFormat === fmt}
 											tabindex="0"
-										>
-											<button
-												class="obsiman-prop-browser-expand"
-												aria-label={item.expanded ? "Collapse" : "Expand"}
-												onclick={(e) => { e.stopPropagation(); togglePropExpanded(item.name); }}
-											>{item.expanded ? "▼" : "▶"}</button>
-											<span class="obsiman-prop-browser-name">{item.name}</span>
-											<span class="obsiman-prop-browser-count">{item.values.length}</span>
-										</div>
-										{#if item.expanded}
-											<div class="obsiman-prop-browser-values">
-												{#each item.values as val (val)}
-													<div
-														class="obsiman-prop-browser-value"
-														onclick={() => addValueFilter(item.name, val)}
-														role="option"
-														aria-selected="false"
-														tabindex="0"
-													>{val}</div>
-												{/each}
-											</div>
-										{/if}
+										>{t('filters.view.format.' + fmt)}</div>
 									{/each}
-								{/if}
+								</div>
+								<div class="obsiman-view-panel-section">
+									<span class="obsiman-view-panel-label">{t('filters.view.show')}</span>
+									<label class="obsiman-view-panel-check">
+										<input type="checkbox" bind:checked={explorerShowCount} />
+										{t('filters.view.show.count')}
+									</label>
+									<label class="obsiman-view-panel-check">
+										<input type="checkbox" bind:checked={explorerShowValues} />
+										{t('filters.view.show.values')}
+									</label>
+									<label class="obsiman-view-panel-check">
+										<input type="checkbox" bind:checked={explorerShowType} />
+										{t('filters.view.show.type')}
+									</label>
+								</div>
+								<div class="obsiman-view-panel-section">
+									<label class="obsiman-view-panel-check">
+										<input type="checkbox" bind:checked={explorerTagsOnly} />
+										<span>
+											<strong>{t('filters.view.tags_only')}</strong><br/>
+											<small>{t('filters.view.tags_only.desc')}</small>
+										</span>
+									</label>
+								</div>
 							</div>
-						</div>
-
-						<!-- Scope tab -->
-						<div
-							class="obsiman-subtab-content"
-							class:is-active={filtersTab === "scope"}
-						>
-							<div class="obsiman-scope-desc">
-								{t("scope.desc")}
-							</div>
-							<div class="obsiman-scope-list">
-								{#each scopeOptions as opt}
-									<div
-										class="obsiman-scope-item"
-										class:is-active={plugin.settings
-											.explorerOperationScope ===
-											opt.value}
-										onclick={() => {
-											plugin.settings.explorerOperationScope =
-												opt.value as
-													| "auto"
-													| "selected"
-													| "filtered"
-													| "all";
-											void plugin.saveSettings();
-										}}
-										role="option"
-										aria-selected={plugin.settings
-											.explorerOperationScope ===
-											opt.value}
-										tabindex="0"
-									>
-										<div
-											class="obsiman-scope-icon"
-											use:icon={opt.icon}
-										></div>
-										<span>{opt.label}</span>
-									</div>
-								{/each}
-							</div>
-						</div>
+						{/if}
 					</div>
+
+					<!-- PropertyExplorer fills remaining space -->
+					<div class="obsiman-filters-explorer-wrap" use:initPropertyExplorer></div>
 
 					<!-- OPS PAGE -->
 				{:else if pageId === "ops"}
