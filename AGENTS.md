@@ -24,7 +24,7 @@
 - **Stack**: TypeScript + Obsidian Plugin API + esbuild + ESLint
 - **Repo**: `https://github.com/Meibbo/ObsiMan-Plugin`
 - **Current branch**: `add-functions`
-- **Version**: `1.0.0-beta.2` (working toward `1.0.0` stable)
+- **Version**: `1.0.0-beta.6` (working toward `1.0.0` stable)
 - **Primary author**: Meibbo
 
 ### Core philosophy — "Augment, don't replace"
