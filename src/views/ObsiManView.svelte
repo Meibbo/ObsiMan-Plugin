@@ -89,16 +89,51 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	let pageIndex = $derived(pageOrder.indexOf(activePage));
 
 	function navigateTo(page: string) {
-		isAnimating = true;
 		activePage = page;
+		applyPageTransform(true);
 	}
 
 	function onContainerTransitionEnd(e: TransitionEvent) {
 		// Guard against child element transitions bubbling up
 		if (e.target === e.currentTarget && e.propertyName === 'transform') {
 			isAnimating = false;
+			containerEl?.classList.remove('is-animating');
 		}
 	}
+
+	// ─── Page transition — pixel-based (fixes page-3 translateX bug) ─────────
+	let viewportEl: HTMLElement | null = null;
+	let containerEl: HTMLElement | null = null;
+
+	function applyPageTransform(animated: boolean) {
+		if (!containerEl || !viewportEl) return;
+		const w = viewportEl.offsetWidth;
+		if (w === 0) return;
+		// Set each page to exact pixel width
+		const pages = containerEl.querySelectorAll<HTMLElement>('.obsiman-page');
+		pages.forEach((p) => { p.style.width = `${w}px`; });
+		if (animated) containerEl.classList.add('is-animating');
+		containerEl.style.transform = `translateX(${-pageIndex * w}px)`;
+	}
+
+	function bindViewport(el: HTMLElement) {
+		viewportEl = el;
+		const ro = new ResizeObserver(() => { applyPageTransform(false); });
+		ro.observe(el);
+		applyPageTransform(false);
+		return { destroy() { ro.disconnect(); viewportEl = null; } };
+	}
+
+	function bindContainer(el: HTMLElement) {
+		containerEl = el;
+		applyPageTransform(false);
+		return { destroy() { containerEl = null; } };
+	}
+
+	$effect(() => {
+		void pageIndex; // declare dependency
+		applyPageTransform(true);
+	});
 
 	// ─── Navbar long-press + pointer-based reorder ───────────────────────────
 	// Uses pointer events only — HTML5 DnD is avoided because Obsidian's
@@ -635,11 +670,10 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 <!-- ─── Page container (horizontal slide strip) ────────────────────────────── -->
 <!-- obsiman-pages-viewport clips via overflow:hidden; the container slides inside it -->
-<div class="obsiman-pages-viewport">
+<div class="obsiman-pages-viewport" use:bindViewport>
 	<div
 		class="obsiman-page-container"
-		class:is-animating={isAnimating}
-		style:--page-index={pageIndex}
+		use:bindContainer
 		ontransitionend={onContainerTransitionEnd}
 	>
 		{#each pageOrder as pageId (pageId)}
