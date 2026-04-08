@@ -204,6 +204,43 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		reorderTargetIdx = -1;
 	}
 
+	// ─── Responsive bottom nav ────────────────────────────────────────────────
+	const NAV_COLLAPSE_THRESHOLD = 220; // px — below this width the nav collapses
+	let navCollapsed = $state(false);
+	let navEl: HTMLElement | null = null;
+	let navExpandTimer: ReturnType<typeof setTimeout> | null = null;
+
+	function bindNav(el: HTMLElement) {
+		navEl = el;
+		return { destroy() { navEl = null; } };
+	}
+
+	// ResizeObserver on .obsiman-view updates nav state
+	function bindViewRoot(el: HTMLElement) {
+		const target = el.closest('.obsiman-view') as HTMLElement ?? el.parentElement ?? el;
+		const ro = new ResizeObserver((entries) => {
+			const w = entries[0]?.contentRect.width ?? target.offsetWidth;
+			navCollapsed = w < NAV_COLLAPSE_THRESHOLD;
+		});
+		ro.observe(target);
+		navCollapsed = target.offsetWidth < NAV_COLLAPSE_THRESHOLD;
+		return { destroy() { ro.disconnect(); } };
+	}
+
+	function onCollapsedNavClick() {
+		if (!navCollapsed || !navEl) return;
+		navEl.classList.add('is-bar-expanding');
+		navCollapsed = false;
+		if (navExpandTimer) clearTimeout(navExpandTimer);
+		navExpandTimer = setTimeout(() => {
+			// Re-check width — if still narrow, collapse again
+			if (navEl && navEl.offsetWidth < NAV_COLLAPSE_THRESHOLD) {
+				navCollapsed = true;
+			}
+			navEl?.classList.remove('is-bar-expanding');
+		}, 2000);
+	}
+
 	// ─── Popup ────────────────────────────────────────────────────────────────
 
 	let activePopup = $state<PopupType | null>(null);
@@ -664,7 +701,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 </script>
 
 <!-- ─── Header ─────────────────────────────────────────────────────────────── -->
-<div class="obsiman-view-header">
+<div class="obsiman-view-header" use:bindViewRoot>
 	<span class="obsiman-view-title">{t("plugin.name")}</span>
 </div>
 
@@ -1094,7 +1131,13 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 	<!-- ─── Bottom nav floats over content inside the viewport ──────────────────── -->
 	<!-- Files always gets both FABs. Other pages get ONE FAB on their outer edge. -->
-	<div class="obsiman-bottom-nav">
+	<div
+		class="obsiman-bottom-nav"
+		use:bindNav
+		class:is-bar-collapsed={navCollapsed}
+		onclick={onCollapsedNavClick}
+		role="navigation"
+	>
 		{#if leftFab}
 			<div
 				class="obsiman-nav-fab"

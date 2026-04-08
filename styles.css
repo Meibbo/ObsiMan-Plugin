@@ -1784,6 +1784,26 @@ body.obsiman-bases-column-separators table th {
   z-index: 10;
 }
 
+/* Responsive nav — collapses to slim bar when frame is very narrow */
+.obsiman-bottom-nav.is-bar-collapsed {
+  height: 8px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.obsiman-bottom-nav.is-bar-collapsed .obsiman-nav-pill,
+.obsiman-bottom-nav.is-bar-collapsed .obsiman-nav-fab,
+.obsiman-bottom-nav.is-bar-collapsed .obsiman-nav-fab-placeholder {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Expand animation when collapsed bar is clicked */
+.obsiman-bottom-nav.is-bar-expanding {
+  transition: height 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  height: var(--obsiman-nav-height, 64px);
+}
+
 /* Fade gradient behind the floating nav — content bleeds through, nav stays legible */
 .obsiman-bottom-nav::before {
   content: '';
