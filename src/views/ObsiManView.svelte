@@ -291,12 +291,21 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		return s;
 	});
 
+	function countFilterLeaves(group: import('../types/filter').FilterGroup): number {
+		let count = 0;
+		for (const child of group.children) {
+			if (child.type === 'rule') count++;
+			else if (child.type === 'group') count += countFilterLeaves(child);
+		}
+		return count;
+	}
+
 	function updateStats() {
 		totalFiles = plugin.propertyIndex.fileCount;
 		filteredCount = plugin.filterService.filteredFiles.length;
 		selectedCount = plugin.basesInjector?.selectedPaths?.size ?? 0;
 		queuedCount = plugin.queueService.queue.length;
-		filterRuleCount = plugin.filterService.activeFilter?.children?.length ?? 0;
+		filterRuleCount = countFilterLeaves(plugin.filterService.activeFilter);
 	}
 
 	let fileList: FileListComponent | undefined;
