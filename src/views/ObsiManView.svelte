@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { setIcon } from 'obsidian';
+	import { Menu, setIcon } from 'obsidian';
 	import type { ObsiManPlugin } from '../../main';
 	import { FileListComponent } from '../components/FileListComponent';
-	import { FilterTreeComponent } from '../components/FilterTreeComponent';
 	import { PropertyExplorerComponent } from '../components/PropertyExplorerComponent';
 	import { QueueListComponent } from '../components/QueueListComponent';
 	import { AddFilterModal } from '../modals/AddFilterModal';
@@ -302,7 +301,6 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 	let fileList: FileListComponent | undefined;
 	let queueList: QueueListComponent | undefined;
-	let popupFilterTree: FilterTreeComponent | undefined;
 	let propExplorer: PropertyExplorerComponent | undefined;
 
 	// Active filter highlight state — passed to PropertyExplorer on each render
@@ -341,19 +339,6 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		};
 	}
 
-	function initPopupFilterTree(node: HTMLElement) {
-		popupFilterTree = new FilterTreeComponent(node, (n: unknown, parentNode: unknown) => {
-			plugin.filterService.removeNode(n, parentNode);
-			popupFilterTree?.render(plugin.filterService.activeFilter);
-			updateStats();
-		});
-		if (activePopup === 'active-filters') {
-			popupFilterTree.render(plugin.filterService.activeFilter);
-		}
-		return {
-			destroy() { popupFilterTree = undefined; }
-		};
-	}
 
 	// ─── Refresh ─────────────────────────────────────────────────────────────
 
@@ -502,6 +487,65 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 			else if (tab === 'sort') propExplorer?.showSortMenu(e);
 			// 'view' — dropdown panel shown in template
 		}
+	}
+
+	// ─── Active Filters popup state ───────────────────────────────────────────
+
+	type ActiveFilterRule = {
+		id: string;
+		description: string;
+		node: import('../types/filter').FilterNode;
+		parent: import('../types/filter').FilterGroup;
+		enabled: boolean;
+	};
+
+	let activeFilterRules = $state<ActiveFilterRule[]>([]);
+
+	function refreshActiveFiltersPopup(): void {
+		const rules: ActiveFilterRule[] = [];
+		let counter = 0;
+		function walk(group: import('../types/filter').FilterGroup): void {
+			for (const child of group.children) {
+				if (child.type === 'rule') {
+					rules.push({
+						id: `rule-${counter++}`,
+						description: describeFilterNode(child),
+						node: child,
+						parent: group,
+						enabled: !(child as any).disabled,
+					});
+				} else if (child.type === 'group') {
+					walk(child);
+				}
+			}
+		}
+		walk(plugin.filterService.activeFilter);
+		activeFilterRules = rules;
+	}
+
+	function describeFilterNode(node: import('../types/filter').FilterNode): string {
+		if (node.type !== 'rule') return 'Group';
+		const prop = (node as any).property ?? '';
+		const vals = (node as any).values ?? [];
+		switch ((node as any).filterType) {
+			case 'has_property': return `has: ${prop}`;
+			case 'specific_value': return `${prop}: ${vals[0] ?? ''}`;
+			case 'folder': return `folder: ${vals[0] ?? ''}`;
+			case 'file_name': return `name: ${vals[0] ?? ''}`;
+			default: return prop || 'filter';
+		}
+	}
+
+	function toggleFilterRule(rule: ActiveFilterRule): void {
+		(rule.node as any).disabled = !((rule.node as any).disabled);
+		plugin.filterService.applyFilters();
+		refreshActiveFiltersPopup();
+	}
+
+	function deleteFilterRule(rule: ActiveFilterRule): void {
+		plugin.filterService.removeNode(rule.node, rule.parent);
+		refreshActiveFiltersPopup();
+		updateStats();
 	}
 
 	// ─── Content tab — Find & Replace ────────────────────────────────────────
@@ -681,11 +725,11 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		};
 	}
 
-	// ─── Re-render popup filter tree when it becomes visible ──────────────────
+	// ─── Refresh active filters popup when it becomes visible ────────────────
 
 	$effect(() => {
 		if (activePopup === 'active-filters' && popupOpen) {
-			popupFilterTree?.render(plugin.filterService.activeFilter);
+			refreshActiveFiltersPopup();
 		}
 	});
 
@@ -698,7 +742,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 			refreshActiveFilterHighlights();
 			updateStats();
 			if (activePopup === 'active-filters') {
-				popupFilterTree?.render(plugin.filterService.activeFilter);
+				refreshActiveFiltersPopup();
 			}
 		};
 		const onVaultResolved = () => { refreshFiles(); };
@@ -1164,40 +1208,94 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 >
 	<div class="obsiman-popup-content">
 		<!-- Active Filters popup -->
-		<div hidden={activePopup !== "active-filters"}>
-			<div class="obsiman-popup-header">
-				<span class="obsiman-popup-title">{t("filters.active")}</span>
+		<div hidden={activePopup !== "active-filters"} class="obsiman-active-filters-popup">
+			<!-- Squircle action buttons row -->
+			<div class="obsiman-squircle-row">
 				<div
-					class="clickable-icon"
-					aria-label="Close"
+					class="obsiman-squircle"
+					aria-label={t('filters.popup.clear_all')}
 					use:icon={"lucide-x"}
-					onclick={closePopup}
+					onclick={() => {
+						plugin.filterService.clearFilters();
+						refreshActiveFiltersPopup();
+						updateStats();
+						closePopup();
+					}}
+					role="button"
+					tabindex="0"
+				></div>
+				<div
+					class="obsiman-squircle obsiman-squircle-reserved"
+					aria-label="Reserved"
+					use:icon={"lucide-plus"}
+					role="button"
+					tabindex="0"
+				></div>
+				<div
+					class="obsiman-squircle"
+					aria-label={t('filters.popup.templates')}
+					use:icon={"lucide-bookmark"}
+					onclick={(e) => {
+						const menu = new Menu();
+						plugin.settings.filterTemplates.forEach((tpl) => {
+							menu.addItem((item) =>
+								item.setTitle(tpl.name).onClick(() => {
+									plugin.filterService.loadTemplate(tpl);
+									refreshActiveFiltersPopup();
+									updateStats();
+									closePopup();
+								})
+							);
+						});
+						menu.addSeparator();
+						menu.addItem((item) =>
+							item.setTitle(t('filter.template.save')).onClick(() => {
+								new SaveTemplateModal(
+									plugin.app, plugin, plugin.filterService.activeFilter
+								).open();
+								closePopup();
+							})
+						);
+						menu.showAtMouseEvent(e);
+					}}
+					role="button"
+					tabindex="0"
+				></div>
+				<div
+					class="obsiman-squircle obsiman-squircle-reserved"
+					aria-label="Reserved"
+					use:icon={"lucide-check"}
 					role="button"
 					tabindex="0"
 				></div>
 			</div>
-			<div
-				class="obsiman-filter-tree obsiman-popup-filter-tree"
-				use:initPopupFilterTree
-			></div>
-			<div class="obsiman-popup-actions">
-				<button
-					class="obsiman-btn"
-					onclick={() => {
-						plugin.filterService.clearFilters();
-						updateStats();
-						closePopup();
-					}}>{t("filter.clear")}</button
-				>
-				<button
-					class="obsiman-btn mod-cta"
-					onclick={() => {
-						closePopup();
-						openAddFilterModal();
-					}}
-				>
-					{t("filter.add_rule")}
-				</button>
+
+			<!-- Filter rules list -->
+			<div class="obsiman-active-filters-list">
+				{#if activeFilterRules.length === 0}
+					<div class="obsiman-active-filters-empty">{t('filters.popup.empty')}</div>
+				{:else}
+					{#each activeFilterRules as rule (rule.id)}
+						<div class="obsiman-active-filter-rule" class:is-disabled={!rule.enabled}>
+							<span class="obsiman-active-filter-rule-text">{rule.description}</span>
+							<div
+								class="obsiman-active-filter-toggle clickable-icon"
+								aria-label={rule.enabled ? t('filters.popup.rule.disable') : t('filters.popup.rule.enable')}
+								onclick={() => toggleFilterRule(rule)}
+								role="button"
+								tabindex="0"
+							></div>
+							<div
+								class="obsiman-active-filter-delete clickable-icon"
+								aria-label={t('filters.popup.rule.delete')}
+								use:icon={"lucide-x"}
+								onclick={() => deleteFilterRule(rule)}
+								role="button"
+								tabindex="0"
+							></div>
+						</div>
+					{/each}
+				{/if}
 			</div>
 		</div>
 
