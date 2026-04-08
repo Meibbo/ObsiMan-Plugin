@@ -247,7 +247,6 @@ export const en: Record<string, string> = {
 	'move.root_hint': 'Leave empty to move to vault root',
 
 	// Layout settings
-	'settings.layout': 'Layout',
 	'settings.ops_position': 'Operations panel position',
 	'settings.ops_position.desc': 'Where the operations panel appears',
 	'settings.ops_position.right': 'Right panel',
