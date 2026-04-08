@@ -332,4 +332,42 @@ export const en: Record<string, string> = {
 	'filter.prop_browser.title': 'Properties',
 	'queue.content_changes': 'Content changes',
 	'queue.content_no_matches': 'No matches in this file',
+
+	// Filters page — tab bar
+	'filters.tab.search': 'Search',
+	'filters.tab.scope': 'Scope',
+	'filters.tab.sort': 'Sort',
+	'filters.tab.view': 'View',
+
+	// Filters page — search bar
+	'filters.search.placeholder': 'Search properties…',
+	'filters.search.clear': 'Clear search',
+	'filters.search.mode.props': 'Search property names',
+	'filters.search.mode.values': 'Search values',
+
+	// Filters page — Active Filters popup
+	'filters.popup.title': 'Active filters',
+	'filters.popup.clear_all': 'Clear all filters',
+	'filters.popup.templates': 'Filter templates',
+	'filters.popup.empty': 'No active filters',
+	'filters.popup.rule.enable': 'Enable filter',
+	'filters.popup.rule.disable': 'Disable filter',
+	'filters.popup.rule.delete': 'Remove filter',
+
+	// View tab options
+	'filters.view.format': 'Display format',
+	'filters.view.format.tree': 'Tree',
+	'filters.view.format.grid': 'Grid',
+	'filters.view.format.cards': 'Cards',
+	'filters.view.show': 'Show',
+	'filters.view.show.count': 'Occurrence count',
+	'filters.view.show.values': 'Values',
+	'filters.view.show.type': 'Property type icon',
+	'filters.view.tags_only': 'Tags only mode',
+	'filters.view.tags_only.desc': 'Show only tags including inline tags, grouped by path',
+
+	// Settings — Layout
+	'settings.layout.title': 'Layout',
+	'settings.layout.separate_panes': 'Separate sidebar panes',
+	'settings.layout.separate_panes.desc': 'Open Ops, Files, and Filters as individual Obsidian sidebar views instead of a combined panel.',
 };

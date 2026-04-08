@@ -230,6 +230,21 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 					})
 			);
 
+		// Layout section
+		containerEl.createEl('h3', { text: t('settings.layout.title') });
+
+		new Setting(containerEl)
+			.setName(t('settings.layout.separate_panes'))
+			.setDesc(t('settings.layout.separate_panes.desc'))
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.separatePanes)
+					.onChange(async (value) => {
+						this.plugin.settings.separatePanes = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
 		// Filter templates section
 		new Setting(containerEl).setName("").setHeading();
 

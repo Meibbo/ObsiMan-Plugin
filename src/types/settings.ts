@@ -36,6 +36,8 @@ export interface ObsiManSettings {
 	openMode: 'sidebar' | 'main' | 'both';
 	/** Order of pages in the sidebar bottom nav (page IDs: 'files', 'filters', 'ops') */
 	pageOrder: string[];
+	/** When true, each page opens as its own Obsidian sidebar pane */
+	separatePanes: boolean;
 	/** File list view mode in the sidebar Files page */
 	viewMode: 'list' | 'selected';
 	/** Property grid render mode */
@@ -69,5 +71,6 @@ export const DEFAULT_SETTINGS: ObsiManSettings = {
 	basesShowColumnSeparators: false,
 	openMode: 'sidebar',
 	pageOrder: ['ops', 'files', 'filters'],
+	separatePanes: false,
 	viewMode: 'list',
 };
