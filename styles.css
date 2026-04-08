@@ -2214,16 +2214,104 @@ body.obsiman-bases-column-separators table th {
 .obsiman-popup-content {
   background: var(--background-primary);
   border-radius: var(--radius-m) var(--radius-m) 0 0;
+  border: 1px solid var(--obsiman-border);
+  border-bottom: none;
+  position: absolute;
+  bottom: 0;
+  left: 0; right: 0;
   padding: 12px;
-  /* Spring slide up */
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  max-height: 75%;
+  max-height: 65%;
   overflow-y: auto;
 }
 
 .obsiman-popup-overlay.is-open .obsiman-popup-content {
   transform: translateY(0);
+}
+
+/* Squircle action buttons */
+.obsiman-squircle-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.obsiman-squircle {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--background-modifier-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.obsiman-squircle:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.obsiman-squircle-reserved {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Active filter rule rows */
+.obsiman-active-filters-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.obsiman-active-filter-rule {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: var(--radius-s);
+  background: var(--background-secondary);
+}
+
+.obsiman-active-filter-rule.is-disabled { opacity: 0.45; }
+
+.obsiman-active-filter-rule-text {
+  flex: 1;
+  font-size: var(--font-ui-small);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.obsiman-active-filter-toggle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--color-accent);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.obsiman-active-filter-rule:not(.is-disabled) .obsiman-active-filter-toggle {
+  background: var(--color-accent);
+}
+
+.obsiman-active-filter-delete {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.obsiman-active-filters-empty {
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+  padding: 8px;
+  text-align: center;
 }
 
 .obsiman-popup-header {
