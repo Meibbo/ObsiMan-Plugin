@@ -1,4 +1,4 @@
-import { Menu, Modal, Notice, Setting, setIcon, type App, type TFile } from 'obsidian';
+import { getAllTags, Menu, Modal, Notice, Setting, setIcon, type App, type TFile } from 'obsidian';
 import type { ObsiManPlugin } from '../../main';
 import type { PendingChange } from '../types/operation';
 import { DELETE_PROP } from '../types/operation';
@@ -58,6 +58,17 @@ export class PropertyExplorerComponent {
 
 	private onPropertyFilter?: (property: string, value: string) => void;
 
+	// ── View Options ─────────────────────────────────────────
+	private viewFormat: 'tree' | 'grid' | 'cards' = 'tree';
+	private showCount = true;
+	private showValues = true;
+	private showType = true;
+	private tagsOnly = false;
+
+	// ── Active Filters ────────────────────────────────────────
+	private activeFilterProps = new Set<string>();
+	private activeFilterValues = new Map<string, Set<string>>();
+
 	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin, options?: { defaultScope?: FilterScope; onPropertyFilter?: (property: string, value: string) => void }) {
 		this.containerEl = containerEl;
 		this.plugin = plugin;
@@ -91,10 +102,6 @@ export class PropertyExplorerComponent {
 			},
 		});
 		this.searchEl.value = this.searchTerm;
-		this.searchEl.addEventListener('input', () => {
-			this.searchTerm = this.searchEl?.value ?? '';
-			this.renderTree();
-		});
 
 		// Search mode toggle: properties (key icon) ↔ values (tag icon)
 		const modeBtn = searchRow.createDiv({
@@ -109,6 +116,28 @@ export class PropertyExplorerComponent {
 		modeBtn.addEventListener('click', () => {
 			this.searchMode = this.searchMode === 'properties' ? 'values' : 'properties';
 			this.render();
+		});
+
+		// Clear button — far right of search bar
+		const clearBtn = searchRow.createDiv({
+			cls: 'obsiman-explorer-search-clear clickable-icon',
+			attr: { 'aria-label': t('filters.search.clear') ?? 'Clear search' },
+		});
+		setIcon(clearBtn, 'lucide-x');
+		clearBtn.addEventListener('click', () => {
+			this.searchTerm = '';
+			if (this.searchEl) this.searchEl.value = '';
+			this.renderTree();
+			clearBtn.toggleClass('is-hidden', true);
+		});
+		// Show only when there's text
+		clearBtn.toggleClass('is-hidden', !this.searchTerm);
+
+		// Update clear button visibility on input
+		this.searchEl.addEventListener('input', () => {
+			this.searchTerm = this.searchEl?.value ?? '';
+			clearBtn.toggleClass('is-hidden', !this.searchTerm);
+			this.renderTree();
 		});
 
 		// Tree container
@@ -265,6 +294,10 @@ export class PropertyExplorerComponent {
 
 	private renderTree(): void {
 		if (!this.treeEl) return;
+		if (this.tagsOnly) {
+			this.renderTagsOnlyTree();
+			return;
+		}
 		this.treeEl.empty();
 
 		const index = this.plugin.propertyIndex.index;
@@ -355,6 +388,10 @@ export class PropertyExplorerComponent {
 		const totalFiles = propFileCounts.get(propName) ?? 0;
 
 		const nodeEl = parent.createDiv({ cls: 'obsiman-explorer-node' });
+		// Highlight if property is an active filter
+		if (this.activeFilterProps.has(propName)) {
+			nodeEl.addClass('is-active-filter');
+		}
 		const headerEl = nodeEl.createDiv({
 			cls: `obsiman-explorer-header ${isExpanded ? 'is-expanded' : ''}`,
 		});
@@ -423,6 +460,10 @@ export class PropertyExplorerComponent {
 			for (const value of sortedValues) {
 				const count = valueCounts.get(value) ?? 0;
 				const valueEl = childrenEl.createDiv({ cls: 'obsiman-explorer-value' });
+				// Highlight if value is an active filter for this property
+				if (this.activeFilterValues.get(propName)?.has(value)) {
+					valueEl.addClass('is-active-filter');
+				}
 				valueEl.createSpan({ cls: 'obsiman-explorer-value-text', text: value });
 				valueEl.createSpan({ cls: 'obsiman-explorer-badge', text: String(count) });
 
@@ -685,6 +726,129 @@ export class PropertyExplorerComponent {
 			}
 		}, 150);
 		this.pendingTimers.push(timer);
+	}
+
+	// ── Public API Methods ────────────────────────────────────
+
+	setViewOptions(opts: {
+		format: 'tree' | 'grid' | 'cards';
+		showCount: boolean;
+		showValues: boolean;
+		showType: boolean;
+		tagsOnly: boolean;
+	}): void {
+		this.viewFormat = opts.format;
+		this.showCount = opts.showCount;
+		this.showValues = opts.showValues;
+		this.showType = opts.showType;
+		this.tagsOnly = opts.tagsOnly;
+		this.invalidateCache();
+		this.renderTree();
+	}
+
+	setActiveFilters(props: Set<string>, vals: Map<string, Set<string>>): void {
+		this.activeFilterProps = props;
+		this.activeFilterValues = vals;
+		this.renderTree();
+	}
+
+	// ── Tags-Only Mode ────────────────────────────────────────
+
+	private renderTagsOnlyTree(): void {
+		if (!this.treeEl) return;
+		// viewFormat / showValues / showType reserved for future rendering modes
+		void this.viewFormat;
+		void this.showValues;
+		void this.showType;
+		this.treeEl.empty();
+
+		const files = this.getScopeFiles();
+		const tagCounts = new Map<string, number>();
+
+		for (const file of files) {
+			const cache = this.plugin.app.metadataCache.getFileCache(file);
+			if (!cache) continue;
+			const allTags = getAllTags(cache) ?? [];
+			const seen = new Set<string>();
+			for (const tag of allTags) {
+				const normalised = tag.startsWith('#') ? tag : `#${tag}`;
+				if (!seen.has(normalised)) {
+					seen.add(normalised);
+					tagCounts.set(normalised, (tagCounts.get(normalised) ?? 0) + 1);
+				}
+			}
+		}
+
+		if (tagCounts.size === 0) {
+			this.treeEl.createDiv({ cls: 'obsiman-explorer-empty', text: t('explorer.empty') });
+			return;
+		}
+
+		type TagNode = { count: number; children: Map<string, TagNode> };
+		const root: Map<string, TagNode> = new Map();
+
+		for (const [tag, count] of tagCounts) {
+			const parts = tag.replace(/^#/, '').split('/');
+			let level = root;
+			for (const part of parts) {
+				if (!level.has(part)) level.set(part, { count: 0, children: new Map() });
+				level = level.get(part)!.children;
+			}
+			// Set count on leaf node
+			let cursor = root;
+			for (let i = 0; i < parts.length; i++) {
+				const node = cursor.get(parts[i])!;
+				if (i === parts.length - 1) node.count = count;
+				cursor = node.children;
+			}
+		}
+
+		const renderTagNode = (parent: HTMLElement, name: string, node: TagNode, fullPath: string) => {
+			const nodeEl = parent.createDiv({ cls: 'obsiman-explorer-node' });
+			const headerEl = nodeEl.createDiv({ cls: 'obsiman-explorer-header' });
+			const hasChildren = node.children.size > 0;
+			const isExpanded = this.expandedProps.has(fullPath);
+
+			const toggleSpan = headerEl.createSpan({ cls: 'obsiman-explorer-toggle' });
+			setIcon(toggleSpan, hasChildren ? (isExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right') : 'lucide-dot');
+
+			const iconSpan = headerEl.createSpan({ cls: 'obsiman-explorer-icon' });
+			setIcon(iconSpan, 'lucide-tag');
+
+			headerEl.createSpan({ cls: 'obsiman-explorer-prop-name', text: name });
+			if (this.showCount && node.count > 0) {
+				headerEl.createSpan({ cls: 'obsiman-explorer-badge', text: String(node.count) });
+			}
+
+			headerEl.addEventListener('click', () => {
+				if (hasChildren) {
+					if (this.expandedProps.has(fullPath)) this.expandedProps.delete(fullPath);
+					else this.expandedProps.add(fullPath);
+					this.renderTree();
+				}
+			});
+
+			if (hasChildren && isExpanded) {
+				const childrenEl = nodeEl.createDiv({ cls: 'obsiman-explorer-children' });
+				for (const [childName, childNode] of node.children) {
+					renderTagNode(childrenEl, childName, childNode, `${fullPath}/${childName}`);
+				}
+			}
+		};
+
+		for (const [name, node] of root) {
+			renderTagNode(this.treeEl, name, node, name);
+		}
+	}
+
+	private getScopeFiles(): TFile[] {
+		if (this.filterScope === 'selected') {
+			const files = this.plugin.app.vault.getMarkdownFiles()
+				.filter((f) => this.selectedFilePaths.has(f.path));
+			return files.length > 0 ? files : this.plugin.filterService.filteredFiles;
+		}
+		if (this.filterScope === 'filtered') return this.plugin.filterService.filteredFiles;
+		return this.plugin.app.vault.getMarkdownFiles();
 	}
 
 	/** Clean up any pending timers */

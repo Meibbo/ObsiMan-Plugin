@@ -618,6 +618,18 @@
 	color: var(--obsiman-accent);
 }
 
+/* Active filter highlight in PropertyExplorer */
+.obsiman-explorer-node.is-active-filter > .obsiman-explorer-header {
+	border-left: 2px solid var(--color-accent);
+	background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+	padding-left: calc(var(--size-4-2) - 2px);
+}
+
+.obsiman-explorer-value.is-active-filter {
+	border-left: 2px solid var(--color-accent);
+	background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+}
+
 /* Explorer nav toolbar */
 .obsiman-explorer-nav {
 	display: flex;
@@ -661,6 +673,14 @@
 
 .obsiman-explorer-search-row .obsiman-explorer-search-input {
 	flex: 1;
+}
+
+.obsiman-explorer-search-clear {
+	flex-shrink: 0;
+}
+
+.obsiman-explorer-search-clear.is-hidden {
+	display: none;
 }
 
 .obsiman-search-mode-toggle {
