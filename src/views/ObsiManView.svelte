@@ -18,6 +18,7 @@
 	import { t } from '../i18n/index';
 type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	type OpsTab = 'fileops' | 'linter' | 'template' | 'content';
+	type OpsTabDef = { id: OpsTab; label: string; icon: string };
 	type ContentSnippet = { before: string; match: string; after: string };
 	type ContentPreviewResult = {
 		totalMatches: number;
@@ -272,11 +273,11 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 	let opsTab = $state<OpsTab>('fileops');
 
-	const opsTabs: Array<{ id: OpsTab; label: string }> = [
-		{ id: 'fileops', label: t('ops.tab.fileops') },
-		{ id: 'linter', label: t('ops.tab.linter_short') },
-		{ id: 'template', label: t('ops.tab.template_short') },
-		{ id: 'content', label: t('ops.tab.content_short') },
+	const opsTabs: OpsTabDef[] = [
+		{ id: 'fileops', label: t('ops.tab.fileops'), icon: 'lucide-file-cog' },
+		{ id: 'linter', label: t('ops.tab.linter_short'), icon: 'lucide-spell-check' },
+		{ id: 'template', label: t('ops.tab.template_short'), icon: 'lucide-layout-template' },
+		{ id: 'content', label: t('ops.tab.content_short'), icon: 'lucide-file-search' },
 	];
 
 	// ─── Stats ────────────────────────────────────────────────────────────────
@@ -941,8 +942,10 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 								}}
 								role="tab"
 								tabindex="0"
+								aria-label={tab.label}
 							>
-								<span>{tab.label}</span>
+								<span class="obsiman-subtab-icon" use:icon={tab.icon}></span>
+								<span class="obsiman-subtab-label">{tab.label}</span>
 							</div>
 						{/each}
 					</div>
