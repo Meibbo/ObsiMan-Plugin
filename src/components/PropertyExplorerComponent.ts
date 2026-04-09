@@ -94,7 +94,10 @@ export class PropertyExplorerComponent {
 
 		const searchRow = this.searchWrapper.createDiv({ cls: 'obsiman-explorer-search-row' });
 
-		this.searchEl = searchRow.createEl('input', {
+		// Input + clear button in a relative wrapper (clear overlaid inside input)
+		const inputWrap = searchRow.createDiv({ cls: 'obsiman-explorer-search-input-wrap' });
+
+		this.searchEl = inputWrap.createEl('input', {
 			cls: 'obsiman-explorer-search-input',
 			attr: {
 				type: 'text',
@@ -104,6 +107,21 @@ export class PropertyExplorerComponent {
 			},
 		});
 		this.searchEl.value = this.searchTerm;
+
+		// Clear button — absolutely positioned inside the input wrapper
+		const clearBtn = inputWrap.createDiv({
+			cls: 'obsiman-explorer-search-clear clickable-icon',
+			attr: { 'aria-label': t('filters.search.clear') ?? 'Clear search' },
+		});
+		setIcon(clearBtn, 'lucide-x');
+		clearBtn.addEventListener('click', () => {
+			this.searchTerm = '';
+			if (this.searchEl) this.searchEl.value = '';
+			this.renderTree();
+			clearBtn.toggleClass('is-hidden', true);
+		});
+		// Show only when there's text
+		clearBtn.toggleClass('is-hidden', !this.searchTerm);
 
 		// Search mode toggle: properties (key icon) ↔ values (tag icon)
 		const modeBtn = searchRow.createDiv({
@@ -119,21 +137,6 @@ export class PropertyExplorerComponent {
 			this.searchMode = this.searchMode === 'properties' ? 'values' : 'properties';
 			this.render();
 		});
-
-		// Clear button — far right of search bar
-		const clearBtn = searchRow.createDiv({
-			cls: 'obsiman-explorer-search-clear clickable-icon',
-			attr: { 'aria-label': t('filters.search.clear') ?? 'Clear search' },
-		});
-		setIcon(clearBtn, 'lucide-x');
-		clearBtn.addEventListener('click', () => {
-			this.searchTerm = '';
-			if (this.searchEl) this.searchEl.value = '';
-			this.renderTree();
-			clearBtn.toggleClass('is-hidden', true);
-		});
-		// Show only when there's text
-		clearBtn.toggleClass('is-hidden', !this.searchTerm);
 
 		// Update clear button visibility on input
 		this.searchEl.addEventListener('input', () => {

@@ -671,12 +671,27 @@
 	gap: 4px;
 }
 
-.obsiman-explorer-search-row .obsiman-explorer-search-input {
+.obsiman-explorer-search-input-wrap {
+	position: relative;
 	flex: 1;
 }
 
+.obsiman-explorer-search-input-wrap .obsiman-explorer-search-input {
+	width: 100%;
+	padding-right: 28px;
+	box-sizing: border-box;
+}
+
 .obsiman-explorer-search-clear {
-	flex-shrink: 0;
+	position: absolute;
+	right: 4px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 18px;
+	height: 18px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .obsiman-explorer-search-clear.is-hidden {
@@ -2029,6 +2044,9 @@ body.obsiman-bases-column-separators table th {
 }
 
 .obsiman-subtab {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   padding: 5px 9px;
   cursor: pointer;
   font-size: var(--font-ui-smaller);
@@ -2048,6 +2066,23 @@ body.obsiman-bases-column-separators table th {
   font-weight: 500;
 }
 
+.obsiman-subtab-icon {
+  display: flex;
+  align-items: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.obsiman-subtab-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+@container (max-width: 240px) {
+  .obsiman-subtab-label { display: none; }
+}
+
 .obsiman-subtab-area {
   flex: 1;
   position: relative;
@@ -2065,11 +2100,11 @@ body.obsiman-bases-column-separators table th {
 .obsiman-filters-tabbar {
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 4px 6px;
+  gap: 0;
   border-bottom: 1px solid var(--obsiman-border);
   flex-shrink: 0;
   position: relative;
+  overflow-x: auto;
 }
 
 .obsiman-filters-explorer-wrap {
@@ -2081,19 +2116,23 @@ body.obsiman-bases-column-separators table th {
 .obsiman-filters-tab {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: var(--radius-s);
+  gap: 5px;
+  padding: 5px 9px;
   cursor: pointer;
   color: var(--text-muted);
-  font-size: var(--font-ui-small);
+  font-size: var(--font-ui-smaller);
+  border-bottom: 2px solid transparent;
   user-select: none;
-  transition: color 0.15s ease, background 0.15s ease;
   white-space: nowrap;
+  transition: color 0.12s, border-color 0.12s;
 }
 
-.obsiman-filters-tab:hover { color: var(--text-normal); background: var(--background-modifier-hover); }
-.obsiman-filters-tab.is-active { color: var(--color-accent); }
+.obsiman-filters-tab:hover { color: var(--text-normal); }
+.obsiman-filters-tab.is-active {
+  color: var(--text-normal);
+  border-bottom-color: var(--color-accent);
+  font-weight: 500;
+}
 
 @container (max-width: 220px) {
   .obsiman-filters-tab-label { display: none; }
