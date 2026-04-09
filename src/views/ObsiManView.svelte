@@ -5,6 +5,7 @@
 	import { FileListComponent } from '../components/FileListComponent';
 	import { PropertyExplorerComponent } from '../components/PropertyExplorerComponent';
 	import { QueueListComponent } from '../components/QueueListComponent';
+	import { QueueIslandComponent } from '../components/QueueIslandComponent';
 	import { AddFilterModal } from '../modals/AddFilterModal';
 	import { QueueDetailsModal } from '../modals/QueueDetailsModal';
 	import { LinterModal } from '../modals/LinterModal';
@@ -62,7 +63,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		ops: {
 			icon: 'lucide-list-checks',
 			label: t('ops.queue'),
-			action: () => { new QueueDetailsModal(plugin.app, plugin.queueService).open(); },
+			action: () => { toggleQueueIsland(); },
 		},
 		filters: {
 			icon: 'lucide-filter',
@@ -284,6 +285,11 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	let queuedCount = $state(0);
 	let filterRuleCount = $state(0);
 
+	// ─── Queue island ─────────────────────────────────────────────────────────
+	let queueIslandOpen = $state(false);
+	let queueIsland: QueueIslandComponent | undefined;
+	let queueIslandEl: HTMLElement | null = null;
+
 	let statsText = $derived.by(() => {
 		let s = `${totalFiles} files · ${filteredCount} filtered`;
 		if (selectedCount > 0) s += ` · ${selectedCount} selected`;
@@ -346,6 +352,33 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		return {
 			destroy() { queueList = undefined; }
 		};
+	}
+
+	function toggleQueueIsland() {
+		if (queueIslandOpen) {
+			closeQueueIsland();
+		} else {
+			openQueueIsland();
+		}
+	}
+
+	function openQueueIsland() {
+		if (!queueIslandEl) return;
+		queueIslandOpen = true;
+		queueIsland = new QueueIslandComponent(
+			queueIslandEl,
+			plugin.app,
+			plugin.queueService,
+			() => closeQueueIsland(),
+			() => { new QueueDetailsModal(plugin.app, plugin.queueService).open(); }
+		);
+		queueIsland.mount();
+	}
+
+	function closeQueueIsland() {
+		queueIsland?.destroy();
+		queueIsland = undefined;
+		queueIslandOpen = false;
 	}
 
 
@@ -755,7 +788,13 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 			}
 		};
 		const onVaultResolved = () => { refreshFiles(); };
-		const onQueueChanged = () => { refreshQueue(); };
+		const onQueueChanged = () => {
+			refreshQueue();
+			if (plugin.queueService.isEmpty && queueIslandOpen) {
+				closeQueueIsland();
+			}
+			queueIsland?.render();
+		};
 
 		plugin.filterService.on('changed', onFilterChanged);
 		plugin.queueService.on('changed', onQueueChanged);
@@ -1127,6 +1166,9 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 			</div>
 		{/each}
 	</div>
+
+	<!-- ─── Queue island container — floats above bottom nav ────────────────────── -->
+	<div class="obsiman-queue-island-wrap" bind:this={queueIslandEl}></div>
 
 	<!-- ─── Bottom nav floats over content inside the viewport ──────────────────── -->
 	<!-- Files always gets both FABs. Other pages get ONE FAB on their outer edge. -->

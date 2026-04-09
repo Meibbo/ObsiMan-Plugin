@@ -596,19 +596,20 @@ export class PropertyExplorerComponent {
 	}
 
 	private showValueContextMenu(e: MouseEvent, propName: string, value: string): void {
+		const scopedFiles = this.getFilesWithValue(propName, value);
 		const menu = new Menu();
 
 		// Rename Value
 		menu.addItem((item) =>
 			item.setTitle(t('explorer.ctx.rename_value')).setIcon('lucide-pencil').onClick(() => {
-				new RenameValueModal(this.plugin.app, this.plugin, propName, value, this.getOperationFiles()).open();
+				new RenameValueModal(this.plugin.app, this.plugin, propName, value, scopedFiles).open();
 			})
 		);
 
 		// Move Value
 		menu.addItem((item) =>
 			item.setTitle(t('explorer.ctx.move_value')).setIcon('lucide-move').onClick(() => {
-				new MoveValueModal(this.plugin.app, this.plugin, propName, value, this.getOperationFiles()).open();
+				new MoveValueModal(this.plugin.app, this.plugin, propName, value, scopedFiles).open();
 			})
 		);
 
@@ -647,6 +648,16 @@ export class PropertyExplorerComponent {
 
 	// ── Operation Helpers ────────────────────────────────────
 
+	/** Intersect operation scope with files that actually have propName === value */
+	private getFilesWithValue(propName: string, value: string): TFile[] {
+		return this.getOperationFiles().filter((file) => {
+			const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
+			const val: unknown = fm[propName];
+			if (Array.isArray(val)) return (val as unknown[]).some((v) => String(v) === value);
+			return val != null && String(val) === value;
+		});
+	}
+
 	private getOperationFiles(): TFile[] {
 		const scope = this.plugin.settings.explorerOperationScope;
 		if (scope === 'selected' || (scope === 'auto' && this.selectedFilePaths.size > 0)) {
@@ -667,7 +678,7 @@ export class PropertyExplorerComponent {
 	private queueValueTransform(propName: string, oldValue: string, transform: (v: string) => string): void {
 		const newValue = transform(oldValue);
 		if (newValue === oldValue) return;
-		const files = this.getOperationFiles();
+		const files = this.getFilesWithValue(propName, oldValue);
 		const change: PendingChange = {
 			property: propName,
 			action: 'set',
@@ -690,7 +701,7 @@ export class PropertyExplorerComponent {
 	}
 
 	private queueValueDelete(propName: string, value: string): void {
-		const files = this.getOperationFiles();
+		const files = this.getFilesWithValue(propName, value);
 		const change: PendingChange = {
 			property: propName,
 			action: 'set',
