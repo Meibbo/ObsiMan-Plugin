@@ -8,7 +8,9 @@ export type FilterType =
 	| 'folder'
 	| 'folder_exclude'
 	| 'file_name'
-	| 'file_name_exclude';
+	| 'file_name_exclude'
+	| 'file_folder'    // matches folder path only (not filename)
+	| 'has_tag';       // matches files with a specific tag
 
 export type GroupLogic = 'all' | 'any' | 'none';
 

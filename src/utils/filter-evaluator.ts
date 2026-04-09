@@ -1,3 +1,4 @@
+import { getAllTags } from 'obsidian';
 import type { TFile, CachedMetadata } from 'obsidian';
 import type { FilterNode, FilterGroup, FilterRule } from '../types/filter';
 
@@ -131,6 +132,22 @@ function matchesFile(
 			const term = rule.values[0] ?? '';
 			return !file.basename.toLowerCase().includes(term.toLowerCase());
 		}
+
+		case 'file_folder': {
+			const folder = rule.values[0] ?? '';
+			if (!folder) return true;
+			const parentPath = (file.parent?.path ?? '').toLowerCase();
+			return parentPath.includes(folder.toLowerCase());
+		}
+
+		case 'has_tag': {
+			const tagTarget = (rule.values[0] ?? '').toLowerCase().replace(/^#/, '');
+			const allTags = getAllTags(meta ?? {}) ?? [];
+			return allTags.some((tag) => tag.toLowerCase().replace(/^#/, '') === tagTarget);
+		}
+
+		default:
+			return false;
 	}
 }
 

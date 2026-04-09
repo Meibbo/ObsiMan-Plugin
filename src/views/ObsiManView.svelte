@@ -41,6 +41,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	}
 
 	let pageOrder = $state(resolvedPageOrder());
+	let pageRenderKey = $state(0); // incremented on each reorder to force page content remount
 	const pageLabels: Record<string, string> = {
 		files: t('nav.files'),
 		filters: t('nav.filters'),
@@ -190,6 +191,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 			const [moved] = order.splice(reorderSourceIdx, 1);
 			order.splice(reorderTargetIdx, 0, moved);
 			pageOrder = order;
+			pageRenderKey++;
 			plugin.settings.pageOrder = order;
 			void plugin.saveSettings();
 		}
@@ -490,6 +492,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 	$effect(() => {
 		fileList?.setSearchFilter(searchName, searchFolder);
+		plugin.filterService.setSearchFilter(searchName, searchFolder);
 	});
 
 	// ─── Filters page tab bar ────────────────────────────────────────────────
@@ -522,6 +525,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	function toggleFiltersTab(tab: FiltersTabAction, e: MouseEvent) {
 		if (filtersActiveTab === tab) {
 			filtersActiveTab = null;
+			if (tab === 'search') propExplorer?.toggleSearch(); // close search bar
 		} else {
 			filtersActiveTab = tab;
 			if (tab === 'search') propExplorer?.toggleSearch();
@@ -813,14 +817,9 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	});
 </script>
 
-<!-- ─── Header ─────────────────────────────────────────────────────────────── -->
-<div class="obsiman-view-header" use:bindViewRoot>
-	<span class="obsiman-view-title">{t("plugin.name")}</span>
-</div>
-
 <!-- ─── Page container (horizontal slide strip) ────────────────────────────── -->
 <!-- obsiman-pages-viewport clips via overflow:hidden; the container slides inside it -->
-<div class="obsiman-pages-viewport" use:bindViewport>
+<div class="obsiman-pages-viewport" use:bindViewport use:bindViewRoot>
 	<div
 		class="obsiman-page-container"
 		use:bindContainer
@@ -828,6 +827,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	>
 		{#each pageOrder as pageId (pageId)}
 			<div class="obsiman-page" data-page={pageId}>
+				{#key pageRenderKey}
 				<!-- FILES PAGE -->
 				{#if pageId === "files"}
 					<div class="obsiman-files-topbar">
@@ -1163,6 +1163,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 						</div>
 					</div>
 				{/if}
+				{/key}
 			</div>
 		{/each}
 	</div>
@@ -1219,6 +1220,9 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 					role="tab"
 					tabindex="0"
 				>
+					{#if !isReordering && pageId === "files" && selectedCount > 0}
+						<div class="obsiman-nav-dot-badge">{selectedCount}</div>
+					{/if}
 					{#if !isReordering && pageId === "filters" && filterRuleCount > 0}
 						<div class="obsiman-nav-dot-badge">
 							{filterRuleCount}
