@@ -22,11 +22,40 @@
 ---
 
 ## Last updated
-- **Date**: 2026-04-08
+- **Date**: 2026-04-09
 - **Agent**: Claude Code (claude-sonnet-4-6)
 - **Branch**: `add-functions`
-- **Version**: `1.0.0-beta.6`
+- **Version**: `1.0.0-beta.7`
 - **Build status**: ✅ `npm run build` passes, 0 errors, 1 pre-existing Svelte warning (pageOrder initial value capture — cosmetic, not a bug)
+
+---
+
+## What was completed this session (2026-04-09, session 9 — Iter.8)
+
+### Iter.8: Complete bug-fix iteration + new view modes ✅ (committed, build verified)
+
+All 10 tasks committed to branch `add-functions`. Commits in order:
+1. `fix(explorer): getFilesWithValue helper scopes rename/delete to matching files only` — fixes rename value scope bug
+2. `feat(queue): QueueIslandComponent + Ops FAB wires to island` — replaces native popup with floating island
+3. `fix(filters+nav): FilterService search, badges, drag reorder fix, search tab toggle, remove header` — Group 2 fixes
+4. `feat(explorer): view toggles, fix type icon default, 0-count hiding, tags click handlers` — Group 3 part 1
+5. `feat(explorer): Grid view, Cards view with drill-down, view toggles wired, 0-count fix` — Group 3 part 2
+6. `feat(ui): tab bar unification, ops icons, clear button inside search input` — Group 4
+7. `chore: bump to 1.0.0-beta.7` — this commit
+
+### Architecture changes (important for next agent)
+
+- **`QueueIslandComponent`** (`src/components/QueueIslandComponent.ts`): New file. Floating island component (slide-up, grows to 70vh, header + squircle buttons + scrollable list). Replaces native QueueDetailsModal popup for the Ops FAB.
+- **`FilterService`**: Added `_searchName`, `_searchFolder` private fields + `setSearchFilter(name, folder)` public method. `applyFilters()` now ANDs search terms after filter tree. Files page search FAB calls this method.
+- **`filter-evaluator.ts`**: Added `file_folder` (matches parent path only) and `has_tag` (uses `getAllTags`) cases.
+- **`filter.ts`**: Added `'file_folder'` and `'has_tag'` to `FilterType` union.
+- **`PropertyExplorerComponent`**: Added `showPropIcon`, `showPropName` view toggles (default true); `showType` default changed to `false`. Grid view (`renderGridView()`), Cards view (`renderCardsView()` + `renderCardsDrilldown()`), tags left-click filter, tags right-click stub context menu, 0-count value hiding, clear button inside input wrapper.
+- **`ObsiManView.svelte`**: Removed `<div class="obsiman-view-header">`. Ops FAB action calls `toggleQueueIsland()`. Nav badges for Files/Filters/Ops. `pageRenderKey` forces content remount after drag reorder. `filtersActiveTab` deactivation calls `toggleSearch()`. New view options state (`explorerShowPropIcon`, `explorerShowPropName`). Ops tabs have icons.
+- **`styles.css`**: Grid + Cards CSS, queue island CSS, Filters tab bar redesigned to match Ops bottom-border style, `.obsiman-subtab-icon`, `.obsiman-explorer-search-input-wrap` (clear button inside input), `overflow: visible` on `.obsiman-nav-icon`.
+
+### All 12 beta.6 bugs fixed ✅
+
+See `docs/Known Issues.md` → section "v1.0.0-beta.6" — all items marked `[x]`.
 
 ---
 

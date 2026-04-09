@@ -24,35 +24,35 @@ Mark a bug as fixed with `[x]` and add `→ Fixed in X.Y.Z` at the end.
 
 ---
 
-## v1.0.0-beta.6 — Reported by user (2026-04-08), target fix: Iter.8+
+## v1.0.0-beta.6 — Reported by user (2026-04-08), fixed in Iter.8 (beta.7)
 
 ### 🔴 Critical / Data integrity
 
-- [ ] **Rename value scope processes entire vault** — when renaming a property value with no active filters, the operation queues every file in the vault instead of only files that contain that property+value. Expected: only files where the property has that specific value are processed. Very slow on large vaults. Version: 1.0.0-beta.6
+- [x] **Rename value scope processes entire vault** — `getFilesWithValue()` helper added to `PropertyExplorerComponent` that intersects operation scope with files that actually have the target property+value. → Fixed in 1.0.0-beta.7
 
-- [ ] **File/folder search filters are isolated to Files page** — filters entered in the Files page search FAB (name field + folder field) are not reflected in: active filters popup, pill navbar badge, stats bar ("X filtered"), or Ops page scope. Only the Files page grid respects them. Expected: they should be fed into FilterService so all pages share the same filter state. Additionally, the name and folder fields are mixed — typing in the folder field also matches file names, and vice versa. Version: 1.0.0-beta.6
+- [x] **File/folder search filters are isolated to Files page** — `FilterService.setSearchFilter(name, folder)` added; the Files page search `$effect` now calls it so all pages share the filter state. Name and folder fields are now correctly isolated. → Fixed in 1.0.0-beta.7
 
-- [ ] **Queue list popup is still a native Obsidian popup** — clicking the Ops FAB opens a native Obsidian popup instead of an in-frame floating island. Spec: should be an iOS-style notification island floating above the bottom bar (not covering it), with squircle buttons centered as in the wireframe. Version: 1.0.0-beta.6
+- [x] **Queue list popup is still a native Obsidian popup** — new `QueueIslandComponent` replaces the native popup; Ops FAB now toggles a floating island above the bottom bar with squircle buttons. → Fixed in 1.0.0-beta.7
 
 ### 🟡 UX bugs
 
-- [ ] **Filters badge not showing on pill navbar** — the Filters icon in the pill navbar never shows a badge even when filters are active. Ops badge works correctly. Likely: `filterRuleCount` is not being updated in the pill navbar template or `updateStats()` is not called on the right events. Version: 1.0.0-beta.6
+- [x] **Filters badge not showing on pill navbar** — `.obsiman-nav-icon` CSS now has `overflow: visible` so the badge is not clipped. → Fixed in 1.0.0-beta.7
 
-- [ ] **Filters tab bar: icons but no text, not centered, wrong style** — the 4-tab toolbar in the Filters page shows icons correctly but the text labels are not visible and tabs are not centered. Tab bar does not share visual style with the Ops page sub-tab bar. The Ops tabs should also gain icons (reference the old ObsiManExplorerView toolbar for the correct icon set). Version: 1.0.0-beta.6
+- [x] **Filters tab bar: icons but no text, not centered, wrong style** — both Filters and Ops tab bars now use the same bottom-border style (icon LEFT of label, collapse label under 220px). Ops tabs gained icons. → Fixed in 1.0.0-beta.7
 
-- [ ] **Search tab in Filters page requires multiple clicks** — the Search tab should toggle the search bar open on first click and close it on second click. Currently requires more interactions. Version: 1.0.0-beta.6
+- [x] **Search tab in Filters page requires multiple clicks** — `toggleFiltersTab()` deactivation branch now calls `propExplorer?.toggleSearch()` to close the search bar. → Fixed in 1.0.0-beta.7
 
-- [ ] **Display format options (grid/cards) do nothing** — selecting Grid or Cards in the View panel has no effect. Only Tags-only mode works. Root cause: `setViewOptions()` stores the format but `renderTree()` does not branch on `this.viewFormat`. Version: 1.0.0-beta.6
+- [x] **Display format options (grid/cards) do nothing** — `renderTree()` now branches on `viewFormat`: Grid renders `renderGridView()` (Excel-style table), Cards renders `renderCardsView()` with drill-down. → Fixed in 1.0.0-beta.7
 
-- [ ] **Tags-only mode: clicking a tag does not add to active filters** — in Tags-only view, clicking a tag in the tree should add a filter rule (e.g. `has_tag: #animal/dog`). Currently nothing happens. Version: 1.0.0-beta.6
+- [x] **Tags-only mode: clicking a tag does not add to active filters** — leaf tag left-click adds a `has_tag` filter rule; right-click shows stub context menu. → Fixed in 1.0.0-beta.7
 
-- [ ] **✕ clear button on search bars is outside the input** — the clear button renders to the right of the search input container, not inside it at the far right. Should be positioned inside the input element, right-aligned. Version: 1.0.0-beta.6
+- [x] **✕ clear button on search bars is outside the input** — input and clear button now wrapped in `.obsiman-explorer-search-input-wrap` (position: relative); clear button is absolutely positioned inside on the right. → Fixed in 1.0.0-beta.7
 
-- [ ] **Property values with 0 occurrences shown when filter active** — when a scope filter is applied, properties that have no matching values in the filtered set still show all their values (with 0 count). They should be hidden entirely. Version: 1.0.0-beta.6
+- [x] **Property values with 0 occurrences shown when filter active** — value render loop now skips values with `count === 0` when `filterScope !== 'all'`. → Fixed in 1.0.0-beta.7
 
-- [ ] **obsiman-view-header wastes vertical space** — the "ObsiMan" heading at the top of the plugin frame takes vertical space on every page. Should be removed; the plugin is self-evident in context. Version: 1.0.0-beta.6
+- [x] **obsiman-view-header wastes vertical space** — `<div class="obsiman-view-header">` removed; `use:bindViewRoot` moved to the viewport div. → Fixed in 1.0.0-beta.7
 
-- [ ] **Property type icon not shown in explorer** — the View panel has a toggle for showing/hiding the property type icon (list, text, checkbox, date, etc). The toggle exists but the icon is never rendered regardless of its state. The frequency count IS shown by default — the type icon should also be shown by default and be togglable. Version: 1.0.0-beta.6
+- [x] **Property type icon not shown in explorer** — `showPropIcon` and `showPropName` toggles added (both default true); type icon default changed to false (off by default, user can enable). Toggle is now functional. → Fixed in 1.0.0-beta.7
 
 ---
 
