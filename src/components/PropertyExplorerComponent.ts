@@ -62,7 +62,9 @@ export class PropertyExplorerComponent {
 	private viewFormat: 'tree' | 'grid' | 'cards' = 'tree';
 	private showCount = true;
 	private showValues = true;
-	private showType = true;
+	private showPropIcon = true;
+	private showPropName = true;
+	private showType = false;
 	private tagsOnly = false;
 
 	// ── Active Filters ────────────────────────────────────────
@@ -400,23 +402,29 @@ export class PropertyExplorerComponent {
 		const toggleSpan = headerEl.createSpan({ cls: 'obsiman-explorer-toggle' });
 		setIcon(toggleSpan, isExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right');
 
-		// Property icon (Iconic custom → fallback to type icon)
+		// Property icon (Iconic custom → fallback to type icon if showType; hidden if neither)
 		const iconData = this.plugin.iconicService.getIcon(propName);
-		const iconSpan = headerEl.createSpan({ cls: 'obsiman-explorer-icon' });
-		if (iconData) {
-			setIcon(iconSpan, iconData.icon);
-			if (iconData.color) iconSpan.style.color = `var(--color-${iconData.color})`;
-		} else {
-			const propType = this.plugin.propertyTypeService.getType(propName) ?? 'text';
-			setIcon(iconSpan, TYPE_ICON_MAP[propType] ?? 'lucide-text');
-			iconSpan.addClass('obsiman-explorer-icon-default');
+		if (this.showPropIcon || this.showType) {
+			const iconSpan = headerEl.createSpan({ cls: 'obsiman-explorer-icon' });
+			if (iconData && this.showPropIcon) {
+				setIcon(iconSpan, iconData.icon);
+				if (iconData.color) iconSpan.style.color = `var(--color-${iconData.color})`;
+			} else if (this.showType) {
+				const propType = this.plugin.propertyTypeService.getType(propName) ?? 'text';
+				setIcon(iconSpan, TYPE_ICON_MAP[propType] ?? 'lucide-text');
+				iconSpan.addClass('obsiman-explorer-icon-default');
+			}
 		}
 
 		// Property name
-		headerEl.createSpan({ cls: 'obsiman-explorer-prop-name', text: propName });
+		if (this.showPropName) {
+			headerEl.createSpan({ cls: 'obsiman-explorer-prop-name', text: propName });
+		}
 
 		// Count (plain text, no background)
-		headerEl.createSpan({ cls: 'obsiman-explorer-badge', text: String(totalFiles) });
+		if (this.showCount) {
+			headerEl.createSpan({ cls: 'obsiman-explorer-badge', text: String(totalFiles) });
+		}
 
 		// Left click: expand/collapse (or Ctrl+click: search)
 		headerEl.addEventListener('click', (e) => {
@@ -459,13 +467,17 @@ export class PropertyExplorerComponent {
 
 			for (const value of sortedValues) {
 				const count = valueCounts.get(value) ?? 0;
+				// Hide values with 0 scoped files when not in all-vault scope
+				if (count === 0 && this.filterScope !== 'all') continue;
 				const valueEl = childrenEl.createDiv({ cls: 'obsiman-explorer-value' });
 				// Highlight if value is an active filter for this property
 				if (this.activeFilterValues.get(propName)?.has(value)) {
 					valueEl.addClass('is-active-filter');
 				}
 				valueEl.createSpan({ cls: 'obsiman-explorer-value-text', text: value });
-				valueEl.createSpan({ cls: 'obsiman-explorer-badge', text: String(count) });
+				if (this.showCount) {
+					valueEl.createSpan({ cls: 'obsiman-explorer-badge', text: String(count) });
+				}
 
 				// Left click: add filter (or Ctrl+click: search)
 				valueEl.addEventListener('click', (e) => {
@@ -646,6 +658,29 @@ export class PropertyExplorerComponent {
 		menu.showAtMouseEvent(e);
 	}
 
+	private showTagContextMenu(e: MouseEvent, tagPath: string, _count: number): void {
+		const menu = new Menu();
+
+		menu.addItem((item) =>
+			item.setTitle(t('explorer.ctx.tag.filter')).setIcon('lucide-filter').onClick(() => {
+				this.plugin.filterService.addNode({
+					type: 'rule',
+					filterType: 'has_tag',
+					property: '',
+					values: [tagPath],
+				});
+			})
+		);
+
+		// Placeholder for future tag operations
+		menu.addSeparator();
+		menu.addItem((item) =>
+			item.setTitle(t('explorer.ctx.tag.coming_soon')).setDisabled(true)
+		);
+
+		menu.showAtMouseEvent(e);
+	}
+
 	// ── Operation Helpers ────────────────────────────────────
 
 	/** Intersect operation scope with files that actually have propName === value */
@@ -745,12 +780,16 @@ export class PropertyExplorerComponent {
 		format: 'tree' | 'grid' | 'cards';
 		showCount: boolean;
 		showValues: boolean;
+		showPropIcon: boolean;
+		showPropName: boolean;
 		showType: boolean;
 		tagsOnly: boolean;
 	}): void {
 		this.viewFormat = opts.format;
 		this.showCount = opts.showCount;
 		this.showValues = opts.showValues;
+		this.showPropIcon = opts.showPropIcon;
+		this.showPropName = opts.showPropName;
 		this.showType = opts.showType;
 		this.tagsOnly = opts.tagsOnly;
 		this.invalidateCache();
@@ -836,7 +875,21 @@ export class PropertyExplorerComponent {
 					if (this.expandedProps.has(fullPath)) this.expandedProps.delete(fullPath);
 					else this.expandedProps.add(fullPath);
 					this.renderTree();
+				} else {
+					// Leaf tag: add has_tag filter rule
+					this.plugin.filterService.addNode({
+						type: 'rule',
+						filterType: 'has_tag',
+						property: '',
+						values: [fullPath],
+					});
 				}
+			});
+
+			headerEl.addEventListener('contextmenu', (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				this.showTagContextMenu(e, fullPath, node.count);
 			});
 
 			if (hasChildren && isExpanded) {
