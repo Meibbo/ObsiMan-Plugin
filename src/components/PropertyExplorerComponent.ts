@@ -296,8 +296,18 @@ export class PropertyExplorerComponent {
 
 	private renderTree(): void {
 		if (!this.treeEl) return;
+		this.treeEl.toggleClass('obsiman-explorer-grid', this.viewFormat === 'grid' && !this.tagsOnly);
+		this.treeEl.toggleClass('obsiman-explorer-cards', this.viewFormat === 'cards' && !this.tagsOnly);
 		if (this.tagsOnly) {
 			this.renderTagsOnlyTree();
+			return;
+		}
+		if (this.viewFormat === 'grid') {
+			this.renderGridView();
+			return;
+		}
+		if (this.viewFormat === 'cards') {
+			this.renderCardsView(null);
 			return;
 		}
 		this.treeEl.empty();
@@ -800,6 +810,240 @@ export class PropertyExplorerComponent {
 		this.activeFilterProps = props;
 		this.activeFilterValues = vals;
 		this.renderTree();
+	}
+
+	// ── Grid View ─────────────────────────────────────────────
+
+	private renderGridView(): void {
+		if (!this.treeEl) return;
+		this.treeEl.empty();
+
+		const files = this.getScopeFiles();
+		if (files.length === 0) {
+			this.treeEl.createDiv({ cls: 'obsiman-explorer-empty', text: t('explorer.empty') });
+			return;
+		}
+
+		// Collect all property columns present across scoped files
+		const propSet = new Set<string>();
+		for (const file of files) {
+			const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
+			for (const key of Object.keys(fm)) {
+				if (key !== 'position') propSet.add(key);
+			}
+		}
+
+		// Sort columns by usage count desc, then alpha
+		const propCounts = new Map<string, number>();
+		for (const prop of propSet) {
+			let c = 0;
+			for (const file of files) {
+				const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
+				if (prop in fm) c++;
+			}
+			propCounts.set(prop, c);
+		}
+		const columns = [...propSet].sort((a, b) => {
+			const diff = (propCounts.get(b) ?? 0) - (propCounts.get(a) ?? 0);
+			if (diff !== 0) return diff;
+			return a.localeCompare(b, undefined, { sensitivity: 'base' });
+		});
+
+		if (columns.length === 0) {
+			this.treeEl.createDiv({ cls: 'obsiman-explorer-empty', text: t('explorer.empty') });
+			return;
+		}
+
+		// ── Table ────────────────────────────────────────────
+		const table = this.treeEl.createEl('table', { cls: 'obsiman-grid-table' });
+
+		// Header row
+		const thead = table.createEl('thead');
+		const headerRow = thead.createEl('tr');
+		headerRow.createEl('th', { cls: 'obsiman-grid-th obsiman-grid-th-file', text: t('files.col.name') });
+		for (const col of columns) {
+			const th = headerRow.createEl('th', { cls: 'obsiman-grid-th' });
+			if (this.showPropIcon || this.showType) {
+				const iconData = this.plugin.iconicService.getIcon(col);
+				const iconSpan = th.createSpan({ cls: 'obsiman-explorer-icon' });
+				if (iconData && this.showPropIcon) {
+					setIcon(iconSpan, iconData.icon);
+					if (iconData.color) iconSpan.style.color = `var(--color-${iconData.color})`;
+				} else if (this.showType) {
+					const propType = this.plugin.propertyTypeService.getType(col) ?? 'text';
+					setIcon(iconSpan, TYPE_ICON_MAP[propType] ?? 'lucide-text');
+				}
+			}
+			if (this.showPropName) {
+				th.createSpan({ text: col });
+			}
+			// Click header to add has_property filter
+			th.addEventListener('click', () => {
+				this.plugin.filterService.addNode({
+					type: 'rule',
+					filterType: 'has_property',
+					property: col,
+					values: [],
+				});
+			});
+		}
+
+		// Data rows
+		const tbody = table.createEl('tbody');
+		for (const file of files) {
+			const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
+			const row = tbody.createEl('tr', { cls: 'obsiman-grid-row' });
+
+			// File name cell
+			const nameCell = row.createEl('td', { cls: 'obsiman-grid-td obsiman-grid-td-file' });
+			nameCell.createSpan({ text: file.basename });
+
+			for (const col of columns) {
+				const td = row.createEl('td', { cls: 'obsiman-grid-td' });
+				const val: unknown = fm[col];
+				if (val == null) {
+					td.addClass('obsiman-grid-td-empty');
+				} else {
+					const display = Array.isArray(val)
+						? (val as unknown[]).map(String).join(', ')
+						: String(val);
+					td.createSpan({ cls: 'obsiman-grid-cell-value', text: display });
+					// Click cell to add specific_value filter
+					td.addEventListener('click', (e) => {
+						e.stopPropagation();
+						const rawVal = Array.isArray(val) ? String((val as unknown[])[0]) : String(val);
+						this.plugin.filterService.addNode({
+							type: 'rule',
+							filterType: 'specific_value',
+							property: col,
+							values: [rawVal],
+						});
+					});
+				}
+			}
+		}
+
+	}
+
+	// ── Cards View ─────────────────────────────────────────────
+
+	private renderCardsView(drillFile: import('obsidian').TFile | null): void {
+		if (!this.treeEl) return;
+		this.treeEl.empty();
+
+		if (drillFile) {
+			this.renderCardsDrilldown(drillFile);
+			return;
+		}
+
+		const files = this.getScopeFiles();
+		if (files.length === 0) {
+			this.treeEl.createDiv({ cls: 'obsiman-explorer-empty', text: t('explorer.empty') });
+			return;
+		}
+
+		// Back-button placeholder (only shown in drilldown)
+		const grid = this.treeEl.createDiv({ cls: 'obsiman-cards-grid' });
+
+		for (const file of files) {
+			const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
+			const propEntries = Object.entries(fm).filter(([k]) => k !== 'position');
+
+			const card = grid.createDiv({ cls: 'obsiman-card' });
+
+			// Card header: file name
+			card.createDiv({ cls: 'obsiman-card-title', text: file.basename });
+
+			// Card body: up to 5 property rows
+			const body = card.createDiv({ cls: 'obsiman-card-body' });
+			const visible = propEntries.slice(0, 5);
+			for (const [key, val] of visible) {
+				const row = body.createDiv({ cls: 'obsiman-card-row' });
+				if (this.showPropName) {
+					row.createSpan({ cls: 'obsiman-card-key', text: key });
+				}
+				const display = val == null
+					? ''
+					: Array.isArray(val)
+						? (val as unknown[]).map(String).join(', ')
+						: String(val);
+				row.createSpan({ cls: 'obsiman-card-val', text: display });
+			}
+			if (propEntries.length > 5) {
+				body.createDiv({
+					cls: 'obsiman-card-more',
+					text: `+${propEntries.length - 5} more`,
+				});
+			}
+
+			// Click → drill-down
+			card.addEventListener('click', () => {
+				if (!this.treeEl) return;
+				this.treeEl.empty();
+				this.renderCardsDrilldown(file);
+			});
+		}
+	}
+
+	private renderCardsDrilldown(file: import('obsidian').TFile): void {
+		if (!this.treeEl) return;
+		const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
+		const propEntries = Object.entries(fm).filter(([k]) => k !== 'position');
+
+		// Back button
+		const backBtn = this.treeEl.createDiv({ cls: 'obsiman-cards-back clickable-icon' });
+		setIcon(backBtn, 'lucide-arrow-left');
+		backBtn.createSpan({ text: t('explorer.cards.back') });
+		backBtn.addEventListener('click', () => {
+			this.renderCardsView(null);
+		});
+
+		// File title
+		this.treeEl.createDiv({ cls: 'obsiman-cards-drill-title', text: file.basename });
+
+		// All properties
+		const list = this.treeEl.createDiv({ cls: 'obsiman-cards-drill-list' });
+		if (propEntries.length === 0) {
+			list.createDiv({ cls: 'obsiman-explorer-empty', text: t('explorer.empty') });
+			return;
+		}
+
+		for (const [key, val] of propEntries) {
+			const row = list.createDiv({ cls: 'obsiman-cards-drill-row' });
+			const display = val == null
+				? ''
+				: Array.isArray(val)
+					? (val as unknown[]).map(String).join(', ')
+					: String(val);
+
+			if (this.showPropIcon || this.showType) {
+				const iconData = this.plugin.iconicService.getIcon(key);
+				const iconSpan = row.createSpan({ cls: 'obsiman-explorer-icon' });
+				if (iconData && this.showPropIcon) {
+					setIcon(iconSpan, iconData.icon);
+					if (iconData.color) iconSpan.style.color = `var(--color-${iconData.color})`;
+				} else if (this.showType) {
+					const propType = this.plugin.propertyTypeService.getType(key) ?? 'text';
+					setIcon(iconSpan, TYPE_ICON_MAP[propType] ?? 'lucide-text');
+				}
+			}
+
+			if (this.showPropName) {
+				row.createSpan({ cls: 'obsiman-card-key', text: key });
+			}
+			row.createSpan({ cls: 'obsiman-card-val', text: display });
+
+			// Click row: add specific_value filter
+			row.addEventListener('click', () => {
+				const rawVal = Array.isArray(val) ? String((val as unknown[])[0]) : String(val);
+				this.plugin.filterService.addNode({
+					type: 'rule',
+					filterType: 'specific_value',
+					property: key,
+					values: [rawVal],
+				});
+			});
+		}
 	}
 
 	// ── Tags-Only Mode ────────────────────────────────────────

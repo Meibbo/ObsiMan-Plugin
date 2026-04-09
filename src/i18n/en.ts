@@ -199,6 +199,7 @@ export const en: Record<string, string> = {
 	'explorer.ctx.capitalize': 'First Letter Case',
 	'explorer.ctx.tag.filter': 'Add as filter',
 	'explorer.ctx.tag.coming_soon': 'More options coming soon',
+	'explorer.cards.back': 'All files',
 
 	// Explorer add value form
 	'explorer.add_value.append': 'Append value',
