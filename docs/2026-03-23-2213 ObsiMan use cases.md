@@ -149,3 +149,5 @@ Guarda tu selección de archivos y filtros en un archivo .md:
 
 ### Autosuggest universal
 Todos los campos de texto (filtros, propiedades, valores, nombres) tienen autocompletado instantáneo con las propiedades y valores existentes del vault.
+
+related [[Known Issues]] [[HANDOFF]]

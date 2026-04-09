@@ -438,11 +438,11 @@ add-functions (feature work)
 
 ### When to tag a beta vs stable release
 
-| Condition | Release type |
-|-----------|-------------|
-| Feature complete, needs real-world testing | Beta (`1.3.0-beta.1`) via BRAT |
-| Beta stable, no critical issues after 1–2 weeks | Stable (`1.3.0`) — submit to store |
-| Critical bug in production | Hotfix (`1.3.1`) — fast-track stable |
+| Condition                                       | Release type                         |
+| ----------------------------------------------- | ------------------------------------ |
+| Feature complete, needs real-world testing      | Beta (`1.3.0-beta.1`) via BRAT       |
+| Beta stable, no critical issues after 1–2 weeks | Stable (`1.3.0`) — submit to store   |
+| Critical bug in production                      | Hotfix (`1.3.1`) — fast-track stable |
 
 ---
 

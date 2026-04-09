@@ -22,11 +22,49 @@
 ---
 
 ## Last updated
-- **Date**: 2026-04-07
+- **Date**: 2026-04-08
 - **Agent**: Claude Code (claude-sonnet-4-6)
 - **Branch**: `add-functions`
-- **Version**: `1.0.0-beta.4`
-- **Build status**: ✅ `npm run build` passes, 0 errors, 1 pre-existing Svelte warning
+- **Version**: `1.0.0-beta.6`
+- **Build status**: ✅ `npm run build` passes, 0 errors, 1 pre-existing Svelte warning (pageOrder initial value capture — cosmetic, not a bug)
+
+---
+
+## What was completed this session (2026-04-08, session 8 — Iter.7)
+
+### Iter.7: Filters Page Restructure ✅ (committed, reloaded, tested)
+
+All 10 tasks committed to branch `add-functions`. Commits in order:
+1. `fix(nav): pixel-based page translation with ResizeObserver` — fixes page-3 transition bug
+2. `feat(i18n+settings): add Iter.7 i18n keys, separatePanes setting, ObsiManFilesView scaffold`
+3. `fix(settings): use Setting.setHeading() for Layout section, store plugin in FilesView, remove dead i18n key`
+4. `feat(nav): responsive bottom bar collapses on narrow frames`
+5. `feat(explorer): search clear btn, active-filter highlight, tags-only mode, view options API`
+6. `feat(filters): embed PropertyExplorerComponent, add 4-tab toolbar, remove inline prop browser`
+7. `feat(filters): redesign Active Filters popup with squircle buttons and slide-up animation`
+8. `fix(nav): filter badge shows recursive leaf count`
+9. `chore: bump to 1.0.0-beta.6`
+
+### Architecture changes (important for next agent)
+
+- **`ObsiManView.svelte`**: `FilterTreeComponent` is completely removed from the main view. `PropertyExplorerComponent` is now mounted via `use:initPropertyExplorer` action in the Filters page. Old inline prop browser (`propBrowserItems`, `refreshPropBrowser`, etc.) deleted.
+- **Active Filters popup**: Now renders `activeFilterRules[]` (a flat list derived from `FilterService.activeFilter`) instead of the `FilterTreeComponent`. Has squircle buttons (×, +reserved, ☰ templates, ✓reserved) + per-rule toggle+delete row. Slide-up from bottom bar via `cubic-bezier(0.34, 1.56, 0.64, 1)`.
+- **`PropertyExplorerComponent`**: New public methods: `setViewOptions(opts)`, `setActiveFilters(props, vals)`. New features: ✕ clear button on search bar, `is-active-filter` highlight, tags-only mode (`renderTagsOnlyTree()`), `getScopeFiles()`.
+- **`separatePanes` setting**: Added to `ObsiManSettings` + `DEFAULT_SETTINGS`. Layout section in settings tab. `ObsiManFilesView.ts` scaffolded (empty shell for Iter.8).
+- **`ObsiManExplorerView.ts`**: Unchanged — still exists as a separate sidebar pane option.
+
+### Bugs found during testing (logged in Known Issues.md)
+
+⚠️ Several bugs confirmed by user after reloading. See `docs/Known Issues.md` → section "v1.0.0-beta.6". **Do not start Iter.8 until reading that section.**
+
+Key critical bugs:
+1. Rename value scope → processes full vault (should be scoped to filtered/property-matching files)
+2. File/folder search filters (Files page FAB) not integrated into FilterService
+3. Queue popup still native Obsidian instead of in-frame island
+4. Filters badge not appearing on pill navbar
+5. Tab bar text labels not visible, not centered, wrong style vs Ops tabs
+
+---
 
 ---
 
