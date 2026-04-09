@@ -17,6 +17,11 @@ export class FilterService extends Component {
 	/** Files passing the active filter */
 	filteredFiles: TFile[] = [];
 
+	/** File name search applied alongside the filter tree */
+	private _searchName = '';
+	/** Folder path search applied alongside the filter tree */
+	private _searchFolder = '';
+
 	constructor(app: App) {
 		super();
 		this.app = app;
@@ -63,27 +68,46 @@ export class FilterService extends Component {
 		}
 	}
 
+	/** Set file name and folder search terms. Pass empty strings to clear. */
+	setSearchFilter(name: string, folder: string): void {
+		this._searchName = name;
+		this._searchFolder = folder;
+		this.applyFilters();
+	}
+
 	/** Load a saved filter template */
 	loadTemplate(template: FilterTemplate): void {
 		this.activeFilter = JSON.parse(JSON.stringify(template.root)) as FilterGroup;
 		this.applyFilters();
 	}
 
-	/** Recompute filtered files from the active filter tree */
+	/** Recompute filtered files from the active filter tree + search fields */
 	applyFilters(): void {
 		const allFiles = this.app.vault.getMarkdownFiles();
 
+		let base: TFile[];
 		if (this.activeFilter.children.length === 0) {
-			this.filteredFiles = [...allFiles];
+			base = [...allFiles];
 		} else {
 			const getMeta = (file: TFile) =>
 				this.app.metadataCache.getFileCache(file);
 			const matchingPaths = evalNode(this.activeFilter, allFiles, getMeta);
-			this.filteredFiles = allFiles.filter((f) => matchingPaths.has(f.path));
+			base = allFiles.filter((f) => matchingPaths.has(f.path));
 		}
 
-		// Sort by basename
-		this.filteredFiles.sort((a, b) =>
+		// Apply search filters (AND with filter tree result)
+		if (this._searchName) {
+			const term = this._searchName.toLowerCase();
+			base = base.filter((f) => f.basename.toLowerCase().includes(term));
+		}
+		if (this._searchFolder) {
+			const term = this._searchFolder.toLowerCase();
+			base = base.filter((f) =>
+				(f.parent?.path ?? '').toLowerCase().includes(term)
+			);
+		}
+
+		this.filteredFiles = base.sort((a, b) =>
 			a.basename.localeCompare(b.basename, undefined, { sensitivity: 'base' })
 		);
 

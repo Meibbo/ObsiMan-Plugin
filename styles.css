@@ -1854,6 +1854,7 @@ body.obsiman-bases-column-separators table th {
 /* Individual icon nav items inside pill */
 .obsiman-nav-icon {
   position: relative;
+  overflow: visible; /* ensure badge is not clipped */
   width: 32px;
   height: 32px;
   border-radius: 50%;
