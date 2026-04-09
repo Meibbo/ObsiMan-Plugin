@@ -509,7 +509,9 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	let explorerViewFormat = $state<'tree' | 'grid' | 'cards'>('tree');
 	let explorerShowCount = $state(true);
 	let explorerShowValues = $state(true);
-	let explorerShowType = $state(true);
+	let explorerShowPropIcon = $state(true);
+	let explorerShowPropName = $state(true);
+	let explorerShowType = $state(false);
 	let explorerTagsOnly = $state(false);
 
 	$effect(() => {
@@ -517,6 +519,8 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 			format: explorerViewFormat,
 			showCount: explorerShowCount,
 			showValues: explorerShowValues,
+			showPropIcon: explorerShowPropIcon,
+			showPropName: explorerShowPropName,
 			showType: explorerShowType,
 			tagsOnly: explorerTagsOnly,
 		});
@@ -887,6 +891,14 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 								</div>
 								<div class="obsiman-view-panel-section">
 									<span class="obsiman-view-panel-label">{t('filters.view.show')}</span>
+									<label class="obsiman-view-panel-check">
+										<input type="checkbox" bind:checked={explorerShowPropIcon} />
+										{t('filters.view.show.prop_icon')}
+									</label>
+									<label class="obsiman-view-panel-check">
+										<input type="checkbox" bind:checked={explorerShowPropName} />
+										{t('filters.view.show.prop_name')}
+									</label>
 									<label class="obsiman-view-panel-check">
 										<input type="checkbox" bind:checked={explorerShowCount} />
 										{t('filters.view.show.count')}

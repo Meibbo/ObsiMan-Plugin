@@ -197,6 +197,8 @@ export const en: Record<string, string> = {
 	'explorer.ctx.uppercase': 'UPPERCASE',
 	'explorer.ctx.lowercase': 'lowercase',
 	'explorer.ctx.capitalize': 'First Letter Case',
+	'explorer.ctx.tag.filter': 'Add as filter',
+	'explorer.ctx.tag.coming_soon': 'More options coming soon',
 
 	// Explorer add value form
 	'explorer.add_value.append': 'Append value',
@@ -363,6 +365,8 @@ export const en: Record<string, string> = {
 	'filters.view.format.grid': 'Grid',
 	'filters.view.format.cards': 'Cards',
 	'filters.view.show': 'Show',
+	'filters.view.show.prop_icon': 'Property icon',
+	'filters.view.show.prop_name': 'Property name',
 	'filters.view.show.count': 'Occurrence count',
 	'filters.view.show.values': 'Values',
 	'filters.view.show.type': 'Property type icon',
