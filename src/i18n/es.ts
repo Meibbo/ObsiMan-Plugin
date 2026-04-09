@@ -79,6 +79,10 @@ export const es: Record<string, string> = {
 	'prop.add_to_queue': 'Agregar a cola',
 	'prop.new_name': 'Nuevo nombre',
 
+	// Queue island
+	'queue.island.pending': 'cambios pendientes',
+	'queue.island.empty': 'La cola está vacía',
+
 	// Queue details
 	'queue.title': 'Detalles de Cola',
 	'queue.file': 'Archivo',

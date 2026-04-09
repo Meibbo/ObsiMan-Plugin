@@ -79,6 +79,10 @@ export const en: Record<string, string> = {
 	'prop.add_to_queue': 'Add to queue',
 	'prop.new_name': 'New name',
 
+	// Queue island
+	'queue.island.pending': 'pending changes',
+	'queue.island.empty': 'Queue is empty',
+
 	// Queue details
 	'queue.title': 'Queue Details',
 	'queue.file': 'File',
