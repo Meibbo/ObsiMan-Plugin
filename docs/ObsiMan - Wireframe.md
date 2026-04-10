@@ -268,9 +268,9 @@ Menú contextual posicionado relativo al elemento clickeado (no slide-up).
 - Props: Rename · Change type · Delete · Send to queue
 - Files: Rename · Delete · Move file · Send to queue
 
-### Tipo F — D&D pill navbar modal
+### Tipo F — D&D Top & bottom bar modal
 
-Se activa desde long-press en el pill navbar. Reemplaza el pill navbar con un modal de drag-and-drop para reordenar páginas. Referencia: frame Level 1 "Drag and drop pill navbar modal".
+Se activa desde long-press en el pill navbar o en el tab bar. Reemplaza el bar desde el que lo activaste con un modal de drag-and-drop para reordenar páginas o tabs respectivamente. Referencia: frame Level 1 "Drag and drop pill navbar modal y tab bar modal".
 
 ### Tipo G — Top & bottom bar switched
 

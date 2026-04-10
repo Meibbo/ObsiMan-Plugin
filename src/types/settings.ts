@@ -42,6 +42,8 @@ export interface ObsiManSettings {
 	separatePanes: boolean;
 	/** File list view mode in the sidebar Files page */
 	viewMode: 'list' | 'selected';
+	/** Show labels on the tab bar in the Filters page */
+	filtersShowTabLabels: boolean;
 	/** Property grid render mode */
 	gridRenderMode?: 'plain' | 'chunk' | 'all';
 	/** Columns that allow inline editing in the grid */
@@ -75,5 +77,6 @@ export const DEFAULT_SETTINGS: ObsiManSettings = {
 	pageOrder: ['ops', 'statistics', 'filters'],
 	separatePanes: false,
 	viewMode: 'list',
+	filtersShowTabLabels: false,
 	glassBlurIntensity: 60,
 };

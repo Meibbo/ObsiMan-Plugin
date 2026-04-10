@@ -402,23 +402,25 @@ export class PropertyExplorerComponent {
 		const isExpanded = this.expandedProps.has(propName);
 		const totalFiles = propFileCounts.get(propName) ?? 0;
 
-		const nodeEl = parent.createDiv({ cls: 'obsiman-explorer-node' });
+		const nodeEl = parent.createDiv({ cls: 'tree-item obsiman-explorer-node' });
 		// Highlight if property is an active filter
 		if (this.activeFilterProps.has(propName)) {
 			nodeEl.addClass('is-active-filter');
 		}
 		const headerEl = nodeEl.createDiv({
-			cls: `obsiman-explorer-header ${isExpanded ? 'is-expanded' : ''}`,
+			cls: `tree-item-self is-clickable obsiman-explorer-header ${isExpanded ? '' : 'is-collapsed'}`,
 		});
 
 		// Toggle arrow (Lucide chevron)
-		const toggleSpan = headerEl.createSpan({ cls: 'obsiman-explorer-toggle' });
+		const toggleSpan = headerEl.createDiv({ cls: 'tree-item-icon collapse-icon obsiman-explorer-toggle' });
 		setIcon(toggleSpan, isExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right');
+
+		const innerEl = headerEl.createDiv({ cls: 'tree-item-inner' });
 
 		// Property icon (Iconic custom → fallback to type icon; hidden only if both showPropIcon and showType are false)
 		const iconData = this.plugin.iconicService.getIcon(propName);
 		if (this.showPropIcon || this.showType) {
-			const iconSpan = headerEl.createSpan({ cls: 'obsiman-explorer-icon' });
+			const iconSpan = innerEl.createSpan({ cls: 'obsiman-explorer-icon' });
 			if (iconData && this.showPropIcon) {
 				setIcon(iconSpan, iconData.icon);
 				if (iconData.color) iconSpan.style.color = `var(--color-${iconData.color})`;
@@ -431,12 +433,12 @@ export class PropertyExplorerComponent {
 
 		// Property name
 		if (this.showPropName) {
-			headerEl.createSpan({ cls: 'obsiman-explorer-prop-name', text: propName });
+			innerEl.createSpan({ cls: 'obsiman-explorer-prop-name', text: propName });
 		}
 
-		// Count (plain text, no background)
+		// Count
 		if (this.showCount) {
-			headerEl.createSpan({ cls: 'obsiman-explorer-badge', text: String(totalFiles) });
+			headerEl.createDiv({ cls: 'tree-item-flair obsiman-explorer-badge', text: String(totalFiles) });
 		}
 
 		// Left click: expand/collapse (or Ctrl+click: search)
@@ -464,7 +466,7 @@ export class PropertyExplorerComponent {
 
 		// Level 2: Values
 		if (isExpanded) {
-			const childrenEl = nodeEl.createDiv({ cls: 'obsiman-explorer-children' });
+			const childrenEl = nodeEl.createDiv({ cls: 'tree-item-children obsiman-explorer-children' });
 			const valueCounts = fileCounts.get(propName) ?? new Map<string, number>();
 			const sortedValues = [...values].sort((a, b) => {
 				if (this.valueSortMode === 'value_alpha') {
@@ -482,14 +484,21 @@ export class PropertyExplorerComponent {
 				const count = valueCounts.get(value) ?? 0;
 				// Hide values with 0 scoped files when not in all-vault scope
 				if (count === 0 && this.filterScope !== 'all') continue;
-				const valueEl = childrenEl.createDiv({ cls: 'obsiman-explorer-value' });
+				
+				const valTreeItem = childrenEl.createDiv({ cls: 'tree-item' });
+				const valueEl = valTreeItem.createDiv({ cls: 'tree-item-self is-clickable obsiman-explorer-value' });
+				
 				// Highlight if value is an active filter for this property
 				if (this.activeFilterValues.get(propName)?.has(value)) {
 					valueEl.addClass('is-active-filter');
 				}
-				valueEl.createSpan({ cls: 'obsiman-explorer-value-text', text: value });
+				
+				valueEl.createDiv({ cls: 'tree-item-icon' }); // Spacer for deeper tree logic
+				const valInnerEl = valueEl.createDiv({ cls: 'tree-item-inner' });
+				valInnerEl.createSpan({ cls: 'obsiman-explorer-value-text', text: value });
+				
 				if (this.showCount) {
-					valueEl.createSpan({ cls: 'obsiman-explorer-badge', text: String(count) });
+					valueEl.createDiv({ cls: 'tree-item-flair obsiman-explorer-badge', text: String(count) });
 				}
 
 				// Left click: add filter (or Ctrl+click: search)
@@ -582,23 +591,29 @@ export class PropertyExplorerComponent {
 			}
 		});
 
-		// Icon (Iconic)
-		if (this.plugin.iconicService.isAvailable()) {
-			menu.addItem((item) =>
-				item.setTitle(t('explorer.ctx.icon')).setIcon('lucide-palette').onClick(() => {
-					new Notice('Change property icons in settings');
-				})
-			);
-		}
+		// Trigger Native Obsidian Property Menu Hook (Iconic & other plugins inject here)
+		this.plugin.app.workspace.trigger('property-menu', menu, propName);
 
 		menu.addSeparator();
 
-		// Add Value
-		menu.addItem((item) =>
-			item.setTitle(t('explorer.ctx.add_value')).setIcon('lucide-plus-circle').onClick(() => {
-				new AddValueModal(this.plugin.app, this.plugin, propName, this.getOperationFiles()).open();
-			})
-		);
+		// Add Value (Only if > 1 active filters applied globally!)
+		const countRules = (group: { children: any[] }): number => {
+			let count = 0;
+			for (const child of group.children) {
+				if (child.type === 'rule') count++;
+				else if (child.type === 'group') count += countRules(child);
+			}
+			return count;
+		};
+		const activeFiltersCount = countRules(this.plugin.filterService.activeFilter);
+		
+		if (activeFiltersCount > 1) {
+			menu.addItem((item) =>
+				item.setTitle(t('explorer.ctx.add_value')).setIcon('lucide-plus-circle').onClick(() => {
+					new AddValueModal(this.plugin.app, this.plugin, propName, this.getOperationFiles()).open();
+				})
+			);
+		}
 
 		// Delete Property
 		menu.addItem((item) =>

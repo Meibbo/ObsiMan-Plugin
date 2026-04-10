@@ -1,19 +1,20 @@
 # AGENTS.md — ObsiMan Plugin
 
 > **Mandatory start-of-session protocol for ALL AI agents (Claude Code, Gemini CLI, Gemini Pro, Warp Agent, ChatGPT Codex, or any other).**
-> Read this file FIRST before any work. Then read `docs/HANDOFF.md` for current session state.
+> Read this file FIRST before any work. Then read `docs/ObsiMan - Agent Memory.md` for current session state.
 
 ---
 
 ## 0. Start-of-session checklist (REQUIRED — do not skip)
 
 1. **Read this file** — architecture rules, coding patterns, constraints
-2. **Read `docs/HANDOFF.md`** — current project state, pending iterations, last agent's notes
-3. **Read `docs/Known Issues.md`** — open bugs (don't reintroduce fixed ones)
-4. **Run `git log --oneline -5`** — confirm you're on the right branch and know last commits
-5. **Ask the user** *(or verify via `npm run build`)* whether features from the last session are working
-6. **Check your own context budget** — estimate how many large files you can read. If <20% remaining, warn the user and suggest switching agents BEFORE starting implementation
-7. **Update `docs/HANDOFF.md`** at the END of your session with: what you completed, what's next, any blockers
+2. **Read `docs/ObsiMan - Agent Memory.md`** — current project state, pending iterations, last agent's notes
+3. **Read `docs/ObsiMan - Known Issues.md`** — open bugs (don't reintroduce fixed ones)
+4. **Find your tasks** — check `docs/ObsiMan - User Interface.md`, `docs/ObsiMan - Known Issues.md`, or `docs/ObsiMan - Plugin Architecture.md` for task checkboxes `[ ]`.
+5. **Run `git log --oneline -5`** — confirm you're on the right branch and know last commits
+6. **Ask the user** *(or verify via `npm run build`)* whether features from the last session are working
+7. **Check your own context budget** — estimate how many large files you can read. If <20% remaining, warn the user and suggest switching agents BEFORE starting implementation
+8. **Update `docs/ObsiMan - Agent Memory.md`** at the END of your session with: what you completed, what's next, any blockers. Move completed tasks to `docs/ObsiMan - Archived tasks.md`. Keep iterations to a strict maximum of 6 tasks.
 8. **Before implementing any integration with a core or community plugin** — search online for its API docs, GitHub repo, and any known inter-plugin communication patterns. Never assume an API exists; verify it first. See section 11 for the integration philosophy and known API surfaces.
 
 ---
@@ -133,7 +134,7 @@ npm run build        # tsc type-check + esbuild production bundle
 npm run lint         # ESLint with obsidianmd rules
 ```
 
-**After every coding session, run `npm run build` before updating HANDOFF.md.**
+**After every coding session, run `npm run build` before updating ObsiMan - Agent Memory.md.**
 Pre-existing lint errors (do not fix unless asked):
 - `main.ts:70` sentence-case ribbon text
 - `main.ts:189` async BasesFilePicker callback
@@ -168,48 +169,68 @@ Current `ObsiManSettings` fields (in `src/types/settings.ts`):
 ## 7. UI Design spec (wireframe source of truth)
 
 **Wireframe**: `img/ObsiMan - Ui.png` — read this before implementing any UI change.
+**Full design doc**: `docs/ObsiMan - Wireframe.md` — read this for complete component specs, anatomy, and CSS class system.
 
-### Wireframe label hierarchy
-| Label | Meaning |
-|-------|---------|
-| 1 | Main page (first/default, e.g. Files) |
-| 2 | Secondary pages (e.g. Ops, Filters) |
-| 3 | Tabs within a page |
-| 4 | Pop-up overlays |
+### Frame hierarchy (corrected)
+| Level | Name | What it describes |
+|-------|------|-------------------|
+| **1** | Layout | Reusable components and layout patterns — appear across multiple pages/tabs |
+| **2** | Page | A full plugin page — content always visible regardless of active tab |
+| **3** | Tab | Exchangeable content within a page |
+| **4** | Pop-up | Replaces a section of the Level 2 page when activated (NOT a generic overlay) |
 
-### Sidebar navigation — page order
-Default: **[Ops] [Files] [Filters]** (left → center → right)
-- `pageOrder` default: `['ops', 'files', 'filters']`
+> A Level 4 pop-up does NOT float over everything — it **replaces** a specific section. Example: the Filters sort popup replaces the filters header with its own container, with open/close transition animation.
+
+### Sidebar navigation — page order (UPDATED)
+Default: **[Operations] [Statistics] [Filters]** (left → center → right)
+- `pageOrder` default: `['ops', 'statistics', 'filters']`
+- **Files is NO LONGER a page** — it is a tab inside the Filters page
 - User can reorder in Settings — FAB positions adapt automatically
 
-### Per-page FAB rules
-- **Files** (center/main page): ALWAYS gets BOTH FABs
-  - Left FAB → View mode popup (4)
-  - Right FAB → Search files popup (4)
-- **Non-files pages**: ONE FAB on the **outer edge** only
-  - Leftmost page (index 0) → LEFT FAB
-  - Rightmost page (last index) → RIGHT FAB
-  - Middle page (if 4+ pages ever added) → no FAB
+### Pages and their FABs
+| Page | Position | FAB left | FAB right |
+|------|----------|----------|-----------|
+| Operations | left (index 0) | Queue list popup | — |
+| Statistics | center | Add-ons (stub) | Settings |
+| Filters | right (last) | — | Active Filters popup |
 
-### FAB → popup mapping
-| Page (default position) | FAB side | Opens |
-|-------------------------|----------|-------|
-| Ops (left) | LEFT | Queue details modal |
-| Files (center) | LEFT | View mode popup |
-| Files (center) | RIGHT | Search files popup |
-| Filters (right) | RIGHT | Active filters popup |
+### Filters page — tabs (Level 3)
+The Filters page has 3 tabs: **Tags | Props | Files**
+- **Tags**: tag tree with unlimited nesting — default view: Tree list
+- **Props**: property explorer (tree/grid/cards) — default view: Tree list
+- **Files**: file list/grid — default view: Grid (Bases-style, no vertical lines)
 
-### Popup inventory (4)
-- **View mode**: Selected only / Grid / Masonry / Prop columns
-- **Search files**: File name filter + folder filter
-- **Active filters**: List of active filter rules + Apply / Clear
-- **Scope**: All vault / Filtered files / Selected files — this is a **tab (3) inside Filters page**, NOT an Ops element
-- Queue is accessed via QueueDetailsModal (Obsidian modal), not an in-view popup
+The Filters page has a **persistent header** (always visible unless replaced by a Level 4 popup):
+`[View mode btn] [Clear] [Category toggle] [Sort btn]`
+- Left button → opens View mode popup (Level 4, replaces header)
+- Right button → opens Sort popup (Level 4, replaces header)
 
-### Key UI rules from wireframe
-- Active filters are **only** accessible via the Filters page RIGHT FAB — no button on Files topbar
-- Scope selection lives **inside the Filters page as a tab** — not inside Ops
-- Scope rationale: filters which files' properties appear in the property list (all vault → filtered → selected)
+### Operations page — tabs (Level 3)
+Content | File Ops | Importer | Template | File diff
+- Tabs show only the tab name as heading (no complex header)
+- When tabs are fewer than usual, remaining elements center themselves
+
+### Available views for ALL tabs (Tags, Props, Files)
+Tree list · D&D list · Grid · Cards · Masonry
+- D&D list integrates Linter buttons for filter-specific templates (no separate Linter frame)
+- Each view has a Level 1 frame except Masonry (frame pending)
+
+### Bottom bar (corrected)
+The "bottom bar" is the **complete assembly**: pill navbar (●●●) + FAB buttons + glassmorphism background.
+- Background: `backdrop-filter: blur` + semi-transparent bg — NOT a black gradient
+- Shows elements underneath, blurred
+
+### Pop-up islands (corrected)
+- Body island floats **above** the bottom bar (bottom bar remains visible below)
+- Squircle buttons are **separate islands** floating above the body — NOT inside the body
+- Two sizes: mini (collapsed) and expanded (with full tree list)
+
+### Key UI rules
+- Active Filters popup: only via Filters page right FAB
+- Sort/View mode popups: only via Filters header buttons (replace the header with transition)
+- Scope selection in Statistics: selection pills (accent style, not dropdown)
+- Scope selection in sort popups: drop-down list component (secondary container)
+- Statistics page: stat cards only for v1.0 — dashboards planned for v1.1+
 
 ---
 
@@ -247,11 +268,11 @@ Default: **[Ops] [Files] [Filters]** (left → center → right)
 ### Gemini CLI
 - Excellent for large-context reads (2M token window)
 - Use for reviewing multiple files at once
-- Run: `gemini -p "Read AGENTS.md and HANDOFF.md, then continue from where it left off"`
+- Run: `gemini -p "Read AGENTS.md and ObsiMan - Agent Memory.md, then continue from where it left off"`
 
 ### Gemini Pro / Google Antigravity
 - Best for reading the full codebase at once
-- Paste `AGENTS.md + HANDOFF.md` as system context
+- Paste `AGENTS.md + ObsiMan - Agent Memory.md` as system context
 
 ### Warp Agent
 - Terminal-focused — good for running build/lint/git commands

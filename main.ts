@@ -135,14 +135,9 @@ export class ObsiManPlugin extends Plugin {
 	}
 
 	updateGlassBlur(): void {
-		const intensity = this.settings.glassBlurIntensity ?? 60;
+		const intensity: number = this.settings.glassBlurIntensity ?? 60;
 		const px = (intensity / 100) * 20;
-		this.app.workspace.getLeavesOfType('obsiman-view').forEach(leaf => {
-			(leaf.view.containerEl as HTMLElement).style.setProperty(
-				'--obsiman-glass-blur',
-				`${px}px`
-			);
-		});
+		document.body.style.setProperty('--obsiman-glass-blur', `${px}px`);
 	}
 
 	refreshStatusBar(): void {
@@ -200,12 +195,14 @@ export class ObsiManPlugin extends Plugin {
 			}
 		}
 
-		new BasesFilePicker(this.app, async (file) => {
-			this.settings.basesLastUsedPath = file.path;
-			await this.saveSettings();
-			const leaf = this.app.workspace.getLeaf('tab');
-			await leaf.openFile(file);
-			await this.attachToBases(leaf);
+		new BasesFilePicker(this.app, (file) => {
+			void (async () => {
+				this.settings.basesLastUsedPath = file.path;
+				await this.saveSettings();
+				const leaf = this.app.workspace.getLeaf('tab');
+				await leaf.openFile(file);
+				await this.attachToBases(leaf);
+			})();
 		}).open();
 	}
 
@@ -264,9 +261,9 @@ export class ObsiManPlugin extends Plugin {
 			await leaf.setViewState({ type: OBSIMAN_VIEW_TYPE, active: true });
 		} else {
 			// getRightLeaf(false) may return null if no right panel; fall back to creating one
-			const rightLeaf = workspace.getRightLeaf(false) ?? workspace.getRightLeaf(true);
-			if (!rightLeaf) return;
-			leaf = rightLeaf;
+			const leftLeaf = workspace.getLeftLeaf(false) ?? workspace.getLeftLeaf(true);
+			if (!leftLeaf) return;
+			leaf = leftLeaf;
 			await leaf.setViewState({ type: OBSIMAN_VIEW_TYPE, active: true });
 		}
 
