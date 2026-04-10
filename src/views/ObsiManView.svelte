@@ -1189,7 +1189,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	<!-- ─── Bottom nav floats over content inside the viewport ──────────────────── -->
 	<!-- Files always gets both FABs. Other pages get ONE FAB on their outer edge. -->
 	<div
-		class="obsiman-bottom-nav"
+		class="obsiman-bottom-nav obsiman-glass obsiman-glass--bottom"
 		use:bindNav
 		class:is-bar-collapsed={navCollapsed}
 		onclick={onCollapsedNavClick}
