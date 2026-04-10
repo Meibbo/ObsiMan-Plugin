@@ -4,6 +4,7 @@
 	import type { ObsiManPlugin } from '../../main';
 	import { FileListComponent } from '../components/FileListComponent';
 	import { PropertyExplorerComponent } from '../components/PropertyExplorerComponent';
+	import { TagsExplorerComponent } from '../components/TagsExplorerComponent';
 	import FiltersTagsTab from './tabs/FiltersTagsTab.svelte';
 	import FiltersPropsTab from './tabs/FiltersPropsTab.svelte';
 	import FiltersFilesTab from './tabs/FiltersFilesTab.svelte';
@@ -322,6 +323,17 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	let fileList = $state<FileListComponent | undefined>(undefined);
 	let queueList: QueueListComponent | undefined;
 	let propExplorer = $state<PropertyExplorerComponent | undefined>(undefined);
+	let tagsExplorer = $state<TagsExplorerComponent | null>(null);
+
+	// ─── Filters header search ────────────────────────────────────────────────
+	let filtersSearch = $state('');
+
+	$effect(() => {
+		const term = filtersSearch;
+		tagsExplorer?.setSearchTerm(term);
+		propExplorer?.setSearchTerm(term);
+		fileList?.setSearchFilter(term, '');
+	});
 
 	// Active filter highlight state — passed to PropertyExplorer on each render
 	let activeFilterProps = $state(new Set<string>());
@@ -832,6 +844,39 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 					<!-- FILTERS PAGE -->
 				{:else if pageId === "filters"}
+					<!-- Persistent header: view mode · search pill · sort -->
+					<div class="obsiman-filters-header">
+						<button
+							class="obsiman-filters-header-btn"
+							aria-label="View mode (WIP)"
+							use:icon={"lucide-layout-list"}
+						></button>
+						<div class="obsiman-filters-header-search-pill">
+							<input
+								class="obsiman-filters-search-input"
+								type="text"
+								placeholder={t('filter.search_placeholder')}
+								bind:value={filtersSearch}
+							/>
+							{#if filtersSearch}
+								<button
+									class="obsiman-filters-search-clear"
+									aria-label="Clear search"
+									onclick={() => { filtersSearch = ''; }}
+								>×</button>
+							{/if}
+							<button
+								class="obsiman-filters-search-category"
+								aria-label="Filter category (WIP)"
+							>{t('filter.category')}</button>
+						</div>
+						<button
+							class="obsiman-filters-header-btn"
+							aria-label="Sort (WIP)"
+							use:icon={"lucide-arrow-up-down"}
+						></button>
+					</div>
+
 					<!-- 3-tab bar: Tags · Props · Files -->
 					<div class="obsiman-filters-tabbar">
 						{#each (['tags', 'props', 'files'] as FiltersTab[]) as tab}
@@ -851,7 +896,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 					<!-- Tab content via sub-components -->
 					{#if filtersActiveTab === 'tags'}
-						<FiltersTagsTab {plugin} />
+						<FiltersTagsTab {plugin} bind:tagsExplorer />
 					{:else if filtersActiveTab === 'props'}
 						<FiltersPropsTab {plugin} bind:propExplorer />
 					{:else if filtersActiveTab === 'files'}
@@ -1164,7 +1209,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 					role="tab"
 					tabindex="0"
 				>
-					{#if !isReordering && pageId === "files" && selectedCount > 0}
+					{#if !isReordering && pageId === "statistics" && selectedCount > 0}
 						<div class="obsiman-nav-dot-badge">{selectedCount}</div>
 					{/if}
 					{#if !isReordering && pageId === "filters" && filterRuleCount > 0}

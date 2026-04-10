@@ -3,20 +3,25 @@
   import { TagsExplorerComponent } from '../../components/TagsExplorerComponent';
   import type { ObsiManPlugin } from '../../main';
 
-  let { plugin }: { plugin: ObsiManPlugin } = $props();
+  let {
+    plugin,
+    tagsExplorer = $bindable<TagsExplorerComponent | null>(null),
+  }: {
+    plugin: ObsiManPlugin;
+    tagsExplorer?: TagsExplorerComponent | null;
+  } = $props();
 
   let containerEl: HTMLElement;
-  let explorer: TagsExplorerComponent | null = null;
 
   onMount(() => {
-    explorer = new TagsExplorerComponent(containerEl, plugin);
-    plugin.addChild(explorer);
+    tagsExplorer = new TagsExplorerComponent(containerEl, plugin);
+    plugin.addChild(tagsExplorer);
   });
 
   onDestroy(() => {
-    if (explorer) {
-      plugin.removeChild(explorer);
-      explorer = null;
+    if (tagsExplorer) {
+      plugin.removeChild(tagsExplorer);
+      tagsExplorer = null;
     }
   });
 </script>

@@ -313,6 +313,8 @@ export const en: Record<string, string> = {
 	'scope.by_type': 'By property type',
 	'filter.tab.rules': 'Rules',
 	'filter.tab.scope': 'Scope',
+	'filter.search_placeholder': 'Search…',
+	'filter.category': 'All',
 
 	// Grid settings
 	'settings.grid_render_mode': 'Grid rendering mode',

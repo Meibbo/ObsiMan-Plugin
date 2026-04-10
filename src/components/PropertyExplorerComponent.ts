@@ -815,6 +815,12 @@ export class PropertyExplorerComponent {
 		this.renderTree();
 	}
 
+	/** Set an external search term (from the Filters header search pill) and re-render. */
+	setSearchTerm(term: string): void {
+		this.searchTerm = term;
+		this.renderTree();
+	}
+
 	// ── Grid View ─────────────────────────────────────────────
 
 	private renderGridView(): void {

@@ -12,6 +12,7 @@
 
   function initFileList(el: HTMLElement) {
     fileList = new FileListComponent(el, plugin.app, () => {});
+    fileList.render(plugin.filterService.filteredFiles, plugin.propertyIndex.fileCount);
     return {
       destroy() {
         fileList = undefined;

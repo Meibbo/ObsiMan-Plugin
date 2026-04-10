@@ -13,6 +13,7 @@ export class TagsExplorerComponent extends Component {
 	private plugin: ObsiManPlugin;
 	private treeEl: HTMLElement | null = null;
 	private expandedNodes = new Set<string>();
+	private searchTerm = '';
 
 	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin) {
 		super();
@@ -42,6 +43,12 @@ export class TagsExplorerComponent extends Component {
 		}
 	}
 
+	/** Set an external search term (from the Filters header search pill) and re-render. */
+	setSearchTerm(term: string): void {
+		this.searchTerm = term;
+		this.render();
+	}
+
 	private buildTree(): TagNode[] {
 		// getTags() exists at runtime but is not in the official TS types
 		const rawTags = (this.plugin.app.metadataCache as unknown as { getTags(): Record<string, number> }).getTags() ?? {};
@@ -49,7 +56,11 @@ export class TagsExplorerComponent extends Component {
 		const root: TagNode[] = [];
 		const nodeMap = new Map<string, TagNode>();
 
-		const sorted = Object.entries(rawTags).sort(([a], [b]) => a.localeCompare(b));
+		const term = this.searchTerm.toLowerCase();
+		const allEntries = Object.entries(rawTags).sort(([a], [b]) => a.localeCompare(b));
+		const sorted = term
+			? allEntries.filter(([tag]) => tag.toLowerCase().includes(term))
+			: allEntries;
 
 		for (const [tagWithHash, count] of sorted) {
 			const fullPath = tagWithHash.replace(/^#/, '');
