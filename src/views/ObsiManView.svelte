@@ -866,11 +866,11 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 								class="obsiman-filters-tab"
 								class:is-active={filtersActiveTab === tab.id}
 								onclick={(e) => toggleFiltersTab(tab.id, e)}
-								use:icon={tab.icon}
 								aria-label={t(tab.labelKey)}
 								role="tab"
 								tabindex="0"
 							>
+								<span class="obsiman-filters-tab-icon" use:icon={tab.icon}></span>
 								<span class="obsiman-filters-tab-label">{t(tab.labelKey)}</span>
 							</div>
 						{/each}
