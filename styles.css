@@ -1839,18 +1839,36 @@ body.obsiman-bases-column-separators table th {
   height: var(--obsiman-nav-height, 64px);
 }
 
-/* Fade gradient behind the floating nav — content bleeds through, nav stays legible */
-.obsiman-bottom-nav::before {
-  content: '';
+/* Glass system — glassmorphism shared across bottom bar and popups */
+
+/* Surface: shared visual appearance for all glass elements */
+.obsiman-glass {
+  backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
+  background: color-mix(in srgb, var(--background-primary) 72%, transparent);
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 40%, transparent);
+}
+
+/* Bottom bar: fixed strip at the bottom of the plugin frame */
+.obsiman-glass--bottom {
   position: absolute;
-  inset: -48px 0 0 0; /* extends 48px above the nav bar */
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    var(--background-primary) 70%
-  );
-  pointer-events: none;
-  z-index: -1;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+/* Full frame overlay: covers the entire plugin (blocked state) */
+.obsiman-glass--full {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+}
+
+/* Content area overlay: covers only the tab content (active filters backdrop) */
+.obsiman-glass--content {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
 }
 
 /* Frosted glass pill containing page icons */
