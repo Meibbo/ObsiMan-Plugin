@@ -81,6 +81,11 @@ export class FilterService extends Component {
 		this.applyFilters();
 	}
 
+	/** Returns true if the tag is already in the active filter tree (stub — full impl in Iter.13) */
+	hasTagFilter(_tagName: string): boolean {
+		return false;
+	}
+
 	/** Recompute filtered files from the active filter tree + search fields */
 	applyFilters(): void {
 		const allFiles = this.app.vault.getMarkdownFiles();
