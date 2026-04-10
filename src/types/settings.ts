@@ -34,8 +34,10 @@ export interface ObsiManSettings {
 	basesShowColumnSeparators: boolean;
 	/** What to open when the ribbon icon is clicked: sidebar only, main view only, or both */
 	openMode: 'sidebar' | 'main' | 'both';
-	/** Order of pages in the sidebar bottom nav (page IDs: 'files', 'filters', 'ops') */
+	/** Order of pages in the sidebar bottom nav (page IDs: 'ops', 'statistics', 'filters') */
 	pageOrder: string[];
+	/** Glassmorphism blur intensity for bottom bar and popups (0–100, maps to 0–20px) */
+	glassBlurIntensity: number;
 	/** When true, each page opens as its own Obsidian sidebar pane */
 	separatePanes: boolean;
 	/** File list view mode in the sidebar Files page */
@@ -70,7 +72,8 @@ export const DEFAULT_SETTINGS: ObsiManSettings = {
 	basesInjectCheckboxes: true,
 	basesShowColumnSeparators: false,
 	openMode: 'sidebar',
-	pageOrder: ['ops', 'files', 'filters'],
+	pageOrder: ['ops', 'statistics', 'filters'],
 	separatePanes: false,
 	viewMode: 'list',
+	glassBlurIntensity: 60,
 };
