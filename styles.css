@@ -217,8 +217,7 @@
 }
 
 .obsiman-files-list {
-	max-height: 300px;
-	overflow-y: auto;
+	/* no max-height — parent container scrolls */
 }
 
 .obsiman-file-row {
@@ -1861,7 +1860,7 @@ body.obsiman-bases-column-separators table th {
   overflow-y: auto;
   /* Bottom padding reserves space under the floating nav bar so content
      is never permanently hidden beneath it when scrolled to the bottom */
-  padding: 8px 10px 80px;
+  padding: 4px 4px 80px;
   box-sizing: border-box;
 }
 
@@ -1908,8 +1907,8 @@ body.obsiman-bases-column-separators table th {
 .obsiman-glass {
   backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
   -webkit-backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
-  background: color-mix(in srgb, var(--background-primary) 72%, transparent);
-  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 40%, transparent);
+  background: color-mix(in srgb, var(--background-primary) 50%, transparent);
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 60%, transparent);
 }
 
 /* Bottom bar: fixed strip at the bottom of the plugin frame */
@@ -2176,6 +2175,112 @@ body.obsiman-bases-column-separators table th {
 .obsiman-page[data-page="filters"] {
   display: flex;
   flex-direction: column;
+  padding: 0 0 80px; /* no horizontal/top padding — tabbar and header handle it */
+}
+
+/* ─── Filters header (above tabbar) ───────────────────────────────────────── */
+.obsiman-filters-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 4px;
+  flex-shrink: 0;
+}
+
+.obsiman-filters-header-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.12s, color 0.12s;
+}
+.obsiman-filters-header-btn:hover {
+  background: var(--obsiman-bg-hover);
+  color: var(--text-normal);
+}
+.obsiman-filters-header-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.obsiman-filters-header-search-pill {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: var(--background-modifier-form-field);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 999px;
+  padding: 0 6px 0 10px;
+  height: 26px;
+  gap: 4px;
+  transition: border-color 0.12s;
+}
+.obsiman-filters-header-search-pill:focus-within {
+  border-color: var(--color-accent);
+}
+
+.obsiman-filters-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-normal);
+  min-width: 0;
+  height: 100%;
+}
+.obsiman-filters-search-input::placeholder {
+  color: var(--text-faint);
+}
+
+.obsiman-filters-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1;
+  transition: background 0.1s, color 0.1s;
+}
+.obsiman-filters-search-clear:hover {
+  background: var(--obsiman-bg-hover);
+  color: var(--text-normal);
+}
+
+.obsiman-filters-search-category {
+  display: flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 7px;
+  flex-shrink: 0;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  border-radius: 999px;
+  font-size: 10px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  white-space: nowrap;
+}
+.obsiman-filters-search-category:hover {
+  background: var(--obsiman-bg-hover);
+  color: var(--text-normal);
 }
 
 .obsiman-filters-tabbar {
@@ -3358,7 +3463,7 @@ body.obsiman-bases-column-separators table th {
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  padding: 20px 12px 80px;
+  padding: 12px 8px 80px;
   flex: 1;
   overflow-y: auto;
 }
