@@ -415,14 +415,14 @@ export class PropertyExplorerComponent {
 		const toggleSpan = headerEl.createSpan({ cls: 'obsiman-explorer-toggle' });
 		setIcon(toggleSpan, isExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right');
 
-		// Property icon (Iconic custom → fallback to type icon if showType; hidden if neither)
+		// Property icon (Iconic custom → fallback to type icon; hidden only if both showPropIcon and showType are false)
 		const iconData = this.plugin.iconicService.getIcon(propName);
 		if (this.showPropIcon || this.showType) {
 			const iconSpan = headerEl.createSpan({ cls: 'obsiman-explorer-icon' });
 			if (iconData && this.showPropIcon) {
 				setIcon(iconSpan, iconData.icon);
 				if (iconData.color) iconSpan.style.color = `var(--color-${iconData.color})`;
-			} else if (this.showType) {
+			} else {
 				const propType = this.plugin.propertyTypeService.getType(propName) ?? 'text';
 				setIcon(iconSpan, TYPE_ICON_MAP[propType] ?? 'lucide-text');
 				iconSpan.addClass('obsiman-explorer-icon-default');
@@ -880,9 +880,10 @@ export class PropertyExplorerComponent {
 				if (iconData && this.showPropIcon) {
 					setIcon(iconSpan, iconData.icon);
 					if (iconData.color) iconSpan.style.color = `var(--color-${iconData.color})`;
-				} else if (this.showType) {
+				} else {
 					const propType = this.plugin.propertyTypeService.getType(propName) ?? 'text';
 					setIcon(iconSpan, TYPE_ICON_MAP[propType] ?? 'lucide-text');
+					iconSpan.addClass('obsiman-explorer-icon-default');
 				}
 			}
 
