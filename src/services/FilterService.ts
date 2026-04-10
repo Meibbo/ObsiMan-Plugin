@@ -16,6 +16,8 @@ export class FilterService extends Component {
 
 	/** Files passing the active filter */
 	filteredFiles: TFile[] = [];
+	/** Files currently selected by the user in the file list (updated by FileListComponent) */
+	selectedFiles: TFile[] = [];
 
 	/** File name search applied alongside the filter tree */
 	private _searchName = '';
