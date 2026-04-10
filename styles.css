@@ -2127,6 +2127,19 @@ body.obsiman-bases-column-separators table th {
   transition: color 0.12s, border-color 0.12s;
 }
 
+.obsiman-filters-tab-icon {
+  display: flex;
+  align-items: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.obsiman-filters-tab-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
 .obsiman-filters-tab:hover { color: var(--text-normal); }
 .obsiman-filters-tab.is-active {
   color: var(--text-normal);
@@ -2975,76 +2988,94 @@ body.obsiman-bases-column-separators table th {
   padding: 12px 0;
 }
 
-/* === Grid View === */
+/* === Grid View — properties as rows, value chips in col 2 === */
 
 .obsiman-explorer-grid {
-  overflow: auto;
+  overflow-y: auto;
   flex: 1;
 }
 
 .obsiman-grid-table {
   border-collapse: collapse;
-  min-width: 100%;
+  width: 100%;
   font-size: var(--font-ui-smaller);
 }
 
-.obsiman-grid-th {
-  position: sticky;
-  top: 0;
-  background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
-  padding: 4px 8px;
-  text-align: left;
-  white-space: nowrap;
-  cursor: pointer;
-  user-select: none;
-}
-
-.obsiman-grid-th:hover {
-  background: var(--background-modifier-hover);
-}
-
-.obsiman-grid-th-file {
-  min-width: 120px;
-  cursor: default;
-}
-
 .obsiman-grid-td {
-  border: 1px solid var(--background-modifier-border);
-  padding: 3px 8px;
-  max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding: 5px 8px;
   vertical-align: middle;
-}
-
-.obsiman-grid-td:not(.obsiman-grid-td-file):not(.obsiman-grid-td-empty) {
-  cursor: pointer;
-}
-
-.obsiman-grid-td:not(.obsiman-grid-td-file):not(.obsiman-grid-td-empty):hover {
-  background: var(--background-modifier-hover);
-}
-
-.obsiman-grid-td-file {
-  font-weight: 500;
-  position: sticky;
-  left: 0;
-  background: var(--background-primary);
-}
-
-.obsiman-grid-td-empty {
-  background: var(--background-modifier-form-field);
-  opacity: 0.35;
 }
 
 .obsiman-grid-row:hover .obsiman-grid-td {
   background: var(--background-modifier-hover);
 }
 
-.obsiman-grid-row:hover .obsiman-grid-td-file {
+/* Col 1 — property name */
+.obsiman-grid-td-prop {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  cursor: pointer;
+  min-width: 120px;
+  max-width: 200px;
+  padding-right: 12px;
+}
+
+.obsiman-grid-prop-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+/* Col 2 — value chips */
+.obsiman-grid-td-values {
+  width: 100%;
+  padding-left: 4px;
+}
+
+.obsiman-grid-value-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
   background: var(--background-modifier-hover);
+  border: 1px solid var(--background-modifier-border);
+  margin: 2px 3px;
+  cursor: pointer;
+  font-size: var(--font-ui-smaller);
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.obsiman-grid-value-chip:hover {
+  background: var(--interactive-hover);
+  border-color: var(--interactive-accent);
+}
+
+.obsiman-grid-value-chip.is-active-filter {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border-color: var(--interactive-accent);
+}
+
+.obsiman-grid-chip-text {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.obsiman-grid-chip-count {
+  color: var(--text-muted);
+  font-size: 0.85em;
+}
+
+.obsiman-grid-value-chip.is-active-filter .obsiman-grid-chip-count {
+  color: var(--text-on-accent);
+  opacity: 0.8;
 }
 
 /* === Cards View === */
@@ -3054,117 +3085,192 @@ body.obsiman-bases-column-separators table th {
   flex: 1;
 }
 
+/* Cards grid — one card per property */
+
 .obsiman-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   gap: 8px;
   padding: 8px;
 }
 
 .obsiman-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
   background: var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
   border-radius: 8px;
-  padding: 8px 10px;
+  padding: 12px 8px 10px;
   cursor: pointer;
   overflow: hidden;
   transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  text-align: center;
 }
 
 .obsiman-card:hover {
   border-color: var(--interactive-accent);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.obsiman-card.is-active-filter {
+  border-color: var(--interactive-accent);
+  background: var(--background-modifier-active-hover);
+}
+
+.obsiman-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.obsiman-card-icon svg {
+  width: 22px;
+  height: 22px;
 }
 
 .obsiman-card-title {
   font-weight: 600;
   font-size: var(--font-ui-small);
-  margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  width: 100%;
   color: var(--text-normal);
 }
 
-.obsiman-card-body {
+.obsiman-card-stats {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.obsiman-card-row {
-  display: flex;
-  gap: 4px;
-  font-size: var(--font-ui-smaller);
-  overflow: hidden;
-}
-
-.obsiman-card-key {
+  align-items: center;
+  gap: 5px;
   color: var(--text-muted);
-  flex-shrink: 0;
-  max-width: 50%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.obsiman-card-key::after {
-  content: ':';
-}
-
-.obsiman-card-val {
-  color: var(--text-normal);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.obsiman-card-more {
-  color: var(--text-faint);
   font-size: var(--font-ui-smaller);
   margin-top: 2px;
 }
 
-/* Cards drilldown */
+.obsiman-card-stat-count {
+  color: var(--text-muted);
+}
 
-.obsiman-cards-back {
+.obsiman-card-stat-type {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  font-size: var(--font-ui-small);
-  color: var(--text-accent);
-  cursor: pointer;
+  width: 14px;
+  height: 14px;
+  color: var(--text-faint);
+}
+
+.obsiman-card-stat-type svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Cards drilldown */
+
+.obsiman-cards-drill-topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
   border-bottom: 1px solid var(--background-modifier-border);
   margin-bottom: 6px;
 }
 
+.obsiman-cards-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
 .obsiman-cards-back:hover {
   background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.obsiman-cards-drill-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.obsiman-cards-drill-icon svg {
+  width: 18px;
+  height: 18px;
 }
 
 .obsiman-cards-drill-title {
   font-weight: 600;
-  font-size: var(--font-ui-medium);
-  padding: 4px 10px 8px;
-  color: var(--text-normal);
-}
-
-.obsiman-cards-drill-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.obsiman-cards-drill-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
   font-size: var(--font-ui-small);
-  border-bottom: 1px solid var(--background-modifier-border);
-  cursor: pointer;
+  color: var(--text-normal);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.obsiman-cards-drill-row:hover {
+.obsiman-cards-drill-stats {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  flex-shrink: 0;
+}
+
+/* Cards value chips (drilldown) */
+
+.obsiman-cards-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 6px 8px;
+}
+
+.obsiman-cards-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
   background: var(--background-modifier-hover);
+  border: 1px solid var(--background-modifier-border);
+  cursor: pointer;
+  font-size: var(--font-ui-smaller);
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.obsiman-cards-chip:hover {
+  background: var(--interactive-hover);
+  border-color: var(--interactive-accent);
+}
+
+.obsiman-cards-chip.is-active-filter {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.obsiman-cards-chip-text {
+  color: inherit;
+}
+
+.obsiman-cards-chip-count {
+  color: var(--text-muted);
+  font-size: 0.85em;
+}
+
+.obsiman-cards-chip.is-active-filter .obsiman-cards-chip-count {
+  color: var(--text-on-accent);
+  opacity: 0.8;
 }
