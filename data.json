@@ -23,7 +23,8 @@
   ],
   "separatePanes": false,
   "viewMode": "list",
-  "filtersShowTabLabels": false,
+  "filtersShowTabLabels": true,
+  "filtersTabLabelsMigrated": true,
   "glassBlurIntensity": 15,
   "gridColumns": [
     "type",

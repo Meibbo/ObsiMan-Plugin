@@ -9,8 +9,8 @@
 
 1. **Read this file** — architecture rules, coding patterns, constraints
 2. **Read `docs/ObsiMan - Agent Memory.md`** — current project state, pending iterations, last agent's notes
-3. **Read `docs/ObsiMan - Known Issues.md`** — open bugs (don't reintroduce fixed ones)
-4. **Find your tasks** — check `docs/ObsiMan - User Interface.md`, `docs/ObsiMan - Known Issues.md`, or `docs/ObsiMan - Plugin Architecture.md` for task checkboxes `[ ]`.
+3. **Read `docs/ObsiMan - Bugs.md`** — open bugs (don't reintroduce fixed ones)
+4. **Find your tasks** — check `docs/ObsiMan - User Interface.md`, `docs/ObsiMan - Bugs.md` or `docs/ObsiMan - Structure.md` for task checkboxes `[ ]`.
 5. **Run `git log --oneline -5`** — confirm you're on the right branch and know last commits
 6. **Ask the user** *(or verify via `npm run build`)* whether features from the last session are working
 7. **Check your own context budget** — estimate how many large files you can read. If <20% remaining, warn the user and suggest switching agents BEFORE starting implementation
@@ -25,7 +25,7 @@
 - **Stack**: TypeScript + Obsidian Plugin API + esbuild + ESLint
 - **Repo**: `https://github.com/Meibbo/ObsiMan-Plugin`
 - **Current branch**: `add-functions`
-- **Version**: `1.0.0-beta.6` (working toward `1.0.0` stable)
+- **Version**: `1.0.0-beta.9` (working toward `1.0.0` stable)
 - **Primary author**: Meibbo
 
 ### Core philosophy — "Augment, don't replace"
@@ -132,6 +132,9 @@ el.style.transition = 'none'; // ❌ — add a CSS class instead
 npm run dev          # watch mode with sourcemaps
 npm run build        # tsc type-check + esbuild production bundle
 npm run lint         # ESLint with obsidianmd rules
+npm run test:integrity   # in-plugin integration tests (obsidian-integration-testing)
+npm run test:e2e         # full E2E tests in real Obsidian (wdio-obsidian-service)
+npm run test:all         # runs both test suites
 ```
 
 **After every coding session, run `npm run build` before updating ObsiMan - Agent Memory.md.**

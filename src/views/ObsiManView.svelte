@@ -46,7 +46,8 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		return ['ops', 'statistics', 'filters'];
 	}
 
-	let pageOrder = $state(resolvedPageOrder());
+	const initialPageOrder = resolvedPageOrder();
+	let pageOrder = $state(initialPageOrder);
 	let pageRenderKey = $state(0); // incremented on each reorder to force page content remount
 	const pageLabels: Record<string, string> = {
 		statistics: t('nav.statistics'),
@@ -85,7 +86,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	const leftFab = $derived.by<FabDef | null>(() => pageFabs[activePage]?.left ?? null);
 	const rightFab = $derived.by<FabDef | null>(() => pageFabs[activePage]?.right ?? null);
 
-	let activePage = $state(pageOrder[0]);
+	let activePage = $state(initialPageOrder[0] ?? 'ops');
 	let isAnimating = $state(false);
 	// Use DOM insertion order (pageOrder at mount time) — avoids stale settings mismatch
 	let pageIndex = $derived(pageOrder.indexOf(activePage));
@@ -135,6 +136,12 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	$effect(() => {
 		void pageIndex; // declare dependency
 		applyPageTransform(true);
+	});
+
+	$effect(() => {
+		if (!pageOrder.includes(activePage)) {
+			activePage = pageOrder[0] ?? 'ops';
+		}
 	});
 
 	// ─── Navbar long-press + pointer-based reorder ───────────────────────────
@@ -326,9 +333,25 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 	$effect(() => {
 		const term = filtersSearch;
-		tagsExplorer?.setSearchTerm(term);
-		propExplorer?.setSearchTerm(term);
-		fileList?.setSearchFilter(term, '');
+		const tab = filtersActiveTab;
+		const catMode = filtersSearchCategory[tab] ?? 0;
+
+		// Route search with per-tab category scoping
+		switch (tab) {
+			case 'props':
+				propExplorer?.setSearchTerm(term, catMode === 0 ? 'properties' : 'values');
+				break;
+			case 'tags':
+				tagsExplorer?.setSearchTerm(term, catMode === 0 ? 'all' : 'leaf');
+				break;
+			case 'files':
+				if (catMode === 0) {
+					fileList?.setSearchFilter(term, '');
+				} else {
+					fileList?.setSearchFilter('', term);
+				}
+				break;
+		}
 	});
 
 	// Active filter highlight state — passed to PropertyExplorer on each render
@@ -515,6 +538,31 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		props: 'lucide-tag',
 		files: 'lucide-files',
 	};
+
+	// ─── Per-tab category search mode ────────────────────────────────────────
+	const CATEGORY_ICONS: Record<FiltersTab, [string, string]> = {
+		props: ['lucide-tag',              'lucide-text-cursor-input'],
+		tags:  ['lucide-hash',             'lucide-git-branch'],
+		files: ['lucide-file',             'lucide-folder'],
+	};
+	const CATEGORY_LABELS: Record<FiltersTab, [string, string]> = {
+		props: [t('filter.category.props'), t('filter.category.values')],
+		tags:  [t('filter.category.all_tags'), t('filter.category.leaf_tags')],
+		files: [t('filter.category.files'), t('filter.category.folders')],
+	};
+
+	let filtersSearchCategory = $state<Record<FiltersTab, number>>({ tags: 0, props: 0, files: 0 });
+
+	const currentCategoryIcon = $derived(
+		CATEGORY_ICONS[filtersActiveTab]?.[filtersSearchCategory[filtersActiveTab] ?? 0] ?? 'lucide-search'
+	);
+
+	function cycleSearchCategory() {
+		const tab = filtersActiveTab;
+		filtersSearchCategory[tab] = filtersSearchCategory[tab] === 0 ? 1 : 0;
+		// Re-run search with new category
+		filtersSearchCategory = { ...filtersSearchCategory };
+	}
 
 	let explorerViewFormat = $state<'tree' | 'grid' | 'cards'>('tree');
 	let explorerShowCount = $state(true);
@@ -841,43 +889,58 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 					<!-- FILTERS PAGE -->
 				{:else if pageId === "filters"}
 					<!-- 3-tab bar: Tags · Props · Files -->
-					<div class="obsiman-filters-tabbar nav-buttons-container" class:has-labels={plugin.settings.filtersShowTabLabels}>
+					<div class="obsiman-tab-bar" class:has-labels={plugin.settings.filtersShowTabLabels}>
 						{#each (['tags', 'props', 'files'] as FiltersTab[]) as tab}
 							<div
-								class="obsiman-filters-tab nav-action-button"
+								class="obsiman-tab nav-action-button"
 								class:is-active={filtersActiveTab === tab}
 								onclick={() => switchFiltersTab(tab)}
 								aria-label={t('filter.tab.' + tab)}
 								role="tab"
 								tabindex="0"
 							>
-								<span class="obsiman-filters-tab-icon" use:icon={TAB_ICONS[tab]}></span>
+								<span class="obsiman-tab-icon" use:icon={TAB_ICONS[tab]}></span>
 								{#if plugin.settings.filtersShowTabLabels}
-									<span class="obsiman-filters-tab-label">{t('filter.tab.' + tab)}</span>
+									<span class="obsiman-tab-label">{t('filter.tab.' + tab)}</span>
 								{/if}
 							</div>
 						{/each}
 					</div>
 
-					<!-- Persistent header: search pill · sort -->
+					<!-- Persistent header: [view-mode] [search pill] [sort] -->
 					<div class="obsiman-filters-header">
-						<div class="obsiman-filters-header-search-pill search-input-container">
-							{#if filtersSearch}
-								<button
-									class="obsiman-filters-search-clear search-input-clear-button"
-									aria-label="Clear search"
-									use:icon={"lucide-x"}
-									onclick={() => { filtersSearch = ''; }}
-								></button>
-							{/if}
+						<button
+							class="obsiman-filters-header-btn"
+							aria-label="View mode (WIP)"
+							use:icon={"lucide-layout-list"}
+						></button>
+						<div class="obsiman-filters-header-search-pill">
 							<input
 								class="obsiman-filters-search-input"
 								type="search"
 								placeholder={t('filter.search_placeholder')}
 								bind:value={filtersSearch}
 							/>
-							<div class="obsiman-filters-search-mode" aria-label="Toggle search mode" use:icon={"lucide-search"}></div>
+							{#if filtersSearch}
+								<button
+									class="obsiman-filters-search-clear"
+									aria-label="Clear search"
+									use:icon={"lucide-x"}
+									onclick={() => { filtersSearch = ''; }}
+								></button>
+							{/if}
+							<button
+								class="obsiman-filters-search-mode"
+								aria-label={CATEGORY_LABELS[filtersActiveTab]?.[filtersSearchCategory[filtersActiveTab] ?? 0] ?? 'Search mode'}
+								use:icon={currentCategoryIcon}
+								onclick={cycleSearchCategory}
+							></button>
 						</div>
+						<button
+							class="obsiman-filters-header-btn"
+							aria-label="Sort (WIP)"
+							use:icon={"lucide-arrow-up-down"}
+						></button>
 					</div>
 
 					<!-- Tab content via sub-components -->
@@ -891,10 +954,10 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 					<!-- OPS PAGE -->
 				{:else if pageId === "ops"}
-					<div class="obsiman-subtab-bar">
+					<div class="obsiman-tab-bar">
 						{#each opsTabs as tab}
 							<div
-								class="obsiman-subtab"
+								class="obsiman-tab nav-action-button"
 								class:is-active={opsTab === tab.id}
 								data-tab={tab.id}
 								onclick={() => {
@@ -904,16 +967,16 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 								tabindex="0"
 								aria-label={tab.label}
 							>
-								<span class="obsiman-subtab-icon" use:icon={tab.icon}></span>
-								<span class="obsiman-subtab-label">{tab.label}</span>
+								<span class="obsiman-tab-icon" use:icon={tab.icon}></span>
+								<span class="obsiman-tab-label">{tab.label}</span>
 							</div>
 						{/each}
 					</div>
 
-					<div class="obsiman-subtab-area">
+					<div class="obsiman-tab-area">
 						<!-- File Ops tab (always in DOM so QueueListComponent persists) -->
 						<div
-							class="obsiman-subtab-content"
+							class="obsiman-tab-content"
 							class:is-active={opsTab === "fileops"}
 						>
 							<div class="obsiman-ops-buttons">
@@ -974,7 +1037,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 						<!-- Linter tab (always in DOM) -->
 						<div
-							class="obsiman-subtab-content"
+							class="obsiman-tab-content"
 							class:is-active={opsTab === "linter"}
 						>
 							<div class="obsiman-linter-desc">
@@ -989,7 +1052,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 						<!-- Template tab -->
 						<div
-							class="obsiman-subtab-content"
+							class="obsiman-tab-content"
 							class:is-active={opsTab === "template"}
 						>
 							<div class="obsiman-coming-soon">
@@ -999,7 +1062,7 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 						<!-- Content tab -->
 						<div
-							class="obsiman-subtab-content"
+							class="obsiman-tab-content"
 							class:is-active={opsTab === "content"}
 						>
 							<!-- Find row: input + Aa + .* toggles -->
