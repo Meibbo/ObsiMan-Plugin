@@ -4,6 +4,10 @@
 	import type { ObsiManPlugin } from '../../main';
 	import { FileListComponent } from '../components/FileListComponent';
 	import { PropertyExplorerComponent } from '../components/PropertyExplorerComponent';
+	import FiltersTagsTab from './tabs/FiltersTagsTab.svelte';
+	import FiltersPropsTab from './tabs/FiltersPropsTab.svelte';
+	import FiltersFilesTab from './tabs/FiltersFilesTab.svelte';
+	import StatisticsPage from './pages/StatisticsPage.svelte';
 	import { QueueListComponent } from '../components/QueueListComponent';
 	import { QueueIslandComponent } from '../components/QueueIslandComponent';
 	import { AddFilterModal } from '../modals/AddFilterModal';
@@ -34,23 +38,23 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 	function resolvedPageOrder(): string[] {
 		const order = plugin.settings.pageOrder as string[] | undefined;
-		const valid = ['files', 'filters', 'ops'];
+		const valid = ['statistics', 'filters', 'ops'];
 		if (Array.isArray(order) && order.length === 3 && valid.every((p) => order.includes(p))) {
 			return order;
 		}
-		return ['ops', 'files', 'filters'];
+		return ['ops', 'statistics', 'filters'];
 	}
 
 	let pageOrder = $state(resolvedPageOrder());
 	let pageRenderKey = $state(0); // incremented on each reorder to force page content remount
 	const pageLabels: Record<string, string> = {
-		files: t('nav.files'),
+		statistics: t('nav.statistics'),
 		filters: t('nav.filters'),
 		ops: t('nav.ops'),
 	};
 
 	const pageIcons: Record<string, string> = {
-		files: 'lucide-files',
+		statistics: 'lucide-bar-chart-2',
 		filters: 'lucide-filter',
 		ops: 'lucide-settings-2',
 	};
@@ -75,13 +79,11 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	};
 
 	const leftFab = $derived.by<FabDef | null>(() => {
-		if (activePage === 'files') return { icon: 'lucide-layout-grid', label: t('nav.view_mode'), action: () => showPopup('view-mode') };
 		if (pageIndex === 0) return pageFabDef[activePage] ?? null;
 		return null;
 	});
 
 	const rightFab = $derived.by<FabDef | null>(() => {
-		if (activePage === 'files') return { icon: 'lucide-search', label: t('nav.search_files'), action: () => showPopup('search') };
 		if (pageIndex === pageOrder.length - 1) return pageFabDef[activePage] ?? null;
 		return null;
 	});
@@ -317,9 +319,9 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		filterRuleCount = countFilterLeaves(plugin.filterService.activeFilter);
 	}
 
-	let fileList: FileListComponent | undefined;
+	let fileList = $state<FileListComponent | undefined>(undefined);
 	let queueList: QueueListComponent | undefined;
-	let propExplorer: PropertyExplorerComponent | undefined;
+	let propExplorer = $state<PropertyExplorerComponent | undefined>(undefined);
 
 	// Active filter highlight state — passed to PropertyExplorer on each render
 	let activeFilterProps = $state(new Set<string>());
@@ -497,15 +499,14 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	});
 
 	// ─── Filters page tab bar ────────────────────────────────────────────────
-	type FiltersTabAction = 'search' | 'scope' | 'sort' | 'view';
-	let filtersActiveTab = $state<FiltersTabAction | null>(null);
+	type FiltersTab = 'tags' | 'props' | 'files';
+	let filtersActiveTab = $state<FiltersTab>('props');
 
-	const filtersTabItems: Array<{ id: FiltersTabAction; icon: string; labelKey: string }> = [
-		{ id: 'search', icon: 'lucide-search', labelKey: 'filters.tab.search' },
-		{ id: 'scope', icon: 'lucide-layers', labelKey: 'filters.tab.scope' },
-		{ id: 'sort', icon: 'lucide-arrow-up-down', labelKey: 'filters.tab.sort' },
-		{ id: 'view', icon: 'lucide-layout-grid', labelKey: 'filters.tab.view' },
-	];
+	const TAB_ICONS: Record<FiltersTab, string> = {
+		tags:  'lucide-hash',
+		props: 'lucide-tag',
+		files: 'lucide-files',
+	};
 
 	let explorerViewFormat = $state<'tree' | 'grid' | 'cards'>('tree');
 	let explorerShowCount = $state(true);
@@ -527,17 +528,9 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		});
 	});
 
-	function toggleFiltersTab(tab: FiltersTabAction, e: MouseEvent) {
-		if (filtersActiveTab === tab) {
-			filtersActiveTab = null;
-			if (tab === 'search') propExplorer?.toggleSearch(); // close search bar
-		} else {
-			filtersActiveTab = tab;
-			if (tab === 'search') propExplorer?.toggleSearch();
-			else if (tab === 'scope') propExplorer?.showFilterMenu(e);
-			else if (tab === 'sort') propExplorer?.showSortMenu(e);
-			// 'view' — dropdown panel shown in template
-		}
+	function switchFiltersTab(tab: FiltersTab) {
+		if (filtersActiveTab === tab) return;
+		filtersActiveTab = tab;
 	}
 
 	// ─── Active Filters popup state ───────────────────────────────────────────
@@ -833,101 +826,37 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 		{#each pageOrder as pageId (pageId)}
 			<div class="obsiman-page" data-page={pageId}>
 				{#key pageRenderKey}
-				<!-- FILES PAGE -->
-				{#if pageId === "files"}
-					<div class="obsiman-files-topbar">
-						<div class="obsiman-sidebar-stats">{statsText}</div>
-					</div>
-					<div class="obsiman-files-toggle-row">
-						<input
-							type="checkbox"
-							id="obsiman-toggle-all"
-							onchange={(e) => {
-								const cb = e.target as HTMLInputElement;
-								if (cb.checked) fileList?.selectAll();
-								else fileList?.deselectAll();
-							}}
-						/>
-						<label for="obsiman-toggle-all"
-							>{t("files.select_all")}</label
-						>
-					</div>
-					<div
-						class="obsiman-file-list-container"
-						use:initFileList
-					></div>
+				<!-- STATISTICS PAGE -->
+				{#if pageId === "statistics"}
+					<StatisticsPage {plugin} />
 
 					<!-- FILTERS PAGE -->
 				{:else if pageId === "filters"}
-					<!-- 4-tab toolbar: Search · Scope · Sort · View -->
+					<!-- 3-tab bar: Tags · Props · Files -->
 					<div class="obsiman-filters-tabbar">
-						{#each filtersTabItems as tab}
+						{#each (['tags', 'props', 'files'] as FiltersTab[]) as tab}
 							<div
 								class="obsiman-filters-tab"
-								class:is-active={filtersActiveTab === tab.id}
-								onclick={(e) => toggleFiltersTab(tab.id, e)}
-								aria-label={t(tab.labelKey)}
+								class:is-active={filtersActiveTab === tab}
+								onclick={() => switchFiltersTab(tab)}
+								aria-label={t('filter.tab.' + tab)}
 								role="tab"
 								tabindex="0"
 							>
-								<span class="obsiman-filters-tab-icon" use:icon={tab.icon}></span>
-								<span class="obsiman-filters-tab-label">{t(tab.labelKey)}</span>
+								<span class="obsiman-filters-tab-icon" use:icon={TAB_ICONS[tab]}></span>
+								<span class="obsiman-filters-tab-label">{t('filter.tab.' + tab)}</span>
 							</div>
 						{/each}
-
-						{#if filtersActiveTab === 'view'}
-							<div class="obsiman-filters-view-panel">
-								<div class="obsiman-view-panel-section">
-									<span class="obsiman-view-panel-label">{t('filters.view.format')}</span>
-									{#each (['tree', 'grid', 'cards'] as const) as fmt}
-										<div
-											class="obsiman-view-panel-option"
-											class:is-active={explorerViewFormat === fmt}
-											onclick={() => { explorerViewFormat = fmt; filtersActiveTab = null; }}
-											role="option"
-											aria-selected={explorerViewFormat === fmt}
-											tabindex="0"
-										>{t('filters.view.format.' + fmt)}</div>
-									{/each}
-								</div>
-								<div class="obsiman-view-panel-section">
-									<span class="obsiman-view-panel-label">{t('filters.view.show')}</span>
-									<label class="obsiman-view-panel-check">
-										<input type="checkbox" bind:checked={explorerShowPropIcon} />
-										{t('filters.view.show.prop_icon')}
-									</label>
-									<label class="obsiman-view-panel-check">
-										<input type="checkbox" bind:checked={explorerShowPropName} />
-										{t('filters.view.show.prop_name')}
-									</label>
-									<label class="obsiman-view-panel-check">
-										<input type="checkbox" bind:checked={explorerShowCount} />
-										{t('filters.view.show.count')}
-									</label>
-									<label class="obsiman-view-panel-check">
-										<input type="checkbox" bind:checked={explorerShowValues} />
-										{t('filters.view.show.values')}
-									</label>
-									<label class="obsiman-view-panel-check">
-										<input type="checkbox" bind:checked={explorerShowType} />
-										{t('filters.view.show.type')}
-									</label>
-								</div>
-								<div class="obsiman-view-panel-section">
-									<label class="obsiman-view-panel-check">
-										<input type="checkbox" bind:checked={explorerTagsOnly} />
-										<span>
-											<strong>{t('filters.view.tags_only')}</strong><br/>
-											<small>{t('filters.view.tags_only.desc')}</small>
-										</span>
-									</label>
-								</div>
-							</div>
-						{/if}
 					</div>
 
-					<!-- PropertyExplorer fills remaining space -->
-					<div class="obsiman-filters-explorer-wrap" use:initPropertyExplorer></div>
+					<!-- Tab content via sub-components -->
+					{#if filtersActiveTab === 'tags'}
+						<FiltersTagsTab {plugin} />
+					{:else if filtersActiveTab === 'props'}
+						<FiltersPropsTab {plugin} bind:propExplorer />
+					{:else if filtersActiveTab === 'files'}
+						<FiltersFilesTab {plugin} bind:fileList />
+					{/if}
 
 					<!-- OPS PAGE -->
 				{:else if pageId === "ops"}
