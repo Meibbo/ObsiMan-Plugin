@@ -3,511 +3,511 @@
 /* === CSS Variables (Style Settings compatible) === */
 .obsiman-view,
 .obsiman-main-view {
-	--obsiman-accent: var(--interactive-accent);
-	--obsiman-bg-section: var(--background-secondary);
-	--obsiman-bg-hover: var(--background-modifier-hover);
-	--obsiman-border: var(--background-modifier-border);
-	--obsiman-text-muted: var(--text-muted);
-	--obsiman-text-faint: var(--text-faint);
-	--obsiman-diff-added: #2ea04366;
-	--obsiman-diff-deleted: #f8514966;
-	--obsiman-badge-bg: var(--background-modifier-hover);
+  --obsiman-accent: var(--interactive-accent);
+  --obsiman-bg-section: var(--background-secondary);
+  --obsiman-bg-hover: var(--background-modifier-hover);
+  --obsiman-border: var(--background-modifier-border);
+  --obsiman-text-muted: var(--text-muted);
+  --obsiman-text-faint: var(--text-faint);
+  --obsiman-diff-added: #2ea04366;
+  --obsiman-diff-deleted: #f8514966;
+  --obsiman-badge-bg: var(--background-modifier-hover);
 }
 
 /* === View Layout (overridden by Svelte redesign rules below) === */
 
 /* === Sections === */
 .obsiman-section {
-	border-bottom: 1px solid var(--obsiman-border);
-	padding: 8px 12px;
+  border-bottom: 1px solid var(--obsiman-border);
+  padding: 8px 12px;
 }
 
 .obsiman-section-header h4 {
-	margin: 0 0 6px 0;
-	font-size: 0.85em;
-	font-weight: 600;
-	text-transform: uppercase;
-	color: var(--obsiman-text-muted);
-	letter-spacing: 0.05em;
+  margin: 0 0 6px 0;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--obsiman-text-muted);
+  letter-spacing: 0.05em;
 }
 
 /* === Buttons === */
 .obsiman-btn {
-	font-size: 0.8em;
-	padding: 4px 10px;
-	border-radius: var(--radius-s);
-	cursor: pointer;
-	background: var(--interactive-normal);
-	border: 1px solid var(--obsiman-border);
-	color: var(--text-normal);
+  font-size: 0.8em;
+  padding: 4px 10px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  background: var(--interactive-normal);
+  border: 1px solid var(--obsiman-border);
+  color: var(--text-normal);
 }
 
 .obsiman-btn:hover {
-	background: var(--obsiman-bg-hover);
+  background: var(--obsiman-bg-hover);
 }
 
 .obsiman-btn.mod-cta {
-	background: var(--obsiman-accent);
-	color: var(--text-on-accent);
-	border-color: var(--obsiman-accent);
+  background: var(--obsiman-accent);
+  color: var(--text-on-accent);
+  border-color: var(--obsiman-accent);
 }
 
 .obsiman-btn.mod-cta:hover {
-	opacity: 0.9;
+  opacity: 0.9;
 }
 
 .obsiman-btn-small {
-	font-size: 0.75em;
-	padding: 2px 8px;
-	border-radius: var(--radius-s);
-	cursor: pointer;
-	background: transparent;
-	border: 1px solid var(--obsiman-border);
-	color: var(--obsiman-text-muted);
+  font-size: 0.75em;
+  padding: 2px 8px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--obsiman-border);
+  color: var(--obsiman-text-muted);
 }
 
 .obsiman-btn-small:hover {
-	background: var(--obsiman-bg-hover);
+  background: var(--obsiman-bg-hover);
 }
 
 /* === Filter Section === */
 .obsiman-filter-actions {
-	margin-bottom: 6px;
+  margin-bottom: 6px;
 }
 
 .obsiman-template-select {
-	width: 100%;
-	font-size: 0.8em;
+  width: 100%;
+  font-size: 0.8em;
 }
 
 .obsiman-filter-buttons {
-	display: flex;
-	gap: 4px;
-	flex-wrap: wrap;
-	margin-bottom: 8px;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
 }
 
 .obsiman-filter-tree {
-	overflow-y: auto;
+  overflow-y: auto;
 }
 
 .obsiman-filter-group {
-	margin-left: 8px;
-	border-left: 2px solid var(--obsiman-border);
-	padding-left: 8px;
-	margin-bottom: 4px;
+  margin-left: 8px;
+  border-left: 2px solid var(--obsiman-border);
+  padding-left: 8px;
+  margin-bottom: 4px;
 }
 
 .obsiman-filter-group-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
 }
 
 .obsiman-filter-logic-badge {
-	font-size: 0.7em;
-	font-weight: 600;
-	text-transform: uppercase;
-	padding: 1px 6px;
-	border-radius: var(--radius-s);
-	background: var(--obsiman-badge-bg);
-	color: var(--obsiman-accent);
+  font-size: 0.7em;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: var(--radius-s);
+  background: var(--obsiman-badge-bg);
+  color: var(--obsiman-accent);
 }
 
 .obsiman-filter-children {
-	margin-left: 4px;
+  margin-left: 4px;
 }
 
 .obsiman-filter-empty {
-	font-size: 0.75em;
-	color: var(--obsiman-text-faint);
-	font-style: italic;
-	padding: 2px 0;
+  font-size: 0.75em;
+  color: var(--obsiman-text-faint);
+  font-style: italic;
+  padding: 2px 0;
 }
 
 .obsiman-filter-rule {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	padding: 2px 0;
-	font-size: 0.8em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0;
+  font-size: 0.8em;
 }
 
 .obsiman-filter-rule-type {
-	font-weight: 500;
-	color: var(--obsiman-text-muted);
+  font-weight: 500;
+  color: var(--obsiman-text-muted);
 }
 
 .obsiman-filter-rule-detail {
-	color: var(--text-normal);
-	flex: 1;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+  color: var(--text-normal);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .obsiman-filter-remove-btn {
-	font-size: 1em;
-	padding: 0 4px;
-	line-height: 1;
-	border: none;
-	background: transparent;
-	color: var(--obsiman-text-faint);
-	cursor: pointer;
+  font-size: 1em;
+  padding: 0 4px;
+  line-height: 1;
+  border: none;
+  background: transparent;
+  color: var(--obsiman-text-faint);
+  cursor: pointer;
 }
 
 .obsiman-filter-remove-btn:hover {
-	color: var(--text-error);
+  color: var(--text-error);
 }
 
 /* === File List Section === */
 .obsiman-files-header {
-	margin-bottom: 6px;
+  margin-bottom: 6px;
 }
 
 .obsiman-files-count {
-	font-size: 0.75em;
-	color: var(--obsiman-text-muted);
-	display: block;
-	margin-bottom: 4px;
+  font-size: 0.75em;
+  color: var(--obsiman-text-muted);
+  display: block;
+  margin-bottom: 4px;
 }
 
 .obsiman-files-search {
-	width: 100%;
-	font-size: 0.8em;
-	padding: 4px 8px;
-	border: 1px solid var(--obsiman-border);
-	border-radius: var(--radius-s);
-	background: var(--background-primary);
-	color: var(--text-normal);
-	margin-bottom: 4px;
+  width: 100%;
+  font-size: 0.8em;
+  padding: 4px 8px;
+  border: 1px solid var(--obsiman-border);
+  border-radius: var(--radius-s);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  margin-bottom: 4px;
 }
 
 .obsiman-files-bulk {
-	display: flex;
-	gap: 4px;
-	margin-bottom: 4px;
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
 }
 
 .obsiman-files-col-header {
-	display: grid;
-	grid-template-columns: 18px 1fr 50px 50px;
-	gap: 4px;
-	border-bottom: 1px solid var(--obsiman-border);
-	padding-bottom: 2px;
-	margin-bottom: 2px;
+  display: grid;
+  grid-template-columns: 18px 1fr 50px 50px;
+  gap: 4px;
+  border-bottom: 1px solid var(--obsiman-border);
+  padding-bottom: 2px;
+  margin-bottom: 2px;
 }
 
 .obsiman-col-header {
-	font-size: 0.7em;
-	font-weight: 600;
-	text-transform: uppercase;
-	color: var(--obsiman-text-muted);
-	background: transparent;
-	border: none;
-	cursor: pointer;
-	text-align: left;
-	padding: 2px 0;
+  font-size: 0.7em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--obsiman-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 2px 0;
 }
 
 .obsiman-col-header:hover,
 .obsiman-col-header.active {
-	color: var(--text-normal);
+  color: var(--text-normal);
 }
 
 .obsiman-files-list {
-	/* no max-height — parent container scrolls */
+  /* no max-height — parent container scrolls */
 }
 
 .obsiman-file-row {
-	display: grid;
-	grid-template-columns: 18px 1fr 36px 50px;
-	gap: 4px;
-	align-items: center;
-	padding: 2px 0;
-	font-size: 0.8em;
-	border-radius: var(--radius-s);
+  display: grid;
+  grid-template-columns: 18px 1fr 36px 50px;
+  gap: 4px;
+  align-items: center;
+  padding: 2px 0;
+  font-size: 0.8em;
+  border-radius: var(--radius-s);
 }
 
 .obsiman-file-row:hover {
-	background: var(--obsiman-bg-hover);
+  background: var(--obsiman-bg-hover);
 }
 
 .obsiman-file-checkbox {
-	width: 14px;
-	height: 14px;
+  width: 14px;
+  height: 14px;
 }
 
 .obsiman-file-name {
-	cursor: pointer;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	color: var(--text-normal);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-normal);
 }
 
 .obsiman-file-name:hover {
-	color: var(--obsiman-accent);
-	text-decoration: underline;
+  color: var(--obsiman-accent);
+  text-decoration: underline;
 }
 
 .obsiman-file-props {
-	text-align: center;
-	color: var(--obsiman-text-muted);
-	font-size: 0.9em;
+  text-align: center;
+  color: var(--obsiman-text-muted);
+  font-size: 0.9em;
 }
 
 .obsiman-file-path {
-	color: var(--obsiman-text-faint);
-	font-size: 0.85em;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+  color: var(--obsiman-text-faint);
+  font-size: 0.85em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .obsiman-show-more {
-	width: 100%;
-	margin-top: 4px;
+  width: 100%;
+  margin-top: 4px;
 }
 
 /* === Operations Section === */
 .obsiman-ops-buttons {
-	display: flex;
-	gap: 4px;
-	flex-wrap: wrap;
-	margin-bottom: 8px;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
 }
 
 .obsiman-queue-container {
-	margin-bottom: 8px;
+  margin-bottom: 8px;
 }
 
 .obsiman-queue-header {
-	margin-bottom: 4px;
+  margin-bottom: 4px;
 }
 
 .obsiman-queue-title {
-	font-size: 0.8em;
-	font-weight: 500;
-	color: var(--obsiman-text-muted);
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--obsiman-text-muted);
 }
 
 .obsiman-queue-empty {
-	font-size: 0.8em;
-	color: var(--obsiman-text-faint);
-	font-style: italic;
+  font-size: 0.8em;
+  color: var(--obsiman-text-faint);
+  font-style: italic;
 }
 
 .obsiman-queue-item {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	padding: 3px 0;
-	font-size: 0.8em;
-	border-bottom: 1px solid var(--obsiman-border);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 0;
+  font-size: 0.8em;
+  border-bottom: 1px solid var(--obsiman-border);
 }
 
 .obsiman-queue-checkbox {
-	width: 14px;
-	height: 14px;
-	flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .obsiman-queue-index {
-	color: var(--obsiman-text-faint);
-	font-size: 0.85em;
-	min-width: 18px;
+  color: var(--obsiman-text-faint);
+  font-size: 0.85em;
+  min-width: 18px;
 }
 
 .obsiman-queue-desc {
-	flex: 1;
-	overflow: hidden;
+  flex: 1;
+  overflow: hidden;
 }
 
 .obsiman-queue-action {
-	font-weight: 500;
-	color: var(--obsiman-accent);
+  font-weight: 500;
+  color: var(--obsiman-accent);
 }
 
 .obsiman-queue-file-count {
-	color: var(--obsiman-text-faint);
-	font-size: 0.85em;
-	white-space: nowrap;
+  color: var(--obsiman-text-faint);
+  font-size: 0.85em;
+  white-space: nowrap;
 }
 
 .obsiman-queue-actions {
-	display: flex;
-	gap: 4px;
+  display: flex;
+  gap: 4px;
 }
 
 .obsiman-stats {
-	margin-top: 8px;
-	padding-top: 6px;
-	border-top: 1px solid var(--obsiman-border);
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--obsiman-border);
 }
 
 .obsiman-stats-text {
-	font-size: 0.75em;
-	color: var(--obsiman-text-faint);
+  font-size: 0.75em;
+  color: var(--obsiman-text-faint);
 }
 
 /* === Modals === */
 .obsiman-modal {
-	max-width: 500px;
+  max-width: 500px;
 }
 
 .obsiman-modal h3 {
-	margin-top: 0;
+  margin-top: 0;
 }
 
 .obsiman-modal-subtitle {
-	font-size: 0.85em;
-	color: var(--obsiman-text-muted);
-	margin-top: -8px;
+  font-size: 0.85em;
+  color: var(--obsiman-text-muted);
+  margin-top: -8px;
 }
 
 /* === Queue Details / Diff === */
 .obsiman-queue-details {
-	max-width: 600px;
+  max-width: 600px;
 }
 
 .obsiman-diff-container {
-	max-height: 400px;
-	overflow-y: auto;
-	margin-bottom: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 12px;
 }
 
 .obsiman-diff-file {
-	margin-bottom: 12px;
-	border: 1px solid var(--obsiman-border);
-	border-radius: var(--radius-s);
-	padding: 8px;
+  margin-bottom: 12px;
+  border: 1px solid var(--obsiman-border);
+  border-radius: var(--radius-s);
+  padding: 8px;
 }
 
 .obsiman-diff-path {
-	font-size: 0.85em;
-	margin: 0 0 6px 0;
-	word-break: break-all;
+  font-size: 0.85em;
+  margin: 0 0 6px 0;
+  word-break: break-all;
 }
 
 .obsiman-diff-row {
-	display: flex;
-	flex-direction: column;
-	gap: 1px;
-	padding: 2px 4px;
-	margin-bottom: 2px;
-	font-size: 0.8em;
-	font-family: var(--font-monospace);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 2px 4px;
+  margin-bottom: 2px;
+  font-size: 0.8em;
+  font-family: var(--font-monospace);
 }
 
 .obsiman-diff-key {
-	font-weight: 600;
-	color: var(--text-normal);
+  font-weight: 600;
+  color: var(--text-normal);
 }
 
 .obsiman-diff-added {
-	background: var(--obsiman-diff-added);
-	padding: 1px 4px;
-	border-radius: 2px;
+  background: var(--obsiman-diff-added);
+  padding: 1px 4px;
+  border-radius: 2px;
 }
 
 .obsiman-diff-deleted {
-	background: var(--obsiman-diff-deleted);
-	padding: 1px 4px;
-	border-radius: 2px;
+  background: var(--obsiman-diff-deleted);
+  padding: 1px 4px;
+  border-radius: 2px;
 }
 
 /* Enhanced diff styles */
 .obsiman-diff-summary {
-	font-size: 0.85em;
-	color: var(--obsiman-text-muted);
-	margin-bottom: 8px;
-	padding: 4px 8px;
-	background: var(--obsiman-bg-section);
-	border-radius: var(--radius-s);
+  font-size: 0.85em;
+  color: var(--obsiman-text-muted);
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  background: var(--obsiman-bg-section);
+  border-radius: var(--radius-s);
 }
 
 .obsiman-diff-ops {
-	margin-bottom: 8px;
-	font-size: 0.8em;
+  margin-bottom: 8px;
+  font-size: 0.8em;
 }
 
 .obsiman-diff-op {
-	display: flex;
-	gap: 6px;
-	padding: 2px 0;
+  display: flex;
+  gap: 6px;
+  padding: 2px 0;
 }
 
 .obsiman-diff-op-index {
-	color: var(--obsiman-text-faint);
-	min-width: 20px;
+  color: var(--obsiman-text-faint);
+  min-width: 20px;
 }
 
 .obsiman-diff-op-action {
-	font-weight: 600;
-	color: var(--obsiman-accent);
-	text-transform: uppercase;
+  font-weight: 600;
+  color: var(--obsiman-accent);
+  text-transform: uppercase;
 }
 
 .obsiman-diff-op-detail {
-	flex: 1;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .obsiman-diff-op-files {
-	color: var(--obsiman-text-faint);
-	white-space: nowrap;
+  color: var(--obsiman-text-faint);
+  white-space: nowrap;
 }
 
 .obsiman-diff-toggle-row {
-	margin-bottom: 8px;
-	font-size: 0.8em;
+  margin-bottom: 8px;
+  font-size: 0.8em;
 }
 
 .obsiman-diff-toggle {
-	cursor: pointer;
-	color: var(--obsiman-text-muted);
+  cursor: pointer;
+  color: var(--obsiman-text-muted);
 }
 
 .obsiman-diff-file-header {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	cursor: pointer;
-	padding: 4px;
-	border-radius: var(--radius-s);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-s);
 }
 
 .obsiman-diff-file-header:hover {
-	background: var(--obsiman-bg-hover);
+  background: var(--obsiman-bg-hover);
 }
 
 .obsiman-diff-file-toggle {
-	font-size: 0.7em;
-	color: var(--obsiman-text-faint);
-	width: 12px;
+  font-size: 0.7em;
+  color: var(--obsiman-text-faint);
+  width: 12px;
 }
 
 .obsiman-diff-change-count {
-	font-size: 0.85em;
-	color: var(--obsiman-text-faint);
-	margin-left: auto;
+  font-size: 0.85em;
+  color: var(--obsiman-text-faint);
+  margin-left: auto;
 }
 
 .obsiman-diff-collapsed {
-	display: none;
+  display: none;
 }
 
 .obsiman-diff-unchanged {
-	opacity: 0.5;
+  opacity: 0.5;
 }
 
 .obsiman-diff-same {
-	color: var(--obsiman-text-faint);
-	padding: 1px 4px;
+  color: var(--obsiman-text-faint);
+  padding: 1px 4px;
 }
 
 /* === Tags Explorer === */
@@ -546,7 +546,10 @@
   color: var(--text-muted);
 }
 
-.obsiman-tags-toggle svg { width: 14px; height: 14px; }
+.obsiman-tags-toggle svg {
+  width: 14px;
+  height: 14px;
+}
 
 .obsiman-tags-icon {
   display: flex;
@@ -557,7 +560,10 @@
   color: var(--text-muted);
 }
 
-.obsiman-tags-icon svg { width: 12px; height: 12px; }
+.obsiman-tags-icon svg {
+  width: 12px;
+  height: 12px;
+}
 
 .obsiman-tags-label {
   flex: 1;
@@ -575,325 +581,325 @@
 
 /* === Property Explorer === */
 .obsiman-explorer-container {
-	max-height: 250px;
-	overflow-y: auto;
+  max-height: 250px;
+  overflow-y: auto;
 }
 
 .obsiman-explorer-search {
-	margin-bottom: 6px;
+  margin-bottom: 6px;
 }
 
 .obsiman-explorer-search-input {
-	width: 100%;
-	font-size: 0.8em;
-	padding: 4px 8px;
-	border: 1px solid var(--obsiman-border);
-	border-radius: var(--radius-s);
-	background: var(--background-primary);
-	color: var(--text-normal);
+  width: 100%;
+  font-size: 0.8em;
+  padding: 4px 8px;
+  border: 1px solid var(--obsiman-border);
+  border-radius: var(--radius-s);
+  background: var(--background-primary);
+  color: var(--text-normal);
 }
 
 .obsiman-explorer-tree {
-	font-size: 0.8em;
+  font-size: 0.8em;
 }
 
 .obsiman-explorer-empty {
-	color: var(--obsiman-text-faint);
-	font-style: italic;
-	padding: 4px 0;
+  color: var(--obsiman-text-faint);
+  font-style: italic;
+  padding: 4px 0;
 }
 
 .obsiman-explorer-node {
-	margin-bottom: 1px;
+  margin-bottom: 1px;
 }
 
 .obsiman-explorer-header {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	padding: 3px 4px;
-	border-radius: var(--radius-s);
-	cursor: pointer;
-	user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  user-select: none;
 }
 
 .obsiman-explorer-header:hover {
-	background: var(--obsiman-bg-hover);
+  background: var(--obsiman-bg-hover);
 }
 
 .obsiman-explorer-header.is-expanded {
-	font-weight: 500;
+  font-weight: 500;
 }
 
 .obsiman-explorer-toggle {
-	font-size: 0.7em;
-	width: 12px;
-	text-align: center;
-	color: var(--obsiman-text-faint);
-	flex-shrink: 0;
+  font-size: 0.7em;
+  width: 12px;
+  text-align: center;
+  color: var(--obsiman-text-faint);
+  flex-shrink: 0;
 }
 
 .obsiman-explorer-prop-name {
-	flex: 1;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	color: var(--text-normal);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-normal);
 }
 
 .obsiman-explorer-badge {
-	font-size: 0.8em;
-	color: var(--obsiman-text-faint);
-	min-width: 18px;
-	text-align: center;
-	flex-shrink: 0;
+  font-size: 0.8em;
+  color: var(--obsiman-text-faint);
+  min-width: 18px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 .obsiman-explorer-children {
-	margin-left: 16px;
-	border-left: 1px solid var(--obsiman-border);
-	padding-left: 6px;
+  margin-left: 16px;
+  border-left: 1px solid var(--obsiman-border);
+  padding-left: 6px;
 }
 
 .obsiman-explorer-value {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	padding: 2px 4px;
-	border-radius: var(--radius-s);
-	cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
 }
 
 .obsiman-explorer-value:hover {
-	background: var(--obsiman-bg-hover);
+  background: var(--obsiman-bg-hover);
 }
 
 .obsiman-explorer-value-text {
-	flex: 1;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	color: var(--obsiman-text-muted);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--obsiman-text-muted);
 }
 
 .obsiman-explorer-value:hover .obsiman-explorer-value-text {
-	color: var(--obsiman-accent);
+  color: var(--obsiman-accent);
 }
 
 /* Active filter highlight in PropertyExplorer */
-.obsiman-explorer-node.is-active-filter > .obsiman-explorer-header {
-	border-left: 2px solid var(--color-accent);
-	background: color-mix(in srgb, var(--color-accent) 8%, transparent);
-	padding-left: calc(var(--size-4-2) - 2px);
+.obsiman-explorer-node.is-active-filter>.obsiman-explorer-header {
+  border-left: 2px solid var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  padding-left: calc(var(--size-4-2) - 2px);
 }
 
 .obsiman-explorer-value.is-active-filter {
-	border-left: 2px solid var(--color-accent);
-	background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+  border-left: 2px solid var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
 }
 
 /* Explorer nav toolbar */
 .obsiman-explorer-nav {
-	display: flex;
-	align-items: center;
-	gap: 2px;
-	padding: 4px;
-	border-bottom: 1px solid var(--obsiman-border);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-bottom: 1px solid var(--obsiman-border);
 }
 
 .obsiman-explorer-nav .clickable-icon {
-	padding: 4px;
-	border-radius: var(--radius-s);
-	color: var(--obsiman-text-muted);
+  padding: 4px;
+  border-radius: var(--radius-s);
+  color: var(--obsiman-text-muted);
 }
 
 .obsiman-explorer-nav .clickable-icon:hover {
-	color: var(--text-normal);
-	background: var(--obsiman-bg-hover);
+  color: var(--text-normal);
+  background: var(--obsiman-bg-hover);
 }
 
 .obsiman-explorer-nav .clickable-icon.is-active {
-	color: var(--obsiman-accent);
+  color: var(--obsiman-accent);
 }
 
 /* Collapsible search */
 .obsiman-explorer-search-collapsible {
-	overflow: hidden;
-	max-height: 0;
-	transition: max-height 0.15s ease;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.15s ease;
 }
 
 .obsiman-explorer-search-collapsible.is-open {
-	max-height: 40px;
+  max-height: 40px;
 }
 
 .obsiman-explorer-search-row {
-	display: flex;
-	align-items: center;
-	gap: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .obsiman-explorer-search-input-wrap {
-	position: relative;
-	flex: 1;
+  position: relative;
+  flex: 1;
 }
 
 .obsiman-explorer-search-input-wrap .obsiman-explorer-search-input {
-	width: 100%;
-	padding-right: 28px;
-	box-sizing: border-box;
+  width: 100%;
+  padding-right: 28px;
+  box-sizing: border-box;
 }
 
 .obsiman-explorer-search-clear {
-	position: absolute;
-	right: 4px;
-	top: 50%;
-	transform: translateY(-50%);
-	width: 18px;
-	height: 18px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .obsiman-explorer-search-clear.is-hidden {
-	display: none;
+  display: none;
 }
 
 .obsiman-search-mode-toggle {
-	width: 24px;
-	height: 24px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: var(--radius-s);
-	color: var(--text-muted);
-	cursor: pointer;
-	flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .obsiman-search-mode-toggle:hover {
-	background: var(--obsiman-bg-hover);
-	color: var(--text-normal);
+  background: var(--obsiman-bg-hover);
+  color: var(--text-normal);
 }
 
 .obsiman-search-mode-toggle.is-active {
-	color: var(--obsiman-accent);
+  color: var(--obsiman-accent);
 }
 
 /* Iconic icon in explorer */
 .obsiman-explorer-icon {
-	width: 16px;
-	height: 16px;
-	flex-shrink: 0;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .obsiman-explorer-icon svg {
-	width: 14px;
-	height: 14px;
+  width: 14px;
+  height: 14px;
 }
 
 .obsiman-explorer-icon-default {
-	opacity: 0.5;
+  opacity: 0.5;
 }
 
 /* Queue preview states */
 .obsiman-explorer-pending {
-	opacity: 0.7;
-	border-left: 2px dashed var(--interactive-accent);
-	padding-left: 4px;
+  opacity: 0.7;
+  border-left: 2px dashed var(--interactive-accent);
+  padding-left: 4px;
 }
 
 .obsiman-explorer-deleting {
-	text-decoration: line-through;
-	opacity: 0.5;
+  text-decoration: line-through;
+  opacity: 0.5;
 }
 
 /* === Linter Modal === */
 .obsiman-linter-modal {
-	max-width: 450px;
+  max-width: 450px;
 }
 
 .obsiman-linter-warning {
-	color: var(--text-error);
-	font-style: italic;
+  color: var(--text-error);
+  font-style: italic;
 }
 
 .obsiman-linter-scope {
-	font-size: 0.85em;
-	color: var(--obsiman-text-muted);
-	margin-bottom: 8px;
+  font-size: 0.85em;
+  color: var(--obsiman-text-muted);
+  margin-bottom: 8px;
 }
 
 .obsiman-linter-list {
-	max-height: 300px;
-	overflow-y: auto;
-	margin-bottom: 8px;
-	border: 1px solid var(--obsiman-border);
-	border-radius: var(--radius-s);
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+  border: 1px solid var(--obsiman-border);
+  border-radius: var(--radius-s);
 }
 
 .obsiman-linter-item {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	padding: 4px 8px;
-	border-bottom: 1px solid var(--obsiman-border);
-	font-size: 0.85em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--obsiman-border);
+  font-size: 0.85em;
 }
 
 .obsiman-linter-item:last-child {
-	border-bottom: none;
+  border-bottom: none;
 }
 
 .obsiman-linter-index {
-	color: var(--obsiman-text-faint);
-	font-size: 0.85em;
-	min-width: 20px;
-	text-align: right;
+  color: var(--obsiman-text-faint);
+  font-size: 0.85em;
+  min-width: 20px;
+  text-align: right;
 }
 
 .obsiman-linter-prop {
-	flex: 1;
-	color: var(--text-normal);
+  flex: 1;
+  color: var(--text-normal);
 }
 
 .obsiman-linter-add-row {
-	margin-bottom: 12px;
+  margin-bottom: 12px;
 }
 
 .obsiman-linter-add-input {
-	width: 100%;
-	font-size: 0.85em;
-	padding: 4px 8px;
-	border: 1px solid var(--obsiman-border);
-	border-radius: var(--radius-s);
-	background: var(--background-primary);
-	color: var(--text-normal);
+  width: 100%;
+  font-size: 0.85em;
+  padding: 4px 8px;
+  border: 1px solid var(--obsiman-border);
+  border-radius: var(--radius-s);
+  background: var(--background-primary);
+  color: var(--text-normal);
 }
 
 /* === Explorer panel in main view === */
 .obsiman-content-area {
-	flex: 1;
-	display: flex;
-	overflow: hidden;
+  flex: 1;
+  display: flex;
+  overflow: hidden;
 }
 
 .obsiman-explorer-panel {
-	width: 260px;
-	min-width: 200px;
-	max-width: 400px;
-	border-right: 1px solid var(--obsiman-border);
-	overflow-y: auto;
-	padding: 8px;
-	flex-shrink: 0;
+  width: 260px;
+  min-width: 200px;
+  max-width: 400px;
+  border-right: 1px solid var(--obsiman-border);
+  overflow-y: auto;
+  padding: 8px;
+  flex-shrink: 0;
 }
 
 .obsiman-explorer-hidden {
-	display: none;
+  display: none;
 }
 
 /* ============================================
@@ -901,742 +907,742 @@
    ============================================ */
 
 .obsiman-main-view {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
 /* --- Navbar (dual-orientation) --- */
 .obsiman-navbar {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	padding: 4px 0;
-	gap: 2px;
-	border-right: 1px solid var(--obsiman-border);
-	background: var(--obsiman-bg-section);
-	width: 36px;
-	flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 0;
+  gap: 2px;
+  border-right: 1px solid var(--obsiman-border);
+  background: var(--obsiman-bg-section);
+  width: 36px;
+  flex-shrink: 0;
 }
 
 .obsiman-navbar.is-horizontal {
-	flex-direction: row;
-	width: auto;
-	border-right: none;
-	border-bottom: 1px solid var(--obsiman-border);
-	padding: 4px;
+  flex-direction: row;
+  width: auto;
+  border-right: none;
+  border-bottom: 1px solid var(--obsiman-border);
+  padding: 4px;
 }
 
 .obsiman-navbar .clickable-icon {
-	width: 28px;
-	height: 28px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: var(--radius-s);
-	color: var(--text-muted);
-	cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
 }
 
 .obsiman-navbar .clickable-icon:hover {
-	background: var(--obsiman-bg-hover);
-	color: var(--text-normal);
+  background: var(--obsiman-bg-hover);
+  color: var(--text-normal);
 }
 
 .obsiman-navbar .clickable-icon.is-active {
-	color: var(--obsiman-accent);
+  color: var(--obsiman-accent);
 }
 
 .obsiman-navbar-badge {
-	font-size: 0.65em;
-	font-weight: 600;
-	color: var(--text-on-accent);
-	background: var(--obsiman-accent);
-	border-radius: 8px;
-	padding: 0 4px;
-	min-width: 14px;
-	text-align: center;
-	line-height: 14px;
-	position: absolute;
-	top: -2px;
-	right: -4px;
+  font-size: 0.65em;
+  font-weight: 600;
+  color: var(--text-on-accent);
+  background: var(--obsiman-accent);
+  border-radius: 8px;
+  padding: 0 4px;
+  min-width: 14px;
+  text-align: center;
+  line-height: 14px;
+  position: absolute;
+  top: -2px;
+  right: -4px;
 }
 
 .obsiman-navbar .clickable-icon {
-	position: relative;
+  position: relative;
 }
 
 /* --- (session row removed in dev) --- */
 
 .obsiman-hidden {
-	display: none !important;
+  display: none !important;
 }
 
 /* --- Operations Column (LEFT — smart vertical/horizontal tabs) --- */
 .obsiman-ops-column {
-	display: flex;
-	flex-direction: column;
-	width: 280px;
-	flex-shrink: 0;
-	border-right: 1px solid var(--obsiman-border);
-	transition: width 0.2s ease;
-	overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 280px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--obsiman-border);
+  transition: width 0.2s ease;
+  overflow: hidden;
 }
 
 .obsiman-ops-column.is-collapsed {
-	width: 36px;
+  width: 36px;
 }
 
 /* Collapsed: vertical icon strip */
 .obsiman-ops-strip {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 2px;
-	padding: 4px 0;
-	width: 36px;
-	height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 0;
+  width: 36px;
+  height: 100%;
 }
 
 .obsiman-ops-strip .clickable-icon {
-	width: 28px;
-	height: 28px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: var(--radius-s);
-	color: var(--text-muted);
-	cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
 }
 
 .obsiman-ops-strip .clickable-icon:hover {
-	background: var(--obsiman-bg-hover);
-	color: var(--text-normal);
+  background: var(--obsiman-bg-hover);
+  color: var(--text-normal);
 }
 
 .obsiman-ops-strip .clickable-icon.is-active {
-	color: var(--obsiman-accent);
+  color: var(--obsiman-accent);
 }
 
 .obsiman-ops-strip-toggle {
-	margin-bottom: 4px;
-	padding-bottom: 4px;
-	border-bottom: 1px solid var(--obsiman-border);
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--obsiman-border);
 }
 
 /* Expanded: horizontal tab bar + content */
 .obsiman-ops-expanded {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .obsiman-ops-tabbar {
-	display: flex;
-	align-items: center;
-	gap: 0;
-	border-bottom: 1px solid var(--obsiman-border);
-	background: var(--obsiman-bg-section);
-	flex-shrink: 0;
-	overflow-x: auto;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: 1px solid var(--obsiman-border);
+  background: var(--obsiman-bg-section);
+  flex-shrink: 0;
+  overflow-x: auto;
 }
 
 .obsiman-ops-tabbar-toggle {
-	width: 28px;
-	height: 28px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: var(--radius-s);
-	color: var(--text-muted);
-	cursor: pointer;
-	flex-shrink: 0;
-	margin: 2px 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin: 2px 4px;
 }
 
 .obsiman-ops-tabbar-toggle:hover {
-	background: var(--obsiman-bg-hover);
-	color: var(--text-normal);
+  background: var(--obsiman-bg-hover);
+  color: var(--text-normal);
 }
 
 /* --- Properties Panel (RIGHT) --- */
 .obsiman-properties-panel-right {
-	width: 240px;
-	flex-shrink: 0;
-	border-left: 1px solid var(--obsiman-border);
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
-	transition: width 0.2s ease;
+  width: 240px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--obsiman-border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.2s ease;
 }
 
 .obsiman-properties-panel-right.is-collapsed {
-	width: 0;
-	border-left: none;
+  width: 0;
+  border-left: none;
 }
 
 /* Toggle strip between grid and properties */
 .obsiman-props-toggle-strip {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	padding: 4px 0;
-	flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 0;
+  flex-shrink: 0;
 }
 
 .obsiman-props-toggle-strip .clickable-icon {
-	width: 24px;
-	height: 24px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: var(--radius-s);
-	color: var(--text-muted);
-	cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
 }
 
 .obsiman-props-toggle-strip .clickable-icon:hover {
-	background: var(--obsiman-bg-hover);
-	color: var(--text-normal);
+  background: var(--obsiman-bg-hover);
+  color: var(--text-normal);
 }
 
 .obsiman-props-toolbar {
-	display: flex;
-	align-items: center;
-	gap: 2px;
-	padding: 4px;
-	border-bottom: 1px solid var(--obsiman-border);
-	background: var(--obsiman-bg-section);
-	flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-bottom: 1px solid var(--obsiman-border);
+  background: var(--obsiman-bg-section);
+  flex-shrink: 0;
 }
 
 .obsiman-props-toolbar .clickable-icon {
-	width: 28px;
-	height: 28px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: var(--radius-s);
-	color: var(--text-muted);
-	cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
 }
 
 .obsiman-props-toolbar .clickable-icon:hover {
-	background: var(--obsiman-bg-hover);
-	color: var(--text-normal);
+  background: var(--obsiman-bg-hover);
+  color: var(--text-normal);
 }
 
 .obsiman-props-explorer-wrap {
-	flex: 1;
-	overflow-y: auto;
-	padding: 8px;
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
 }
 
 .obsiman-popover-anchor {
-	position: relative;
+  position: relative;
 }
 
 /* Operations panel tabs */
 .obsiman-operations-tabs {
-	display: flex;
-	gap: 0;
-	border-bottom: 1px solid var(--obsiman-border);
-	background: var(--obsiman-bg-section);
-	flex-shrink: 0;
-	overflow-x: auto;
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--obsiman-border);
+  background: var(--obsiman-bg-section);
+  flex-shrink: 0;
+  overflow-x: auto;
 }
 
 .obsiman-operations-tab {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	padding: 4px 12px;
-	font-size: 0.8em;
-	cursor: pointer;
-	border-bottom: 2px solid transparent;
-	color: var(--text-muted);
-	white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  font-size: 0.8em;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .obsiman-operations-tab:hover {
-	color: var(--text-normal);
-	background: var(--obsiman-bg-hover);
+  color: var(--text-normal);
+  background: var(--obsiman-bg-hover);
 }
 
 .obsiman-operations-tab.is-active {
-	border-bottom-color: var(--obsiman-accent);
-	color: var(--text-normal);
+  border-bottom-color: var(--obsiman-accent);
+  color: var(--text-normal);
 }
 
 .obsiman-operations-tab svg {
-	width: 14px;
-	height: 14px;
+  width: 14px;
+  height: 14px;
 }
 
 .obsiman-operations-content {
-	flex: 1;
-	overflow-y: auto;
-	padding: 8px;
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
 }
 
 .obsiman-ops-tab-desc {
-	font-size: 0.85em;
-	margin: 0 0 8px;
+  font-size: 0.85em;
+  margin: 0 0 8px;
 }
 
 .obsiman-template-list {
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-	margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
 }
 
 .obsiman-template-row {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	padding: 4px;
-	border-radius: var(--radius-s);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border-radius: var(--radius-s);
 }
 
 .obsiman-template-row:hover {
-	background: var(--obsiman-bg-hover);
+  background: var(--obsiman-bg-hover);
 }
 
 .obsiman-text-muted {
-	color: var(--text-muted);
+  color: var(--text-muted);
 }
 
 /* --- Operations panel split layout (pinned queue) --- */
 .obsiman-operations-split {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
 .obsiman-operations-top {
-	display: flex;
-	flex-direction: column;
-	flex: 1;
-	min-height: 0;
-	overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .obsiman-operations-top .obsiman-operations-content {
-	flex: 1;
-	overflow-y: auto;
+  flex: 1;
+  overflow-y: auto;
 }
 
 /* Pinned queue section (always visible at bottom) */
 .obsiman-operations-pinned-queue {
-	flex-shrink: 0;
-	max-height: 45%;
-	overflow-y: auto;
-	border-top: 1px solid var(--obsiman-border);
-	padding: 6px 8px;
-	background: var(--obsiman-bg-section);
+  flex-shrink: 0;
+  max-height: 45%;
+  overflow-y: auto;
+  border-top: 1px solid var(--obsiman-border);
+  padding: 6px 8px;
+  background: var(--obsiman-bg-section);
 }
 
 .obsiman-pinned-queue-header {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
 }
 
 .obsiman-pinned-queue-title {
-	font-size: 0.8em;
-	font-weight: 600;
-	text-transform: uppercase;
-	color: var(--obsiman-text-muted);
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--obsiman-text-muted);
 }
 
 .obsiman-pinned-queue-badge {
-	font-size: 0.75em;
-	font-weight: 600;
-	color: var(--text-on-accent);
-	background: var(--obsiman-accent);
-	border-radius: 8px;
-	padding: 0 5px;
-	min-width: 16px;
-	text-align: center;
-	line-height: 16px;
+  font-size: 0.75em;
+  font-weight: 600;
+  color: var(--text-on-accent);
+  background: var(--obsiman-accent);
+  border-radius: 8px;
+  padding: 0 5px;
+  min-width: 16px;
+  text-align: center;
+  line-height: 16px;
 }
 
 .obsiman-pinned-queue-list {
-	margin-bottom: 6px;
+  margin-bottom: 6px;
 }
 
 .obsiman-pinned-queue-actions {
-	display: flex;
-	gap: 4px;
-	flex-wrap: wrap;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
 /* --- Toolbar --- */
 .obsiman-toolbar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 6px 12px;
-	border-bottom: 1px solid var(--obsiman-border);
-	background: var(--obsiman-bg-section);
-	flex-shrink: 0;
-	flex-wrap: wrap;
-	gap: 6px;
-	position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--obsiman-border);
+  background: var(--obsiman-bg-section);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 6px;
+  position: relative;
 }
 
 .obsiman-toolbar-left,
 .obsiman-toolbar-right {
-	display: flex;
-	align-items: center;
-	gap: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .obsiman-toolbar-select {
-	font-size: 0.85em;
-	max-width: 200px;
+  font-size: 0.85em;
+  max-width: 200px;
 }
 
 .obsiman-toolbar-btn {
-	font-size: 0.8em;
-	padding: 4px 10px;
-	border-radius: var(--radius-s);
-	cursor: pointer;
-	background: var(--interactive-normal);
-	border: 1px solid var(--obsiman-border);
-	color: var(--text-normal);
+  font-size: 0.8em;
+  padding: 4px 10px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  background: var(--interactive-normal);
+  border: 1px solid var(--obsiman-border);
+  color: var(--text-normal);
 }
 
 .obsiman-toolbar-btn:hover {
-	background: var(--obsiman-bg-hover);
+  background: var(--obsiman-bg-hover);
 }
 
 .obsiman-toolbar-badge {
-	font-size: 0.85em;
-	color: var(--obsiman-accent);
-	font-weight: 600;
+  font-size: 0.85em;
+  color: var(--obsiman-accent);
+  font-weight: 600;
 }
 
 /* Sync status indicator */
 .obsiman-sync-indicator {
-	font-size: 0.9em;
-	line-height: 1;
+  font-size: 0.9em;
+  line-height: 1;
 }
 
 .obsiman-sync-ok {
-	color: #2ea043;
+  color: #2ea043;
 }
 
 .obsiman-sync-external {
-	color: #d29922;
+  color: #d29922;
 }
 
 .obsiman-sync-conflict {
-	color: #f85149;
+  color: #f85149;
 }
 
 /* --- Popover panels --- */
 .obsiman-popover {
-	position: absolute;
-	top: 100%;
-	left: 12px;
-	z-index: 10;
-	width: 360px;
-	max-height: 400px;
-	overflow-y: auto;
-	background: var(--background-primary);
-	border: 1px solid var(--obsiman-border);
-	border-radius: var(--radius-m);
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-	padding: 10px;
+  position: absolute;
+  top: 100%;
+  left: 12px;
+  z-index: 10;
+  width: 360px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--background-primary);
+  border: 1px solid var(--obsiman-border);
+  border-radius: var(--radius-m);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 10px;
 }
 
 .obsiman-popover-hidden {
-	display: none;
+  display: none;
 }
 
 .obsiman-popover-header h4 {
-	margin: 0 0 8px 0;
-	font-size: 0.85em;
-	font-weight: 600;
-	text-transform: uppercase;
-	color: var(--obsiman-text-muted);
+  margin: 0 0 8px 0;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--obsiman-text-muted);
 }
 
 /* --- Grid wrapper --- */
 .obsiman-grid-wrapper {
-	flex: 1;
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .obsiman-grid-header {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	padding: 6px 12px;
-	border-bottom: 1px solid var(--obsiman-border);
-	flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--obsiman-border);
+  flex-shrink: 0;
 }
 
 .obsiman-grid-search {
-	flex: 1;
-	max-width: 300px;
-	font-size: 0.85em;
-	padding: 4px 8px;
-	border: 1px solid var(--obsiman-border);
-	border-radius: var(--radius-s);
-	background: var(--background-primary);
-	color: var(--text-normal);
+  flex: 1;
+  max-width: 300px;
+  font-size: 0.85em;
+  padding: 4px 8px;
+  border: 1px solid var(--obsiman-border);
+  border-radius: var(--radius-s);
+  background: var(--background-primary);
+  color: var(--text-normal);
 }
 
 .obsiman-grid-filter-toggle {
-	padding: 4px;
-	border-radius: var(--radius-s);
-	color: var(--text-muted);
-	transition: color 0.15s ease, background 0.15s ease;
+  padding: 4px;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
 .obsiman-grid-filter-toggle.is-active {
-	color: var(--obsiman-accent);
-	background: color-mix(in srgb, var(--obsiman-accent) 12%, transparent);
+  color: var(--obsiman-accent);
+  background: color-mix(in srgb, var(--obsiman-accent) 12%, transparent);
 }
 
 /* --- Table --- */
 .obsiman-grid-table-wrapper {
-	flex: 1;
-	overflow: auto;
+  flex: 1;
+  overflow: auto;
 }
 
 .obsiman-grid-table {
-	border-collapse: collapse;
-	font-size: 0.85em;
+  border-collapse: collapse;
+  font-size: 0.85em;
 }
 
 .obsiman-grid-fixed {
-	table-layout: fixed;
+  table-layout: fixed;
 }
 
 .obsiman-grid-table thead {
-	position: sticky;
-	top: 0;
-	z-index: 2;
-	background: var(--background-secondary);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--background-secondary);
 }
 
 .obsiman-grid-th-check {
-	width: 30px;
-	text-align: center;
-	padding: 6px 4px;
-	border-bottom: 2px solid var(--obsiman-border);
-	transition: border-color 0.15s ease;
+  width: 30px;
+  text-align: center;
+  padding: 6px 4px;
+  border-bottom: 2px solid var(--obsiman-border);
+  transition: border-color 0.15s ease;
 }
 
 .obsiman-grid-th-check input[type="checkbox"] {
-	width: 14px;
-	height: 14px;
+  width: 14px;
+  height: 14px;
 }
 
 .obsiman-grid-th-check.is-indeterminate {
-	border-color: var(--obsiman-accent);
+  border-color: var(--obsiman-accent);
 }
 
 .obsiman-grid-th-check.is-indeterminate input[type="checkbox"] {
-	border-color: var(--obsiman-accent);
-	box-shadow: 0 0 0 1px var(--obsiman-accent);
+  border-color: var(--obsiman-accent);
+  box-shadow: 0 0 0 1px var(--obsiman-accent);
 }
 
 .obsiman-grid-th-sortable {
-	position: relative;
-	padding: 6px 8px;
-	text-align: left;
-	font-weight: 600;
-	font-size: 0.9em;
-	color: var(--obsiman-text-muted);
-	white-space: nowrap;
-	border-bottom: 2px solid var(--obsiman-border);
-	user-select: none;
-	overflow: hidden;
-	text-overflow: ellipsis;
+  position: relative;
+  padding: 6px 8px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9em;
+  color: var(--obsiman-text-muted);
+  white-space: nowrap;
+  border-bottom: 2px solid var(--obsiman-border);
+  user-select: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .obsiman-grid-th-label {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 .obsiman-grid-th-sortable:hover {
-	color: var(--text-normal);
-	background: var(--obsiman-bg-hover);
+  color: var(--text-normal);
+  background: var(--obsiman-bg-hover);
 }
 
 .obsiman-grid-th-active {
-	color: var(--text-normal);
+  color: var(--text-normal);
 }
 
 /* Column resize handle */
 .obsiman-grid-resize-handle {
-	position: absolute;
-	top: 0;
-	right: 0;
-	width: 5px;
-	height: 100%;
-	cursor: col-resize;
-	z-index: 3;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 5px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 3;
 }
 
 .obsiman-grid-resize-handle:hover,
 body.obsiman-resizing .obsiman-grid-resize-handle {
-	background: var(--obsiman-accent);
-	opacity: 0.4;
+  background: var(--obsiman-accent);
+  opacity: 0.4;
 }
 
 body.obsiman-resizing {
-	cursor: col-resize !important;
-	user-select: none !important;
+  cursor: col-resize !important;
+  user-select: none !important;
 }
 
 .obsiman-grid-row {
-	border-bottom: 1px solid var(--obsiman-border);
-	cursor: default;
-	user-select: none;
+  border-bottom: 1px solid var(--obsiman-border);
+  cursor: default;
+  user-select: none;
 }
 
 .obsiman-grid-row:hover {
-	background: var(--obsiman-bg-hover);
+  background: var(--obsiman-bg-hover);
 }
 
 .obsiman-grid-row.is-selected {
-	background: color-mix(in srgb, var(--obsiman-accent) 12%, transparent);
+  background: color-mix(in srgb, var(--obsiman-accent) 12%, transparent);
 }
 
 .obsiman-grid-row.is-selected:hover {
-	background: color-mix(in srgb, var(--obsiman-accent) 18%, transparent);
+  background: color-mix(in srgb, var(--obsiman-accent) 18%, transparent);
 }
 
 .obsiman-grid-td-check {
-	width: 30px;
-	text-align: center;
-	padding: 4px;
+  width: 30px;
+  text-align: center;
+  padding: 4px;
 }
 
 .obsiman-grid-td-check input[type="checkbox"] {
-	width: 14px;
-	height: 14px;
+  width: 14px;
+  height: 14px;
 }
 
 .obsiman-grid-td-name {
-	padding: 4px 8px;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+  padding: 4px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .obsiman-grid-name-link {
-	cursor: pointer;
-	color: var(--text-normal);
+  cursor: pointer;
+  color: var(--text-normal);
 }
 
 .obsiman-grid-name-link:hover {
-	color: var(--obsiman-accent);
-	text-decoration: underline;
+  color: var(--obsiman-accent);
+  text-decoration: underline;
 }
 
 .obsiman-grid-td-prop {
-	padding: 4px 8px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	color: var(--text-normal);
-	cursor: default;
+  padding: 4px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-normal);
+  cursor: default;
 }
 
 .obsiman-grid-td-prop:hover {
-	background: var(--background-modifier-hover);
+  background: var(--background-modifier-hover);
 }
 
 /* Inline editing */
 .obsiman-grid-editing {
-	padding: 2px 4px !important;
+  padding: 2px 4px !important;
 }
 
 .obsiman-grid-edit-input {
-	width: 100%;
-	font-size: 1em;
-	padding: 2px 4px;
-	border: 2px solid var(--obsiman-accent);
-	border-radius: var(--radius-s);
-	background: var(--background-primary);
-	color: var(--text-normal);
-	outline: none;
+  width: 100%;
+  font-size: 1em;
+  padding: 2px 4px;
+  border: 2px solid var(--obsiman-accent);
+  border-radius: var(--radius-s);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  outline: none;
 }
 
 /* Live preview cells */
 .obsiman-grid-live-cell {
-	overflow: hidden;
+  overflow: hidden;
 }
 
 .obsiman-grid-live-cell p {
-	margin: 0;
-	line-height: inherit;
+  margin: 0;
+  line-height: inherit;
 }
 
 .obsiman-grid-live-cell .tag {
-	font-size: 0.85em;
+  font-size: 0.85em;
 }
 
 .obsiman-grid-live-cell .internal-link {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 /* Mobile: taller rows for touch targets */
 @media (pointer: coarse) {
-	.obsiman-grid-row {
-		min-height: 44px;
-	}
+  .obsiman-grid-row {
+    min-height: 44px;
+  }
 }
 
 /* --- Native Status bar item --- */
 .obsiman-native-statusbar {
-	font-size: 0.85em;
-	color: var(--text-muted);
+  font-size: 0.85em;
+  color: var(--text-muted);
 }
 
 /* --- File Filter Popover --- */
 .obsiman-file-filter-popover {
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 10;
-	width: 320px;
-	max-height: 400px;
-	overflow-y: auto;
-	background: var(--background-primary);
-	border: 1px solid var(--obsiman-border);
-	border-radius: var(--radius-m);
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-	padding: 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--background-primary);
+  border: 1px solid var(--obsiman-border);
+  border-radius: var(--radius-m);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 10px;
 }
 
 /* --- Mobile touch targets --- */
 @media (pointer: coarse) {
-	.obsiman-navbar .clickable-icon {
-		width: 36px;
-		height: 36px;
-	}
+  .obsiman-navbar .clickable-icon {
+    width: 36px;
+    height: 36px;
+  }
 
-	.obsiman-header-bar .clickable-icon {
-		width: 36px;
-		height: 36px;
-	}
+  .obsiman-header-bar .clickable-icon {
+    width: 36px;
+    height: 36px;
+  }
 
-	.obsiman-operations-tab {
-		padding: 8px 12px;
-	}
+  .obsiman-operations-tab {
+    padding: 8px 12px;
+  }
 }
 
 /* ============================================================
@@ -1802,7 +1808,8 @@ body.obsiman-bases-column-separators table th {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  position: relative; /* anchor for the popup overlay */
+  position: relative;
+  /* anchor for the popup overlay */
   padding: 0;
 }
 
@@ -1836,7 +1843,8 @@ body.obsiman-bases-column-separators table th {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  position: relative; /* needed so bottom-nav can position: absolute inside it */
+  position: relative;
+  /* needed so bottom-nav can position: absolute inside it */
 }
 
 /* Sliding strip: transform applied via JS (see ObsiManView.svelte) */
@@ -1852,7 +1860,8 @@ body.obsiman-bases-column-separators table th {
 
 .obsiman-page {
   min-width: 0;
-  flex: 0 0 auto; /* width set explicitly via JS */
+  flex: 0 0 auto;
+  /* width set explicitly via JS */
   height: 100%;
   min-height: 0;
   display: flex;
@@ -1860,7 +1869,7 @@ body.obsiman-bases-column-separators table th {
   overflow-y: auto;
   /* Bottom padding reserves space under the floating nav bar so content
      is never permanently hidden beneath it when scrolled to the bottom */
-  padding: 4px 4px 80px;
+  padding: 4px 4px 0px;
   box-sizing: border-box;
 }
 
@@ -1879,6 +1888,7 @@ body.obsiman-bases-column-separators table th {
   gap: 10px;
   padding: 10px 12px;
   z-index: 10;
+  pointer-events: none;
 }
 
 /* Responsive nav — collapses to slim bar when frame is very narrow */
@@ -1907,8 +1917,6 @@ body.obsiman-bases-column-separators table th {
 .obsiman-glass {
   backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
   -webkit-backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
-  background: color-mix(in srgb, var(--background-primary) 50%, transparent);
-  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 60%, transparent);
 }
 
 /* Bottom bar: fixed strip at the bottom of the plugin frame */
@@ -1917,6 +1925,27 @@ body.obsiman-bases-column-separators table th {
   bottom: 0;
   left: 0;
   right: 0;
+  pointer-events: none;
+}
+
+/* Disable main blur on container so children (Pill/FAB) don't get clipped/masked */
+.obsiman-glass.obsiman-glass--bottom {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: transparent;
+}
+
+/* Pseudo-element strictly for the fading gradient background */
+.obsiman-glass.obsiman-glass--bottom::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
 }
 
 /* Full frame overlay: covers the entire plugin (blocked state) */
@@ -1942,14 +1971,16 @@ body.obsiman-bases-column-separators table th {
   border: 1px solid var(--background-modifier-border);
   border-radius: 999px;
   padding: 4px 6px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  pointer-events: auto;
 }
 
 /* Individual icon nav items inside pill */
 .obsiman-nav-icon {
   position: relative;
-  overflow: visible; /* ensure badge is not clipped */
+  overflow: visible;
+  /* ensure badge is not clipped */
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -2028,6 +2059,7 @@ body.obsiman-bases-column-separators table th {
   flex-shrink: 0;
   transition: opacity 0.15s ease, transform 0.15s ease;
   box-shadow: 0 2px 8px color-mix(in srgb, var(--color-accent) 30%, transparent);
+  pointer-events: auto;
 }
 
 .obsiman-nav-fab:hover {
@@ -2160,7 +2192,9 @@ body.obsiman-bases-column-separators table th {
 }
 
 @container (max-width: 240px) {
-  .obsiman-subtab-label { display: none; }
+  .obsiman-subtab-label {
+    display: none;
+  }
 }
 
 .obsiman-subtab-area {
@@ -2172,10 +2206,15 @@ body.obsiman-bases-column-separators table th {
 
 /* ─── Filters page ──────────────────────────────────────────────────────── */
 
+/* Hack to completely remove strict inner padding on ObsiMan view, allowing full height sweep */
+.workspace-leaf-content[data-type="obsiman-view"] .view-content {
+  padding: 0 !important;
+}
+
 .obsiman-page[data-page="filters"] {
   display: flex;
   flex-direction: column;
-  padding: 0 0 80px; /* no horizontal/top padding — tabbar and header handle it */
+  /* padding handled by inner elements */
 }
 
 /* ─── Filters header (above tabbar) ───────────────────────────────────────── */
@@ -2202,10 +2241,12 @@ body.obsiman-bases-column-separators table th {
   padding: 0;
   transition: background 0.12s, color 0.12s;
 }
+
 .obsiman-filters-header-btn:hover {
   background: var(--obsiman-bg-hover);
   color: var(--text-normal);
 }
+
 .obsiman-filters-header-btn svg {
   width: 15px;
   height: 15px;
@@ -2223,6 +2264,7 @@ body.obsiman-bases-column-separators table th {
   gap: 4px;
   transition: border-color 0.12s;
 }
+
 .obsiman-filters-header-search-pill:focus-within {
   border-color: var(--color-accent);
 }
@@ -2237,66 +2279,62 @@ body.obsiman-bases-column-separators table th {
   min-width: 0;
   height: 100%;
 }
+
 .obsiman-filters-search-input::placeholder {
   color: var(--text-faint);
 }
 
-.obsiman-filters-search-clear {
+.obsiman-filters-search-clear,
+.obsiman-filters-search-mode {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
   border: none;
   background: transparent;
-  border-radius: 50%;
   color: var(--text-muted);
-  cursor: pointer;
-  padding: 0;
-  font-size: 12px;
-  line-height: 1;
-  transition: background 0.1s, color 0.1s;
-}
-.obsiman-filters-search-clear:hover {
-  background: var(--obsiman-bg-hover);
-  color: var(--text-normal);
-}
-
-.obsiman-filters-search-category {
-  display: flex;
-  align-items: center;
-  height: 20px;
-  padding: 0 7px;
-  flex-shrink: 0;
-  border: 1px solid var(--background-modifier-border);
-  background: var(--background-secondary);
-  border-radius: 999px;
-  font-size: 10px;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
-  white-space: nowrap;
-}
-.obsiman-filters-search-category:hover {
-  background: var(--obsiman-bg-hover);
-  color: var(--text-normal);
+  opacity: 0.7;
+  transition: opacity 0.15s, color 0.15s;
 }
 
 .obsiman-filters-tabbar {
   display: flex;
   align-items: center;
   gap: 0;
-  border-bottom: 1px solid var(--obsiman-border);
+  border-bottom: 1px solid var(--background-modifier-border);
   flex-shrink: 0;
   position: relative;
   overflow-x: auto;
+  padding: var(--size-4-1) var(--size-4-4);
+}
+
+.obsiman-filters-tabbar.has-labels {
+  gap: var(--size-4-2);
 }
 
 .obsiman-filters-explorer-wrap {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  padding-bottom: 60px; /* spacing for bottom bar */
+}
+
+/* Modifying custom native properties tree elements if needed */
+.tree-item-icon.collapse-icon svg {
+  width: 12px; 
+  height: 12px;
+}
+
+.tree-item-flair {
+  display: flex;
+}
+
+.tree-item-flair svg {
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
 }
 
 .obsiman-filters-tab {
@@ -2326,7 +2364,10 @@ body.obsiman-bases-column-separators table th {
   height: 14px;
 }
 
-.obsiman-filters-tab:hover { color: var(--text-normal); }
+.obsiman-filters-tab:hover {
+  color: var(--text-normal);
+}
+
 .obsiman-filters-tab.is-active {
   color: var(--text-normal);
   border-bottom-color: var(--color-accent);
@@ -2334,7 +2375,9 @@ body.obsiman-bases-column-separators table th {
 }
 
 @container (max-width: 220px) {
-  .obsiman-filters-tab-label { display: none; }
+  .obsiman-filters-tab-label {
+    display: none;
+  }
 }
 
 .obsiman-filters-view-panel {
@@ -2350,11 +2393,21 @@ body.obsiman-bases-column-separators table th {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
-.obsiman-view-panel-section { display: flex; flex-direction: column; gap: 4px; }
-.obsiman-view-panel-label { font-size: var(--font-ui-small); color: var(--text-muted); font-weight: 600; }
+.obsiman-view-panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.obsiman-view-panel-label {
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
 .obsiman-view-panel-option {
   padding: 4px 8px;
   border-radius: var(--radius-s);
@@ -2362,9 +2415,24 @@ body.obsiman-bases-column-separators table th {
   font-size: var(--font-ui-small);
   color: var(--text-muted);
 }
-.obsiman-view-panel-option:hover { background: var(--background-modifier-hover); color: var(--text-normal); }
-.obsiman-view-panel-option.is-active { color: var(--color-accent); font-weight: 600; }
-.obsiman-view-panel-check { display: flex; align-items: flex-start; gap: 6px; font-size: var(--font-ui-small); cursor: pointer; }
+
+.obsiman-view-panel-option:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.obsiman-view-panel-option.is-active {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.obsiman-view-panel-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: var(--font-ui-small);
+  cursor: pointer;
+}
 
 .obsiman-subtab-content {
   position: absolute;
@@ -2457,7 +2525,8 @@ body.obsiman-bases-column-separators table th {
   border-bottom: none;
   position: absolute;
   bottom: 0;
-  left: 0; right: 0;
+  left: 0;
+  right: 0;
   padding: 12px;
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -2518,7 +2587,9 @@ body.obsiman-bases-column-separators table th {
   background: var(--background-secondary);
 }
 
-.obsiman-active-filter-rule.is-disabled { opacity: 0.45; }
+.obsiman-active-filter-rule.is-disabled {
+  opacity: 0.45;
+}
 
 .obsiman-active-filter-rule-text {
   flex: 1;
@@ -2845,245 +2916,245 @@ body.obsiman-bases-column-separators table th {
 /* ─── Content tab — Find & Replace ─────────────────────────────────────── */
 
 .obsiman-content-find-row {
-	display: flex;
-	gap: 4px;
-	align-items: center;
-	margin-bottom: 6px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-bottom: 6px;
 }
 
 .obsiman-content-find-row .obsiman-search-input {
-	flex: 1;
-	margin-bottom: 0;
+  flex: 1;
+  margin-bottom: 0;
 }
 
 .obsiman-icon-toggle {
-	background: var(--background-modifier-form-field);
-	border: 1px solid var(--background-modifier-border);
-	border-radius: var(--radius-s);
-	color: var(--text-muted);
-	padding: 4px 7px;
-	font-size: var(--font-ui-smaller);
-	cursor: pointer;
-	flex-shrink: 0;
-	min-width: 28px;
-	text-align: center;
-	line-height: 1.4;
+  background: var(--background-modifier-form-field);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  padding: 4px 7px;
+  font-size: var(--font-ui-smaller);
+  cursor: pointer;
+  flex-shrink: 0;
+  min-width: 28px;
+  text-align: center;
+  line-height: 1.4;
 }
 
 .obsiman-icon-toggle.is-active {
-	background: var(--color-accent);
-	color: var(--text-on-accent);
-	border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+  border-color: var(--color-accent);
 }
 
 .obsiman-content-regex-error {
-	font-size: var(--font-ui-smaller);
-	color: var(--text-error);
-	margin: -2px 0 6px;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-error);
+  margin: -2px 0 6px;
 }
 
 .obsiman-content-scope-hint {
-	font-size: var(--font-ui-smaller);
-	color: var(--text-muted);
-	margin: 4px 0 8px;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  margin: 4px 0 8px;
 }
 
 .obsiman-content-actions {
-	display: flex;
-	gap: 6px;
-	margin-bottom: 8px;
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .obsiman-content-actions .obsiman-btn {
-	flex: 1;
+  flex: 1;
 }
 
 .obsiman-content-preview {
-	font-size: var(--font-ui-smaller);
+  font-size: var(--font-ui-smaller);
 }
 
 .obsiman-content-preview-header {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	cursor: pointer;
-	color: var(--text-normal);
-	margin-bottom: 4px;
-	user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: var(--text-normal);
+  margin-bottom: 4px;
+  user-select: none;
 }
 
 .obsiman-preview-chevron {
-	color: var(--text-muted);
-	font-size: 10px;
+  color: var(--text-muted);
+  font-size: 10px;
 }
 
 .obsiman-content-preview-file {
-	color: var(--color-accent);
-	margin-top: 4px;
+  color: var(--color-accent);
+  margin-top: 4px;
 }
 
 .obsiman-content-preview-snippet {
-	color: var(--text-muted);
-	padding-left: 10px;
-	word-break: break-word;
+  color: var(--text-muted);
+  padding-left: 10px;
+  word-break: break-word;
 }
 
 .obsiman-content-preview-snippet mark {
-	background: var(--text-highlight-bg);
-	color: var(--text-normal);
-	border-radius: 2px;
-	padding: 0 1px;
+  background: var(--text-highlight-bg);
+  color: var(--text-normal);
+  border-radius: 2px;
+  padding: 0 1px;
 }
 
 /* ─── Property Browser (Filters page Rules tab) ──────────────────────── */
 .obsiman-prop-browser {
-	display: flex;
-	flex-direction: column;
-	gap: 1px;
-	margin-top: 8px;
-	overflow-y: auto;
-	flex: 1;
-	min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 8px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .obsiman-prop-browser-empty {
-	color: var(--text-muted);
-	font-size: var(--font-smallest);
-	padding: 8px 4px;
+  color: var(--text-muted);
+  font-size: var(--font-smallest);
+  padding: 8px 4px;
 }
 
 .obsiman-prop-browser-row {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	padding: 4px 6px;
-	border-radius: 4px;
-	cursor: pointer;
-	min-height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  min-height: 28px;
 }
 
 .obsiman-prop-browser-row:hover {
-	background: var(--background-modifier-hover);
+  background: var(--background-modifier-hover);
 }
 
 .obsiman-prop-browser-expand {
-	background: none;
-	border: none;
-	padding: 0;
-	width: 16px;
-	height: 16px;
-	font-size: 10px;
-	color: var(--text-muted);
-	cursor: pointer;
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: 2px;
+  background: none;
+  border: none;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
 }
 
 .obsiman-prop-browser-expand:hover {
-	color: var(--text-normal);
-	background: var(--background-modifier-hover);
+  color: var(--text-normal);
+  background: var(--background-modifier-hover);
 }
 
 .obsiman-prop-browser-name {
-	flex: 1;
-	font-size: var(--font-ui-small);
-	color: var(--text-normal);
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+  flex: 1;
+  font-size: var(--font-ui-small);
+  color: var(--text-normal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .obsiman-prop-browser-count {
-	font-size: var(--font-smallest);
-	color: var(--text-muted);
-	flex-shrink: 0;
+  font-size: var(--font-smallest);
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .obsiman-prop-browser-values {
-	display: flex;
-	flex-direction: column;
-	gap: 1px;
-	padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-left: 20px;
 }
 
 .obsiman-prop-browser-value {
-	padding: 3px 6px;
-	font-size: var(--font-ui-small);
-	color: var(--text-muted);
-	border-radius: 3px;
-	cursor: pointer;
-	min-height: 24px;
-	display: flex;
-	align-items: center;
+  padding: 3px 6px;
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+  border-radius: 3px;
+  cursor: pointer;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
 }
 
 .obsiman-prop-browser-value:hover {
-	background: var(--background-modifier-hover);
-	color: var(--text-normal);
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
 }
 
 /* ─── Queue Details — Content Op Snippets ─────────────────────────────── */
 .obsiman-diff-content-section {
-	margin-top: 12px;
-	border-top: 1px solid var(--background-modifier-border);
-	padding-top: 8px;
+  margin-top: 12px;
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 8px;
 }
 
 .obsiman-diff-content-section-title {
-	font-size: var(--font-ui-small);
-	font-weight: 600;
-	color: var(--text-muted);
-	margin-bottom: 8px;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
+  font-size: var(--font-ui-small);
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .obsiman-diff-content-file {
-	margin-bottom: 8px;
+  margin-bottom: 8px;
 }
 
 .obsiman-diff-content-file-path {
-	font-size: var(--font-ui-small);
-	color: var(--text-muted);
-	margin-bottom: 4px;
-	font-style: italic;
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  font-style: italic;
 }
 
 .obsiman-diff-snippet {
-	font-family: var(--font-monospace);
-	font-size: var(--font-ui-smaller);
-	padding: 4px 8px;
-	background: var(--background-secondary);
-	border-radius: 4px;
-	margin-bottom: 2px;
-	line-height: 1.5;
-	word-break: break-all;
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  padding: 4px 8px;
+  background: var(--background-secondary);
+  border-radius: 4px;
+  margin-bottom: 2px;
+  line-height: 1.5;
+  word-break: break-all;
 }
 
 .obsiman-diff-snippet mark {
-	background: var(--obsiman-diff-deleted);
-	color: inherit;
-	border-radius: 2px;
+  background: var(--obsiman-diff-deleted);
+  color: inherit;
+  border-radius: 2px;
 }
 
 .obsiman-diff-replace-arrow {
-	color: var(--text-muted);
-	margin: 0 4px;
+  color: var(--text-muted);
+  margin: 0 4px;
 }
 
 .obsiman-diff-replace-new {
-	background: var(--obsiman-diff-added);
-	border-radius: 2px;
-	padding: 0 2px;
+  background: var(--obsiman-diff-added);
+  border-radius: 2px;
+  padding: 0 2px;
 }
 
 .obsiman-diff-content-no-matches {
-	color: var(--text-muted);
-	font-size: var(--font-ui-small);
-	padding: 2px 8px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+  padding: 2px 8px;
 }
 
 /* === Queue Island === */
@@ -3103,7 +3174,7 @@ body.obsiman-bases-column-separators table th {
   border: 1px solid var(--background-modifier-border);
   border-radius: 16px;
   padding: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -3111,7 +3182,7 @@ body.obsiman-bases-column-separators table th {
   transform: translateY(20px);
   opacity: 0;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-              opacity 0.2s ease;
+    opacity 0.2s ease;
 }
 
 .obsiman-queue-island.is-open {
@@ -3297,7 +3368,7 @@ body.obsiman-bases-column-separators table th {
 
 .obsiman-card:hover {
   border-color: var(--interactive-accent);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .obsiman-card.is-active-filter {
@@ -3504,7 +3575,10 @@ body.obsiman-bases-column-separators table th {
   color: var(--color-accent);
 }
 
-.obsiman-stat-card-icon svg { width: 18px; height: 18px; }
+.obsiman-stat-card-icon svg {
+  width: 18px;
+  height: 18px;
+}
 
 .obsiman-stat-card-value {
   font-size: var(--font-ui-medium);

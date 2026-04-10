@@ -263,6 +263,18 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 					})
 			);
 
+		new Setting(containerEl)
+			.setName("Show tab labels in Filters page")
+			.setDesc("Display text labels alongside icons in the Filters tab bar.")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.filtersShowTabLabels)
+					.onChange(async (v) => {
+						this.plugin.settings.filtersShowTabLabels = v;
+						await this.plugin.saveSettings();
+					})
+			);
+
 		// Filter templates section
 		new Setting(containerEl).setName("").setHeading();
 

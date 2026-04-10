@@ -61,33 +61,29 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 	};
 
 	// ─── Per-page FAB definitions ────────────────────────────────────────────────
-	// Files always gets BOTH FABs. Other pages get ONE FAB on their outer edge:
-	// leftmost page (index 0) → LEFT FAB; rightmost page (last index) → RIGHT FAB.
+	type FabDef = { icon: string; label: string; action: () => void; isPlaceholder?: boolean };
 
-	type FabDef = { icon: string; label: string; action: () => void };
-
-	const pageFabDef: Record<string, FabDef> = {
+	const pageFabs: Record<string, { left: FabDef | null; right: FabDef | null }> = {
 		ops: {
-			icon: 'lucide-list-checks',
-			label: t('ops.queue'),
-			action: () => { toggleQueueIsland(); },
+			left: { icon: 'lucide-list-checks', label: t('ops.queue'), action: () => { toggleQueueIsland(); } },
+			right: null,
+		},
+		statistics: {
+			left: { icon: 'lucide-blocks', label: 'Add-ons', action: () => {} },
+			right: { icon: 'lucide-settings', label: t('nav.statistics') ?? 'Settings', action: () => {
+				// Stub settings open hook
+				(plugin.app as any).setting?.open?.();
+				(plugin.app as any).setting?.openTabById?.('obsiman');
+			} },
 		},
 		filters: {
-			icon: 'lucide-filter',
-			label: t('filters.active'),
-			action: () => showPopup('active-filters'),
+			left: null,
+			right: { icon: 'lucide-filter', label: t('filters.active'), action: () => showPopup('active-filters') },
 		},
 	};
 
-	const leftFab = $derived.by<FabDef | null>(() => {
-		if (pageIndex === 0) return pageFabDef[activePage] ?? null;
-		return null;
-	});
-
-	const rightFab = $derived.by<FabDef | null>(() => {
-		if (pageIndex === pageOrder.length - 1) return pageFabDef[activePage] ?? null;
-		return null;
-	});
+	const leftFab = $derived.by<FabDef | null>(() => pageFabs[activePage]?.left ?? null);
+	const rightFab = $derived.by<FabDef | null>(() => pageFabs[activePage]?.right ?? null);
 
 	let activePage = $state(pageOrder[0]);
 	let isAnimating = $state(false);
@@ -844,44 +840,11 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 
 					<!-- FILTERS PAGE -->
 				{:else if pageId === "filters"}
-					<!-- Persistent header: view mode · search pill · sort -->
-					<div class="obsiman-filters-header">
-						<button
-							class="obsiman-filters-header-btn"
-							aria-label="View mode (WIP)"
-							use:icon={"lucide-layout-list"}
-						></button>
-						<div class="obsiman-filters-header-search-pill">
-							<input
-								class="obsiman-filters-search-input"
-								type="text"
-								placeholder={t('filter.search_placeholder')}
-								bind:value={filtersSearch}
-							/>
-							{#if filtersSearch}
-								<button
-									class="obsiman-filters-search-clear"
-									aria-label="Clear search"
-									onclick={() => { filtersSearch = ''; }}
-								>×</button>
-							{/if}
-							<button
-								class="obsiman-filters-search-category"
-								aria-label="Filter category (WIP)"
-							>{t('filter.category')}</button>
-						</div>
-						<button
-							class="obsiman-filters-header-btn"
-							aria-label="Sort (WIP)"
-							use:icon={"lucide-arrow-up-down"}
-						></button>
-					</div>
-
 					<!-- 3-tab bar: Tags · Props · Files -->
-					<div class="obsiman-filters-tabbar">
+					<div class="obsiman-filters-tabbar nav-buttons-container" class:has-labels={plugin.settings.filtersShowTabLabels}>
 						{#each (['tags', 'props', 'files'] as FiltersTab[]) as tab}
 							<div
-								class="obsiman-filters-tab"
+								class="obsiman-filters-tab nav-action-button"
 								class:is-active={filtersActiveTab === tab}
 								onclick={() => switchFiltersTab(tab)}
 								aria-label={t('filter.tab.' + tab)}
@@ -889,9 +852,32 @@ type PopupType = 'active-filters' | 'scope' | 'view-mode' | 'search' | 'move';
 								tabindex="0"
 							>
 								<span class="obsiman-filters-tab-icon" use:icon={TAB_ICONS[tab]}></span>
-								<span class="obsiman-filters-tab-label">{t('filter.tab.' + tab)}</span>
+								{#if plugin.settings.filtersShowTabLabels}
+									<span class="obsiman-filters-tab-label">{t('filter.tab.' + tab)}</span>
+								{/if}
 							</div>
 						{/each}
+					</div>
+
+					<!-- Persistent header: search pill · sort -->
+					<div class="obsiman-filters-header">
+						<div class="obsiman-filters-header-search-pill search-input-container">
+							{#if filtersSearch}
+								<button
+									class="obsiman-filters-search-clear search-input-clear-button"
+									aria-label="Clear search"
+									use:icon={"lucide-x"}
+									onclick={() => { filtersSearch = ''; }}
+								></button>
+							{/if}
+							<input
+								class="obsiman-filters-search-input"
+								type="search"
+								placeholder={t('filter.search_placeholder')}
+								bind:value={filtersSearch}
+							/>
+							<div class="obsiman-filters-search-mode" aria-label="Toggle search mode" use:icon={"lucide-search"}></div>
+						</div>
 					</div>
 
 					<!-- Tab content via sub-components -->
