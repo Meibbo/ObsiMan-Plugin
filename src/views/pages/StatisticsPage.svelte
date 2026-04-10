@@ -7,19 +7,17 @@
   type Scope = 'vault' | 'filtered' | 'selected';
   let scope = $state<Scope>('vault');
 
-  const app = plugin.app;
-
-  let counts = $derived({
-    folders: app.vault.getAllFolders(true).length,
+  let counts = $derived.by(() => ({
+    folders: plugin.app.vault.getAllFolders(true).length,
     files: scope === 'vault'
-      ? app.vault.getMarkdownFiles().length
+      ? plugin.app.vault.getMarkdownFiles().length
       : scope === 'filtered'
         ? plugin.filterService.filteredFiles.length
         : plugin.filterService.selectedFiles.length,
     props: plugin.propertyIndex.index.size,
     values: [...plugin.propertyIndex.index.values()].reduce((n, s) => n + s.size, 0),
-    tags: Object.keys((app.metadataCache as unknown as { getTags(): Record<string, number> }).getTags() ?? {}).length,
-  });
+    tags: Object.keys((plugin.app.metadataCache as unknown as { getTags(): Record<string, number> }).getTags() ?? {}).length,
+  }));
 
   const statCards = $derived([
     { label: 'Folders', icon: 'lucide-folder',    value: counts.folders },
@@ -43,10 +41,10 @@
   }
 </script>
 
-<div class="obsiman-statistics-page">
+  <div class="obsiman-statistics-page">
   <!-- Vault name heading -->
   <div class="obsiman-statistics-vault-name">
-    {app.vault.getName()}
+    {plugin.app.vault.getName()}
   </div>
 
   <!-- Stat cards -->

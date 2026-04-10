@@ -124,10 +124,21 @@ export class ObsiManPlugin extends Plugin {
 
 	async loadSettings(): Promise<void> {
 		const saved = ((await this.loadData()) ?? {}) as Partial<ObsiManSettings>;
+		const hasSavedTabLabelPref = Object.prototype.hasOwnProperty.call(saved, 'filtersShowTabLabels');
+		const needsTabLabelMigration = saved.filtersTabLabelsMigrated !== true;
+
 		this.settings = {
 			...(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)) as ObsiManSettings),
 			...saved,
 		};
+
+		if (needsTabLabelMigration) {
+			if (hasSavedTabLabelPref && saved.filtersShowTabLabels === false) {
+				this.settings.filtersShowTabLabels = true;
+			}
+			this.settings.filtersTabLabelsMigrated = true;
+			await this.saveData(this.settings);
+		}
 	}
 
 	async saveSettings(): Promise<void> {

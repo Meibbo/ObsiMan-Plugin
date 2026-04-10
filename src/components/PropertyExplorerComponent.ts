@@ -407,6 +407,14 @@ export class PropertyExplorerComponent {
 		if (this.activeFilterProps.has(propName)) {
 			nodeEl.addClass('is-active-filter');
 		}
+
+		// Pulse animation if matching search term
+		if (this.searchTerm && this.searchMode === 'properties' && propName.toLowerCase().includes(this.searchTerm.toLowerCase())) {
+			nodeEl.addClass('obsiman-search-highlight');
+			// Remove class after animation finishes so it can re-trigger on next search
+			setTimeout(() => { if (nodeEl && nodeEl.parentElement) nodeEl.removeClass('obsiman-search-highlight'); }, 800);
+		}
+
 		const headerEl = nodeEl.createDiv({
 			cls: `tree-item-self is-clickable obsiman-explorer-header ${isExpanded ? '' : 'is-collapsed'}`,
 		});
@@ -491,6 +499,12 @@ export class PropertyExplorerComponent {
 				// Highlight if value is an active filter for this property
 				if (this.activeFilterValues.get(propName)?.has(value)) {
 					valueEl.addClass('is-active-filter');
+				}
+
+				// Pulse animation if matching search term
+				if (this.searchTerm && this.searchMode === 'values' && value.toLowerCase().includes(this.searchTerm.toLowerCase())) {
+					valueEl.addClass('obsiman-search-highlight');
+					setTimeout(() => { if (valueEl && valueEl.parentElement) valueEl.removeClass('obsiman-search-highlight'); }, 800);
 				}
 				
 				valueEl.createDiv({ cls: 'tree-item-icon' }); // Spacer for deeper tree logic
@@ -830,9 +844,12 @@ export class PropertyExplorerComponent {
 		this.renderTree();
 	}
 
-	/** Set an external search term (from the Filters header search pill) and re-render. */
-	setSearchTerm(term: string): void {
+	/** Set an external search term (from the Filters header search pill) and re-render.
+	 *  @param mode 'properties' searches property names, 'values' searches values within each property.
+	 */
+	setSearchTerm(term: string, mode: 'properties' | 'values' = 'properties'): void {
 		this.searchTerm = term;
+		this.searchMode = mode;
 		this.renderTree();
 	}
 

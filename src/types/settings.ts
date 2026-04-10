@@ -44,6 +44,8 @@ export interface ObsiManSettings {
 	viewMode: 'list' | 'selected';
 	/** Show labels on the tab bar in the Filters page */
 	filtersShowTabLabels: boolean;
+	/** Internal one-shot migration marker for the Iter.12 tab label default */
+	filtersTabLabelsMigrated?: boolean;
 	/** Property grid render mode */
 	gridRenderMode?: 'plain' | 'chunk' | 'all';
 	/** Columns that allow inline editing in the grid */
@@ -77,6 +79,7 @@ export const DEFAULT_SETTINGS: ObsiManSettings = {
 	pageOrder: ['ops', 'statistics', 'filters'],
 	separatePanes: false,
 	viewMode: 'list',
-	filtersShowTabLabels: false,
+	filtersShowTabLabels: true,
+	filtersTabLabelsMigrated: true,
 	glassBlurIntensity: 60,
 };

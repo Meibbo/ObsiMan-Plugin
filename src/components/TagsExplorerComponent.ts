@@ -14,6 +14,7 @@ export class TagsExplorerComponent extends Component {
 	private treeEl: HTMLElement | null = null;
 	private expandedNodes = new Set<string>();
 	private searchTerm = '';
+	private searchMode: 'all' | 'leaf' = 'all';
 
 	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin) {
 		super();
@@ -38,14 +39,25 @@ export class TagsExplorerComponent extends Component {
 		if (!this.treeEl) return;
 		this.treeEl.empty();
 		const root = this.buildTree();
+		if (this.searchMode === 'leaf') {
+			for (const node of this.collectLeafNodes(root)) {
+				const depth = node.name.split('/').length - 1;
+				this.renderNode(this.treeEl, node, depth);
+			}
+			return;
+		}
+
 		for (const node of root) {
 			this.renderNode(this.treeEl, node, 0);
 		}
 	}
 
-	/** Set an external search term (from the Filters header search pill) and re-render. */
-	setSearchTerm(term: string): void {
+	/** Set an external search term (from the Filters header search pill) and re-render.
+	 *  @param mode 'all' shows all tags, 'leaf' shows only true leaf tags in the hierarchy.
+	 */
+	setSearchTerm(term: string, mode: 'all' | 'leaf' = 'all'): void {
 		this.searchTerm = term;
+		this.searchMode = mode;
 		this.render();
 	}
 
@@ -56,13 +68,9 @@ export class TagsExplorerComponent extends Component {
 		const root: TagNode[] = [];
 		const nodeMap = new Map<string, TagNode>();
 
-		const term = this.searchTerm.toLowerCase();
 		const allEntries = Object.entries(rawTags).sort(([a], [b]) => a.localeCompare(b));
-		const sorted = term
-			? allEntries.filter(([tag]) => tag.toLowerCase().includes(term))
-			: allEntries;
 
-		for (const [tagWithHash, count] of sorted) {
+		for (const [tagWithHash, count] of allEntries) {
 			const fullPath = tagWithHash.replace(/^#/, '');
 			const parts = fullPath.split('/');
 
@@ -95,6 +103,24 @@ export class TagsExplorerComponent extends Component {
 		return root;
 	}
 
+	private collectLeafNodes(nodes: TagNode[]): TagNode[] {
+		const term = this.searchTerm.toLowerCase();
+		const leaves: TagNode[] = [];
+
+		for (const node of nodes) {
+			if (node.children.length === 0) {
+				if (!term || node.name.toLowerCase().includes(term)) {
+					leaves.push({ ...node, children: [] });
+				}
+				continue;
+			}
+
+			leaves.push(...this.collectLeafNodes(node.children));
+		}
+
+		return leaves;
+	}
+
 	private renderNode(parent: HTMLElement, node: TagNode, depth: number): void {
 		const isExpanded = this.expandedNodes.has(node.name);
 		const hasChildren = node.children.length > 0;
@@ -103,6 +129,12 @@ export class TagsExplorerComponent extends Component {
 		const row = parent.createDiv({ cls: 'obsiman-tags-row' });
 		if (isActiveFilter) row.addClass('is-active-filter');
 		row.style.setProperty('--depth', String(depth));
+
+		// Pulse animation if matching search term
+		if (this.searchTerm && node.name.toLowerCase().includes(this.searchTerm.toLowerCase())) {
+			row.addClass('obsiman-search-highlight');
+			setTimeout(() => { if (row && row.parentElement) row.removeClass('obsiman-search-highlight'); }, 800);
+		}
 
 		// Toggle chevron
 		const toggleSpan = row.createSpan({ cls: 'obsiman-tags-toggle' });

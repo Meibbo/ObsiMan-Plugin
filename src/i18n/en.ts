@@ -315,6 +315,12 @@ export const en: Record<string, string> = {
 	'filter.tab.scope': 'Scope',
 	'filter.search_placeholder': 'Search…',
 	'filter.category': 'All',
+	'filter.category.props': 'Property names',
+	'filter.category.values': 'Property values',
+	'filter.category.all_tags': 'All tags',
+	'filter.category.leaf_tags': 'Leaf tags',
+	'filter.category.files': 'File names',
+	'filter.category.folders': 'Folders',
 
 	// Grid settings
 	'settings.grid_render_mode': 'Grid rendering mode',
