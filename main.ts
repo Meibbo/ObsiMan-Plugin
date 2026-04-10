@@ -35,6 +35,7 @@ export class ObsiManPlugin extends Plugin {
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
+		this.updateGlassBlur();
 
 		setLanguage(this.settings.language);
 		addIcon('obsiman-icon', OBSIMAN_ICON_SVG);
@@ -131,6 +132,17 @@ export class ObsiManPlugin extends Plugin {
 
 	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
+	}
+
+	updateGlassBlur(): void {
+		const intensity = this.settings.glassBlurIntensity ?? 60;
+		const px = (intensity / 100) * 20;
+		this.app.workspace.getLeavesOfType('obsiman-view').forEach(leaf => {
+			(leaf.view.containerEl as HTMLElement).style.setProperty(
+				'--obsiman-glass-blur',
+				`${px}px`
+			);
+		});
 	}
 
 	refreshStatusBar(): void {

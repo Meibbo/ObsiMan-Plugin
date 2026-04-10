@@ -148,6 +148,24 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 					})
 			);
 
+		// Appearance section
+		new Setting(containerEl).setName('Appearance').setHeading();
+
+		new Setting(containerEl)
+			.setName('Background blur intensity')
+			.setDesc('Controls the glassmorphism blur on the bottom bar and popups (0 = no blur, 100 = maximum).')
+			.addSlider(slider =>
+				slider
+					.setLimits(0, 100, 1)
+					.setValue(this.plugin.settings.glassBlurIntensity ?? 60)
+					.setDynamicTooltip()
+					.onChange(async (value) => {
+						this.plugin.settings.glassBlurIntensity = value;
+						await this.plugin.saveSettings();
+						this.plugin.updateGlassBlur();
+					})
+			);
+
 		// Bases integration section
 		new Setting(containerEl).setName('Bases Integration').setHeading();
 
