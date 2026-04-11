@@ -1,6 +1,6 @@
 import { setIcon } from 'obsidian';
 import type { OperationQueueService } from '../services/OperationQueueService';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 /**
  * In-frame floating island showing the pending operation queue.
@@ -47,7 +47,7 @@ export class QueueIslandComponent {
 
 		const executeBtn = btnRow.createDiv({
 			cls: 'obsiman-squircle',
-			attr: { 'aria-label': t('ops.apply'), role: 'button', tabindex: '0' },
+			attr: { 'aria-label': translate('ops.apply'), role: 'button', tabindex: '0' },
 		});
 		setIcon(executeBtn, 'lucide-play');
 		executeBtn.addEventListener('click', () => {
@@ -57,7 +57,7 @@ export class QueueIslandComponent {
 
 		const clearBtn = btnRow.createDiv({
 			cls: 'obsiman-squircle',
-			attr: { 'aria-label': t('ops.clear'), role: 'button', tabindex: '0' },
+			attr: { 'aria-label': translate('ops.clear'), role: 'button', tabindex: '0' },
 		});
 		setIcon(clearBtn, 'lucide-x');
 		clearBtn.addEventListener('click', () => {
@@ -67,7 +67,7 @@ export class QueueIslandComponent {
 
 		const detailsBtn = btnRow.createDiv({
 			cls: 'obsiman-squircle',
-			attr: { 'aria-label': t('ops.details'), role: 'button', tabindex: '0' },
+			attr: { 'aria-label': translate('ops.details'), role: 'button', tabindex: '0' },
 		});
 		setIcon(detailsBtn, 'lucide-list');
 		detailsBtn.addEventListener('click', () => {
@@ -89,12 +89,12 @@ export class QueueIslandComponent {
 		if (!this.listEl || !this.headerEl) return;
 		const queue = this.queueService.queue;
 
-		const pendingLabel = t('queue.island.pending');
+		const pendingLabel = translate('queue.island.pending');
 		this.headerEl.setText(`${queue.length} ${pendingLabel}`);
 
 		this.listEl.empty();
 		if (queue.length === 0) {
-			this.listEl.createDiv({ cls: 'obsiman-queue-island-empty', text: t('queue.island.empty') });
+			this.listEl.createDiv({ cls: 'obsiman-queue-island-empty', text: translate('queue.island.empty') });
 			return;
 		}
 

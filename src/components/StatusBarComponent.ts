@@ -1,4 +1,4 @@
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 export interface StatusBarData {
 	filtered: number;
@@ -27,14 +27,14 @@ export class StatusBarComponent {
 
 		leftEl.createSpan({
 			cls: 'obsiman-statusbar-item',
-			text: t('statusbar.files', { count: data.total }),
+			text: translate('statusbar.files', { count: data.total }),
 		});
 
 		this.addSep(leftEl, '|');
 
 		leftEl.createSpan({
 			cls: 'obsiman-statusbar-item',
-			text: t('statusbar.filtered_label', { count: data.filtered }),
+			text: translate('statusbar.filtered_label', { count: data.filtered }),
 		});
 
 		this.addSep(leftEl, '|');
@@ -44,7 +44,7 @@ export class StatusBarComponent {
 			: 'obsiman-statusbar-item';
 		leftEl.createSpan({
 			cls: selCls,
-			text: t('statusbar.selected', { count: data.selected }),
+			text: translate('statusbar.selected', { count: data.selected }),
 		});
 
 		this.addSep(leftEl, '|');
@@ -54,7 +54,7 @@ export class StatusBarComponent {
 			: 'obsiman-statusbar-item';
 		leftEl.createSpan({
 			cls: qCls,
-			text: t('statusbar.pending', { count: data.queued }),
+			text: translate('statusbar.pending', { count: data.queued }),
 		});
 
 		// Right group: props · values
@@ -62,14 +62,14 @@ export class StatusBarComponent {
 
 		rightEl.createSpan({
 			cls: 'obsiman-statusbar-item',
-			text: t('statusbar.props_label', { count: data.propertyCount }),
+			text: translate('statusbar.props_label', { count: data.propertyCount }),
 		});
 
 		this.addSep(rightEl, '·');
 
 		rightEl.createSpan({
 			cls: 'obsiman-statusbar-item',
-			text: t('statusbar.values_label', { count: data.valueCount }),
+			text: translate('statusbar.values_label', { count: data.valueCount }),
 		});
 	}
 

@@ -1,5 +1,5 @@
 import type { PendingChange } from '../types/operation';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 export interface QueueListCallbacks {
 	onRemove: (index: number) => void;
@@ -27,14 +27,14 @@ export class QueueListComponent {
 		if (queue.length === 0) {
 			this.containerEl.createDiv({
 				cls: 'obsiman-queue-empty',
-				text: t('ops.queue.empty'),
+				text: translate('ops.queue.empty'),
 			});
 			return;
 		}
 
 		const headerEl = this.containerEl.createDiv({ cls: 'obsiman-queue-header' });
 		headerEl.createSpan({
-			text: t('ops.queue', { count: queue.length }),
+			text: translate('ops.queue', { count: queue.length }),
 			cls: 'obsiman-queue-title',
 		});
 

@@ -1,7 +1,7 @@
 import { Modal, Notice, Setting, type App } from 'obsidian';
 import type { OperationQueueService } from '../services/OperationQueueService';
 import { FIND_REPLACE_CONTENT } from '../types/operation';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 /**
  * Enhanced diff preview modal with:
@@ -25,12 +25,12 @@ export class QueueDetailsModal extends Modal {
 		contentEl.empty();
 		contentEl.addClasses(['obsiman-modal', 'obsiman-queue-details']);
 
-		contentEl.createEl('h3', { text: t('queue.title') });
+		contentEl.createEl('h3', { text: translate('queue.title') });
 
 		const diffs = this.queueService.simulateChanges();
 
 		if (diffs.size === 0) {
-			contentEl.createEl('p', { text: t('result.no_changes') });
+			contentEl.createEl('p', { text: translate('result.no_changes') });
 			return;
 		}
 
@@ -38,7 +38,7 @@ export class QueueDetailsModal extends Modal {
 		const operationCount = this.queueService.queue.length;
 		const summaryEl = contentEl.createDiv({ cls: 'obsiman-diff-summary' });
 		summaryEl.createSpan({
-			text: `${diffs.size} ${t('section.files').toLowerCase()} · ${operationCount} ${t('section.operations').toLowerCase()}`,
+			text: `${diffs.size} ${translate('section.files').toLowerCase()} · ${operationCount} ${translate('section.operations').toLowerCase()}`,
 		});
 
 		// --- Operations list ---
@@ -62,7 +62,7 @@ export class QueueDetailsModal extends Modal {
 			attr: { type: 'checkbox' },
 		});
 		toggleCb.checked = this.showUnchanged;
-		toggleLabel.createSpan({ text: ` ${t('queue.show_unchanged')}` });
+		toggleLabel.createSpan({ text: ` ${translate('queue.show_unchanged')}` });
 		toggleCb.addEventListener('change', () => {
 			this.showUnchanged = toggleCb.checked;
 			this.renderDiffs(diffContainer, diffs);
@@ -80,7 +80,7 @@ export class QueueDetailsModal extends Modal {
 		new Setting(contentEl)
 			.addButton((btn) =>
 				btn
-					.setButtonText(t('ops.apply'))
+					.setButtonText(translate('ops.apply'))
 					.setCta()
 					.onClick(async () => {
 						this.close();
@@ -191,7 +191,7 @@ export class QueueDetailsModal extends Modal {
 			(sum, op) => sum + op.files.length,
 			0
 		);
-		new Notice(`${t('linter.applying')} (0/${total})...`);
+		new Notice(`${translate('linter.applying')} (0/${total})...`);
 
 		const result = await this.queueService.execute();
 
@@ -219,7 +219,7 @@ export class QueueDetailsModal extends Modal {
 		const section = container.createDiv({ cls: 'obsiman-diff-content-section' });
 		section.createDiv({
 			cls: 'obsiman-diff-content-section-title',
-			text: t('queue.content_changes'),
+			text: translate('queue.content_changes'),
 		});
 
 		const MAX_FILES_SHOWN = 10;
@@ -265,7 +265,7 @@ export class QueueDetailsModal extends Modal {
 				if (matches.length === 0) {
 					fileEl.createDiv({
 						cls: 'obsiman-diff-content-no-matches',
-						text: t('queue.content_no_matches'),
+						text: translate('queue.content_no_matches'),
 					});
 					continue;
 				}

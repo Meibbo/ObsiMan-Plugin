@@ -1,7 +1,7 @@
 import { PluginSettingTab, Setting, type App } from 'obsidian';
 import type { ObsiManPlugin } from '../../main';
 import type { Language } from '../types/settings';
-import { t, setLanguage } from '../i18n/index';
+import { translate, setLanguage } from '../i18n/index';
 
 export class ObsiManSettingsTab extends PluginSettingTab {
 	private plugin: ObsiManPlugin;
@@ -17,8 +17,8 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 
 		// Language
 		new Setting(containerEl)
-			.setName(t('settings.language'))
-			.setDesc(t('settings.language.desc'))
+			.setName(translate('settings.language'))
+			.setDesc(translate('settings.language.desc'))
 			.addDropdown((dd) =>
 				dd
 					.addOptions({ auto: 'Auto', en: 'English', es: 'Español' })
@@ -33,16 +33,16 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 
 		// Default property type
 		new Setting(containerEl)
-			.setName(t('settings.default_type'))
-			.setDesc(t('settings.default_type.desc'))
+			.setName(translate('settings.default_type'))
+			.setDesc(translate('settings.default_type.desc'))
 			.addDropdown((dd) =>
 				dd
 					.addOptions({
-						text: t('prop.type.text'),
-						number: t('prop.type.number'),
-						checkbox: t('prop.type.checkbox'),
-						list: t('prop.type.list'),
-						date: t('prop.type.date'),
+						text: translate('prop.type.text'),
+						number: translate('prop.type.number'),
+						checkbox: translate('prop.type.checkbox'),
+						list: translate('prop.type.list'),
+						date: translate('prop.type.date'),
 					})
 					.setValue(this.plugin.settings.defaultPropertyType)
 					.onChange(async (v) => {
@@ -55,8 +55,8 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 		new Setting(containerEl).setName("").setHeading();
 
 		new Setting(containerEl)
-			.setName(t('settings.ctrl_click_search'))
-			.setDesc(t('settings.ctrl_click_search.desc'))
+			.setName(translate('settings.ctrl_click_search'))
+			.setDesc(translate('settings.ctrl_click_search.desc'))
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.explorerCtrlClickSearch)
@@ -67,8 +67,8 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName(t('settings.queue_preview'))
-			.setDesc(t('settings.queue_preview.desc'))
+			.setName(translate('settings.queue_preview'))
+			.setDesc(translate('settings.queue_preview.desc'))
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.explorerShowQueuePreview)
@@ -79,8 +79,8 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName(t('settings.content_search'))
-			.setDesc(t('settings.content_search.desc'))
+			.setName(translate('settings.content_search'))
+			.setDesc(translate('settings.content_search.desc'))
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.explorerContentSearch)
@@ -91,15 +91,15 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName(t('settings.operation_scope'))
-			.setDesc(t('settings.operation_scope.desc'))
+			.setName(translate('settings.operation_scope'))
+			.setDesc(translate('settings.operation_scope.desc'))
 			.addDropdown((dd) =>
 				dd
 					.addOptions({
-						auto: t('settings.scope.auto'),
-						selected: t('settings.scope.selected'),
-						filtered: t('settings.scope.filtered'),
-						all: t('settings.scope.all'),
+						auto: translate('settings.scope.auto'),
+						selected: translate('settings.scope.selected'),
+						filtered: translate('settings.scope.filtered'),
+						all: translate('settings.scope.all'),
 					})
 					.setValue(this.plugin.settings.explorerOperationScope)
 					.onChange(async (v) => {
@@ -109,17 +109,17 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 			);
 
 		// View section
-		new Setting(containerEl).setName(t('settings.view_section')).setHeading();
+		new Setting(containerEl).setName(translate('settings.view_section')).setHeading();
 
 		new Setting(containerEl)
-			.setName(t('settings.open_mode'))
-			.setDesc(t('settings.open_mode.desc'))
+			.setName(translate('settings.open_mode'))
+			.setDesc(translate('settings.open_mode.desc'))
 			.addDropdown((dd) =>
 				dd
 					.addOptions({
-						sidebar: t('settings.open_mode.sidebar'),
-						main: t('settings.open_mode.main'),
-						both: t('settings.open_mode.both'),
+						sidebar: translate('settings.open_mode.sidebar'),
+						main: translate('settings.open_mode.main'),
+						both: translate('settings.open_mode.both'),
 					})
 					.setValue(this.plugin.settings.openMode)
 					.onChange(async (v) => {
@@ -132,14 +132,14 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 		new Setting(containerEl).setName("").setHeading();
 
 		new Setting(containerEl)
-			.setName(t('settings.ops_position'))
-			.setDesc(t('settings.ops_position.desc'))
+			.setName(translate('settings.ops_position'))
+			.setDesc(translate('settings.ops_position.desc'))
 			.addDropdown((dd) =>
 				dd
 					.addOptions({
-						right: t('settings.ops_position.right'),
-						bottom: t('settings.ops_position.bottom'),
-						replace: t('settings.ops_position.replace'),
+						right: translate('settings.ops_position.right'),
+						bottom: translate('settings.ops_position.bottom'),
+						replace: translate('settings.ops_position.replace'),
 					})
 					.setValue(this.plugin.settings.operationsPanelPosition)
 					.onChange(async (v) => {
@@ -165,9 +165,6 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 						this.plugin.updateGlassBlur();
 					})
 			);
-
-		// Bases integration section
-		new Setting(containerEl).setName('Bases Integration').setHeading();
 
 		new Setting(containerEl)
 			.setName('Open mode')
@@ -213,7 +210,6 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Auto-attach to .base files')
-			.setDesc('Automatically open ObsiMan panels whenever the active leaf becomes a .base file.')
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.basesAutoAttach)
@@ -225,7 +221,6 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Inject checkbox column')
-			.setDesc('Add a selection checkbox column to the Bases table.')
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.basesInjectCheckboxes)
@@ -237,7 +232,6 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Show column separators')
-			.setDesc('Show vertical borders between columns in the Bases table.')
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.basesShowColumnSeparators)
@@ -249,11 +243,11 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 			);
 
 		// Layout section
-		new Setting(containerEl).setName(t('settings.layout.title')).setHeading();
+		new Setting(containerEl).setName(translate('settings.layout.title')).setHeading();
 
 		new Setting(containerEl)
-			.setName(t('settings.layout.separate_panes'))
-			.setDesc(t('settings.layout.separate_panes.desc'))
+			.setName(translate('settings.layout.separate_panes'))
+			.setDesc(translate('settings.layout.separate_panes.desc'))
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.separatePanes)
@@ -264,8 +258,8 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Show tab labels in Filters page")
-			.setDesc("Display text labels alongside icons in the Filters tab bar.")
+			.setName(translate('settings.filters_show_tab_labels'))
+			.setDesc(translate('settings.filters_show_tab_labels.desc'))
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.filtersShowTabLabels)
@@ -280,7 +274,7 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 
 		if (this.plugin.settings.filterTemplates.length === 0) {
 			containerEl.createEl('p', {
-				text: t('settings.templates.desc'),
+				text: translate('settings.templates.desc'),
 				cls: 'setting-item-description',
 			});
 		} else {
@@ -290,7 +284,7 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 					.setDesc(`${tmpl.root.children.length} filters`)
 					.addButton((btn) =>
 						btn
-							.setButtonText(t('filter.template.delete'))
+							.setButtonText(translate('filter.template.delete'))
 							.setWarning()
 							.onClick(async () => {
 								this.plugin.settings.filterTemplates =

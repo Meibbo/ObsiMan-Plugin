@@ -2,7 +2,7 @@ import type { ObsiManPlugin } from '../../main';
 import { FilterTreeComponent } from './FilterTreeComponent';
 import { AddFilterModal } from '../modals/AddFilterModal';
 import { SaveTemplateModal } from '../modals/SaveTemplateModal';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 /**
  * Popover for file filtering — extracted from ToolbarComponent.
@@ -31,7 +31,7 @@ export class FileFilterPopoverComponent {
 		const templateSelect = templateRow.createEl('select', {
 			cls: 'obsiman-template-select dropdown',
 		});
-		templateSelect.createEl('option', { value: '', text: t('filter.template.none') });
+		templateSelect.createEl('option', { value: '', text: translate('filter.template.none') });
 		for (const tmpl of this.plugin.settings.filterTemplates) {
 			templateSelect.createEl('option', { value: tmpl.name, text: tmpl.name });
 		}
@@ -51,7 +51,7 @@ export class FileFilterPopoverComponent {
 		// Action buttons
 		const btnRow = this.containerEl.createDiv({ cls: 'obsiman-filter-buttons' });
 
-		const addBtn = btnRow.createEl('button', { cls: 'obsiman-btn-small', text: t('filter.add_rule') });
+		const addBtn = btnRow.createEl('button', { cls: 'obsiman-btn-small', text: translate('filter.add_rule') });
 		addBtn.addEventListener('click', () => {
 			new AddFilterModal(
 				this.plugin.app,
@@ -64,13 +64,13 @@ export class FileFilterPopoverComponent {
 			).open();
 		});
 
-		const clearBtn = btnRow.createEl('button', { cls: 'obsiman-btn-small', text: t('filter.clear') });
+		const clearBtn = btnRow.createEl('button', { cls: 'obsiman-btn-small', text: translate('filter.clear') });
 		clearBtn.addEventListener('click', () => {
 			this.plugin.filterService.clearFilters();
 			this.refreshTree();
 		});
 
-		const saveBtn = btnRow.createEl('button', { cls: 'obsiman-btn-small', text: t('filter.template.save') });
+		const saveBtn = btnRow.createEl('button', { cls: 'obsiman-btn-small', text: translate('filter.template.save') });
 		saveBtn.addEventListener('click', () => {
 			new SaveTemplateModal(
 				this.plugin.app,
@@ -79,7 +79,7 @@ export class FileFilterPopoverComponent {
 			).open();
 		});
 
-		const refreshBtn = btnRow.createEl('button', { cls: 'obsiman-btn-small', text: t('filter.refresh') });
+		const refreshBtn = btnRow.createEl('button', { cls: 'obsiman-btn-small', text: translate('filter.refresh') });
 		refreshBtn.addEventListener('click', () => {
 			this.plugin.propertyIndex.rebuild();
 			this.plugin.filterService.applyFilters();

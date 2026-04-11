@@ -50,7 +50,7 @@ export function getLanguage(): ResolvedLanguage {
  * Translate a key, optionally interpolating {placeholder} values.
  * Falls back to English, then to the raw key.
  */
-export function t(key: string, vars?: Record<string, string | number>): string {
+export function translate(key: string, vars?: Record<string, string | number>): string {
 	let text =
 		translations[currentLang]?.[key] ??
 		translations['en']?.[key] ??

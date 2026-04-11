@@ -3,7 +3,8 @@ import type { ObsiManPlugin } from '../../main';
 import type { PendingChange } from '../types/operation';
 import { DELETE_PROP } from '../types/operation';
 import { PropertySuggest } from '../utils/autocomplete';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
+import type { FilterGroup } from '../types/filter';
 
 type SortMode = 'alpha' | 'count' | 'type' | 'values';
 type ValueSortMode = 'value_alpha' | 'value_count';
@@ -102,8 +103,8 @@ export class PropertyExplorerComponent {
 			attr: {
 				type: 'text',
 				placeholder: this.searchMode === 'properties'
-					? t('explorer.search')
-					: (t('explorer.search_values') ?? 'Search values…'),
+					? translate('explorer.search')
+					: (translate('explorer.search_values') ?? 'Search values…'),
 			},
 		});
 		this.searchEl.value = this.searchTerm;
@@ -111,7 +112,7 @@ export class PropertyExplorerComponent {
 		// Clear button — absolutely positioned inside the input wrapper
 		const clearBtn = inputWrap.createDiv({
 			cls: 'obsiman-explorer-search-clear clickable-icon',
-			attr: { 'aria-label': t('filters.search.clear') ?? 'Clear search' },
+			attr: { 'aria-label': translate('filters.search.clear') ?? 'Clear search' },
 		});
 		setIcon(clearBtn, 'lucide-x');
 		clearBtn.addEventListener('click', () => {
@@ -128,8 +129,8 @@ export class PropertyExplorerComponent {
 			cls: `clickable-icon obsiman-search-mode-toggle${this.searchMode === 'values' ? ' is-active' : ''}`,
 			attr: {
 				'aria-label': this.searchMode === 'properties'
-					? (t('explorer.search_mode_values') ?? 'Search values')
-					: (t('explorer.search_mode_props') ?? 'Search properties'),
+					? (translate('explorer.search_mode_values') ?? 'Search values')
+					: (translate('explorer.search_mode_props') ?? 'Search properties'),
 			},
 		});
 		setIcon(modeBtn, this.searchMode === 'properties' ? 'lucide-tag' : 'lucide-key-round');
@@ -182,9 +183,9 @@ export class PropertyExplorerComponent {
 
 		// Scope options
 		const scopes: { value: FilterScope; label: string }[] = [
-			{ value: 'all', label: t('explorer.filter.all_vault') },
-			{ value: 'filtered', label: t('explorer.filter.filtered') },
-			{ value: 'selected', label: t('explorer.filter.selected') },
+			{ value: 'all', label: translate('explorer.filter.all_vault') },
+			{ value: 'filtered', label: translate('explorer.filter.filtered') },
+			{ value: 'selected', label: translate('explorer.filter.selected') },
 		];
 		for (const s of scopes) {
 			menu.addItem((item) =>
@@ -205,7 +206,7 @@ export class PropertyExplorerComponent {
 		const types = this.plugin.propertyTypeService.getAllTypes();
 		if (types.length > 0) {
 			menu.addItem((item) => {
-				item.setTitle(t('explorer.filter.by_type'));
+				item.setTitle(translate('explorer.filter.by_type'));
 				const sub = (item as unknown as { setSubmenu: () => Menu }).setSubmenu();
 				// "All types" option
 				sub.addItem((si) =>
@@ -241,12 +242,12 @@ export class PropertyExplorerComponent {
 		const menu = new Menu();
 
 		// Properties section header
-		menu.addItem((item) => item.setTitle(t('explorer.sort.section_props')).setDisabled(true));
+		menu.addItem((item) => item.setTitle(translate('explorer.sort.section_props')).setDisabled(true));
 		const propModes: { value: SortMode; label: string }[] = [
-			{ value: 'alpha', label: t('explorer.sort.alpha') },
-			{ value: 'count', label: t('explorer.sort.count') },
-			{ value: 'type', label: t('explorer.sort.type') },
-			{ value: 'values', label: t('explorer.sort.values') },
+			{ value: 'alpha', label: translate('explorer.sort.alpha') },
+			{ value: 'count', label: translate('explorer.sort.count') },
+			{ value: 'type', label: translate('explorer.sort.type') },
+			{ value: 'values', label: translate('explorer.sort.values') },
 		];
 		for (const m of propModes) {
 			menu.addItem((item) =>
@@ -263,10 +264,10 @@ export class PropertyExplorerComponent {
 		menu.addSeparator();
 
 		// Values section header
-		menu.addItem((item) => item.setTitle(t('explorer.sort.section_values')).setDisabled(true));
+		menu.addItem((item) => item.setTitle(translate('explorer.sort.section_values')).setDisabled(true));
 		const valueModes: { value: ValueSortMode; label: string }[] = [
-			{ value: 'value_alpha', label: t('explorer.sort.value_name') },
-			{ value: 'value_count', label: t('explorer.sort.value_count') },
+			{ value: 'value_alpha', label: translate('explorer.sort.value_name') },
+			{ value: 'value_count', label: translate('explorer.sort.value_count') },
 		];
 		for (const m of valueModes) {
 			menu.addItem((item) =>
@@ -285,7 +286,7 @@ export class PropertyExplorerComponent {
 
 	openCreateProperty(): void {
 		if (this.selectedFilePaths.size === 0) {
-			new Notice(t('explorer.warn.no_files_selected'));
+			new Notice(translate('explorer.warn.no_files_selected'));
 			return;
 		}
 		new CreatePropertyModal(
@@ -353,7 +354,7 @@ export class PropertyExplorerComponent {
 		propNames = this.sortProperties(propNames, index, propFileCounts);
 
 		if (propNames.length === 0) {
-			this.treeEl.createDiv({ cls: 'obsiman-explorer-empty', text: t('explorer.empty') });
+			this.treeEl.createDiv({ cls: 'obsiman-explorer-empty', text: translate('explorer.empty') });
 			return;
 		}
 
@@ -580,21 +581,21 @@ export class PropertyExplorerComponent {
 
 		// Rename
 		menu.addItem((item) =>
-			item.setTitle(t('explorer.ctx.rename')).setIcon('lucide-pencil').onClick(() => {
+			item.setTitle(translate('explorer.ctx.rename')).setIcon('lucide-pencil').onClick(() => {
 				new RenamePropertyModal(this.plugin.app, this.plugin, propName, this.getOperationFiles()).open();
 			})
 		);
 
 		// Property Type submenu
 		menu.addItem((item) => {
-			item.setTitle(t('explorer.ctx.type')).setIcon('lucide-type');
+			item.setTitle(translate('explorer.ctx.type')).setIcon('lucide-type');
 			const sub = (item as unknown as { setSubmenu: () => Menu }).setSubmenu();
 			const currentType = this.plugin.propertyTypeService.getType(propName);
 			const types = ['text', 'number', 'checkbox', 'list', 'date', 'datetime'];
 			for (const type of types) {
 				sub.addItem((si) =>
 					si
-						.setTitle(t(`prop.type.${type}`))
+						.setTitle(translate(`prop.type.${type}`))
 						.setIcon(TYPE_ICON_MAP[type] ?? 'lucide-text')
 						.setChecked(currentType === type)
 						.onClick(async () => {
@@ -611,7 +612,7 @@ export class PropertyExplorerComponent {
 		menu.addSeparator();
 
 		// Add Value (Only if > 1 active filters applied globally!)
-		const countRules = (group: { children: any[] }): number => {
+		const countRules = (group: FilterGroup): number => {
 			let count = 0;
 			for (const child of group.children) {
 				if (child.type === 'rule') count++;
@@ -623,7 +624,7 @@ export class PropertyExplorerComponent {
 		
 		if (activeFiltersCount > 1) {
 			menu.addItem((item) =>
-				item.setTitle(t('explorer.ctx.add_value')).setIcon('lucide-plus-circle').onClick(() => {
+				item.setTitle(translate('explorer.ctx.add_value')).setIcon('lucide-plus-circle').onClick(() => {
 					new AddValueModal(this.plugin.app, this.plugin, propName, this.getOperationFiles()).open();
 				})
 			);
@@ -631,7 +632,7 @@ export class PropertyExplorerComponent {
 
 		// Delete Property
 		menu.addItem((item) =>
-			item.setTitle(t('explorer.ctx.delete_prop')).setIcon('lucide-trash-2').onClick(() => {
+			item.setTitle(translate('explorer.ctx.delete_prop')).setIcon('lucide-trash-2').onClick(() => {
 				const files = this.getOperationFiles();
 				const change: PendingChange = {
 					property: propName,
@@ -655,29 +656,29 @@ export class PropertyExplorerComponent {
 
 		// Rename Value
 		menu.addItem((item) =>
-			item.setTitle(t('explorer.ctx.rename_value')).setIcon('lucide-pencil').onClick(() => {
+			item.setTitle(translate('explorer.ctx.rename_value')).setIcon('lucide-pencil').onClick(() => {
 				new RenameValueModal(this.plugin.app, this.plugin, propName, value, scopedFiles).open();
 			})
 		);
 
 		// Move Value
 		menu.addItem((item) =>
-			item.setTitle(t('explorer.ctx.move_value')).setIcon('lucide-move').onClick(() => {
+			item.setTitle(translate('explorer.ctx.move_value')).setIcon('lucide-move').onClick(() => {
 				new MoveValueModal(this.plugin.app, this.plugin, propName, value, scopedFiles).open();
 			})
 		);
 
 		// Convert submenu
 		menu.addItem((item) => {
-			item.setTitle(t('explorer.ctx.convert')).setIcon('lucide-repeat');
+			item.setTitle(translate('explorer.ctx.convert')).setIcon('lucide-repeat');
 			const sub = (item as unknown as { setSubmenu: () => Menu }).setSubmenu();
 			const conversions: { label: string; fn: (v: string) => string }[] = [
-				{ label: t('explorer.ctx.wikilink'), fn: (v) => `[[${v.replace(/^\[\[|\]\]$/g, '')}]]` },
-				{ label: t('explorer.ctx.wikilink_alias'), fn: (v) => `[[${v.replace(/^\[\[|\]\]$/g, '')}|${v.replace(/^\[\[|\]\]$/g, '')}]]` },
-				{ label: t('explorer.ctx.md_link'), fn: (v) => `[${v.replace(/^\[\[|\]\]$/g, '')}](${v.replace(/^\[\[|\]\]$/g, '')})` },
-				{ label: t('explorer.ctx.uppercase'), fn: (v) => v.toUpperCase() },
-				{ label: t('explorer.ctx.lowercase'), fn: (v) => v.toLowerCase() },
-				{ label: t('explorer.ctx.capitalize'), fn: (v) => v.replace(/\b\w/g, (c) => c.toUpperCase()) },
+				{ label: translate('explorer.ctx.wikilink'), fn: (v) => `[[${v.replace(/^\[\[|\]\]$/g, '')}]]` },
+				{ label: translate('explorer.ctx.wikilink_alias'), fn: (v) => `[[${v.replace(/^\[\[|\]\]$/g, '')}|${v.replace(/^\[\[|\]\]$/g, '')}]]` },
+				{ label: translate('explorer.ctx.md_link'), fn: (v) => `[${v.replace(/^\[\[|\]\]$/g, '')}](${v.replace(/^\[\[|\]\]$/g, '')})` },
+				{ label: translate('explorer.ctx.uppercase'), fn: (v) => v.toUpperCase() },
+				{ label: translate('explorer.ctx.lowercase'), fn: (v) => v.toLowerCase() },
+				{ label: translate('explorer.ctx.capitalize'), fn: (v) => v.replace(/\b\w/g, (c) => c.toUpperCase()) },
 			];
 			for (const conv of conversions) {
 				sub.addItem((si) =>
@@ -692,7 +693,7 @@ export class PropertyExplorerComponent {
 
 		// Delete Value
 		menu.addItem((item) =>
-			item.setTitle(t('explorer.ctx.delete_value')).setIcon('lucide-trash-2').onClick(() => {
+			item.setTitle(translate('explorer.ctx.delete_value')).setIcon('lucide-trash-2').onClick(() => {
 				this.queueValueDelete(propName, value);
 			})
 		);
@@ -704,7 +705,7 @@ export class PropertyExplorerComponent {
 		const menu = new Menu();
 
 		menu.addItem((item) =>
-			item.setTitle(t('explorer.ctx.tag.filter')).setIcon('lucide-filter').onClick(() => {
+			item.setTitle(translate('explorer.ctx.tag.filter')).setIcon('lucide-filter').onClick(() => {
 				this.plugin.filterService.addNode({
 					type: 'rule',
 					filterType: 'has_tag',
@@ -717,7 +718,7 @@ export class PropertyExplorerComponent {
 		// Placeholder for future tag operations
 		menu.addSeparator();
 		menu.addItem((item) =>
-			item.setTitle(t('explorer.ctx.tag.coming_soon')).setDisabled(true)
+			item.setTitle(translate('explorer.ctx.tag.coming_soon')).setDisabled(true)
 		);
 
 		menu.showAtMouseEvent(e);
@@ -727,11 +728,14 @@ export class PropertyExplorerComponent {
 
 	/** Intersect operation scope with files that actually have propName === value */
 	private getFilesWithValue(propName: string, value: string): TFile[] {
+		const isMatch = (v: unknown) =>
+			(typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') && String(v) === value;
+
 		return this.getOperationFiles().filter((file) => {
 			const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
 			const val: unknown = fm[propName];
-			if (Array.isArray(val)) return (val as unknown[]).some((v) => String(v) === value);
-			return val != null && String(val) === value;
+			if (Array.isArray(val)) return (val as unknown[]).some(isMatch);
+			return isMatch(val);
 		});
 	}
 
@@ -893,7 +897,7 @@ export class PropertyExplorerComponent {
 		propNames = this.sortProperties(propNames, index, propFileCounts);
 
 		if (propNames.length === 0) {
-			this.treeEl.createDiv({ cls: 'obsiman-explorer-empty', text: t('explorer.empty') });
+			this.treeEl.createDiv({ cls: 'obsiman-explorer-empty', text: translate('explorer.empty') });
 			return;
 		}
 
@@ -1013,7 +1017,7 @@ export class PropertyExplorerComponent {
 		propNames = this.sortProperties(propNames, index, propFileCounts);
 
 		if (propNames.length === 0) {
-			this.treeEl.createDiv({ cls: 'obsiman-explorer-empty', text: t('explorer.empty') });
+			this.treeEl.createDiv({ cls: 'obsiman-explorer-empty', text: translate('explorer.empty') });
 			return;
 		}
 
@@ -1102,7 +1106,7 @@ export class PropertyExplorerComponent {
 
 		// ── Values as chips ───────────────────────────────────
 		if (!values || values.size === 0) {
-			this.treeEl.createDiv({ cls: 'obsiman-explorer-empty', text: t('explorer.empty') });
+			this.treeEl.createDiv({ cls: 'obsiman-explorer-empty', text: translate('explorer.empty') });
 			return;
 		}
 
@@ -1168,7 +1172,7 @@ export class PropertyExplorerComponent {
 		}
 
 		if (tagCounts.size === 0) {
-			this.treeEl.createDiv({ cls: 'obsiman-explorer-empty', text: t('explorer.empty') });
+			this.treeEl.createDiv({ cls: 'obsiman-explorer-empty', text: translate('explorer.empty') });
 			return;
 		}
 
@@ -1349,24 +1353,24 @@ class CreatePropertyModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.addClass('obsiman-modal');
-		contentEl.createEl('h3', { text: t('explorer.btn.create') });
+		contentEl.createEl('h3', { text: translate('explorer.btn.create') });
 
-		new Setting(contentEl).setName(t('prop.property')).addText((text) => {
+		new Setting(contentEl).setName(translate('prop.property')).addText((text) => {
 			text.setPlaceholder('Property name...').onChange((v) => { this.propName = v; });
 			new PropertySuggest(this.app, text.inputEl, this.plugin.propertyIndex.getPropertyNames(), (v) => { this.propName = v; text.setValue(v); });
 		});
 
-		new Setting(contentEl).setName(t('prop.type')).addDropdown((dd) =>
-			dd.addOptions({ text: t('prop.type.text'), number: t('prop.type.number'), checkbox: t('prop.type.checkbox'), list: t('prop.type.list'), date: t('prop.type.date') })
+		new Setting(contentEl).setName(translate('prop.type')).addDropdown((dd) =>
+			dd.addOptions({ text: translate('prop.type.text'), number: translate('prop.type.number'), checkbox: translate('prop.type.checkbox'), list: translate('prop.type.list'), date: translate('prop.type.date') })
 				.setValue(this.propType).onChange((v) => { this.propType = v; })
 		);
 
-		new Setting(contentEl).setName(t('prop.value')).addText((text) =>
+		new Setting(contentEl).setName(translate('prop.value')).addText((text) =>
 			text.setPlaceholder('Value (optional)').onChange((v) => { this.propValue = v; })
 		);
 
 		new Setting(contentEl).addButton((btn) =>
-			btn.setButtonText(t('prop.add_to_queue')).setCta().onClick(() => { this.submit(); this.close(); })
+			btn.setButtonText(translate('prop.add_to_queue')).setCta().onClick(() => { this.submit(); this.close(); })
 		).addButton((btn) => btn.setButtonText('Cancel').onClick(() => this.close()));
 	}
 
@@ -1409,21 +1413,21 @@ class RenamePropertyModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.addClass('obsiman-modal');
-		contentEl.createEl('h3', { text: `${t('explorer.ctx.rename')}: ${this.oldName}` });
+		contentEl.createEl('h3', { text: `${translate('explorer.ctx.rename')}: ${this.oldName}` });
 
-		new Setting(contentEl).setName(t('prop.new_name')).addText((text) => {
+		new Setting(contentEl).setName(translate('prop.new_name')).addText((text) => {
 			text.setPlaceholder('New name...').onChange((v) => { this.newName = v; });
 			new PropertySuggest(this.app, text.inputEl, this.plugin.propertyIndex.getPropertyNames(), (v) => { this.newName = v; text.setValue(v); });
 		});
 
 		// Conflict resolution
-		new Setting(contentEl).setName(t('explorer.rename.target_exists')).addDropdown((dd) =>
-			dd.addOptions({ append: t('explorer.rename.append'), replace: t('explorer.rename.replace') })
+		new Setting(contentEl).setName(translate('explorer.rename.target_exists')).addDropdown((dd) =>
+			dd.addOptions({ append: translate('explorer.rename.append'), replace: translate('explorer.rename.replace') })
 				.setValue(this.conflictMode).onChange((v) => { this.conflictMode = v as 'append' | 'replace'; })
 		);
 
 		new Setting(contentEl).addButton((btn) =>
-			btn.setButtonText(t('prop.add_to_queue')).setCta().onClick(() => { this.submit(); this.close(); })
+			btn.setButtonText(translate('prop.add_to_queue')).setCta().onClick(() => { this.submit(); this.close(); })
 		).addButton((btn) => btn.setButtonText('Cancel').onClick(() => this.close()));
 	}
 
@@ -1477,21 +1481,21 @@ class AddValueModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.addClass('obsiman-modal');
-		contentEl.createEl('h3', { text: `${t('explorer.ctx.add_value')}: ${this.propName}` });
+		contentEl.createEl('h3', { text: `${translate('explorer.ctx.add_value')}: ${this.propName}` });
 
-		new Setting(contentEl).setName(t('prop.value')).addText((text) => {
+		new Setting(contentEl).setName(translate('prop.value')).addText((text) => {
 			text.setPlaceholder('Value...').onChange((v) => { this.value = v; });
 			new PropertySuggest(this.app, text.inputEl, this.plugin.propertyIndex.getPropertyValues(this.propName), (v) => { this.value = v; text.setValue(v); });
 		});
 
-		new Setting(contentEl).setName(t('explorer.add_value.replace')).setDesc(t('explorer.add_value.append'))
+		new Setting(contentEl).setName(translate('explorer.add_value.replace')).setDesc(translate('explorer.add_value.append'))
 			.addToggle((toggle) => toggle.setValue(this.replaceMode).onChange((v) => { this.replaceMode = v; }));
 
-		new Setting(contentEl).setName(t('explorer.add_value.as_wikilink'))
+		new Setting(contentEl).setName(translate('explorer.add_value.as_wikilink'))
 			.addToggle((toggle) => toggle.setValue(this.asWikilink).onChange((v) => { this.asWikilink = v; }));
 
 		new Setting(contentEl).addButton((btn) =>
-			btn.setButtonText(t('prop.add_to_queue')).setCta().onClick(() => { this.submit(); this.close(); })
+			btn.setButtonText(translate('prop.add_to_queue')).setCta().onClick(() => { this.submit(); this.close(); })
 		).addButton((btn) => btn.setButtonText('Cancel').onClick(() => this.close()));
 	}
 
@@ -1539,15 +1543,15 @@ class RenameValueModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.addClass('obsiman-modal');
-		contentEl.createEl('h3', { text: `${t('explorer.ctx.rename_value')}: "${this.oldValue}"` });
+		contentEl.createEl('h3', { text: `${translate('explorer.ctx.rename_value')}: "${this.oldValue}"` });
 
-		new Setting(contentEl).setName(t('prop.new_name')).addText((text) => {
+		new Setting(contentEl).setName(translate('prop.new_name')).addText((text) => {
 			text.setPlaceholder('New value...').setValue(this.newValue).onChange((v) => { this.newValue = v; });
 			new PropertySuggest(this.app, text.inputEl, this.plugin.propertyIndex.getPropertyValues(this.propName), (v) => { this.newValue = v; text.setValue(v); });
 		});
 
 		new Setting(contentEl).addButton((btn) =>
-			btn.setButtonText(t('prop.add_to_queue')).setCta().onClick(() => { this.submit(); this.close(); })
+			btn.setButtonText(translate('prop.add_to_queue')).setCta().onClick(() => { this.submit(); this.close(); })
 		).addButton((btn) => btn.setButtonText('Cancel').onClick(() => this.close()));
 	}
 
@@ -1593,15 +1597,15 @@ class MoveValueModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.addClass('obsiman-modal');
-		contentEl.createEl('h3', { text: `${t('explorer.ctx.move_value')}: "${this.value}"` });
+		contentEl.createEl('h3', { text: `${translate('explorer.ctx.move_value')}: "${this.value}"` });
 
-		new Setting(contentEl).setName(t('prop.property')).addText((text) => {
+		new Setting(contentEl).setName(translate('prop.property')).addText((text) => {
 			text.setPlaceholder('Target property...').onChange((v) => { this.targetProp = v; });
 			new PropertySuggest(this.app, text.inputEl, this.plugin.propertyIndex.getPropertyNames(), (v) => { this.targetProp = v; text.setValue(v); });
 		});
 
 		new Setting(contentEl).addButton((btn) =>
-			btn.setButtonText(t('prop.add_to_queue')).setCta().onClick(() => { this.submit(); this.close(); })
+			btn.setButtonText(translate('prop.add_to_queue')).setCta().onClick(() => { this.submit(); this.close(); })
 		).addButton((btn) => btn.setButtonText('Cancel').onClick(() => this.close()));
 	}
 

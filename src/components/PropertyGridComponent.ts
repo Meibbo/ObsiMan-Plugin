@@ -1,7 +1,7 @@
 import { Component, MarkdownRenderer, Platform, setIcon, type App, type TFile } from 'obsidian';
 import type { ObsiManPlugin } from '../../main';
 import type { PendingChange } from '../types/operation';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 export type SortColumn = string;
 export type SortDirection = 'asc' | 'desc';
@@ -126,7 +126,7 @@ export class PropertyGridComponent {
 		// Search
 		const searchEl = headerBar.createEl('input', {
 			cls: 'obsiman-grid-search',
-			attr: { type: 'text', placeholder: t('files.search') },
+			attr: { type: 'text', placeholder: translate('files.search') },
 		});
 		searchEl.value = this.searchTerm;
 		searchEl.addEventListener('input', () => {
@@ -137,7 +137,7 @@ export class PropertyGridComponent {
 		// Show-only-checked toggle
 		const filterToggle = headerBar.createDiv({
 			cls: 'obsiman-grid-filter-toggle clickable-icon',
-			attr: { 'aria-label': t('files.show_checked_only') },
+			attr: { 'aria-label': translate('files.show_checked_only') },
 		});
 		setIcon(filterToggle, 'lucide-list-checks');
 		if (this.showOnlyChecked) filterToggle.addClass('is-active');
@@ -254,7 +254,7 @@ export class PropertyGridComponent {
 		});
 
 		// Name column
-		this.createSortableHeader(headerRow, 'name', t('files.col.name'), 0);
+		this.createSortableHeader(headerRow, 'name', translate('files.col.name'), 0);
 
 		// Dynamic property columns
 		for (let i = 0; i < this.columns.length; i++) {

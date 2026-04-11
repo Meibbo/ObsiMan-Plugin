@@ -4,7 +4,7 @@ import { QueueListComponent } from './QueueListComponent';
 import { LinterModal } from '../modals/LinterModal';
 import { FileRenameModal } from '../modals/FileRenameModal';
 import { SaveTemplateModal } from '../modals/SaveTemplateModal';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 type TabId = 'rename' | 'linter' | 'templates' | 'move';
 
@@ -100,7 +100,7 @@ export class OperationsPanelComponent {
 		// Toggle button (top)
 		const toggleBtn = strip.createDiv({
 			cls: 'clickable-icon obsiman-ops-strip-toggle',
-			attr: { 'aria-label': t('ops.panel.title') },
+			attr: { 'aria-label': translate('ops.panel.title') },
 		});
 		setIcon(toggleBtn, 'lucide-panel-left');
 		toggleBtn.addEventListener('click', () => this.toggle());
@@ -109,7 +109,7 @@ export class OperationsPanelComponent {
 		for (const tab of TABS) {
 			const btn = strip.createDiv({
 				cls: `clickable-icon obsiman-ops-strip-tab${tab.id === this.activeTab ? ' is-active' : ''}`,
-				attr: { 'aria-label': t(tab.labelKey) },
+				attr: { 'aria-label': translate(tab.labelKey) },
 			});
 			setIcon(btn, tab.icon);
 			btn.addEventListener('click', () => {
@@ -131,7 +131,7 @@ export class OperationsPanelComponent {
 		// Toggle button (top-right of tab bar)
 		const toggleBtn = tabBar.createDiv({
 			cls: 'clickable-icon obsiman-ops-tabbar-toggle',
-			attr: { 'aria-label': t('ops.panel.title') },
+			attr: { 'aria-label': translate('ops.panel.title') },
 		});
 		setIcon(toggleBtn, 'lucide-panel-left-close');
 		toggleBtn.addEventListener('click', () => this.toggle());
@@ -140,11 +140,11 @@ export class OperationsPanelComponent {
 		for (const tab of TABS) {
 			const tabBtn = tabBar.createDiv({
 				cls: `obsiman-operations-tab${tab.id === this.activeTab ? ' is-active' : ''}`,
-				attr: { 'aria-label': t(tab.labelKey) },
+				attr: { 'aria-label': translate(tab.labelKey) },
 			});
 			const iconSpan = tabBtn.createSpan();
 			setIcon(iconSpan, tab.icon);
-			tabBtn.createSpan({ text: t(tab.labelKey) });
+			tabBtn.createSpan({ text: translate(tab.labelKey) });
 			tabBtn.addEventListener('click', () => this.switchTab(tab.id));
 			this.tabButtons.set(tab.id, tabBtn);
 		}
@@ -204,7 +204,7 @@ export class OperationsPanelComponent {
 
 		// Header
 		const header = this.pinnedQueueEl.createDiv({ cls: 'obsiman-pinned-queue-header' });
-		header.createSpan({ text: t('ops.tab.queue'), cls: 'obsiman-pinned-queue-title' });
+		header.createSpan({ text: translate('ops.tab.queue'), cls: 'obsiman-pinned-queue-title' });
 
 		const badge = header.createSpan({ cls: 'obsiman-pinned-queue-badge' });
 		badge.setText(String(this.plugin.queueService.queue.length));
@@ -225,7 +225,7 @@ export class OperationsPanelComponent {
 
 		const removeSelectedBtn = actionRow.createEl('button', {
 			cls: 'obsiman-btn-small',
-			text: t('ops.remove_selected') ?? 'Remove selected',
+			text: translate('ops.remove_selected') ?? 'Remove selected',
 		});
 		removeSelectedBtn.addEventListener('click', () => {
 			if (!this.pinnedQueueList) return;
@@ -239,7 +239,7 @@ export class OperationsPanelComponent {
 
 		const applyBtn = actionRow.createEl('button', {
 			cls: 'obsiman-btn-small mod-cta',
-			text: t('ops.apply') ?? 'Apply',
+			text: translate('ops.apply') ?? 'Apply',
 		});
 		applyBtn.addEventListener('click', () => {
 			if (!this.plugin.queueService.isEmpty) {
@@ -249,7 +249,7 @@ export class OperationsPanelComponent {
 
 		const clearQueueBtn = actionRow.createEl('button', {
 			cls: 'obsiman-btn-small',
-			text: t('ops.clear'),
+			text: translate('ops.clear'),
 		});
 		clearQueueBtn.addEventListener('click', () => {
 			this.plugin.queueService.clear();
@@ -259,7 +259,7 @@ export class OperationsPanelComponent {
 		if (this.callbacks.onClearSelected) {
 			const clearSelectedBtn = actionRow.createEl('button', {
 				cls: 'obsiman-btn-small',
-				text: t('statusbar.clear_selected') ?? 'Clear selected',
+				text: translate('statusbar.clear_selected') ?? 'Clear selected',
 			});
 			clearSelectedBtn.addEventListener('click', () => {
 				this.callbacks.onClearSelected?.();
@@ -274,12 +274,12 @@ export class OperationsPanelComponent {
 
 		this.contentEl.createEl('p', {
 			cls: 'obsiman-ops-tab-desc',
-			text: t('rename.title'),
+			text: translate('rename.title'),
 		});
 
 		const openBtn = this.contentEl.createEl('button', {
 			cls: 'obsiman-btn',
-			text: t('rename.title'),
+			text: translate('rename.title'),
 		});
 		openBtn.addEventListener('click', () => {
 			const files = this.plugin.filterService.filteredFiles;
@@ -297,7 +297,7 @@ export class OperationsPanelComponent {
 
 		const openBtn = this.contentEl.createEl('button', {
 			cls: 'obsiman-btn',
-			text: t('linter.button'),
+			text: translate('linter.button'),
 		});
 		openBtn.addEventListener('click', () => {
 			const files = this.plugin.filterService.filteredFiles;
@@ -313,7 +313,7 @@ export class OperationsPanelComponent {
 		if (templates.length === 0) {
 			this.contentEl.createEl('p', {
 				cls: 'obsiman-ops-tab-desc',
-				text: t('settings.templates.desc'),
+				text: translate('settings.templates.desc'),
 			});
 		} else {
 			const listEl = this.contentEl.createDiv({ cls: 'obsiman-template-list' });
@@ -327,7 +327,7 @@ export class OperationsPanelComponent {
 
 				const loadBtn = row.createEl('button', {
 					cls: 'obsiman-btn-small',
-					text: t('filter.template.load'),
+					text: translate('filter.template.load'),
 				});
 				loadBtn.addEventListener('click', () => {
 					this.plugin.filterService.loadTemplate(tmpl);
@@ -337,7 +337,7 @@ export class OperationsPanelComponent {
 
 		const saveBtn = this.contentEl.createEl('button', {
 			cls: 'obsiman-btn-small',
-			text: t('filter.template.save'),
+			text: translate('filter.template.save'),
 		});
 		saveBtn.addEventListener('click', () => {
 			new SaveTemplateModal(
@@ -353,7 +353,7 @@ export class OperationsPanelComponent {
 
 		this.contentEl.createEl('p', {
 			cls: 'obsiman-ops-tab-desc obsiman-text-muted',
-			text: t('ops.move.coming_soon'),
+			text: translate('ops.move.coming_soon'),
 		});
 	}
 

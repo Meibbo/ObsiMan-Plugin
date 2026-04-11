@@ -3,7 +3,7 @@ import type { PropertyAction, PropertyType, PendingChange } from '../types/opera
 import { DELETE_PROP } from '../types/operation';
 import type { PropertyIndexService } from '../services/PropertyIndexService';
 import { PropertySuggest } from '../utils/autocomplete';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 type QueueCallback = (change: PendingChange) => void;
 
@@ -44,7 +44,7 @@ export class PropertyManagerModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass('obsiman-modal');
 
-		contentEl.createEl('h3', { text: t('prop.title') });
+		contentEl.createEl('h3', { text: translate('prop.title') });
 		contentEl.createEl('p', {
 			cls: 'obsiman-modal-subtitle',
 			text: `${this.targetFiles.length} files`,
@@ -52,15 +52,15 @@ export class PropertyManagerModal extends Modal {
 
 		// Action selector
 		new Setting(contentEl)
-			.setName(t('prop.action'))
+			.setName(translate('prop.action'))
 			.addDropdown((dd) =>
 				dd
 					.addOptions({
-						set: t('prop.action.set'),
-						rename: t('prop.action.rename'),
-						delete: t('prop.action.delete'),
-						clean_empty: t('prop.action.clean'),
-						change_type: t('prop.action.change_type'),
+						set: translate('prop.action.set'),
+						rename: translate('prop.action.rename'),
+						delete: translate('prop.action.delete'),
+						clean_empty: translate('prop.action.clean'),
+						change_type: translate('prop.action.change_type'),
 					})
 					.setValue(this.action)
 					.onChange((v) => {
@@ -82,7 +82,7 @@ export class PropertyManagerModal extends Modal {
 
 		// Property selector with autosuggest
 		new Setting(formEl as HTMLElement)
-			.setName(t('prop.property'))
+			.setName(translate('prop.property'))
 			.addText((text) => {
 				text
 					.setPlaceholder('Property name...')
@@ -123,7 +123,7 @@ export class PropertyManagerModal extends Modal {
 		// Submit button
 		new Setting(formEl as HTMLElement).addButton((btn) =>
 			btn
-				.setButtonText(t('prop.add_to_queue'))
+				.setButtonText(translate('prop.add_to_queue'))
 				.setCta()
 				.onClick(() => {
 					const change = this.buildChange();
@@ -138,15 +138,15 @@ export class PropertyManagerModal extends Modal {
 	private renderSetFields(container: HTMLElement): void {
 		// Type selector
 		new Setting(container)
-			.setName(t('prop.type'))
+			.setName(translate('prop.type'))
 			.addDropdown((dd) =>
 				dd
 					.addOptions({
-						text: t('prop.type.text'),
-						number: t('prop.type.number'),
-						checkbox: t('prop.type.checkbox'),
-						list: t('prop.type.list'),
-						date: t('prop.type.date'),
+						text: translate('prop.type.text'),
+						number: translate('prop.type.number'),
+						checkbox: translate('prop.type.checkbox'),
+						list: translate('prop.type.list'),
+						date: translate('prop.type.date'),
 					})
 					.setValue(this.propertyType)
 					.onChange((v) => {
@@ -156,7 +156,7 @@ export class PropertyManagerModal extends Modal {
 
 		// Value input with autosuggest
 		new Setting(container)
-			.setName(t('prop.value'))
+			.setName(translate('prop.value'))
 			.addText((text) => {
 				text
 					.setPlaceholder('Value')
@@ -179,7 +179,7 @@ export class PropertyManagerModal extends Modal {
 
 		// Wikilink toggle
 		new Setting(container)
-			.setName(t('prop.option.wikilink'))
+			.setName(translate('prop.option.wikilink'))
 			.addToggle((toggle) =>
 				toggle.setValue(this.asWikilink).onChange((v) => {
 					this.asWikilink = v;
@@ -189,7 +189,7 @@ export class PropertyManagerModal extends Modal {
 		// Append toggle (for list type)
 		if (this.propertyType === 'list') {
 			new Setting(container)
-				.setName(t('prop.option.append'))
+				.setName(translate('prop.option.append'))
 				.addToggle((toggle) =>
 					toggle.setValue(this.appendToList).onChange((v) => {
 						this.appendToList = v;
@@ -200,7 +200,7 @@ export class PropertyManagerModal extends Modal {
 
 	private renderRenameFields(container: HTMLElement): void {
 		new Setting(container)
-			.setName(t('prop.new_name'))
+			.setName(translate('prop.new_name'))
 			.addText((text) => {
 				text
 					.setPlaceholder('New property name')
@@ -222,16 +222,16 @@ export class PropertyManagerModal extends Modal {
 
 	private renderChangeTypeFields(container: HTMLElement): void {
 		new Setting(container)
-			.setName(t('prop.type'))
+			.setName(translate('prop.type'))
 			.addDropdown((dd) =>
 				dd
 					.addOptions({
-						text: t('prop.type.text'),
-						number: t('prop.type.number'),
-						checkbox: t('prop.type.checkbox'),
-						list: t('prop.type.list'),
-						date: t('prop.type.date'),
-						wikilink: t('prop.type.wikilink'),
+						text: translate('prop.type.text'),
+						number: translate('prop.type.number'),
+						checkbox: translate('prop.type.checkbox'),
+						list: translate('prop.type.list'),
+						date: translate('prop.type.date'),
+						wikilink: translate('prop.type.wikilink'),
 					})
 					.setValue(this.propertyType)
 					.onChange((v) => {

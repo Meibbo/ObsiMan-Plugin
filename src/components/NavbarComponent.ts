@@ -2,7 +2,7 @@ import { setIcon } from 'obsidian';
 import type { ObsiManPlugin } from '../../main';
 import type { PropertyExplorerComponent } from './PropertyExplorerComponent';
 import { FileFilterPopoverComponent } from './FileFilterPopoverComponent';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 export interface NavbarCallbacks {
 	onToggleExplorer: () => void;
@@ -55,39 +55,39 @@ export class NavbarComponent {
 		this.containerEl.addClass('obsiman-navbar');
 
 		// 1. Explorer toggle
-		this.addButton('lucide-panel-left', t('explorer.toggle'), () => {
+		this.addButton('lucide-panel-left', translate('explorer.toggle'), () => {
 			this.callbacks.onToggleExplorer();
 		});
 
 		// 2. File filter
-		const filterBtn = this.addButton('lucide-filter', t('toolbar.filters'), () => {
+		const filterBtn = this.addButton('lucide-filter', translate('toolbar.filters'), () => {
 			this.filterPopover.toggle();
 		});
 		this.filterBadge = filterBtn.createSpan({ cls: 'obsiman-navbar-badge' });
 		this.refreshFilterBadge();
 
 		// 3. Property search
-		this.addButton('lucide-search', t('explorer.btn.search'), () => {
+		this.addButton('lucide-search', translate('explorer.btn.search'), () => {
 			this.explorer.toggleSearch();
 		});
 
 		// 4. Property filter (scope + type)
-		this.addButton('lucide-list-filter', t('explorer.btn.filter'), (e) => {
+		this.addButton('lucide-list-filter', translate('explorer.btn.filter'), (e) => {
 			this.explorer.showFilterMenu(e);
 		});
 
 		// 5. Sort
-		this.addButton('lucide-arrow-up-down', t('explorer.btn.sort'), (e) => {
+		this.addButton('lucide-arrow-up-down', translate('explorer.btn.sort'), (e) => {
 			this.explorer.showSortMenu(e);
 		});
 
 		// 6. Create property
-		this.addButton('lucide-plus', t('explorer.btn.create'), () => {
+		this.addButton('lucide-plus', translate('explorer.btn.create'), () => {
 			this.explorer.openCreateProperty();
 		});
 
 		// 7. Operations panel toggle
-		this.addButton('lucide-wrench', t('ops.panel.title'), () => {
+		this.addButton('lucide-wrench', translate('ops.panel.title'), () => {
 			this.callbacks.onToggleOperations();
 		});
 	}

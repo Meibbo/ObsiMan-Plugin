@@ -1,5 +1,5 @@
 import type { FilterGroup, FilterNode, FilterRule } from '../types/filter';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 /**
  * Renders a boolean filter tree as nested DOM elements.
@@ -32,7 +32,7 @@ export class FilterTreeComponent {
 		// Group header
 		const headerEl = groupEl.createDiv({ cls: 'obsiman-filter-group-header' });
 
-		const logicLabel = t(`filter.logic.${group.logic}`);
+		const logicLabel = translate(`filter.logic.${group.logic}`);
 		headerEl.createSpan({
 			cls: 'obsiman-filter-logic-badge',
 			text: logicLabel,
@@ -75,7 +75,7 @@ export class FilterTreeComponent {
 	): void {
 		const ruleEl = parentEl.createDiv({ cls: 'obsiman-filter-rule' });
 
-		const typeLabel = t(`filter.${rule.filterType}`);
+		const typeLabel = translate(`filter.${rule.filterType}`);
 		const detail =
 			rule.filterType === 'folder' ||
 			rule.filterType === 'folder_exclude' ||

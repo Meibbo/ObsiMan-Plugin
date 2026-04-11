@@ -2,6 +2,7 @@ export const es: Record<string, string> = {
 	// General
 	'plugin.name': 'ObsiMan',
 	'plugin.description': 'Editor masivo de propiedades y herramienta de gestión de vault',
+	'plugin.open': 'Abrir ObsiMan',
 
 	// Sections
 	'section.filters': 'Filtros',
@@ -109,6 +110,7 @@ export const es: Record<string, string> = {
 	'view.main.title': 'ObsiMan',
 	'command.open_main': 'Abrir ObsiMan (vista completa)',
 	'command.open_sidebar': 'Abrir barra lateral de ObsiMan',
+	'command.apply_queue': 'Aplicar operaciones pendientes',
 
 	// Toolbar
 	'toolbar.filters': 'Filtros',

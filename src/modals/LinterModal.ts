@@ -1,7 +1,7 @@
 import { Modal, Notice, Setting, type App, type TFile } from 'obsidian';
 import type { PropertyIndexService } from '../services/PropertyIndexService';
 import { PropertySuggest } from '../utils/autocomplete';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 /**
  * Linter modal — integrates with obsidian-linter's yaml-key-sort rule.
@@ -31,14 +31,14 @@ export class LinterModal extends Modal {
 		contentEl.empty();
 		contentEl.addClasses(['obsiman-modal', 'obsiman-linter-modal']);
 
-		contentEl.createEl('h3', { text: t('linter.title') });
+		contentEl.createEl('h3', { text: translate('linter.title') });
 
 		// Check if obsidian-linter is installed
 		const linterPlugin = this.getLinterPlugin();
 		if (!linterPlugin) {
 			contentEl.createEl('p', {
 				cls: 'obsiman-linter-warning',
-				text: t('linter.not_installed'),
+				text: translate('linter.not_installed'),
 			});
 			return;
 		}
@@ -48,13 +48,13 @@ export class LinterModal extends Modal {
 
 		contentEl.createEl('p', {
 			cls: 'obsiman-modal-subtitle',
-			text: t('linter.description'),
+			text: translate('linter.description'),
 		});
 
 		// Scope info
 		contentEl.createDiv({
 			cls: 'obsiman-linter-scope',
-			text: `${t('linter.scope')}: ${this.targetFiles.length} ${t('section.files').toLowerCase()}`,
+			text: `${translate('linter.scope')}: ${this.targetFiles.length} ${translate('section.files').toLowerCase()}`,
 		});
 
 		// Priority order list
@@ -65,7 +65,7 @@ export class LinterModal extends Modal {
 		const addRow = contentEl.createDiv({ cls: 'obsiman-linter-add-row' });
 		const addInput = addRow.createEl('input', {
 			cls: 'obsiman-linter-add-input',
-			attr: { type: 'text', placeholder: t('linter.add_property') },
+			attr: { type: 'text', placeholder: translate('linter.add_property') },
 		});
 
 		new PropertySuggest(
@@ -98,12 +98,12 @@ export class LinterModal extends Modal {
 		new Setting(contentEl)
 			.addButton((btn) =>
 				btn
-					.setButtonText(t('linter.save_order'))
+					.setButtonText(translate('linter.save_order'))
 					.onClick(() => this.savePriorityOrder())
 			)
 			.addButton((btn) =>
 				btn
-					.setButtonText(t('linter.apply'))
+					.setButtonText(translate('linter.apply'))
 					.setCta()
 					.onClick(async () => {
 						this.savePriorityOrder();
@@ -219,10 +219,10 @@ export class LinterModal extends Modal {
 				if (typeof saveSettings === 'function') {
 					saveSettings.call(linterPlugin);
 				}
-				new Notice(t('linter.order_saved'));
+				new Notice(translate('linter.order_saved'));
 			}
 		} catch {
-			new Notice(t('linter.save_error'));
+			new Notice(translate('linter.save_error'));
 		}
 	}
 
@@ -233,7 +233,7 @@ export class LinterModal extends Modal {
 		let success = 0;
 		let errors = 0;
 
-		new Notice(`${t('linter.applying')} (0/${total})...`);
+		new Notice(`${translate('linter.applying')} (0/${total})...`);
 
 		for (let i = 0; i < this.targetFiles.length; i++) {
 			const file = this.targetFiles[i];
@@ -256,12 +256,12 @@ export class LinterModal extends Modal {
 
 			// Progress notice every 10 files
 			if ((i + 1) % 10 === 0 || i === total - 1) {
-				new Notice(`${t('linter.applying')} (${i + 1}/${total})...`);
+				new Notice(`${translate('linter.applying')} (${i + 1}/${total})...`);
 			}
 		}
 
 		new Notice(
-			`${t('linter.done')}: ${success} ${t('result.success').replace('{count}', '')}` +
+			`${translate('linter.done')}: ${success} ${translate('result.success').replace('{count}', '')}` +
 			(errors > 0 ? `, ${errors} errors` : '')
 		);
 	}

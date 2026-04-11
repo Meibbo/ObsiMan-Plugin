@@ -1,5 +1,5 @@
 import type { TFile, App } from 'obsidian';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 export type SortColumn = 'name' | 'props' | 'path';
 export type SortDirection = 'asc' | 'desc';
@@ -55,7 +55,7 @@ export class FileListComponent {
 		// Header with count
 		const headerEl = this.containerEl.createDiv({ cls: 'obsiman-files-header' });
 		headerEl.createSpan({
-			text: t('files.count', {
+			text: translate('files.count', {
 				filtered: files.length,
 				total: totalCount,
 			}),
@@ -65,7 +65,7 @@ export class FileListComponent {
 		// Search input
 		const searchEl = headerEl.createEl('input', {
 			cls: 'obsiman-files-search',
-			attr: { type: 'text', placeholder: t('files.search') },
+			attr: { type: 'text', placeholder: translate('files.search') },
 		});
 		searchEl.value = this.searchTerm;
 		searchEl.addEventListener('input', () => {
@@ -91,9 +91,9 @@ export class FileListComponent {
 			this.onSelectionChange();
 		});
 
-		this.createSortableHeader(colHeaderEl, 'name', t('files.col.name'));
-		this.createSortableHeader(colHeaderEl, 'props', t('files.col.props'));
-		this.createSortableHeader(colHeaderEl, 'path', t('files.col.path'));
+		this.createSortableHeader(colHeaderEl, 'name', translate('files.col.name'));
+		this.createSortableHeader(colHeaderEl, 'props', translate('files.col.props'));
+		this.createSortableHeader(colHeaderEl, 'path', translate('files.col.path'));
 
 		// File list container
 		this.containerEl.createDiv({ cls: 'obsiman-files-list' });

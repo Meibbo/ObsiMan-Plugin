@@ -3,7 +3,7 @@ import type { PendingChange } from '../types/operation';
 import { RENAME_FILE } from '../types/operation';
 import type { PropertyIndexService } from '../services/PropertyIndexService';
 import { PropertySuggest } from '../utils/autocomplete';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 type QueueCallback = (change: PendingChange) => void;
 
@@ -43,16 +43,16 @@ export class FileRenameModal extends Modal {
 		contentEl.empty();
 		contentEl.addClasses(['obsiman-modal', 'obsiman-rename-modal']);
 
-		contentEl.createEl('h3', { text: t('rename.title') });
+		contentEl.createEl('h3', { text: translate('rename.title') });
 		contentEl.createEl('p', {
 			cls: 'obsiman-modal-subtitle',
-			text: `${this.targetFiles.length} ${t('section.files').toLowerCase()}`,
+			text: `${this.targetFiles.length} ${translate('section.files').toLowerCase()}`,
 		});
 
 		// Pattern input with property autosuggest
 		const patternSetting = new Setting(contentEl)
-			.setName(t('rename.pattern'))
-			.setDesc(t('rename.pattern_desc'));
+			.setName(translate('rename.pattern'))
+			.setDesc(translate('rename.pattern_desc'));
 
 		const patternInput = patternSetting.controlEl.createEl('input', {
 			cls: 'obsiman-rename-pattern-input',
@@ -95,7 +95,7 @@ export class FileRenameModal extends Modal {
 		new Setting(contentEl)
 			.addButton((btn) =>
 				btn
-					.setButtonText(t('prop.add_to_queue'))
+					.setButtonText(translate('prop.add_to_queue'))
 					.setCta()
 					.onClick(() => {
 						this.queueRenames();

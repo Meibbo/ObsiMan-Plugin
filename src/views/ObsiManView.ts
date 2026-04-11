@@ -2,7 +2,7 @@ import { ItemView, type WorkspaceLeaf } from 'obsidian';
 import type { ObsiManPlugin } from '../../main';
 import { mount, unmount } from 'svelte';
 import ObsiManViewSvelte from './ObsiManView.svelte';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 export const OBSIMAN_VIEW_TYPE = 'obsiman-view';
 
@@ -20,8 +20,8 @@ export class ObsiManView extends ItemView {
 	}
 
 	getViewType(): string { return OBSIMAN_VIEW_TYPE; }
-	getDisplayText(): string { return t('plugin.name'); }
-	getIcon(): string { return 'obsiman-icon'; }
+	getDisplayText(): string { return translate('plugin.name'); }
+	getIcon(): string { return 'lucide-dessert'; }
 
 	async onOpen(): Promise<void> {
 		const { contentEl } = this;
@@ -36,7 +36,7 @@ export class ObsiManView extends ItemView {
 
 	async onClose(): Promise<void> {
 		if (this.svelteApp) {
-			unmount(this.svelteApp);
+			await unmount(this.svelteApp);
 			this.svelteApp = null;
 		}
 		this.contentEl.empty();

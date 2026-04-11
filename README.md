@@ -3,60 +3,29 @@
 ![Version](https://img.shields.io/github/v/release/Meibbo/ObsiMan-Plugin)
 ![Obsidian](https://img.shields.io/badge/Obsidian-%E2%89%A51.7.0-purple)
 
-> Bulk property editor, file manager, and content search tool for Obsidian — built to augment what's already there.
+ObsiMan is a Swiss Army Knife of Obsidian tools for managing the files of your vault at scale. Once you have hundreds of notes, the built-in properties view gets limiting fast: you can see your tags and properties listed, rename them one at a time, and that's about it.
 
-ObsiMan grew out of frustration with Obsidian's native and community tools for managing properties at scale. Once you have hundreds of notes, the built-in properties view gets limiting fast: you can see your properties listed, rename them one at a time, and that's about it.
-
-ObsiMan is a **control panel for your vault** — filter your files, select what you care about, queue up a batch of operations, preview exactly what will change, and apply everything at once.
-
-It doesn't replace Search, Bases, Linter, or Tag Wrangler. It adds what they're missing.
-
----
-
-> [!WARNING] **Beta — v1.0.0-beta.5**
->
-> Core features are functional and tested. Some UI tabs are still placeholders. See [Known placeholders](#known-placeholders) before diving in.
+ObsiMan is a **control panel for your vault** — it can filter your files, select what you care about, queue up a batch of operations, preview exactly what they will change and apply everything at once.
 
 ---
 
 ## Features
 
-### 3-page sidebar navigation (Ops | Files | Filters)
+### Multi page sidebar navigation
+The main interface is a compact modular sidebar that lets you choose its content within the available options. With a bottom bar to navigate between pages and a top bar for their subpages, with reorganizing modals and llamative fab buttons for the most important options: Active filters and a Queue list.
 
-The main interface is a compact sidebar with three pages that slide horizontally. Navigate by tapping the bottom pill nav. Long-press any nav icon (2 seconds) to enter reorder mode and drag pages to your preferred order.
+### Filter tabs
+Every page has a header for searching, scopes, sorts and different view that affects individually your contents and lets **filter** out the exact options you wanted to select for different kinds of operations. 
 
-Each page has a **floating action button (FAB)** on its outer edge:
-- **Ops page** — opens the Queue Details modal (full diff view + execute)
-- **Files page** — two FABs: View mode switcher and File search popup
-- **Filters page** — opens the Active Filters popup
+Also, they have with dynamic context menus for quick ops that you would love. Every selected element will apear in the *Active filters popup*, where you can strategically add logical groups (all/any/none), supress filters, **clear all** or even templates of filters for fast deploy.
 
-### Files page
+**Property browser**: a live scrollable list of every property and value in your vault, built from the frontmatter index.
 
-- Scrollable file list of all vault files (or filtered/selected subset)
-- Checkbox selection with Ctrl+click, Shift+click, and Select All
-- File search popup: filter by name and folder
-- View mode popup: Selected only / Grid / Masonry / Property columns
+**Tag wrangler**: a hierarchical tree list 
 
-### Filters page — Rules tab
+**Tag wrangler**: a tree list that gives you power to rearrenge your tags
 
-**Property browser**: a live scrollable list of every property in your vault, built from the frontmatter index.
-
-- Click a property name → immediately adds a `has_property` filter (no modal)
-- Expand ▶ any property → see all its known values
-- Click a value → adds a `specific_value` filter directly
-
-For more complex rules, the **Add Filter** button opens a modal with the full filter builder (AND/OR/NOT groups, 8 filter types, autocomplete). Save your filter combos as templates and reload them later.
-
-The **Active Filters popup** (FAB) shows your current rule tree and lets you clear or add rules.
-
-### Filters page — Scope tab
-
-Choose the target scope for all operations:
-- **All vault** — every markdown file
-- **Filtered files** — files that pass your current filter rules
-- **Selected files** — only the files you've checked
-
-The Ops page badge and Content tab adapt to this selection automatically.
+%%Everything below is just a placeholder, I'm working on it%%
 
 ### Ops page — File Ops tab
 
@@ -74,23 +43,6 @@ Operations are staged in a queue — nothing changes until you review and apply.
 - Collapsible per-file property diff (before → after, color-coded)
 - Content snippet diffs for Find & Replace operations
 - Execute all changes at once (chunked, 20 files/tick, live progress Notice)
-
-### Ops page — Content tab (Find & Replace)
-
-Search and replace raw file content — including frontmatter — across your filtered/selected files.
-
-- Plain text or **regex** search (`.*` toggle)
-- **Case sensitive** toggle (`Aa`)
-- **Preview**: shows match count + collapsible per-file snippet list with highlighted matches
-- **Queue Replace**: stages the operation — review in Queue Details before applying
-
-When queued, Queue Details shows snippet-style diffs: `…before [MATCH → replacement] after…`
-
-### Ops page — Linter tab
-
-Run Obsidian Linter on your filtered/selected files in batch. Requires the [Obsidian Linter](https://github.com/platers/obsidian-linter) community plugin.
-
----
 
 ## Workflow
 
