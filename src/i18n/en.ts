@@ -2,6 +2,7 @@ export const en: Record<string, string> = {
 	// General
 	'plugin.name': 'ObsiMan',
 	'plugin.description': 'Bulk property editor and vault management tool',
+	'plugin.open': 'Open ObsiMan',
 
 	// Sections
 	'section.filters': 'Filters',
@@ -110,10 +111,12 @@ export const en: Record<string, string> = {
 	'view.main.title': 'ObsiMan',
 	'command.open_main': 'Open ObsiMan (full view)',
 	'command.open_sidebar': 'Open ObsiMan sidebar',
+	'command.apply_queue': 'Apply pending operations',
 
 	// Toolbar
 	'toolbar.filters': 'Filters',
 	'toolbar.queue': 'Queue',
+	'toolbar.navigation': 'Bottom navigation',
 	'toolbar.no_session': 'No session',
 	'toolbar.new_session': '+ New session...',
 
@@ -298,6 +301,10 @@ export const en: Record<string, string> = {
 	'ops.tab.linter_short': 'Linter',
 	'ops.tab.template_short': 'Template',
 	'ops.tab.content_short': 'Content',
+	'ops.tabs.fileops': 'File Ops',
+	'ops.tabs.linter': 'Linter',
+	'ops.tabs.content': 'Content',
+	'ops.tabs.template': 'Template',
 	'ops.coming_soon': 'Coming soon',
 	'ops.rename': 'Rename',
 	'ops.delete': 'Delete',

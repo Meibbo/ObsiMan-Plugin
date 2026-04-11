@@ -1,7 +1,7 @@
 import { Modal, Setting, type App } from 'obsidian';
 import type { FilterGroup, FilterTemplate } from '../types/filter';
 import type { ObsiManPlugin } from '../../main';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 /**
  * Modal to save the current filter tree as a named template.
@@ -23,7 +23,7 @@ export class SaveTemplateModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass('obsiman-modal');
 
-		contentEl.createEl('h3', { text: t('filter.template.save') });
+		contentEl.createEl('h3', { text: translate('filter.template.save') });
 
 		// Show existing templates for reference
 		const existing = this.plugin.settings.filterTemplates;
@@ -31,13 +31,13 @@ export class SaveTemplateModal extends Modal {
 			const listEl = contentEl.createDiv({ cls: 'obsiman-template-list' });
 			listEl.createEl('small', {
 				cls: 'obsiman-text-faint',
-				text: `${t('settings.templates')}: ${existing.map((t) => t.name).join(', ')}`,
+				text: `${translate('settings.templates')}: ${existing.map((t) => t.name).join(', ')}`,
 			});
 		}
 
 		// Name input
 		new Setting(contentEl)
-			.setName(t('session.name'))
+			.setName(translate('session.name'))
 			.addText((text) =>
 				text
 					.setPlaceholder('Template name...')
@@ -51,7 +51,7 @@ export class SaveTemplateModal extends Modal {
 		new Setting(contentEl)
 			.addButton((btn) =>
 				btn
-					.setButtonText(t('filter.template.save'))
+					.setButtonText(translate('filter.template.save'))
 					.setCta()
 					.onClick(() => {
 						if (!this.templateName) return;

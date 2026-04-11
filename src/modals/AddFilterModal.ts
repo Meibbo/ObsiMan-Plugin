@@ -1,7 +1,7 @@
 import { Modal, Setting, type App } from 'obsidian';
 import type { FilterNode, FilterRule, FilterType, GroupLogic } from '../types/filter';
 import { PropertySuggest } from '../utils/autocomplete';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 type AddFilterCallback = (node: FilterNode) => void;
 
@@ -38,7 +38,7 @@ export class AddFilterModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass('obsiman-modal');
 
-		contentEl.createEl('h3', { text: t('filter.add_rule') });
+		contentEl.createEl('h3', { text: translate('filter.add_rule') });
 
 		// Mode toggle: Rule vs Group
 		new Setting(contentEl)
@@ -69,9 +69,9 @@ export class AddFilterModal extends Modal {
 				.addDropdown((dd) =>
 					dd
 						.addOptions({
-							all: t('filter.logic.all'),
-							any: t('filter.logic.any'),
-							none: t('filter.logic.none'),
+							all: translate('filter.logic.all'),
+							any: translate('filter.logic.any'),
+							none: translate('filter.logic.none'),
 						})
 						.setValue(this.groupLogic)
 						.onChange((v) => {
@@ -81,18 +81,18 @@ export class AddFilterModal extends Modal {
 		} else {
 			// Filter type
 			new Setting(formEl as HTMLElement)
-				.setName(t('filter.add_rule'))
+				.setName(translate('filter.add_rule'))
 				.addDropdown((dd) =>
 					dd
 						.addOptions({
-							has_property: t('filter.has_property'),
-							missing_property: t('filter.missing_property'),
-							specific_value: t('filter.specific_value'),
-							multiple_values: t('filter.multiple_values'),
-							folder: t('filter.folder'),
-							folder_exclude: t('filter.folder_exclude'),
-							file_name: t('filter.file_name'),
-							file_name_exclude: t('filter.file_name_exclude'),
+							has_property: translate('filter.has_property'),
+							missing_property: translate('filter.missing_property'),
+							specific_value: translate('filter.specific_value'),
+							multiple_values: translate('filter.multiple_values'),
+							folder: translate('filter.folder'),
+							folder_exclude: translate('filter.folder_exclude'),
+							file_name: translate('filter.file_name'),
+							file_name_exclude: translate('filter.file_name_exclude'),
 						})
 						.setValue(this.filterType)
 						.onChange((v) => {
@@ -111,7 +111,7 @@ export class AddFilterModal extends Modal {
 
 			if (needsProperty) {
 				new Setting(formEl as HTMLElement)
-					.setName(t('prop.property'))
+					.setName(translate('prop.property'))
 					.addText((text) => {
 						text
 							.setPlaceholder('Property name...')
@@ -143,7 +143,7 @@ export class AddFilterModal extends Modal {
 
 			if (needsValue) {
 				new Setting(formEl as HTMLElement)
-					.setName(t('prop.value'))
+					.setName(translate('prop.value'))
 					.addText((text) => {
 						text
 							.setPlaceholder(
@@ -179,7 +179,7 @@ export class AddFilterModal extends Modal {
 		// Submit button
 		new Setting(formEl as HTMLElement).addButton((btn) =>
 			btn
-				.setButtonText(this.mode === 'rule' ? t('filter.add_rule') : t('filter.add_group'))
+				.setButtonText(this.mode === 'rule' ? translate('filter.add_rule') : translate('filter.add_group'))
 				.setCta()
 				.onClick(() => {
 					const node = this.buildNode();

@@ -1,7 +1,7 @@
 import { Component, Events, Notice, type App, type TFile } from 'obsidian';
 import type { PendingChange, OperationResult } from '../types/operation';
 import { DELETE_PROP, RENAME_FILE, REORDER_ALL, MOVE_FILE, FIND_REPLACE_CONTENT } from '../types/operation';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 /**
  * Manages the queue of pending property operations.
@@ -18,6 +18,15 @@ export class OperationQueueService extends Component {
 	constructor(app: App) {
 		super();
 		this.app = app;
+	}
+
+	/**
+	 * Bridge to Obsidian events that returns an unsubscribe function.
+	 * Used by Svelte components in $effect blocks.
+	 */
+	onUpdate(callback: () => void): () => void {
+		this.on('changed', callback);
+		return () => this.off('changed', callback);
 	}
 
 	on(name: 'changed' | 'executed', callback: (result?: OperationResult) => void): void {
@@ -82,7 +91,7 @@ export class OperationQueueService extends Component {
 		const result: OperationResult = { success: 0, errors: 0, messages: [] };
 
 		if (this.isEmpty) {
-			new Notice(t('result.no_changes'));
+			new Notice(translate('result.no_changes'));
 			return result;
 		}
 
@@ -102,7 +111,7 @@ export class OperationQueueService extends Component {
 
 		for (let i = 0; i < ops.length; i++) {
 			const { file, change } = ops[i];
-			notice.setMessage(`${t('result.applying')} ${i + 1} / ${total}`);
+			notice.setMessage(`${translate('result.applying')} ${i + 1} / ${total}`);
 
 			try {
 				await this.applyChange(file, change);
@@ -125,8 +134,8 @@ export class OperationQueueService extends Component {
 
 		new Notice(
 			result.errors > 0
-				? t('result.errors', { count: result.errors })
-				: t('result.success', { count: result.success })
+				? translate('result.errors', { count: result.errors })
+				: translate('result.success', { count: result.success })
 		);
 
 		this.events.trigger('executed', result);

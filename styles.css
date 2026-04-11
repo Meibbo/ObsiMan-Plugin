@@ -216,10 +216,6 @@
   color: var(--text-normal);
 }
 
-.obsiman-files-list {
-  /* no max-height — parent container scrolls */
-}
-
 .obsiman-file-row {
   display: grid;
   grid-template-columns: 18px 1fr 36px 50px;
@@ -1889,6 +1885,7 @@ body.obsiman-bases-column-separators table th {
   padding: 10px 12px;
   z-index: 10;
   pointer-events: none;
+  transition: height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), padding 0.3s ease;
 }
 
 /* Responsive nav — collapses to slim bar when frame is very narrow */
@@ -1903,6 +1900,7 @@ body.obsiman-bases-column-separators table th {
 .obsiman-bottom-nav.is-bar-collapsed .obsiman-nav-fab-placeholder {
   opacity: 0;
   pointer-events: none;
+  transform: translateY(15px) scale(0.9);
 }
 
 /* Expand animation when collapsed bar is clicked */
@@ -1974,6 +1972,7 @@ body.obsiman-bases-column-separators table th {
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
   pointer-events: auto;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* Individual icon nav items inside pill */
@@ -2057,7 +2056,7 @@ body.obsiman-bases-column-separators table th {
   color: var(--text-on-accent);
   cursor: pointer;
   flex-shrink: 0;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 2px 8px color-mix(in srgb, var(--color-accent) 30%, transparent);
   pointer-events: auto;
 }
@@ -2324,12 +2323,13 @@ body.obsiman-bases-column-separators table th {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding-bottom: 60px; /* spacing for bottom bar */
+  padding-bottom: 60px;
+  /* spacing for bottom bar */
 }
 
 /* Modifying custom native properties tree elements if needed */
 .tree-item-icon.collapse-icon svg {
-  width: 12px; 
+  width: 12px;
   height: 12px;
 }
 
@@ -2345,9 +2345,17 @@ body.obsiman-bases-column-separators table th {
 
 /* ─── Search result highlight pulse animation ─────────────────────────────── */
 @keyframes obsiman-search-pulse {
-  0%   { background-color: transparent; }
-  20%  { background-color: var(--background-modifier-active-hover); }
-  100% { background-color: transparent; }
+  0% {
+    background-color: transparent;
+  }
+
+  20% {
+    background-color: var(--background-modifier-active-hover);
+  }
+
+  100% {
+    background-color: transparent;
+  }
 }
 
 .obsiman-search-highlight {

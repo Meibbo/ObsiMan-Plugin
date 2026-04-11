@@ -2,7 +2,7 @@ import { Modal, Setting, type App, type TFile } from 'obsidian';
 import type { PendingChange } from '../types/operation';
 import { MOVE_FILE } from '../types/operation';
 import { FolderSuggest } from '../utils/autocomplete';
-import { t } from '../i18n/index';
+import { translate } from '../i18n/index';
 
 type QueueCallback = (change: PendingChange) => void;
 
@@ -27,20 +27,20 @@ export class FileMoveModal extends Modal {
 		contentEl.empty();
 		contentEl.addClasses(['obsiman-modal', 'obsiman-move-modal']);
 
-		contentEl.createEl('h3', { text: t('move.title') });
+		contentEl.createEl('h3', { text: translate('move.title') });
 		contentEl.createEl('p', {
 			cls: 'obsiman-modal-subtitle',
-			text: `${this.targetFiles.length} ${t('section.files').toLowerCase()}`,
+			text: `${this.targetFiles.length} ${translate('section.files').toLowerCase()}`,
 		});
 
 		// Folder input with FolderSuggest autocomplete
 		const folderSetting = new Setting(contentEl)
-			.setName(t('move.target_folder'))
-			.setDesc(t('move.root_hint'));
+			.setName(translate('move.target_folder'))
+			.setDesc(translate('move.root_hint'));
 
 		const folderInput = folderSetting.controlEl.createEl('input', {
 			cls: 'obsiman-rename-pattern-input',
-			attr: { type: 'text', placeholder: t('move.target_folder_placeholder') },
+			attr: { type: 'text', placeholder: translate('move.target_folder_placeholder') },
 		});
 
 		new FolderSuggest(this.app, folderInput, (path: string) => {
@@ -62,7 +62,7 @@ export class FileMoveModal extends Modal {
 		new Setting(contentEl)
 			.addButton((btn) =>
 				btn
-					.setButtonText(t('prop.add_to_queue'))
+					.setButtonText(translate('prop.add_to_queue'))
 					.setCta()
 					.onClick(() => {
 						this.queueMoves();
