@@ -2,15 +2,22 @@
 	import { translate } from "../../i18n/index";
 	import type { TFile } from "obsidian";
 	import type { ObsiManPlugin } from "../../../main";
-	import type { OpsTab, OpsTabDef, ContentPreviewResult } from "../../types/ui";
-	import { QueueDetailsModal } from "../../modals/QueueDetailsModal";
+	import type {
+		OpsTab,
+		OpsTabDef,
+		ContentPreviewResult,
+	} from "../../types/ui";
 	import { FileRenameModal } from "../../modals/FileRenameModal";
 	import { PropertyManagerModal } from "../../modals/PropertyManagerModal";
 	import { LinterModal } from "../../modals/LinterModal";
 	import { QueueListComponent } from "../../components/QueueListComponent";
-	import FileOpsTab from "../tabs/FileOpsTab.svelte";
-	import LinterTab from "../tabs/LinterTab.svelte";
-	import ContentTab from "../tabs/ContentTab.svelte";
+	import FileOpsTab from "../tabs/OpsFilesTab.svelte";
+	import LinterTab from "../tabs/OpsLinterTab.svelte";
+	import ContentTab from "../tabs/OpsContentTab.svelte";
+	import {
+		FIND_REPLACE_CONTENT,
+		type PendingChange,
+	} from "../../types/operation";
 
 	let {
 		plugin,
@@ -30,10 +37,26 @@
 
 	// ─── Tabs definition ─────────────────────────────────────────────────────
 	const opsTabs: OpsTabDef[] = [
-		{ id: "fileops", label: translate("ops.tabs.fileops"), icon: "lucide-files" },
-		{ id: "linter", label: translate("ops.tabs.linter"), icon: "lucide-sparkles" },
-		{ id: "content", label: translate("ops.tabs.content"), icon: "lucide-search" },
-		{ id: "template", label: translate("ops.tabs.template"), icon: "lucide-layout-template" },
+		{
+			id: "fileops",
+			label: translate("ops.tabs.fileops"),
+			icon: "lucide-files",
+		},
+		{
+			id: "linter",
+			label: translate("ops.tabs.linter"),
+			icon: "lucide-sparkles",
+		},
+		{
+			id: "content",
+			label: translate("ops.tabs.content"),
+			icon: "lucide-search",
+		},
+		{
+			id: "template",
+			label: translate("ops.tabs.template"),
+			icon: "lucide-layout-template",
+		},
 	];
 
 	let opsTab = $state<OpsTab>("fileops");
@@ -70,29 +93,32 @@
 	// ─── Modal Triggers ──────────────────────────────────────────────────────
 	function openFileRename() {
 		const selected = getSelectedFiles();
-		const targets = selected.length > 0 ? selected : plugin.filterService.filteredFiles;
+		const targets =
+			selected.length > 0 ? selected : plugin.filterService.filteredFiles;
 		new FileRenameModal(
 			plugin.app,
 			plugin.propertyIndex,
 			targets,
-			(change: any) => plugin.queueService.add(change),
+			(change: PendingChange) => plugin.queueService.add(change),
 		).open();
 	}
 
 	function openPropertyManager() {
 		const selected = getSelectedFiles();
-		const targets = selected.length > 0 ? selected : plugin.filterService.filteredFiles;
+		const targets =
+			selected.length > 0 ? selected : plugin.filterService.filteredFiles;
 		new PropertyManagerModal(
 			plugin.app,
 			plugin.propertyIndex,
 			targets,
-			(change: any) => plugin.queueService.add(change),
+			(change: PendingChange) => plugin.queueService.add(change),
 		).open();
 	}
 
 	function openLinter() {
 		const selected = getSelectedFiles();
-		const targets = selected.length > 0 ? selected : plugin.filterService.filteredFiles;
+		const targets =
+			selected.length > 0 ? selected : plugin.filterService.filteredFiles;
 		new LinterModal(plugin.app, plugin.propertyIndex, targets).open();
 	}
 
@@ -108,8 +134,14 @@
 
 	const contentScopeHint = $derived.by(() => {
 		if (selectedCount > 0)
-			return translate("content.scope_hint_selected").replace("{count}", String(selectedCount));
-		return translate("content.scope_hint_filtered").replace("{count}", String(filteredCount));
+			return translate("content.scope_hint_selected").replace(
+				"{count}",
+				String(selectedCount),
+			);
+		return translate("content.scope_hint_filtered").replace(
+			"{count}",
+			String(filteredCount),
+		);
 	});
 
 	$effect(() => {
@@ -120,9 +152,15 @@
 		contentRegexError = "";
 	});
 
-	function buildContentRegex(pattern: string, isRegex: boolean, caseSensitive: boolean): RegExp {
+	function buildContentRegex(
+		pattern: string,
+		isRegex: boolean,
+		caseSensitive: boolean,
+	): RegExp {
 		const flags = "g" + (caseSensitive ? "" : "i");
-		const escaped = isRegex ? pattern : pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+		const escaped = isRegex
+			? pattern
+			: pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 		return new RegExp(escaped, flags);
 	}
 
@@ -134,7 +172,11 @@
 
 		let regex: RegExp;
 		try {
-			regex = buildContentRegex(contentFind, contentIsRegex, contentCaseSensitive);
+			regex = buildContentRegex(
+				contentFind,
+				contentIsRegex,
+				contentCaseSensitive,
+			);
 		} catch {
 			contentRegexError = translate("content.invalid_regex");
 			contentPreviewing = false;
@@ -142,7 +184,10 @@
 		}
 
 		const selected = getSelectedFiles();
-		const targets = selected.length > 0 ? selected : [...plugin.filterService.filteredFiles];
+		const targets =
+			selected.length > 0
+				? selected
+				: [...plugin.filterService.filteredFiles];
 
 		const MAX_FILES = 20;
 		const MAX_SNIPPETS = 3;
@@ -166,12 +211,19 @@
 					const start = m.index ?? 0;
 					const end = start + m[0].length;
 					return {
-						before: content.slice(Math.max(0, start - CONTEXT_LEN), start),
+						before: content.slice(
+							Math.max(0, start - CONTEXT_LEN),
+							start,
+						),
 						match: m[0],
 						after: content.slice(end, end + CONTEXT_LEN),
 					};
 				});
-				fileResults.push({ file, matchCount: matches.length, snippets });
+				fileResults.push({
+					file,
+					matchCount: matches.length,
+					snippets,
+				});
 			}
 		}
 
@@ -186,16 +238,21 @@
 
 	function queueContentReplace() {
 		if (!contentFind) return;
-		let regex: RegExp;
+
 		try {
-			regex = buildContentRegex(contentFind, contentIsRegex, contentCaseSensitive);
+			buildContentRegex(
+				contentFind,
+				contentIsRegex,
+				contentCaseSensitive,
+			);
 		} catch {
 			contentRegexError = translate("content.invalid_regex");
 			return;
 		}
 
 		const selected = getSelectedFiles();
-		const targets = selected.length > 0 ? selected : plugin.filterService.filteredFiles;
+		const targets =
+			selected.length > 0 ? selected : plugin.filterService.filteredFiles;
 
 		plugin.queueService.add({
 			type: "content_replace",
@@ -203,11 +260,20 @@
 			replace: contentReplace,
 			isRegex: contentIsRegex,
 			caseSensitive: contentCaseSensitive,
-			targetFiles: targets,
-			description: translate("ops.desc.content_replace")
+			files: targets,
+			action: "content_replace",
+			details: translate("ops.desc.content_replace")
 				.replace("{find}", contentFind)
 				.replace("{replace}", contentReplace)
 				.replace("{count}", String(targets.length)),
+			logicFunc: () => ({
+				[FIND_REPLACE_CONTENT]: {
+					pattern: contentFind,
+					replacement: contentReplace,
+					isRegex: contentIsRegex,
+					caseSensitive: contentCaseSensitive,
+				},
+			}),
 		});
 
 		contentFind = "";

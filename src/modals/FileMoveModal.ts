@@ -106,7 +106,7 @@ export class FileMoveModal extends Modal {
 			if (newPath === file.path) continue;
 
 			const change: PendingChange = {
-				property: '',
+				type: 'file_move',
 				action: 'move',
 				details: `${file.path} → ${newPath}`,
 				files: [file],

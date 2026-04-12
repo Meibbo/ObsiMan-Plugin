@@ -553,21 +553,22 @@ export class PropertyExplorerComponent {
 		const existingProps = new Set(this.plugin.propertyIndex.index.keys());
 
 		for (const change of queue) {
-			if (change.action === 'set' && change.property && !existingProps.has(change.property)) {
-				// New property being added
-				const pendingEl = this.treeEl.createDiv({ cls: 'obsiman-explorer-node obsiman-explorer-pending' });
-				const headerEl = pendingEl.createDiv({ cls: 'obsiman-explorer-header' });
-				headerEl.createSpan({ cls: 'obsiman-explorer-toggle', text: '▶' });
-				headerEl.createSpan({ cls: 'obsiman-explorer-prop-name', text: change.property });
-				headerEl.createSpan({ cls: 'obsiman-explorer-badge', text: `+${change.files.length}` });
-			}
-			if (change.action === 'delete' && change.property) {
-				// Mark existing property as pending deletion
-				// We mark via class on the node — handled by finding matching name nodes
-				const nodes = this.treeEl.querySelectorAll('.obsiman-explorer-prop-name');
-				for (const node of nodes) {
-					if (node.textContent === change.property) {
-						node.closest('.obsiman-explorer-node')?.addClass('obsiman-explorer-deleting');
+			if (change.type === 'property') {
+				if (change.action === 'set' && !existingProps.has(change.property)) {
+					// New property being added
+					const pendingEl = this.treeEl.createDiv({ cls: 'obsiman-explorer-node obsiman-explorer-pending' });
+					const headerEl = pendingEl.createDiv({ cls: 'obsiman-explorer-header' });
+					headerEl.createSpan({ cls: 'obsiman-explorer-toggle', text: '▶' });
+					headerEl.createSpan({ cls: 'obsiman-explorer-prop-name', text: change.property });
+					headerEl.createSpan({ cls: 'obsiman-explorer-badge', text: `+${change.files.length}` });
+				}
+				if (change.action === 'delete') {
+					// Mark existing property as pending deletion
+					const nodes = this.treeEl.querySelectorAll('.obsiman-explorer-prop-name');
+					for (const node of nodes) {
+						if (node.textContent === change.property) {
+							node.closest('.obsiman-explorer-node')?.addClass('obsiman-explorer-deleting');
+						}
 					}
 				}
 			}
@@ -635,6 +636,7 @@ export class PropertyExplorerComponent {
 			item.setTitle(translate('explorer.ctx.delete_prop')).setIcon('lucide-trash-2').onClick(() => {
 				const files = this.getOperationFiles();
 				const change: PendingChange = {
+					type: 'property',
 					property: propName,
 					action: 'delete',
 					details: `delete ${propName} (${files.length} files)`,
@@ -761,6 +763,7 @@ export class PropertyExplorerComponent {
 		if (newValue === oldValue) return;
 		const files = this.getFilesWithValue(propName, oldValue);
 		const change: PendingChange = {
+			type: 'property',
 			property: propName,
 			action: 'set',
 			details: `${propName}: "${oldValue}" → "${newValue}"`,
@@ -784,6 +787,7 @@ export class PropertyExplorerComponent {
 	private queueValueDelete(propName: string, value: string): void {
 		const files = this.getFilesWithValue(propName, value);
 		const change: PendingChange = {
+			type: 'property',
 			property: propName,
 			action: 'set',
 			details: `${propName}: remove "${value}"`,
@@ -1382,6 +1386,7 @@ class CreatePropertyModal extends Modal {
 		if (this.propType === 'list') value = this.propValue.split(',').map((s) => s.trim()).filter(Boolean);
 
 		const change: PendingChange = {
+			type: 'property',
 			property: this.propName,
 			action: 'set',
 			details: `${this.propName} = ${String(value)}`,
@@ -1434,6 +1439,7 @@ class RenamePropertyModal extends Modal {
 	private submit(): void {
 		if (!this.newName || this.newName === this.oldName) return;
 		const change: PendingChange = {
+			type: 'property',
 			property: this.oldName,
 			action: 'rename',
 			details: `${this.oldName} → ${this.newName}`,
@@ -1503,6 +1509,7 @@ class AddValueModal extends Modal {
 		if (!this.value) return;
 		const finalValue = this.asWikilink ? `[[${this.value}]]` : this.value;
 		const change: PendingChange = {
+			type: 'property',
 			property: this.propName,
 			action: 'set',
 			details: `${this.propName} += "${finalValue}"`,
@@ -1558,6 +1565,7 @@ class RenameValueModal extends Modal {
 	private submit(): void {
 		if (!this.newValue || this.newValue === this.oldValue) return;
 		const change: PendingChange = {
+			type: 'property',
 			property: this.propName,
 			action: 'set',
 			details: `${this.propName}: "${this.oldValue}" → "${this.newValue}"`,
@@ -1612,6 +1620,7 @@ class MoveValueModal extends Modal {
 	private submit(): void {
 		if (!this.targetProp) return;
 		const change: PendingChange = {
+			type: 'property',
 			property: this.sourceProp,
 			action: 'set',
 			details: `move "${this.value}" from ${this.sourceProp} → ${this.targetProp}`,

@@ -662,6 +662,7 @@ export class PropertyGridComponent {
 				const newValue = this.parseEditedValue(newText, currentValue);
 
 				const change: PendingChange = {
+					type: 'property',
 					property,
 					action: 'set',
 					details: `${property} = ${newText}`,

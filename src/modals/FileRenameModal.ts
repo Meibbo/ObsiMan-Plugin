@@ -163,7 +163,7 @@ export class FileRenameModal extends Modal {
 			if (newName === file.name) continue;
 
 			const change: PendingChange = {
-				property: '',
+				type: 'file_rename',
 				action: 'rename',
 				details: `${file.name} → ${newName}`,
 				files: [file],

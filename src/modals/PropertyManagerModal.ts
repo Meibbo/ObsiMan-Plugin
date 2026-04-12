@@ -251,6 +251,7 @@ export class PropertyManagerModal extends Modal {
 				const strParsed = String(parsedValue as string | number | boolean | null | undefined);
 				const finalValue = this.asWikilink ? `[[${strParsed}]]` : parsedValue;
 				return {
+					type: 'property',
 					property: this.property,
 					action: 'set',
 					details: `${this.property} = ${String(finalValue as string | number | boolean | null | undefined)}`,
@@ -275,6 +276,7 @@ export class PropertyManagerModal extends Modal {
 			case 'rename': {
 				if (!this.newName) return null;
 				return {
+					type: 'property',
 					property: this.property,
 					action: 'rename',
 					details: `${this.property} → ${this.newName}`,
@@ -293,6 +295,7 @@ export class PropertyManagerModal extends Modal {
 
 			case 'delete':
 				return {
+					type: 'property',
 					property: this.property,
 					action: 'delete',
 					details: `delete ${this.property}`,
@@ -303,6 +306,7 @@ export class PropertyManagerModal extends Modal {
 
 			case 'clean_empty':
 				return {
+					type: 'property',
 					property: this.property,
 					action: 'clean_empty',
 					details: `clean empty ${this.property}`,
@@ -324,6 +328,7 @@ export class PropertyManagerModal extends Modal {
 
 			case 'change_type':
 				return {
+					type: 'property',
 					property: this.property,
 					action: 'change_type',
 					details: `${this.property} → ${this.propertyType}`,

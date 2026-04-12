@@ -22,21 +22,42 @@ export type PropertyType =
 	| 'date'
 	| 'wikilink';
 
-/**
- * A queued operation. logicFunc is called per-file at execution time
- * with the latest metadata (re-read from disk) to compute the update.
- */
-export interface PendingChange {
-	property: string;
+/** Common fields for all queued operations */
+export interface BaseChange {
+	files: TFile[];
 	action: string;
 	details: string;
-	files: TFile[];
 	logicFunc: (
 		file: TFile,
 		metadata: Record<string, unknown>
 	) => Record<string, unknown> | null;
+	customLogic?: boolean;
+}
+
+/** Operation on frontmatter properties */
+export interface PropertyChange extends BaseChange {
+	type: 'property';
+	property: string;
 	customLogic: boolean;
 }
+
+/** Operation on file content (find & replace) */
+export interface ContentChange extends BaseChange {
+	type: 'content_replace';
+	find: string;
+	replace: string;
+	isRegex: boolean;
+	caseSensitive: boolean;
+}
+
+/** File system operation (rename/move) */
+export interface FileChange extends BaseChange {
+	type: 'file_rename' | 'file_move';
+	newName?: string;
+	targetFolder?: string;
+}
+
+export type PendingChange = PropertyChange | ContentChange | FileChange;
 
 export interface OperationResult {
 	success: number;
