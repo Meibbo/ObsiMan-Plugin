@@ -4,6 +4,7 @@ import type { ObsiManPlugin } from '../../main';
 import { TagsLogic } from '../logic/TagsLogic';
 import { UnifiedTreeView } from './UnifiedTreeView';
 import type { TreeNode, TagMeta } from '../types/tree';
+import { showInputModal } from '../utils/inputModal';
 
 export class TagsExplorerPanel extends Component {
 	private plugin: ObsiManPlugin;
@@ -27,6 +28,8 @@ export class TagsExplorerPanel extends Component {
 				this._render();
 			}),
 		);
+		// Re-render after Iconic finishes loading (icons not ready on first render)
+		this.plugin.iconicService?.onLoaded(() => this._render());
 		this._render();
 	}
 
@@ -48,7 +51,7 @@ export class TagsExplorerPanel extends Component {
 
 		const activeFilterIds = new Set<string>();
 		for (const node of this._flattenTree(tree)) {
-			if (this.plugin.filterService.hasTagFilter?.(`#${(node.meta as TagMeta).tagPath}`)) {
+			if (this.plugin.filterService.hasTagFilter(`#${node.meta.tagPath}`)) {
 				activeFilterIds.add(node.id);
 			}
 		}
@@ -68,7 +71,7 @@ export class TagsExplorerPanel extends Component {
 			onRowClick: (id) => {
 				const node = this._findNode(id, tree);
 				if (!node) return;
-				const meta = node.meta as TagMeta;
+				const meta = node.meta;
 				void this.plugin.filterService.addNode({
 					type: 'rule',
 					filterType: 'has_tag',
@@ -82,12 +85,12 @@ export class TagsExplorerPanel extends Component {
 
 	private _resolveIcons(nodes: TreeNode<TagMeta>[]): TreeNode<TagMeta>[] {
 		return nodes.map(node => {
-			const meta = node.meta as TagMeta;
+			const meta = node.meta;
 			const iconic = this.plugin.iconicService?.getTagIcon(meta.tagPath);
 			return {
 				...node,
 				icon: iconic?.icon ?? 'lucide-tag',
-				children: node.children ? this._resolveIcons(node.children as TreeNode<TagMeta>[]) : [],
+				children: node.children ? this._resolveIcons(node.children) : [],
 			};
 		});
 	}
@@ -95,7 +98,7 @@ export class TagsExplorerPanel extends Component {
 	private _showContextMenu(id: string, e: MouseEvent, tree: TreeNode<TagMeta>[]): void {
 		const node = this._findNode(id, tree);
 		if (!node) return;
-		const meta = node.meta as TagMeta;
+		const meta = node.meta;
 		const menu = new Menu();
 
 		menu.addItem(item =>
@@ -118,12 +121,15 @@ export class TagsExplorerPanel extends Component {
 	}
 
 	private async _renameTag(tagPath: string): Promise<void> {
-		const newName = await this._prompt(`Rename #${tagPath} to:`);
+		const newName = await showInputModal(this.plugin.app, `Rename #${tagPath} to:`);
 		if (!newName) return;
 		for (const file of this.plugin.app.vault.getMarkdownFiles()) {
-			await this.plugin.app.fileManager.processFrontMatter(file, (fm) => {
+			await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 				if (!fm.tags) return;
-				const tags: string[] = Array.isArray(fm.tags) ? fm.tags : [fm.tags];
+				const raw = fm.tags;
+				const tags: string[] = Array.isArray(raw)
+					? (raw as unknown[]).map(String)
+					: [String(raw)];
 				fm.tags = tags.map(t => (t === tagPath || t === `#${tagPath}`) ? newName : t);
 			});
 		}
@@ -133,11 +139,14 @@ export class TagsExplorerPanel extends Component {
 
 	private async _deleteTag(tagPath: string): Promise<void> {
 		for (const file of this.plugin.app.vault.getMarkdownFiles()) {
-			await this.plugin.app.fileManager.processFrontMatter(file, (fm) => {
+			await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 				if (!fm.tags) return;
-				const tags: string[] = Array.isArray(fm.tags) ? fm.tags : [fm.tags];
-				fm.tags = tags.filter(t => t !== tagPath && t !== `#${tagPath}`);
-				if (fm.tags.length === 0) delete fm.tags;
+				const raw = fm.tags;
+				const tags: string[] = Array.isArray(raw)
+					? (raw as unknown[]).map(String)
+					: [String(raw)];
+				const filtered = tags.filter(t => t !== tagPath && t !== `#${tagPath}`);
+				fm.tags = filtered.length > 0 ? filtered : undefined;
 			});
 		}
 		this.logic.invalidate();
@@ -150,8 +159,11 @@ export class TagsExplorerPanel extends Component {
 			const cache = this.plugin.app.metadataCache.getFileCache(file);
 			const inlineTags = (cache?.tags ?? []).map(t => t.tag);
 			if (inlineTags.some(t => t === `#${tagPath}` || t === tagPath)) {
-				await this.plugin.app.fileManager.processFrontMatter(file, (fm) => {
-					const existing: string[] = Array.isArray(fm.tags) ? fm.tags : (fm.tags ? [fm.tags] : []);
+				await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
+					const raw = fm.tags;
+					const existing: string[] = Array.isArray(raw)
+						? (raw as unknown[]).map(String)
+						: (raw ? [String(raw)] : []);
 					if (!existing.includes(tagPath)) {
 						fm.tags = [...existing, tagPath];
 					}
@@ -162,19 +174,12 @@ export class TagsExplorerPanel extends Component {
 		this._render();
 	}
 
-	private _prompt(message: string): Promise<string | null> {
-		return new Promise(resolve => {
-			const result = prompt(message);
-			resolve(result);
-		});
-	}
-
 	private _collectLeaves(nodes: TreeNode<TagMeta>[]): TreeNode<TagMeta>[] {
 		const leaves: TreeNode<TagMeta>[] = [];
 		const walk = (ns: TreeNode<TagMeta>[]) => {
 			for (const n of ns) {
 				if (!n.children || n.children.length === 0) leaves.push({ ...n, children: [] });
-				else walk(n.children as TreeNode<TagMeta>[]);
+				else walk(n.children);
 			}
 		};
 		walk(nodes);
@@ -185,7 +190,7 @@ export class TagsExplorerPanel extends Component {
 		for (const n of nodes) {
 			if (n.id === id) return n;
 			if (n.children) {
-				const found = this._findNode(id, n.children as TreeNode<TagMeta>[]);
+				const found = this._findNode(id, n.children);
 				if (found) return found;
 			}
 		}
@@ -196,7 +201,7 @@ export class TagsExplorerPanel extends Component {
 		const result: TreeNode<TagMeta>[] = [];
 		for (const n of nodes) {
 			result.push(n);
-			if (n.children) result.push(...this._flattenTree(n.children as TreeNode<TagMeta>[]));
+			if (n.children) result.push(...this._flattenTree(n.children));
 		}
 		return result;
 	}

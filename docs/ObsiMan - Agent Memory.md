@@ -56,10 +56,88 @@ input: AI-gen
 
 ## Last updated
 - **Date**: 2026-04-12
-- **Agent**: Claude Code (claude-sonnet-4-6)
+- **Agent**: Claude Code (claude-sonnet-4-6) — Session 22 (partial)
 - **Branch**: `add-functions`
 - **Version**: `1.0.0-beta.11`
-- **Build status**: ✅ Iter.14 Filters Explorer Refactor complete. Build PASSING (0 errors, 7 pre-existing Svelte warnings).
+- **Build status**: ✅ Lint fixes complete. Build PASSING (0 errors, 7 pre-existing Svelte warnings).
+
+---
+
+## What was completed this session (2026-04-12, session 22 — Lint fixes + runtime bug diagnosis)
+
+### Root cause analysis complete (for next agent to execute)
+All bugs root-causes were identified before context ran out. Next agent executes fixes.
+
+### Lint fixes ✅ (build passing)
+- Deleted `src/components/NavbarComponent.ts` — unused dead code (9 lint errors removed)
+- Created `src/utils/inputModal.ts` — `showInputModal(app, message)` replaces all `prompt()` calls
+- `FilesExplorerPanel.ts`: proper imports (FileRenameModal, FileMoveModal), removed require(), removed 3 unnecessary assertions, `fileManager.trashFile()`
+- `PropsExplorerPanel.ts`: removed 5 unnecessary assertions, sentence-case fixes, `prompt()` → `showInputModal`, `fm: Record<string, unknown>` types, dynamic delete suppressed
+- `TagsExplorerPanel.ts`: removed 6 unnecessary assertions, `fm.tags` properly type-narrowed, `prompt()` → `showInputModal`
+- `IconicService.ts`: added `onLoaded(cb)` method — fires after icons load, used by panel constructors
+
+### Runtime bugs NOT YET FIXED (for next agent — all root causes identified)
+
+**BUG-1 — Node duplication (primary bug, causes most others):**
+- Root cause: `UnifiedTreeView.render()` calls `containerEl.empty()` + `rowEls.clear()` synchronously but defers `renderNodes()` to `requestAnimationFrame`. Two `$effect`s in Svelte call `setSearchTerm()` on the same panel simultaneously → two rAFs queue → both fire and append nodes to the already-populated container.
+- Fix: Add `private _pendingRaf: number | null` field; at start of `render()` cancel the pending rAF before scheduling a new one.
+
+**BUG-2 — Context menus show but actions fail:**
+- Root cause A: Obsidian's workspace has a global `contextmenu` handler on document that intercepts the event after our handler fires (bubble phase), overriding our `Menu`. Fix: add `e.stopPropagation()` before `opts.onContextMenu()` in `UnifiedTreeView._renderRow()` contextmenu listener.
+- Root cause B: `prompt()` replaced with `showInputModal` (already done in lint fixes).
+
+**BUG-3 — Prop types don't show children:**
+- Caused by BUG-1 (duplication). Will likely resolve once BUG-1 fixed. If not, investigate further.
+
+**BUG-4 — Ghost values (sin nombre, badge alto):**
+- Root cause: `PropsLogic._buildTree()` converts `null`/`undefined` frontmatter values to `''` via `String(null ?? '')`. Creates phantom empty-string value nodes.
+- Fix in `PropsLogic._buildTree()`: skip `str === ''` when building valueMap.
+
+**BUG-5 — Many props missing badge/frequency:**
+- Root cause: `getAllPropertyInfos()` returns lowercase-normalized keys (e.g., `'genre'`), but `valueMap` is built from raw frontmatter keys (e.g., `'Genre'`). `valueMap.get('genre')` returns undefined.
+- Fix in `PropsLogic._buildTree()`: normalize keys to lowercase when building valueMap: `const normalizedKey = key.toLowerCase()`.
+
+**BUG-6 — Tag filter highlights not working (no `is-active-filter` on tag nodes):**
+- Root cause: `FilterService.hasTagFilter()` is a stub returning `false`.
+- Fix: Implement by walking `activeFilter` tree and checking for `filterType === 'has_tag'` rules with matching value.
+
+**BUG-7 — Active filters popup: tag entries show "filter" instead of tag name:**
+- Root cause: `describeFilterNode()` in `ObsiManView.svelte` has no case for `'has_tag'`. Falls to `default: return prop || "filter"`. Tag rules have `property: ''`, so it returns `"filter"`.
+- Fix: Add `case 'has_tag': return \`has tag: \${(vals as string[])[0] ?? ''}\`;`
+
+**BUG-8 — Selected files count never updates:**
+- Root cause: `onSelectionChange: () => {}` in `FilesExplorerPanel._mountView()` is a no-op. `selectedCount` in `ObsiManView.svelte` never gets updated.
+- Fix: Pass a callback from ObsiManView to FilesExplorerPanel that sets `selectedCount`.
+
+**BUG-9 — Iconic icons only load after click:**
+- Root cause: `loadIcons()` is async. First render fires before it completes. Already FIXED via `onLoaded(cb)` in IconicService + `plugin.iconicService?.onLoaded(() => this._render())` in both panels' `onload()`.
+
+**BUG-10 — Dots in nested node indentation instead of tree line:**
+- Root cause: `UnifiedTreeView._renderRow()` sets `setIcon(toggleSpan, 'lucide-dot')` for leaf nodes.
+- Fix: Leave the toggle span empty for leaf nodes (just `min-width: 16px` flex spacer, no icon).
+
+**BUG-11 — Expand/collapse too abrupt:**
+- Fix: Add CSS fade-in animation to `.obsiman-tree-children` (no height transition needed, just opacity+translate).
+
+**BUG-12 — Font weight too bold:**
+- Fix: Add `font-weight: var(--font-normal)` to `.obsiman-tree-label` in styles.css.
+
+**BUG-13 — Nodes too close together:**
+- Fix: Increase `.obsiman-tree-row` padding from `2px 8px` to `4px 8px`.
+
+**BUG-14 — Active filter toggle button has no icon:**
+- Root cause: `obsiman-active-filter-toggle` div in `ActiveFiltersPopup.svelte` has no icon set.
+- Fix: Add `use:icon={rule.enabled ? 'lucide-eye' : 'lucide-eye-off'}` to the toggle div.
+
+**BUG-15 — Filters header search not reflected in active filters:**
+- Design clarification needed: header search is in-panel display filter, NOT a FilterService rule. If user wants it to also appear in active filters, that's a design decision.
+
+### What's NOT done yet (for next agent):
+Execute BUG-1 through BUG-14 fixes, then run build, then reload plugin.
+
+### Architecture notes (still valid from Iter.14)
+- `Logic` = pure data, `Panel` = orchestrator (Component), `View` = renderer (UnifiedTreeView/GridView)
+- `PropsExplorerPanel` computes active filter highlights internally on every `_render()` call
 
 ---
 

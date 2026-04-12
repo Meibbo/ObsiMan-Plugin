@@ -4,6 +4,7 @@ import type { ObsiManPlugin } from '../../main';
 import { PropsLogic } from '../logic/PropsLogic';
 import { UnifiedTreeView } from './UnifiedTreeView';
 import type { TreeNode, PropMeta } from '../types/tree';
+import { showInputModal } from '../utils/inputModal';
 
 const TYPE_ICON_MAP: Record<string, string> = {
 	text: 'lucide-text',
@@ -38,6 +39,8 @@ export class PropsExplorerPanel extends Component {
 				this._render();
 			}),
 		);
+		// Re-render after Iconic finishes loading (icons not ready on first render)
+		this.plugin.iconicService?.onLoaded(() => this._render());
 		this._render();
 	}
 
@@ -69,7 +72,7 @@ export class PropsExplorerPanel extends Component {
 			onRowClick: (id) => {
 				const node = this._findNode(id, tree);
 				if (!node) return;
-				const meta = node.meta as PropMeta;
+				const meta = node.meta;
 				if (meta.isValueNode) {
 					void this.plugin.filterService.addNode({
 						type: 'rule', filterType: 'specific_value',
@@ -88,7 +91,7 @@ export class PropsExplorerPanel extends Component {
 
 	private _resolveIcons(nodes: TreeNode<PropMeta>[], warningIds: Set<string>): TreeNode<PropMeta>[] {
 		return nodes.map(node => {
-			const meta = node.meta as PropMeta;
+			const meta = node.meta;
 			if (meta.isTypeIncompatible) warningIds.add(node.id);
 			const iconic = !meta.isValueNode
 				? this.plugin.iconicService?.getIcon(meta.propName)
@@ -100,7 +103,7 @@ export class PropsExplorerPanel extends Component {
 				...node,
 				icon: iconic?.icon ?? defaultIcon,
 				children: node.children
-					? this._resolveIcons(node.children as TreeNode<PropMeta>[], warningIds)
+					? this._resolveIcons(node.children, warningIds)
 					: [],
 			};
 		});
@@ -109,7 +112,7 @@ export class PropsExplorerPanel extends Component {
 	private _showContextMenu(id: string, e: MouseEvent, tree: TreeNode<PropMeta>[]): void {
 		const node = this._findNode(id, tree);
 		if (!node) return;
-		const meta = node.meta as PropMeta;
+		const meta = node.meta;
 		const menu = new Menu();
 
 		if (!meta.isValueNode) {
@@ -141,36 +144,36 @@ export class PropsExplorerPanel extends Component {
 
 			if (meta.isTypeIncompatible) {
 				menu.addItem(item =>
-					item.setTitle('Update (incompatible value)').setIcon('lucide-alert-triangle').onClick(() => {
+					item.setTitle('Update incompatible value').setIcon('lucide-alert-triangle').onClick(() => {
 						void this._updateValue(meta.propName, meta.rawValue ?? '');
 					}),
 				);
 			} else if (meta.propType === 'text' || meta.propType === 'list' || meta.propType === 'multitext') {
 				menu.addSeparator();
 				menu.addItem(item =>
-					item.setTitle('Convert to [[Wikilink]]').setIcon('lucide-link').onClick(() => {
+					item.setTitle('Convert to wikilink').setIcon('lucide-link').onClick(() => {
 						void this._convertValue(meta.propName, meta.rawValue ?? '', v => `[[${v}]]`);
 					}),
 				);
 				menu.addItem(item =>
-					item.setTitle('Convert to [Markdown](link)').setIcon('lucide-external-link').onClick(() => {
+					item.setTitle('Convert to Markdown link').setIcon('lucide-external-link').onClick(() => {
 						void this._convertValue(meta.propName, meta.rawValue ?? '', v => `[${v}](${v})`);
 					}),
 				);
 				if (meta.propType === 'text') {
 					menu.addSeparator();
 					menu.addItem(item =>
-						item.setTitle('lowercase').onClick(() => {
+						item.setTitle('Lowercase').onClick(() => {
 							void this._convertValue(meta.propName, meta.rawValue ?? '', v => v.toLowerCase());
 						}),
 					);
 					menu.addItem(item =>
-						item.setTitle('UPPERCASE').onClick(() => {
+						item.setTitle('Uppercase').onClick(() => {
 							void this._convertValue(meta.propName, meta.rawValue ?? '', v => v.toUpperCase());
 						}),
 					);
 					menu.addItem(item =>
-						item.setTitle('Title Case').onClick(() => {
+						item.setTitle('Title case').onClick(() => {
 							void this._convertValue(meta.propName, meta.rawValue ?? '', v =>
 								v.replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()),
 							);
@@ -191,12 +194,13 @@ export class PropsExplorerPanel extends Component {
 	}
 
 	private async _renameProp(propName: string): Promise<void> {
-		const newName = prompt(`Rename "${propName}" to:`);
+		const newName = await showInputModal(this.plugin.app, `Rename "${propName}" to:`);
 		if (!newName) return;
 		for (const file of this.plugin.app.vault.getMarkdownFiles()) {
-			await this.plugin.app.fileManager.processFrontMatter(file, (fm) => {
+			await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 				if (!(propName in fm)) return;
 				fm[newName] = fm[propName];
+				// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 				delete fm[propName];
 			});
 		}
@@ -205,7 +209,8 @@ export class PropsExplorerPanel extends Component {
 
 	private async _deleteProp(propName: string): Promise<void> {
 		for (const file of this.plugin.app.vault.getMarkdownFiles()) {
-			await this.plugin.app.fileManager.processFrontMatter(file, (fm) => {
+			await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
+				// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 				delete fm[propName];
 			});
 		}
@@ -213,13 +218,13 @@ export class PropsExplorerPanel extends Component {
 	}
 
 	private async _renameValue(propName: string, oldValue: string): Promise<void> {
-		const newVal = prompt(`Rename value "${oldValue}" to:`);
+		const newVal = await showInputModal(this.plugin.app, `Rename value "${oldValue}" to:`);
 		if (!newVal) return;
 		await this._replaceValueInVault(propName, oldValue, newVal);
 	}
 
 	private async _updateValue(propName: string, oldValue: string): Promise<void> {
-		const newVal = prompt(`Replace incompatible value "${oldValue}" with:`);
+		const newVal = await showInputModal(this.plugin.app, `Replace incompatible value "${oldValue}" with:`);
 		if (!newVal) return;
 		await this._replaceValueInVault(propName, oldValue, newVal);
 	}
@@ -230,11 +235,13 @@ export class PropsExplorerPanel extends Component {
 
 	private async _replaceValueInVault(propName: string, oldValue: string, newValue: string): Promise<void> {
 		for (const file of this.plugin.app.vault.getMarkdownFiles()) {
-			await this.plugin.app.fileManager.processFrontMatter(file, (fm) => {
+			await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 				if (!(propName in fm)) return;
-				const val = fm[propName];
+				const val: unknown = fm[propName];
 				if (Array.isArray(val)) {
-					fm[propName] = val.map(v => String(v) === oldValue ? newValue : v);
+					fm[propName] = (val as unknown[]).map((v: unknown) =>
+						String(v) === oldValue ? newValue : v,
+					);
 				} else if (String(val) === oldValue) {
 					fm[propName] = newValue;
 				}
@@ -245,12 +252,13 @@ export class PropsExplorerPanel extends Component {
 
 	private async _deleteValue(propName: string, value: string): Promise<void> {
 		for (const file of this.plugin.app.vault.getMarkdownFiles()) {
-			await this.plugin.app.fileManager.processFrontMatter(file, (fm) => {
+			await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 				if (!(propName in fm)) return;
-				const val = fm[propName];
+				const val: unknown = fm[propName];
 				if (Array.isArray(val)) {
-					fm[propName] = val.filter(v => String(v) !== value);
+					fm[propName] = (val as unknown[]).filter((v: unknown) => String(v) !== value);
 				} else if (String(val) === value) {
+					// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 					delete fm[propName];
 				}
 			});
@@ -266,7 +274,7 @@ export class PropsExplorerPanel extends Component {
 		for (const n of nodes) {
 			if (n.id === id) return n;
 			if (n.children) {
-				const found = this._findNode(id, n.children as TreeNode<PropMeta>[]);
+				const found = this._findNode(id, n.children);
 				if (found) return found;
 			}
 		}
