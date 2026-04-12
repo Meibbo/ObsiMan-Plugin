@@ -5,6 +5,8 @@ import { FilesLogic } from '../logic/FilesLogic';
 import { GridView } from './GridView';
 import { UnifiedTreeView } from './UnifiedTreeView';
 import type { TreeNode, FileMeta } from '../types/tree';
+import { FileRenameModal } from '../modals/FileRenameModal';
+import { FileMoveModal } from '../modals/FileMoveModal';
 
 export type FilesViewMode = 'grid' | 'tree';
 
@@ -84,7 +86,7 @@ export class FilesExplorerPanel extends Component {
 				onRowClick: (id) => {
 					const node = this._findNode(id, tree);
 					if (!node) return;
-					const meta = node.meta as FileMeta;
+					const meta = node.meta;
 					if (!meta.isFolder && meta.file) {
 						void this.plugin.app.workspace.openLinkText(meta.file.path, '', false);
 					}
@@ -92,7 +94,7 @@ export class FilesExplorerPanel extends Component {
 				onContextMenu: (id, e) => {
 					const node = this._findNode(id, tree);
 					if (!node) return;
-					const meta = node.meta as FileMeta;
+					const meta = node.meta;
 					if (!meta.isFolder && meta.file) this._showFileContextMenu(meta.file, e);
 				},
 			});
@@ -103,25 +105,26 @@ export class FilesExplorerPanel extends Component {
 		const menu = new Menu();
 		menu.addItem(item =>
 			item.setTitle('Rename').setIcon('lucide-pencil').onClick(() => {
-				// eslint-disable-next-line @typescript-eslint/no-require-imports
-				const modal = new (require('../modals/FileRenameModal').FileRenameModal)(
-					this.plugin.app, file, this.plugin,
-				);
-				modal.open();
+				new FileRenameModal(
+					this.plugin.app,
+					this.plugin.propertyIndex,
+					[file],
+					(change) => this.plugin.queueService.add(change),
+				).open();
 			}),
 		);
 		menu.addItem(item =>
 			item.setTitle('Delete').setIcon('lucide-trash').onClick(() => {
-				void this.plugin.app.vault.trash(file, true);
+				void this.plugin.app.fileManager.trashFile(file);
 			}),
 		);
 		menu.addItem(item =>
 			item.setTitle('Move file').setIcon('lucide-folder-input').onClick(() => {
-				// eslint-disable-next-line @typescript-eslint/no-require-imports
-				const modal = new (require('../modals/FileMoveModal').FileMoveModal)(
-					this.plugin.app, file, this.plugin,
-				);
-				modal.open();
+				new FileMoveModal(
+					this.plugin.app,
+					[file],
+					(change) => this.plugin.queueService.add(change),
+				).open();
 			}),
 		);
 		menu.showAtMouseEvent(e);
@@ -131,7 +134,7 @@ export class FilesExplorerPanel extends Component {
 		for (const n of nodes) {
 			if (n.id === id) return n;
 			if (n.children) {
-				const found = this._findNode(id, n.children as TreeNode<FileMeta>[]);
+				const found = this._findNode(id, n.children);
 				if (found) return found;
 			}
 		}

@@ -15,6 +15,7 @@ export class IconicService extends Component {
 	private propertyIcons = new Map<string, IconEntry>();
 	private tagIcons = new Map<string, IconEntry>();
 	private loaded = false;
+	private _onLoadedCallbacks: Array<() => void> = [];
 
 	constructor(app: App) {
 		super();
@@ -23,6 +24,15 @@ export class IconicService extends Component {
 
 	onload(): void {
 		void this.loadIcons();
+	}
+
+	/** Register a callback to fire once after icons are loaded. Fires immediately if already loaded. */
+	onLoaded(cb: () => void): void {
+		if (this.loaded) {
+			cb();
+		} else {
+			this._onLoadedCallbacks.push(cb);
+		}
 	}
 
 	private async loadIcons(): Promise<void> {
@@ -43,6 +53,10 @@ export class IconicService extends Component {
 			this.loaded = true;
 		} catch {
 			this.loaded = false;
+		} finally {
+			// Notify all waiting panels regardless of success/failure
+			for (const cb of this._onLoadedCallbacks) cb();
+			this._onLoadedCallbacks = [];
 		}
 	}
 
