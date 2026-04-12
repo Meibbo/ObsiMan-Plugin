@@ -79,6 +79,8 @@ export const es: Record<string, string> = {
 	'prop.option.replace': 'Reemplazar valor',
 	'prop.add_to_queue': 'Agregar a cola',
 	'prop.new_name': 'Nuevo nombre',
+	'prop.option.native_rename': 'Renombrado Global (Nativo)',
+	'prop.option.native_rename_desc': 'Usa el motor interno de Obsidian para renombrar esta propiedad en todo el baúl. Es más rápido para grandes volúmenes de datos.',
 
 	// Queue island
 	'queue.island.pending': 'cambios pendientes',

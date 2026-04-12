@@ -4,15 +4,24 @@
 
   let {
     plugin,
+    searchTerm = "",
     propExplorer = $bindable<PropertyExplorerComponent | undefined>(undefined),
   }: {
     plugin: ObsiManPlugin;
+    searchTerm?: string;
     propExplorer?: PropertyExplorerComponent | undefined;
   } = $props();
+
+  $effect(() => {
+    if (propExplorer) {
+      propExplorer.setSearchTerm(searchTerm);
+    }
+  });
 
   function initPropertyExplorer(node: HTMLElement) {
     propExplorer = new PropertyExplorerComponent(node, plugin, {
       defaultScope: "filtered",
+      hideSearch: true,
       onPropertyFilter: (_prop: string, _val: string) => {
         /* handled by FilterService events */
       },

@@ -10,20 +10,42 @@
 		"noUnusedParameters": true,
 		"outDir": "./dist",
 		"sourceMap": true,
-		"lib": ["ES2022", "DOM", "DOM.Iterable"],
+		"lib": [
+			"ES2022",
+			"DOM",
+			"DOM.Iterable"
+		],
 		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
 		"paths": {
-			"@types/*": ["src/types/*"],
-			"@services/*": ["src/services/*"],
-			"@utils/*": ["src/utils/*"],
-			"@components/*": ["src/components/*"],
-			"@views/*": ["src/views/*"],
-			"@modals/*": ["src/modals/*"],
-			"@i18n/*": ["src/i18n/*"]
+			"@types/*": [
+				"src/types/*"
+			],
+			"@services/*": [
+				"src/services/*"
+			],
+			"@utils/*": [
+				"src/utils/*"
+			],
+			"@components/*": [
+				"src/layout/*"
+			],
+			"@views/*": [
+				"src/views/*"
+			],
+			"@modals/*": [
+				"src/modals/*"
+			],
+			"@i18n/*": [
+				"src/i18n/*"
+			]
 		}
 	},
-	"include": ["main.ts", "src/**/*.ts", "src/**/*.svelte"]
+	"include": [
+		"main.ts",
+		"src/**/*.ts",
+		"src/**/*.svelte"
+	]
 }

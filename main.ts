@@ -119,9 +119,9 @@ export class ObsiManPlugin extends Plugin {
 		let leaf = workspace.getLeavesOfType(OBSIMAN_VIEW_TYPE)[0];
 
 		if (!leaf) {
-			const rightLeaf = workspace.getRightLeaf(false);
-			if (rightLeaf) {
-				leaf = rightLeaf;
+			const leftLeaf = workspace.getLeftLeaf(false);
+			if (leftLeaf) {
+				leaf = leftLeaf;
 				await leaf.setViewState({
 					type: OBSIMAN_VIEW_TYPE,
 					active: true,

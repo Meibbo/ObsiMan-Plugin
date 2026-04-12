@@ -6,6 +6,7 @@ export const RENAME_FILE = '_RENAME_FILE';
 export const REORDER_ALL = '_REORDER_ALL';
 export const MOVE_FILE = '_MOVE_FILE';
 export const FIND_REPLACE_CONTENT = '_FIND_REPLACE_CONTENT';
+export const NATIVE_RENAME_PROP = '_NATIVE_RENAME_PROP';
 
 export type PropertyAction =
 	| 'set'

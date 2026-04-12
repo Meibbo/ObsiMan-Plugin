@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { translate } from "../../i18n/index";
-	import type { TFile } from "obsidian";
+	import { Notice, type TFile } from "obsidian";
 	import type { ObsiManPlugin } from "../../../main";
 	import type {
 		OpsTab,
@@ -13,11 +13,7 @@
 	import { QueueListComponent } from "../../components/QueueListComponent";
 	import FileOpsTab from "../tabs/OpsFilesTab.svelte";
 	import LinterTab from "../tabs/OpsLinterTab.svelte";
-	import ContentTab from "../tabs/OpsContentTab.svelte";
-	import {
-		FIND_REPLACE_CONTENT,
-		type PendingChange,
-	} from "../../types/operation";
+	import { type PendingChange, FIND_REPLACE_CONTENT } from "../../types/operation";
 
 	let {
 		plugin,
@@ -48,11 +44,6 @@
 			icon: "lucide-sparkles",
 		},
 		{
-			id: "content",
-			label: translate("ops.tabs.content"),
-			icon: "lucide-search",
-		},
-		{
 			id: "template",
 			label: translate("ops.tabs.template"),
 			icon: "lucide-layout-template",
@@ -60,35 +51,6 @@
 	];
 
 	let opsTab = $state<OpsTab>("fileops");
-
-	// ─── Queue List Management ──────────────────────────────────────────────
-	let queueList: QueueListComponent | undefined;
-
-	function initQueueList(node: HTMLElement) {
-		queueList = new QueueListComponent(node, {
-			onRemove: (index: number) => {
-				plugin.queueService.remove(index);
-			},
-		});
-		refreshQueue();
-		return {
-			destroy() {
-				queueList = undefined;
-			},
-		};
-	}
-
-	function refreshQueue() {
-		queueList?.render(plugin.queueService.queue);
-	}
-
-	// Listen to queue changes
-	$effect(() => {
-		const unsub = plugin.queueService.onUpdate(() => {
-			refreshQueue();
-		});
-		return unsub;
-	});
 
 	// ─── Modal Triggers ──────────────────────────────────────────────────────
 	function openFileRename() {
@@ -163,6 +125,27 @@
 			: pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 		return new RegExp(escaped, flags);
 	}
+
+	let queueList: QueueListComponent;
+	const initQueueList = (node: HTMLElement) => {
+		queueList = new QueueListComponent(node, {
+			onRemove: (index: number) => {
+				plugin.queueService.remove(index);
+			},
+			selectable: true,
+		});
+		// Inital render
+		queueList.render(plugin.queueService.queue);
+		return {};
+	};
+
+	// Keep queue list rendered
+	$effect(() => {
+		if (queueList && plugin.queueService) {
+			// This effect runs when queue changes if we access it
+			queueList.render(plugin.queueService.queue);
+		}
+	});
 
 	async function previewContentReplace() {
 		if (!contentFind) return;
@@ -239,46 +222,35 @@
 	function queueContentReplace() {
 		if (!contentFind) return;
 
-		try {
-			buildContentRegex(
-				contentFind,
-				contentIsRegex,
-				contentCaseSensitive,
-			);
-		} catch {
-			contentRegexError = translate("content.invalid_regex");
-			return;
-		}
-
 		const selected = getSelectedFiles();
 		const targets =
-			selected.length > 0 ? selected : plugin.filterService.filteredFiles;
+			selected.length > 0
+				? selected
+				: [...plugin.filterService.filteredFiles];
 
 		plugin.queueService.add({
 			type: "content_replace",
+			action: translate("ops.tabs.content"),
+			files: targets,
 			find: contentFind,
 			replace: contentReplace,
 			isRegex: contentIsRegex,
 			caseSensitive: contentCaseSensitive,
-			files: targets,
-			action: "content_replace",
-			details: translate("ops.desc.content_replace")
-				.replace("{find}", contentFind)
-				.replace("{replace}", contentReplace)
-				.replace("{count}", String(targets.length)),
-			logicFunc: () => ({
-				[FIND_REPLACE_CONTENT]: {
-					pattern: contentFind,
-					replacement: contentReplace,
-					isRegex: contentIsRegex,
-					caseSensitive: contentCaseSensitive,
-				},
-			}),
-		});
+			details: `${contentFind} → ${contentReplace}`,
+			logicFunc: (_file: TFile, _metadata: Record<string, unknown>) => {
+				return {
+					[FIND_REPLACE_CONTENT]: {
+						pattern: contentFind,
+						replacement: contentReplace,
+						isRegex: contentIsRegex,
+						caseSensitive: contentCaseSensitive,
+					},
+				};
+			},
+			customLogic: false,
+		} as any); // Cast to any to avoid PropertyChange | ContentChange | FileChange union issues in add()
 
-		contentFind = "";
-		contentReplace = "";
-		contentPreviewResult = null;
+		new Notice(translate("prop.add_to_queue"));
 	}
 </script>
 
@@ -317,6 +289,17 @@
 			{openMovePopup}
 			{initQueueList}
 			{icon}
+			bind:contentFind
+			bind:contentReplace
+			bind:contentCaseSensitive
+			bind:contentIsRegex
+			bind:contentPreviewResult
+			bind:contentPreviewOpen
+			{contentPreviewing}
+			{contentRegexError}
+			{contentScopeHint}
+			{previewContentReplace}
+			{queueContentReplace}
 		/>
 	</div>
 
@@ -330,22 +313,5 @@
 		<div class="obsiman-coming-soon">
 			{translate("ops.coming_soon")}
 		</div>
-	</div>
-
-	<!-- Content tab -->
-	<div class="obsiman-tab-content" class:is-active={opsTab === "content"}>
-		<ContentTab
-			bind:contentFind
-			bind:contentReplace
-			bind:contentCaseSensitive
-			bind:contentIsRegex
-			bind:contentPreviewResult
-			bind:contentPreviewOpen
-			{contentPreviewing}
-			{contentRegexError}
-			{contentScopeHint}
-			{previewContentReplace}
-			{queueContentReplace}
-		/>
 	</div>
 </div>

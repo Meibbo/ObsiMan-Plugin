@@ -79,6 +79,8 @@ export const en: Record<string, string> = {
 	'prop.option.replace': 'Replace value',
 	'prop.add_to_queue': 'Add to queue',
 	'prop.new_name': 'New name',
+	'prop.option.native_rename': 'Global Vault Rename (Native)',
+	'prop.option.native_rename_desc': 'Use Obsidian\'s internal core engine to rename this property across the whole vault. This is faster for large datasets.',
 
 	// Queue island
 	'queue.island.pending': 'pending changes',
@@ -181,14 +183,12 @@ export const en: Record<string, string> = {
 	'explorer.sort.values': 'By number of values',
 
 	// Explorer context menu — properties
-	'explorer.ctx.rename': 'Rename property',
+	'explorer.ctx.rename': 'Rename',
 	'explorer.ctx.type': 'Property type',
-	'explorer.ctx.icon': 'Change icon (Iconic)',
 	'explorer.ctx.delete_prop': 'Delete property',
 	'explorer.ctx.add_value': 'Add value',
 
 	// Explorer context menu — values
-	'explorer.ctx.rename_value': 'Rename value',
 	'explorer.ctx.move_value': 'Move to property...',
 	'explorer.ctx.convert': 'Convert',
 	'explorer.ctx.delete_value': 'Delete value',

@@ -16,10 +16,11 @@ export class TagsExplorerComponent extends Component {
 	private searchTerm = '';
 	private searchMode: 'all' | 'leaf' = 'all';
 
-	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin) {
+	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin, _options?: { hideSearch?: boolean }) {
 		super();
 		this.containerEl = containerEl;
 		this.plugin = plugin;
+		// hideSearch is ignored as this component has no internal search nav anymore
 	}
 
 	onload(): void {

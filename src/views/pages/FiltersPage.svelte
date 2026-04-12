@@ -115,7 +115,11 @@
 	<div class="obsiman-filters-header-search-pill">
 		<input
 			class="obsiman-filters-search-input"
-			type="search"
+			type="text"
+			autocomplete="off"
+			autocorrect="off"
+			autocapitalize="off"
+			spellcheck="false"
 			placeholder={translate("filter.search_placeholder")}
 			bind:value={filtersSearch}
 		/>
@@ -147,9 +151,9 @@
 
 <!-- Tab content via sub-components -->
 {#if filtersActiveTab === "tags"}
-	<FiltersTagsTab {plugin} bind:tagsExplorer />
+	<FiltersTagsTab {plugin} searchTerm={filtersSearch} bind:tagsExplorer />
 {:else if filtersActiveTab === "props"}
-	<FiltersPropsTab {plugin} bind:propExplorer />
+	<FiltersPropsTab {plugin} searchTerm={filtersSearch} bind:propExplorer />
 {:else if filtersActiveTab === "files"}
 	<FiltersFilesTab {plugin} bind:fileList />
 {/if}
