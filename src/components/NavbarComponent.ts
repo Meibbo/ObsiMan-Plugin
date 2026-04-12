@@ -1,6 +1,5 @@
 import { setIcon } from 'obsidian';
 import type { ObsiManPlugin } from '../../main';
-import type { PropertyExplorerComponent } from './PropertyExplorerComponent';
 import { FileFilterPopoverComponent } from './FileFilterPopoverComponent';
 import { translate } from '../i18n/index';
 
@@ -17,7 +16,8 @@ export interface NavbarCallbacks {
 export class NavbarComponent {
 	private containerEl: HTMLElement;
 
-	private explorer: PropertyExplorerComponent;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private explorer: any;
 	private callbacks: NavbarCallbacks;
 	private filterPopover: FileFilterPopoverComponent;
 
@@ -28,7 +28,8 @@ export class NavbarComponent {
 		containerEl: HTMLElement,
 		popoverAnchorEl: HTMLElement,
 		plugin: ObsiManPlugin,
-		explorer: PropertyExplorerComponent,
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		explorer: any,
 		callbacks: NavbarCallbacks
 	) {
 		this.containerEl = containerEl;
