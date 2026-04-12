@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { PropertyExplorerComponent } from '../../components/PropertyExplorerComponent';
-  import type { ObsiManPlugin } from '../../main';
+  import { PropertyExplorerComponent } from "../../components/PropertyExplorerComponent";
+  import type { ObsiManPlugin } from "../../../main";
 
   let {
     plugin,
@@ -12,8 +12,10 @@
 
   function initPropertyExplorer(node: HTMLElement) {
     propExplorer = new PropertyExplorerComponent(node, plugin, {
-      defaultScope: 'filtered',
-      onPropertyFilter: (_prop: string, _val: string) => { /* handled by FilterService events */ },
+      defaultScope: "filtered",
+      onPropertyFilter: (_prop: string, _val: string) => {
+        /* handled by FilterService events */
+      },
     });
     propExplorer.render();
     return {

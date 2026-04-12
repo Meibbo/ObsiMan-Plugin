@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
-  import { TagsExplorerComponent } from '../../components/TagsExplorerComponent';
-  import type { ObsiManPlugin } from '../../main';
+  import { onMount, onDestroy } from "svelte";
+  import { TagsExplorerComponent } from "../../components/TagsExplorerComponent";
+  import type { ObsiManPlugin } from "../../../main";
 
   let {
     plugin,

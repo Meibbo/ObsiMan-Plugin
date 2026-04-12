@@ -17,7 +17,6 @@ export class FileListComponent {
 	/** User-selected files */
 	readonly selectedFiles: Set<string> = new Set();
 
-	private searchTerm = '';
 	private searchName = '';
 	private searchFolder = '';
 	private filterSelectedOnly = false;
@@ -60,17 +59,6 @@ export class FileListComponent {
 				total: totalCount,
 			}),
 			cls: 'obsiman-files-count',
-		});
-
-		// Search input
-		const searchEl = headerEl.createEl('input', {
-			cls: 'obsiman-files-search',
-			attr: { type: 'text', placeholder: translate('files.search') },
-		});
-		searchEl.value = this.searchTerm;
-		searchEl.addEventListener('input', () => {
-			this.searchTerm = searchEl.value;
-			this.updateList();
 		});
 
 		// Column headers with header checkbox
@@ -130,10 +118,6 @@ export class FileListComponent {
 
 		// Apply search filters
 		let filtered = this.currentFiles;
-		if (this.searchTerm) {
-			const term = this.searchTerm.toLowerCase();
-			filtered = filtered.filter((f) => f.basename.toLowerCase().includes(term));
-		}
 		if (this.searchName) {
 			filtered = filtered.filter((f) => f.basename.toLowerCase().includes(this.searchName));
 		}

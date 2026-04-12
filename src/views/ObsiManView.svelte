@@ -8,8 +8,8 @@
 	import StatisticsPage from "./pages/StatisticsPage.svelte";
 	import FiltersPage from "./pages/FiltersPage.svelte";
 	import OperationsPage from "./pages/OperationsPage.svelte";
-	import BottomNav from "./components/BottomNav.svelte";
-	import PopupOverlay from "./components/PopupOverlay.svelte";
+	import BottomNav from "./layout/BottomNav.svelte";
+	import PopupOverlay from "./layout/PopupOverlay.svelte";
 	import { QueueListComponent } from "../components/QueueListComponent";
 	import { QueueIslandComponent } from "../components/QueueIslandComponent";
 	import { QueueDetailsModal } from "../modals/QueueDetailsModal";
@@ -640,12 +640,13 @@
 				: file.name;
 			if (newPath === file.path) continue;
 			changes.push({
-				property: "",
+				type: "file_move",
 				action: "move",
 				details: `${file.path} → ${newPath}`,
 				files: [file],
 				logicFunc: () => ({ [MOVE_FILE]: targetFolder }),
 				customLogic: true,
+				targetFolder,
 			});
 		}
 		plugin.queueService.addBatch(changes);

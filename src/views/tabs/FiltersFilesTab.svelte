@@ -1,6 +1,6 @@
 <script lang="ts">
   import { FileListComponent } from '../../components/FileListComponent';
-  import type { ObsiManPlugin } from '../../main';
+  import type { ObsiManPlugin } from '../../../main';
 
   let {
     plugin,
