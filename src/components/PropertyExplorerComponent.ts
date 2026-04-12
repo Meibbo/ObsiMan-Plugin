@@ -67,12 +67,13 @@ export class PropertyExplorerComponent {
 	private showPropName = true;
 	private showType = false;
 	private tagsOnly = false;
+	private hideSearch = false;
 
 	// ── Active Filters ────────────────────────────────────────
 	private activeFilterProps = new Set<string>();
 	private activeFilterValues = new Map<string, Set<string>>();
 
-	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin, options?: { defaultScope?: FilterScope; onPropertyFilter?: (property: string, value: string) => void }) {
+	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin, options?: { defaultScope?: FilterScope; onPropertyFilter?: (property: string, value: string) => void; hideSearch?: boolean }) {
 		this.containerEl = containerEl;
 		this.plugin = plugin;
 		if (options?.defaultScope) {
@@ -80,6 +81,10 @@ export class PropertyExplorerComponent {
 		}
 		if (options?.onPropertyFilter) {
 			this.onPropertyFilter = options.onPropertyFilter;
+		}
+		this.hideSearch = options?.hideSearch ?? false;
+		if (this.hideSearch) {
+			this.searchVisible = false;
 		}
 	}
 
@@ -89,62 +94,64 @@ export class PropertyExplorerComponent {
 		this.invalidateCache();
 
 		// Collapsible search with mode toggle
-		this.searchWrapper = this.containerEl.createDiv({
-			cls: `obsiman-explorer-search-collapsible ${this.searchVisible ? 'is-open' : ''}`,
-		});
-
-		const searchRow = this.searchWrapper.createDiv({ cls: 'obsiman-explorer-search-row' });
-
-		// Input + clear button in a relative wrapper (clear overlaid inside input)
-		const inputWrap = searchRow.createDiv({ cls: 'obsiman-explorer-search-input-wrap' });
-
-		this.searchEl = inputWrap.createEl('input', {
-			cls: 'obsiman-explorer-search-input',
-			attr: {
-				type: 'text',
-				placeholder: this.searchMode === 'properties'
-					? translate('explorer.search')
-					: (translate('explorer.search_values') ?? 'Search values…'),
-			},
-		});
-		this.searchEl.value = this.searchTerm;
-
-		// Clear button — absolutely positioned inside the input wrapper
-		const clearBtn = inputWrap.createDiv({
-			cls: 'obsiman-explorer-search-clear clickable-icon',
-			attr: { 'aria-label': translate('filters.search.clear') ?? 'Clear search' },
-		});
-		setIcon(clearBtn, 'lucide-x');
-		clearBtn.addEventListener('click', () => {
-			this.searchTerm = '';
-			if (this.searchEl) this.searchEl.value = '';
-			this.renderTree();
-			clearBtn.toggleClass('is-hidden', true);
-		});
-		// Show only when there's text
-		clearBtn.toggleClass('is-hidden', !this.searchTerm);
-
-		// Search mode toggle: properties (key icon) ↔ values (tag icon)
-		const modeBtn = searchRow.createDiv({
-			cls: `clickable-icon obsiman-search-mode-toggle${this.searchMode === 'values' ? ' is-active' : ''}`,
-			attr: {
-				'aria-label': this.searchMode === 'properties'
-					? (translate('explorer.search_mode_values') ?? 'Search values')
-					: (translate('explorer.search_mode_props') ?? 'Search properties'),
-			},
-		});
-		setIcon(modeBtn, this.searchMode === 'properties' ? 'lucide-tag' : 'lucide-key-round');
-		modeBtn.addEventListener('click', () => {
-			this.searchMode = this.searchMode === 'properties' ? 'values' : 'properties';
-			this.render();
-		});
-
-		// Update clear button visibility on input
-		this.searchEl.addEventListener('input', () => {
-			this.searchTerm = this.searchEl?.value ?? '';
+		if (!this.hideSearch) {
+			this.searchWrapper = this.containerEl.createDiv({
+				cls: `obsiman-explorer-search-collapsible ${this.searchVisible ? 'is-open' : ''}`,
+			});
+	
+			const searchRow = this.searchWrapper.createDiv({ cls: 'obsiman-explorer-search-row' });
+	
+			// Input + clear button in a relative wrapper (clear overlaid inside input)
+			const inputWrap = searchRow.createDiv({ cls: 'obsiman-explorer-search-input-wrap' });
+	
+			this.searchEl = inputWrap.createEl('input', {
+				cls: 'obsiman-explorer-search-input',
+				attr: {
+					type: 'text',
+					placeholder: this.searchMode === 'properties'
+						? translate('explorer.search')
+						: (translate('explorer.search_values') ?? 'Search values…'),
+				},
+			});
+			this.searchEl.value = this.searchTerm;
+	
+			// Clear button — absolutely positioned inside the input wrapper
+			const clearBtn = inputWrap.createDiv({
+				cls: 'obsiman-explorer-search-clear clickable-icon',
+				attr: { 'aria-label': translate('filters.search.clear') ?? 'Clear search' },
+			});
+			setIcon(clearBtn, 'lucide-x');
+			clearBtn.addEventListener('click', () => {
+				this.searchTerm = '';
+				if (this.searchEl) this.searchEl.value = '';
+				this.renderTree();
+				clearBtn.toggleClass('is-hidden', true);
+			});
+			// Show only when there's text
 			clearBtn.toggleClass('is-hidden', !this.searchTerm);
-			this.renderTree();
-		});
+	
+			// Search mode toggle: properties (key icon) ↔ values (tag icon)
+			const modeBtn = searchRow.createDiv({
+				cls: `clickable-icon obsiman-search-mode-toggle${this.searchMode === 'values' ? ' is-active' : ''}`,
+				attr: {
+					'aria-label': this.searchMode === 'properties'
+						? (translate('explorer.search_mode_values') ?? 'Search values')
+						: (translate('explorer.search_mode_props') ?? 'Search properties'),
+				},
+			});
+			setIcon(modeBtn, this.searchMode === 'properties' ? 'lucide-tag' : 'lucide-key-round');
+			modeBtn.addEventListener('click', () => {
+				this.searchMode = this.searchMode === 'properties' ? 'values' : 'properties';
+				this.render();
+			});
+	
+			// Update clear button visibility on input
+			this.searchEl.addEventListener('input', () => {
+				this.searchTerm = this.searchEl?.value ?? '';
+				clearBtn.toggleClass('is-hidden', !this.searchTerm);
+				this.renderTree();
+			});
+		}
 
 		// Tree container
 		this.treeEl = this.containerEl.createDiv({ cls: 'obsiman-explorer-tree' });
@@ -493,10 +500,10 @@ export class PropertyExplorerComponent {
 				const count = valueCounts.get(value) ?? 0;
 				// Hide values with 0 scoped files when not in all-vault scope
 				if (count === 0 && this.filterScope !== 'all') continue;
-				
+
 				const valTreeItem = childrenEl.createDiv({ cls: 'tree-item' });
 				const valueEl = valTreeItem.createDiv({ cls: 'tree-item-self is-clickable obsiman-explorer-value' });
-				
+
 				// Highlight if value is an active filter for this property
 				if (this.activeFilterValues.get(propName)?.has(value)) {
 					valueEl.addClass('is-active-filter');
@@ -507,11 +514,11 @@ export class PropertyExplorerComponent {
 					valueEl.addClass('obsiman-search-highlight');
 					setTimeout(() => { if (valueEl && valueEl.parentElement) valueEl.removeClass('obsiman-search-highlight'); }, 800);
 				}
-				
+
 				valueEl.createDiv({ cls: 'tree-item-icon' }); // Spacer for deeper tree logic
 				const valInnerEl = valueEl.createDiv({ cls: 'tree-item-inner' });
 				valInnerEl.createSpan({ cls: 'obsiman-explorer-value-text', text: value });
-				
+
 				if (this.showCount) {
 					valueEl.createDiv({ cls: 'tree-item-flair obsiman-explorer-badge', text: String(count) });
 				}
@@ -622,7 +629,7 @@ export class PropertyExplorerComponent {
 			return count;
 		};
 		const activeFiltersCount = countRules(this.plugin.filterService.activeFilter);
-		
+
 		if (activeFiltersCount > 1) {
 			menu.addItem((item) =>
 				item.setTitle(translate('explorer.ctx.add_value')).setIcon('lucide-plus-circle').onClick(() => {
@@ -658,7 +665,7 @@ export class PropertyExplorerComponent {
 
 		// Rename Value
 		menu.addItem((item) =>
-			item.setTitle(translate('explorer.ctx.rename_value')).setIcon('lucide-pencil').onClick(() => {
+			item.setTitle(translate('explorer.ctx.rename')).setIcon('lucide-pencil').onClick(() => {
 				new RenameValueModal(this.plugin.app, this.plugin, propName, value, scopedFiles).open();
 			})
 		);
@@ -1550,7 +1557,7 @@ class RenameValueModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.addClass('obsiman-modal');
-		contentEl.createEl('h3', { text: `${translate('explorer.ctx.rename_value')}: "${this.oldValue}"` });
+		contentEl.createEl('h3', { text: `${translate('explorer.ctx.rename')}: "${this.oldValue}"` });
 
 		new Setting(contentEl).setName(translate('prop.new_name')).addText((text) => {
 			text.setPlaceholder('New value...').setValue(this.newValue).onChange((v) => { this.newValue = v; });

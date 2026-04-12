@@ -1,7 +1,13 @@
-import { Component, Events, Notice, type App, type TFile } from 'obsidian';
+import { App, Component, Events, Notice, TFile, FileManager } from 'obsidian';
 import type { PendingChange, OperationResult } from '../types/operation';
-import { DELETE_PROP, RENAME_FILE, REORDER_ALL, MOVE_FILE, FIND_REPLACE_CONTENT } from '../types/operation';
+import { DELETE_PROP, RENAME_FILE, REORDER_ALL, MOVE_FILE, FIND_REPLACE_CONTENT, NATIVE_RENAME_PROP } from '../types/operation';
 import { translate } from '../i18n/index';
+
+interface InternalApp extends App {
+	fileManager: FileManager & {
+		renameProperty(oldName: string, newName: string): Promise<void>;
+	};
+}
 
 /**
  * Manages the queue of pending property operations.
@@ -12,6 +18,10 @@ import { translate } from '../i18n/index';
 export class OperationQueueService extends Component {
 	private app: App;
 	private events = new Events();
+	
+	private get internalApp(): InternalApp {
+		return this.app as unknown as InternalApp;
+	}
 
 	readonly queue: PendingChange[] = [];
 
@@ -183,6 +193,13 @@ export class OperationQueueService extends Component {
 			if (newContent !== content) {
 				await this.app.vault.modify(file, newContent);
 			}
+			return;
+		}
+
+		if (NATIVE_RENAME_PROP in updates) {
+			const { oldName, newName } = updates[NATIVE_RENAME_PROP] as { oldName: string; newName: string };
+			// Native API call for vault-wide rename
+			await this.internalApp.fileManager.renameProperty(oldName, newName);
 			return;
 		}
 

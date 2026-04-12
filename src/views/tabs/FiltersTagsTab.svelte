@@ -5,16 +5,24 @@
 
   let {
     plugin,
+    searchTerm = "",
     tagsExplorer = $bindable<TagsExplorerComponent | null>(null),
   }: {
     plugin: ObsiManPlugin;
+    searchTerm?: string;
     tagsExplorer?: TagsExplorerComponent | null;
   } = $props();
+
+  $effect(() => {
+    if (tagsExplorer) {
+      tagsExplorer.setSearchTerm(searchTerm);
+    }
+  });
 
   let containerEl: HTMLElement;
 
   onMount(() => {
-    tagsExplorer = new TagsExplorerComponent(containerEl, plugin);
+    tagsExplorer = new TagsExplorerComponent(containerEl, plugin, { hideSearch: true });
     plugin.addChild(tagsExplorer);
   });
 

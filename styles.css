@@ -2275,15 +2275,32 @@ body.obsiman-bases-column-separators table th {
   border-color: var(--color-accent);
 }
 
-.obsiman-filters-search-input {
+input.obsiman-filters-search-input {
   flex: 1;
-  border: none;
-  background: transparent;
-  outline: none;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
   font-size: var(--font-ui-smaller);
   color: var(--text-normal);
   min-width: 0;
   height: 100%;
+  padding: 0;
+  margin: 0;
+  /* Reset native search styles */
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background-image: none !important;
+  border-radius: 0 !important;
+}
+
+input.obsiman-filters-search-input::-webkit-search-cancel-button,
+input.obsiman-filters-search-input::-webkit-search-decoration,
+input.obsiman-filters-search-input::-webkit-search-results-button,
+input.obsiman-filters-search-input::-webkit-search-results-decoration {
+  display: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
 }
 
 .obsiman-filters-search-input::placeholder {

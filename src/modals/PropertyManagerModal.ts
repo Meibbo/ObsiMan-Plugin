@@ -1,6 +1,6 @@
 import { Modal, Setting, type App, type TFile } from 'obsidian';
 import type { PropertyAction, PropertyType, PendingChange } from '../types/operation';
-import { DELETE_PROP } from '../types/operation';
+import { DELETE_PROP, NATIVE_RENAME_PROP } from '../types/operation';
 import type { PropertyIndexService } from '../services/PropertyIndexService';
 import { PropertySuggest } from '../utils/autocomplete';
 import { translate } from '../i18n/index';
@@ -26,6 +26,7 @@ export class PropertyManagerModal extends Modal {
 	private propertyType: PropertyType = 'text';
 	private asWikilink = false;
 	private appendToList = false;
+	private useNativeRename = false;
 
 	constructor(
 		app: App,
@@ -218,6 +219,16 @@ export class PropertyManagerModal extends Modal {
 					}
 				);
 			});
+
+		// Native rename toggle — only if rename is selected
+		new Setting(container)
+			.setName(translate('prop.option.native_rename'))
+			.setDesc(translate('prop.option.native_rename_desc'))
+			.addToggle((toggle) =>
+				toggle.setValue(this.useNativeRename).onChange((v) => {
+					this.useNativeRename = v;
+				})
+			);
 	}
 
 	private renderChangeTypeFields(container: HTMLElement): void {
@@ -284,6 +295,18 @@ export class PropertyManagerModal extends Modal {
 					logicFunc: (_file, metadata) => {
 						if (!(this.property in metadata)) return null;
 						const value = metadata[this.property];
+
+						// If native rename is enabled, we signal it via a special key.
+						// The OperationQueueService will handle the vault-wide call.
+						if (this.useNativeRename) {
+							return {
+								[NATIVE_RENAME_PROP]: {
+									oldName: this.property,
+									newName: this.newName,
+								},
+							};
+						}
+
 						return {
 							[this.newName]: value,
 							[DELETE_PROP]: this.property,
