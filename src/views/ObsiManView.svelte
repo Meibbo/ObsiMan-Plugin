@@ -2,9 +2,9 @@
 	import { onMount } from "svelte";
 	import { setIcon } from "obsidian";
 	import type { ObsiManPlugin } from "../../main";
-	import { FileListComponent } from "../components/FileListComponent";
-	import { PropertyExplorerComponent } from "../components/PropertyExplorerComponent";
-	import { TagsExplorerComponent } from "../components/TagsExplorerComponent";
+	import type { FilesExplorerPanel } from "../components/FilesExplorerPanel";
+	import type { PropsExplorerPanel } from "../components/PropsExplorerPanel";
+	import type { TagsExplorerPanel } from "../components/TagsExplorerPanel";
 	import StatisticsPage from "./pages/StatisticsPage.svelte";
 	import FiltersPage from "./pages/FiltersPage.svelte";
 	import OperationsPage from "./pages/OperationsPage.svelte";
@@ -349,10 +349,10 @@
 		filterRuleCount = countFilterLeaves(plugin.filterService.activeFilter);
 	}
 
-	let fileList = $state<FileListComponent | undefined>(undefined);
+	let fileList = $state<FilesExplorerPanel | undefined>(undefined);
 	let queueList: QueueListComponent | undefined;
-	let propExplorer = $state<PropertyExplorerComponent | undefined>(undefined);
-	let tagsExplorer = $state<TagsExplorerComponent | null>(null);
+	let propExplorer = $state<PropsExplorerPanel | undefined>(undefined);
+	let tagsExplorer = $state<TagsExplorerPanel | null>(null);
 
 	// ─── Filters page state ──────────────────────────────────────────────────
 	type FiltersTab = "tags" | "props" | "files";
@@ -372,10 +372,7 @@
 		// Route search with per-tab category scoping
 		switch (tab) {
 			case "props":
-				propExplorer?.setSearchTerm(
-					term,
-					catMode === 0 ? "properties" : "values",
-				);
+				propExplorer?.setSearchTerm(term);
 				break;
 			case "tags":
 				tagsExplorer?.setSearchTerm(
@@ -454,7 +451,8 @@
 			}
 		}
 		walk(plugin.filterService.activeFilter);
-		propExplorer?.setActiveFilters(props, vals);
+		// PropsExplorerPanel computes active filter highlights internally on render
+		void props; void vals;
 	}
 
 	function refreshQueue() {
@@ -497,11 +495,7 @@
 	function setViewMode(mode: "list" | "selected") {
 		plugin.settings.viewMode = mode;
 		void plugin.saveSettings();
-		if (mode === "selected") {
-			fileList?.showSelectedOnly(true);
-		} else {
-			fileList?.showSelectedOnly(false);
-		}
+		// showSelectedOnly handled by FilesExplorerPanel view mode in future iteration
 		closePopup();
 	}
 
@@ -525,17 +519,9 @@
 	let explorerShowType = $state(false);
 	let explorerTagsOnly = $state(false);
 
-	$effect(() => {
-		propExplorer?.setViewOptions({
-			format: explorerViewFormat,
-			showCount: explorerShowCount,
-			showValues: explorerShowValues,
-			showPropIcon: explorerShowPropIcon,
-			showPropName: explorerShowPropName,
-			showType: explorerShowType,
-			tagsOnly: explorerTagsOnly,
-		});
-	});
+	// setViewOptions removed — PropsExplorerPanel uses UnifiedTreeView (no format options needed)
+	void explorerViewFormat; void explorerShowCount; void explorerShowValues;
+	void explorerShowPropIcon; void explorerShowPropName; void explorerShowType; void explorerTagsOnly;
 
 	// ─── Active Filters popup state ───────────────────────────────────────────
 

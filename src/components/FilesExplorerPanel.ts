@@ -43,6 +43,14 @@ export class FilesExplorerPanel extends Component {
 		this._render();
 	}
 
+	setSearchFilter(name: string, folder: string): void {
+		const base = this.plugin.filterService.filteredFiles;
+		const total = this.plugin.propertyIndex.fileCount;
+		this._currentFiles = this.logic.filterFlat(base, name, folder);
+		this._totalCount = total;
+		this._render();
+	}
+
 	private _mountView(): void {
 		this.containerEl.empty();
 		this.gridView = null;
