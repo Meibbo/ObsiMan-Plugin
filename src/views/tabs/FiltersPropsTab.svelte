@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { PropertyExplorerComponent } from "../../components/PropertyExplorerComponent";
+  import { PropsExplorerPanel } from "../../components/PropsExplorerPanel";
   import type { ObsiManPlugin } from "../../../main";
 
   let {
     plugin,
     searchTerm = "",
-    propExplorer = $bindable<PropertyExplorerComponent | undefined>(undefined),
+    propExplorer = $bindable<PropsExplorerPanel | undefined>(undefined),
   }: {
     plugin: ObsiManPlugin;
     searchTerm?: string;
-    propExplorer?: PropertyExplorerComponent | undefined;
+    propExplorer?: PropsExplorerPanel | undefined;
   } = $props();
 
   $effect(() => {
@@ -18,25 +18,19 @@
     }
   });
 
-  function initPropertyExplorer(node: HTMLElement) {
-    propExplorer = new PropertyExplorerComponent(node, plugin, {
-      defaultScope: "filtered",
-      hideSearch: true,
-      onPropertyFilter: (_prop: string, _val: string) => {
-        /* handled by FilterService events */
-      },
-    });
-    propExplorer.render();
+  function initPropsPanel(node: HTMLElement) {
+    propExplorer = new PropsExplorerPanel(node, plugin);
+    propExplorer.load();
     return {
       destroy() {
-        propExplorer?.destroy();
+        propExplorer?.unload();
         propExplorer = undefined;
       },
     };
   }
 </script>
 
-<div class="obsiman-props-tab-content" use:initPropertyExplorer></div>
+<div class="obsiman-props-tab-content" use:initPropsPanel></div>
 
 <style>
   .obsiman-props-tab-content {

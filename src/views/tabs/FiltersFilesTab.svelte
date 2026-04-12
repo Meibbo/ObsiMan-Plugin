@@ -1,27 +1,32 @@
 <script lang="ts">
-  import { FileListComponent } from '../../components/FileListComponent';
-  import type { ObsiManPlugin } from '../../../main';
+  import { FilesExplorerPanel } from "../../components/FilesExplorerPanel";
+  import type { ObsiManPlugin } from "../../../main";
 
   let {
     plugin,
-    fileList = $bindable<FileListComponent | undefined>(undefined),
+    fileList = $bindable<FilesExplorerPanel | undefined>(undefined),
   }: {
     plugin: ObsiManPlugin;
-    fileList?: FileListComponent | undefined;
+    fileList?: FilesExplorerPanel | undefined;
   } = $props();
 
-  function initFileList(el: HTMLElement) {
-    fileList = new FileListComponent(el, plugin.app, () => {});
-    fileList.render(plugin.filterService.filteredFiles, plugin.propertyIndex.fileCount);
+  function initFilesPanel(el: HTMLElement) {
+    fileList = new FilesExplorerPanel(el, plugin);
+    fileList.load();
+    fileList.render(
+      plugin.filterService.filteredFiles,
+      plugin.propertyIndex.fileCount,
+    );
     return {
       destroy() {
+        fileList?.unload();
         fileList = undefined;
       },
     };
   }
 </script>
 
-<div class="obsiman-files-tab-content" use:initFileList></div>
+<div class="obsiman-files-tab-content" use:initFilesPanel></div>
 
 <style>
   .obsiman-files-tab-content {
