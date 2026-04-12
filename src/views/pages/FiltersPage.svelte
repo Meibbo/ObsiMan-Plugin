@@ -5,9 +5,9 @@
 	import FiltersTagsTab from "../tabs/FiltersTagsTab.svelte";
 	import FiltersPropsTab from "../tabs/FiltersPropsTab.svelte";
 	import FiltersFilesTab from "../tabs/FiltersFilesTab.svelte";
-	import type { FileListComponent } from "../../components/FileListComponent";
-	import type { PropertyExplorerComponent } from "../../components/PropertyExplorerComponent";
-	import type { TagsExplorerComponent } from "../../components/TagsExplorerComponent";
+	import type { FilesExplorerPanel } from "../../components/FilesExplorerPanel";
+	import type { PropsExplorerPanel } from "../../components/PropsExplorerPanel";
+	import type { TagsExplorerPanel } from "../../components/TagsExplorerPanel";
 
 	type FiltersTab = "props" | "files" | "tags";
 
@@ -24,13 +24,13 @@
 		filtersActiveTab: FiltersTab;
 		filtersSearch: string;
 		filtersSearchCategory: Record<FiltersTab, number>;
-		tagsExplorer: TagsExplorerComponent | null;
-		propExplorer: PropertyExplorerComponent | undefined;
-		fileList: FileListComponent | undefined;
+		tagsExplorer: TagsExplorerPanel | null;
+		propExplorer: PropsExplorerPanel | undefined;
+		fileList: FilesExplorerPanel | undefined;
 	} = $props();
 
 	const TAB_ICONS: Record<FiltersTab, string> = {
-		tags: "lucide-hash",
+		tags: "lucide-tag",
 		props: "lucide-tag",
 		files: "lucide-files",
 	};
@@ -42,9 +42,18 @@
 	};
 
 	const CATEGORY_LABELS: Record<FiltersTab, [string, string]> = {
-		props: [translate("filter.category.props"), translate("filter.category.values")],
-		tags: [translate("filter.category.all_tags"), translate("filter.category.leaf_tags")],
-		files: [translate("filter.category.files"), translate("filter.category.folders")],
+		props: [
+			translate("filter.category.props"),
+			translate("filter.category.values"),
+		],
+		tags: [
+			translate("filter.category.all_tags"),
+			translate("filter.category.leaf_tags"),
+		],
+		files: [
+			translate("filter.category.files"),
+			translate("filter.category.folders"),
+		],
 	};
 
 	const currentCategoryIcon = $derived(
@@ -79,7 +88,7 @@
 	class="obsiman-tab-bar"
 	class:has-labels={plugin.settings.filtersShowTabLabels}
 >
-	{#each (["props", "files", "tags"] as FiltersTab[]) as tab}
+	{#each ["props", "files", "tags"] as FiltersTab[] as tab}
 		<div
 			class="obsiman-tab nav-action-button"
 			class:is-active={filtersActiveTab === tab}
@@ -94,12 +103,11 @@
 			role="tab"
 			tabindex="0"
 		>
-			<span
-				class="obsiman-tab-icon"
-				use:icon={TAB_ICONS[tab]}
-			></span>
+			<span class="obsiman-tab-icon" use:icon={TAB_ICONS[tab]}></span>
 			{#if plugin.settings.filtersShowTabLabels}
-				<span class="obsiman-tab-label">{translate("filter.tab." + tab)}</span>
+				<span class="obsiman-tab-label"
+					>{translate("filter.tab." + tab)}</span
+				>
 			{/if}
 		</div>
 	{/each}

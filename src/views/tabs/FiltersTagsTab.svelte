@@ -1,16 +1,16 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
-  import { TagsExplorerComponent } from "../../components/TagsExplorerComponent";
+  import { TagsExplorerPanel } from "../../components/TagsExplorerPanel";
   import type { ObsiManPlugin } from "../../../main";
 
   let {
     plugin,
     searchTerm = "",
-    tagsExplorer = $bindable<TagsExplorerComponent | null>(null),
+    tagsExplorer = $bindable<TagsExplorerPanel | null>(null),
   }: {
     plugin: ObsiManPlugin;
     searchTerm?: string;
-    tagsExplorer?: TagsExplorerComponent | null;
+    tagsExplorer?: TagsExplorerPanel | null;
   } = $props();
 
   $effect(() => {
@@ -22,7 +22,7 @@
   let containerEl: HTMLElement;
 
   onMount(() => {
-    tagsExplorer = new TagsExplorerComponent(containerEl, plugin, { hideSearch: true });
+    tagsExplorer = new TagsExplorerPanel(containerEl, plugin);
     plugin.addChild(tagsExplorer);
   });
 

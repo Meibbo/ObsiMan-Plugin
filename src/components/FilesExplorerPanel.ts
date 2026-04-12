@@ -96,7 +96,7 @@ export class FilesExplorerPanel extends Component {
 		menu.addItem(item =>
 			item.setTitle('Rename').setIcon('lucide-pencil').onClick(() => {
 				// eslint-disable-next-line @typescript-eslint/no-require-imports
-				const modal = new (require('../../modals/FileRenameModal').FileRenameModal)(
+				const modal = new (require('../modals/FileRenameModal').FileRenameModal)(
 					this.plugin.app, file, this.plugin,
 				);
 				modal.open();
@@ -110,7 +110,7 @@ export class FilesExplorerPanel extends Component {
 		menu.addItem(item =>
 			item.setTitle('Move file').setIcon('lucide-folder-input').onClick(() => {
 				// eslint-disable-next-line @typescript-eslint/no-require-imports
-				const modal = new (require('../../modals/FileMoveModal').FileMoveModal)(
+				const modal = new (require('../modals/FileMoveModal').FileMoveModal)(
 					this.plugin.app, file, this.plugin,
 				);
 				modal.open();
