@@ -200,7 +200,6 @@ export class PropsExplorerPanel extends Component {
 			await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 				if (!(propName in fm)) return;
 				fm[newName] = fm[propName];
-				// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 				delete fm[propName];
 			});
 		}
@@ -210,7 +209,6 @@ export class PropsExplorerPanel extends Component {
 	private async _deleteProp(propName: string): Promise<void> {
 		for (const file of this.plugin.app.vault.getMarkdownFiles()) {
 			await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
-				// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 				delete fm[propName];
 			});
 		}
@@ -258,7 +256,6 @@ export class PropsExplorerPanel extends Component {
 				if (Array.isArray(val)) {
 					fm[propName] = (val as unknown[]).filter((v: unknown) => String(v) !== value);
 				} else if (String(val) === value) {
-					// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 					delete fm[propName];
 				}
 			});

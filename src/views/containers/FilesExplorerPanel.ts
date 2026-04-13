@@ -89,7 +89,7 @@ export class FilesExplorerPanel extends Component {
 					this._render();
 				},
 				onRowClick: (id: string) => {
-					const node = this._findNode(id, tree as TreeNode<FileMeta>[]);
+					const node = this._findNode(id, tree);
 					if (!node) return;
 					const meta = node.meta;
 					if (!meta.isFolder && meta.file) {
@@ -97,7 +97,7 @@ export class FilesExplorerPanel extends Component {
 					}
 				},
 				onContextMenu: (id: string, e: MouseEvent) => {
-					const node = this._findNode(id, tree as TreeNode<FileMeta>[]);
+					const node = this._findNode(id, tree);
 					if (!node) return;
 					const meta = node.meta;
 					if (!meta.isFolder && meta.file) this._showFileContextMenu(meta.file, e);

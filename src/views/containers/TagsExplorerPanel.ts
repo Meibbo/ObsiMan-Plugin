@@ -126,10 +126,10 @@ export class TagsExplorerPanel extends Component {
 		for (const file of this.plugin.app.vault.getMarkdownFiles()) {
 			await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 				if (!fm.tags) return;
-				const raw = fm.tags;
+				const raw: unknown = fm.tags;
 				const tags: string[] = Array.isArray(raw)
-					? (raw as unknown[]).map(String)
-					: [String(raw)];
+					? (raw as unknown[]).map(v => String(v))
+					: (typeof raw === 'string' ? [raw] : []);
 				fm.tags = tags.map((t: string) => (t === tagPath || t === `#${tagPath}`) ? newName : t);
 			});
 		}
@@ -141,10 +141,10 @@ export class TagsExplorerPanel extends Component {
 		for (const file of this.plugin.app.vault.getMarkdownFiles()) {
 			await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 				if (!fm.tags) return;
-				const raw = fm.tags;
+				const raw: unknown = fm.tags;
 				const tags: string[] = Array.isArray(raw)
-					? (raw as unknown[]).map(String)
-					: [String(raw)];
+					? (raw as unknown[]).map(v => String(v))
+					: (typeof raw === 'string' ? [raw] : []);
 				const filtered = tags.filter((t: string) => t !== tagPath && t !== `#${tagPath}`);
 				fm.tags = filtered.length > 0 ? filtered : undefined;
 			});
@@ -160,10 +160,10 @@ export class TagsExplorerPanel extends Component {
 			const inlineTags = (cache?.tags ?? []).map((t) => t.tag);
 			if (inlineTags.some((t: string) => t === `#${tagPath}` || t === tagPath)) {
 				await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
-					const raw = fm.tags;
+					const raw: unknown = fm.tags;
 					const existing: string[] = Array.isArray(raw)
-						? (raw as unknown[]).map(String)
-						: (raw ? [String(raw)] : []);
+						? (raw as unknown[]).map(v => String(v))
+						: (typeof raw === 'string' ? [raw] : []);
 					if (!existing.includes(tagPath)) {
 						fm.tags = [...existing, tagPath];
 					}
