@@ -19,6 +19,7 @@
 		tagsExplorer = $bindable(),
 		propExplorer = $bindable(),
 		fileList = $bindable(),
+		selectedCount = $bindable(0),
 	}: {
 		plugin: ObsiManPlugin;
 		filtersActiveTab: FiltersTab;
@@ -27,6 +28,7 @@
 		tagsExplorer: TagsExplorerPanel | null;
 		propExplorer: PropsExplorerPanel | undefined;
 		fileList: FilesExplorerPanel | undefined;
+		selectedCount: number;
 	} = $props();
 
 	const TAB_ICONS: Record<FiltersTab, string> = {
@@ -163,5 +165,9 @@
 {:else if filtersActiveTab === "props"}
 	<FiltersPropsTab {plugin} searchTerm={filtersSearch} bind:propExplorer />
 {:else if filtersActiveTab === "files"}
-	<FiltersFilesTab {plugin} bind:fileList />
+	<FiltersFilesTab
+		{plugin}
+		bind:fileList
+		onSelectionChange={(c) => (selectedCount = c)}
+	/>
 {/if}

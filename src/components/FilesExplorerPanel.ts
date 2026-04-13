@@ -21,11 +21,14 @@ export class FilesExplorerPanel extends Component {
 	private _currentFiles: TFile[] = [];
 	private _totalCount = 0;
 
-	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin) {
+	private onSelectionChange?: (count: number) => void;
+
+	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin, onSelectionChange?: (count: number) => void) {
 		super();
 		this.containerEl = containerEl;
 		this.plugin = plugin;
 		this.logic = new FilesLogic(plugin.app);
+		this.onSelectionChange = onSelectionChange;
 	}
 
 	onload(): void {
@@ -60,7 +63,9 @@ export class FilesExplorerPanel extends Component {
 		if (this.viewMode === 'grid') {
 			this.gridView = new GridView(this.containerEl, this.plugin.app, {
 				onContextMenu: (file, e) => this._showFileContextMenu(file, e),
-				onSelectionChange: () => {},
+				onSelectionChange: (selected) => {
+					if (this.onSelectionChange) this.onSelectionChange(selected.size);
+				},
 				onFileClick: (file) => {
 					void this.plugin.app.workspace.openLinkText(file.path, '', false);
 				},

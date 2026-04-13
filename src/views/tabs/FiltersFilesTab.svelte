@@ -5,13 +5,15 @@
   let {
     plugin,
     fileList = $bindable<FilesExplorerPanel | undefined>(undefined),
+    onSelectionChange,
   }: {
     plugin: ObsiManPlugin;
     fileList?: FilesExplorerPanel | undefined;
+    onSelectionChange?: (count: number) => void;
   } = $props();
 
   function initFilesPanel(el: HTMLElement) {
-    fileList = new FilesExplorerPanel(el, plugin);
+    fileList = new FilesExplorerPanel(el, plugin, onSelectionChange);
     fileList.load();
     fileList.render(
       plugin.filterService.filteredFiles,

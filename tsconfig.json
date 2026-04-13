@@ -46,6 +46,9 @@
 	"include": [
 		"main.ts",
 		"src/**/*.ts",
-		"src/**/*.svelte"
+		"src/**/*.svelte",
+		"vitest.config.ts",
+		"esbuild.config.mjs",
+		"test/**/*.ts"
 	]
 }

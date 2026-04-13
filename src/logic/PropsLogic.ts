@@ -70,11 +70,14 @@ export class PropsLogic {
 			const fm = this.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
 			for (const [key, val] of Object.entries(fm)) {
 				if (key === 'position') continue;
-				if (!valueMap.has(key)) valueMap.set(key, new Map());
+				const normalizedKey = key.toLowerCase(); // BUG-5: Normalize for lookup
+				if (!valueMap.has(normalizedKey)) valueMap.set(normalizedKey, new Map());
 				const vals = Array.isArray(val) ? val : [val];
 				for (const v of vals) {
-					const str = String(v ?? '');
-					valueMap.get(key)!.set(str, (valueMap.get(key)!.get(str) ?? 0) + 1);
+					if (v == null) continue; // BUG-4: Skip nulls
+					const str = String(v);
+					if (str === '') continue; // BUG-4: Skip empty strings
+					valueMap.get(normalizedKey)!.set(str, (valueMap.get(normalizedKey)!.get(str) ?? 0) + 1);
 				}
 			}
 		}

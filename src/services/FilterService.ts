@@ -83,9 +83,18 @@ export class FilterService extends Component {
 		this.applyFilters();
 	}
 
-	/** Returns true if the tag is already in the active filter tree (stub — full impl in Iter.13) */
-	hasTagFilter(_tagName: string): boolean {
-		return false;
+	/** Returns true if the tag is already in the active filter tree */
+	hasTagFilter(tagName: string): boolean {
+		const walk = (node: FilterNode): boolean => {
+			if (node.type === 'rule' && node.filterType === 'has_tag' && Array.isArray(node.values)) {
+				return node.values.includes(tagName);
+			}
+			if (node.type === 'group') {
+				return node.children.some(walk);
+			}
+			return false;
+		};
+		return walk(this.activeFilter);
 	}
 
 	/** Recompute filtered files from the active filter tree + search fields */

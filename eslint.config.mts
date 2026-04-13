@@ -13,7 +13,9 @@ export default tseslint.config(
 				projectService: {
 					allowDefaultProject: [
 						'eslint.config.js',
-						'manifest.json'
+						'manifest.json',
+						'vitest.config.ts',
+						'test/integration/plugin.test.ts'
 					]
 				},
 				tsconfigRootDir: import.meta.dirname,
@@ -21,7 +23,7 @@ export default tseslint.config(
 			},
 		},
 	},
-	...obsidianmd.configs.recommended,
+	...(obsidianmd as any).configs.recommended,
 	globalIgnores([
 		"node_modules",
 		"dist",

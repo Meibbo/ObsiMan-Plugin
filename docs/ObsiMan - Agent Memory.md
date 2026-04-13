@@ -16,6 +16,25 @@ input: AI-gen
 
 ---
 
+## Lecciones aprendidas (Testing & Infraestructura)
+
+### 1. Integración con `obsidian-integration-testing`
+- **Sintaxis de Objeto**: No usar el shorthand `evalInObsidian(fn)`. La versión actual requiere el formato de objeto: `evalInObsidian({ fn: (...) => {}, args: {} })`.
+- **Serialización de Clausuras**: Las variables locales del test (ej. `fileName`) **no son accesibles** dentro de la función evaluada en Obsidian porque se serializa a string y se envía a otro proceso. Deben pasarse explícitamente a través de la propiedad `args`.
+- **Entorno Vitest**: Requiere `environment: 'node'` y el `globalSetup` oficial en `vitest.config.ts`.
+
+### 2. Estabilización del IDE (TS Project Service)
+- **Inclusión en TSConfig**: Cualquier archivo nuevo en la raíz o carpetas fuera de `src/` (como `test/`) debe añadirse al array `include` de `tsconfig.json`.
+- **Configuración ESLint**: Para que el Parsing Error de la línea 1 desaparezca, el archivo debe estar en `parserOptions.projectService.allowDefaultProject` de `eslint.config.mts`.
+- **Prohibición de Globs Recursivos**: `allowDefaultProject` **no permite** el uso de `**` (ej. `test/**/*.ts` es ilegal). Se deben usar rutas específicas o patrones simples como `test/integration/*.ts`.
+
+### 3. Tipado de APIs Internas de Obsidian
+- **Propiedades Ocultas**: Propiedades como `app.plugins` no están en el tipo `App` oficial. 
+- **Técnica de Casting Seguro**: Definir una interfaz `ExtendedApp extends App` y realizar el casting interno dentro de las funciones de evaluación: `const extendedApp = app as ExtendedApp;`. Esto mantiene la compatibilidad de firmas de funciones genéricas.
+- **Borrado Seguro**: Usar siempre `if (file instanceof TFile)` y `app.fileManager.trashFile(file)` en lugar de `vault.delete()`.
+
+---
+
 ## Documented behaviors (for future agents)
 
 ### Workflow mandatory rule: Plugin Reloading
