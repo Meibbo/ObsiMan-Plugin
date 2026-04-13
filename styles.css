@@ -3546,88 +3546,150 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   width: 100%;
 }
 
+/* === Statistics Page (Iteration 15) === */
+.obsiman-statistics-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 12px;
+}
+
+.obsiman-stat-header {
+  display: flex;
+  justify-content: center;
+}
+
+.obsiman-stat-scope-pills {
+  display: flex;
+  gap: 4px;
+  background: var(--background-modifier-hover);
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--obsiman-border);
+}
+
+.obsiman-stat-scope-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.obsiman-stat-scope-pill:hover {
+  color: var(--text-normal);
+}
+
+.obsiman-stat-scope-pill.is-active {
+  background: var(--background-primary);
+  color: var(--text-accent);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.obsiman-pill-icon {
+  display: flex;
+  align-items: center;
+}
+
+.obsiman-pill-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
 .obsiman-stat-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-  width: 100%;
 }
 
 .obsiman-stat-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  text-align: center;
+  gap: 6px;
   padding: 12px 8px;
   background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 10px;
-  cursor: default;
+  border: 1px solid var(--obsiman-border);
+  border-radius: 12px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.obsiman-stat-card:hover {
+  border-color: var(--card-color, var(--obsiman-accent));
+  transform: translateY(-2px);
 }
 
 .obsiman-stat-card-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  color: var(--color-accent);
+  color: var(--card-color, var(--obsiman-accent));
+  opacity: 0.8;
 }
 
 .obsiman-stat-card-icon svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .obsiman-stat-card-value {
-  font-size: var(--font-ui-medium);
+  display: block;
+  font-size: 1.1em;
   font-weight: 700;
   color: var(--text-normal);
+  line-height: 1;
 }
 
 .obsiman-stat-card-label {
-  font-size: var(--font-ui-smaller);
-  color: var(--text-muted);
-}
-
-.obsiman-stat-scope-pills {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.obsiman-stat-scope-pill {
-  padding: 4px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--background-modifier-border);
-  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
-  color: var(--text-muted);
-  font-size: var(--font-ui-smaller);
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.obsiman-stat-scope-pill.is-active {
-  background: var(--interactive-accent);
-  color: var(--text-on-accent);
-  border-color: var(--interactive-accent);
-}
-
-.obsiman-stat-meta {
-  display: flex;
-  gap: 16px;
-  color: var(--text-muted);
-  font-size: var(--font-ui-small);
-}
-
-.obsiman-stat-meta-item strong {
+  display: block;
+  font-size: 0.65em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--text-faint);
 }
 
-.obsiman-cards-chip.is-active-filter .obsiman-cards-chip-count {
-  color: var(--text-on-accent);
-  opacity: 0.8;
+.obsiman-stat-meta-island {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--background-secondary) 50%, transparent);
+  border: 1px solid var(--obsiman-border);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+}
+
+.obsiman-stat-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-ui-small);
+}
+
+.obsiman-meta-icon {
+  color: var(--text-muted);
+}
+
+.obsiman-meta-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.obsiman-meta-label {
+  flex: 1;
+  color: var(--text-muted);
+}
+
+.obsiman-meta-value {
+  font-weight: 600;
+  color: var(--text-accent);
 }
 
 /* ── Unified Tree ────────────────────────────────── */
@@ -3635,7 +3697,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 8px;
+  padding: 4px 8px;
   padding-left: calc(8px + var(--depth, 0) * 16px);
   cursor: pointer;
   border-radius: 4px;
@@ -3682,6 +3744,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: var(--font-ui-small);
+  font-weight: normal;
 }
 
 .obsiman-tree-count {

@@ -19,12 +19,17 @@ const RENDER_LIMIT = 200;
 export class UnifiedTreeView {
 	private containerEl: HTMLElement;
 	private rowEls = new Map<string, HTMLElement>();
+	private _pendingRaf: number | null = null;
 
 	constructor(containerEl: HTMLElement) {
 		this.containerEl = containerEl;
 	}
 
 	render(opts: TreeViewOptions): void {
+		if (this._pendingRaf !== null) {
+			cancelAnimationFrame(this._pendingRaf);
+		}
+
 		this.containerEl.empty();
 		this.rowEls.clear();
 		let rendered = 0;
@@ -42,8 +47,9 @@ export class UnifiedTreeView {
 			}
 		};
 
-		requestAnimationFrame(() => {
+		this._pendingRaf = requestAnimationFrame(() => {
 			renderNodes(opts.nodes, this.containerEl);
+			this._pendingRaf = null;
 			if (opts.nodes.length > limit) {
 				this._renderShowMore(opts);
 			}
@@ -71,7 +77,7 @@ export class UnifiedTreeView {
 
 		this.rowEls.set(node.id, row);
 
-		// Chevron / dot toggle
+		// Chevron / spacer
 		const toggleSpan = row.createSpan({ cls: 'obsiman-tree-toggle' });
 		if (hasChildren) {
 			setIcon(toggleSpan, isExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right');
@@ -79,9 +85,8 @@ export class UnifiedTreeView {
 				e.stopPropagation();
 				opts.onToggle(node.id);
 			});
-		} else {
-			setIcon(toggleSpan, 'lucide-dot');
 		}
+		// BUG-10: Leaf nodes leave toggleSpan empty (just a flex spacer)
 
 		// Icon
 		const iconSpan = row.createSpan({ cls: 'obsiman-tree-icon' });
@@ -99,6 +104,7 @@ export class UnifiedTreeView {
 		row.addEventListener('click', () => opts.onRowClick(node.id));
 		row.addEventListener('contextmenu', (e) => {
 			e.preventDefault();
+			e.stopPropagation(); // BUG-2: Stop propagation to prevent Obsidian's default menu override
 			opts.onContextMenu(node.id, e);
 		});
 	}

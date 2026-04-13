@@ -568,6 +568,8 @@
 				return `has: ${prop}`;
 			case "specific_value":
 				return `${prop}: ${vals[0] ?? ""}`;
+			case "has_tag":
+				return `has tag: ${vals[0] ?? ""}`;
 			case "folder":
 				return `folder: ${vals[0] ?? ""}`;
 			case "file_name":
@@ -745,6 +747,7 @@
 							bind:tagsExplorer
 							bind:propExplorer
 							bind:fileList
+							bind:selectedCount
 						/>
 					{/if}
 				{/key}

@@ -150,6 +150,7 @@
 						aria-label={rule.enabled
 							? translate("filters.popup.rule.disable")
 							: translate("filters.popup.rule.enable")}
+						use:icon={rule.enabled ? "lucide-eye" : "lucide-eye-off"}
 						onclick={() => toggleFilterRule(rule)}
 						onkeydown={(e: KeyboardEvent) => {
 							if (e.key === "Enter" || e.key === " ")
