@@ -1,6 +1,6 @@
 // src/components/UnifiedTreeView.ts
 import { setIcon } from 'obsidian';
-import type { TreeNode } from '../types/tree';
+import type { TreeNode } from '../../types/tree';
 
 export interface TreeViewOptions {
 	nodes: TreeNode[];

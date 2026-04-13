@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
-  import { TagsExplorerPanel } from "../../components/TagsExplorerPanel";
+  import { TagsExplorerPanel } from "../containers/TagsExplorerPanel";
   import type { ObsiManPlugin } from "../../../main";
 
   let {

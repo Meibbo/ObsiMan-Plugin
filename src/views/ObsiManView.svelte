@@ -2,9 +2,9 @@
 	import { onMount } from "svelte";
 	import { setIcon } from "obsidian";
 	import type { ObsiManPlugin } from "../../main";
-	import type { FilesExplorerPanel } from "../components/FilesExplorerPanel";
-	import type { PropsExplorerPanel } from "../components/PropsExplorerPanel";
-	import type { TagsExplorerPanel } from "../components/TagsExplorerPanel";
+	import type { FilesExplorerPanel } from "./containers/FilesExplorerPanel";
+	import type { PropsExplorerPanel } from "./containers/PropsExplorerPanel";
+	import type { TagsExplorerPanel } from "./containers/TagsExplorerPanel";
 	import StatisticsPage from "./pages/StatisticsPage.svelte";
 	import FiltersPage from "./pages/FiltersPage.svelte";
 	import OperationsPage from "./pages/OperationsPage.svelte";
@@ -452,7 +452,8 @@
 		}
 		walk(plugin.filterService.activeFilter);
 		// PropsExplorerPanel computes active filter highlights internally on render
-		void props; void vals;
+		void props;
+		void vals;
 	}
 
 	function refreshQueue() {
@@ -510,18 +511,6 @@
 	});
 
 	// ─── Filters page state (bound to FiltersPage component) ─────────────────
-
-	let explorerViewFormat = $state<"tree" | "grid" | "cards">("tree");
-	let explorerShowCount = $state(true);
-	let explorerShowValues = $state(true);
-	let explorerShowPropIcon = $state(true);
-	let explorerShowPropName = $state(true);
-	let explorerShowType = $state(false);
-	let explorerTagsOnly = $state(false);
-
-	// setViewOptions removed — PropsExplorerPanel uses UnifiedTreeView (no format options needed)
-	void explorerViewFormat; void explorerShowCount; void explorerShowValues;
-	void explorerShowPropIcon; void explorerShowPropName; void explorerShowType; void explorerTagsOnly;
 
 	// ─── Active Filters popup state ───────────────────────────────────────────
 

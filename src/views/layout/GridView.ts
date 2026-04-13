@@ -1,6 +1,6 @@
 // src/components/GridView.ts
 import type { App, TFile } from 'obsidian';
-import { translate } from '../i18n/index';
+import { translate } from '../../i18n/index';
 
 export type SortColumn = 'name' | 'props' | 'path';
 export type SortDirection = 'asc' | 'desc';

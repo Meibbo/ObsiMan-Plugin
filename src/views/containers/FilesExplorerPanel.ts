@@ -1,12 +1,12 @@
 // src/components/FilesExplorerPanel.ts
 import { Component, Menu, type TFile } from 'obsidian';
-import type { ObsiManPlugin } from '../../main';
-import { FilesLogic } from '../logic/FilesLogic';
-import { GridView } from './GridView';
-import { UnifiedTreeView } from './UnifiedTreeView';
-import type { TreeNode, FileMeta } from '../types/tree';
-import { FileRenameModal } from '../modals/FileRenameModal';
-import { FileMoveModal } from '../modals/FileMoveModal';
+import type { ObsiManPlugin } from '../../../main';
+import { FilesLogic } from '../../logic/FilesLogic';
+import { GridView } from '../layout/GridView';
+import { UnifiedTreeView } from '../layout/UnifiedTreeView';
+import type { TreeNode, FileMeta } from '../../types/tree';
+import { FileRenameModal } from '../../modals/FileRenameModal';
+import { FileMoveModal } from '../../modals/FileMoveModal';
 
 export type FilesViewMode = 'grid' | 'tree';
 
@@ -62,11 +62,11 @@ export class FilesExplorerPanel extends Component {
 		this.treeView = null;
 		if (this.viewMode === 'grid') {
 			this.gridView = new GridView(this.containerEl, this.plugin.app, {
-				onContextMenu: (file, e) => this._showFileContextMenu(file, e),
-				onSelectionChange: (selected) => {
+				onContextMenu: (file: TFile, e: MouseEvent) => this._showFileContextMenu(file, e),
+				onSelectionChange: (selected: Set<string>) => {
 					if (this.onSelectionChange) this.onSelectionChange(selected.size);
 				},
-				onFileClick: (file) => {
+				onFileClick: (file: TFile) => {
 					void this.plugin.app.workspace.openLinkText(file.path, '', false);
 				},
 			});
@@ -83,21 +83,21 @@ export class FilesExplorerPanel extends Component {
 			this.treeView.render({
 				nodes: tree as TreeNode[],
 				expandedIds: this.expandedIds,
-				onToggle: (id) => {
+				onToggle: (id: string) => {
 					if (this.expandedIds.has(id)) this.expandedIds.delete(id);
 					else this.expandedIds.add(id);
 					this._render();
 				},
-				onRowClick: (id) => {
-					const node = this._findNode(id, tree);
+				onRowClick: (id: string) => {
+					const node = this._findNode(id, tree as TreeNode<FileMeta>[]);
 					if (!node) return;
 					const meta = node.meta;
 					if (!meta.isFolder && meta.file) {
 						void this.plugin.app.workspace.openLinkText(meta.file.path, '', false);
 					}
 				},
-				onContextMenu: (id, e) => {
-					const node = this._findNode(id, tree);
+				onContextMenu: (id: string, e: MouseEvent) => {
+					const node = this._findNode(id, tree as TreeNode<FileMeta>[]);
 					if (!node) return;
 					const meta = node.meta;
 					if (!meta.isFolder && meta.file) this._showFileContextMenu(meta.file, e);
