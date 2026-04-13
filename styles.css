@@ -3758,6 +3758,19 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 
 .obsiman-tree-children {
   /* no extra indent needed — depth var handles it */
+  animation: obsiman-tree-expand 180ms ease forwards;
+  transform-origin: top;
+}
+
+@keyframes obsiman-tree-expand {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .obsiman-search-highlight {

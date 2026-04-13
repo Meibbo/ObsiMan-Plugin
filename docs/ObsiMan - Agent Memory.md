@@ -74,28 +74,46 @@ input: AI-gen
 ---
 
 ## Last updated
-- **Date**: 2026-04-12
-- **Agent**: Claude Code (claude-sonnet-4-6) — Session 22 (partial)
+- **Date**: 2026-04-13
+- **Agent**: Claude Code (claude-sonnet-4-6) — Session 23
 - **Branch**: `add-functions`
-- **Version**: `1.0.0-beta.11`
-- **Build status**: ✅ Lint fixes complete. Build PASSING (0 errors, 7 pre-existing Svelte warnings).
+- **Version**: `1.0.0-beta.12`
+- **Build status**: ✅ Build PASSING (0 errors, 7 pre-existing Svelte warnings). Plugin reloads clean.
 
 ---
 
-## What was completed this session (2026-04-12, session 22 — Lint fixes + runtime bug diagnosis)
+## What was completed this session (2026-04-13, session 23 — BUG-1 through BUG-14 verification + BUG-11 CSS fix)
 
-### Root cause analysis complete (for next agent to execute)
-All bugs root-causes were identified before context ran out. Next agent executes fixes.
+### Discovery: BUG-1 through BUG-14 already applied
+After auditing the code, all runtime bugs from Session 22's diagnosis were **already applied in the beta.12 release commit** (4018136) made directly by Meibbo. The Agent Memory was not updated to reflect this.
 
-### Lint fixes ✅ (build passing)
-- Deleted `src/components/NavbarComponent.ts` — unused dead code (9 lint errors removed)
-- Created `src/utils/inputModal.ts` — `showInputModal(app, message)` replaces all `prompt()` calls
-- `FilesExplorerPanel.ts`: proper imports (FileRenameModal, FileMoveModal), removed require(), removed 3 unnecessary assertions, `fileManager.trashFile()`
-- `PropsExplorerPanel.ts`: removed 5 unnecessary assertions, sentence-case fixes, `prompt()` → `showInputModal`, `fm: Record<string, unknown>` types, dynamic delete suppressed
-- `TagsExplorerPanel.ts`: removed 6 unnecessary assertions, `fm.tags` properly type-narrowed, `prompt()` → `showInputModal`
-- `IconicService.ts`: added `onLoaded(cb)` method — fires after icons load, used by panel constructors
+**Status of each bug:**
+- BUG-1 (node duplication): ✅ `_pendingRaf` + `cancelAnimationFrame` in `UnifiedTreeView.render()`
+- BUG-2 (context menu override): ✅ `e.stopPropagation()` in contextmenu listener
+- BUG-3 (prop types no children): ✅ resolved by BUG-1
+- BUG-4 (ghost empty values): ✅ skip null/empty string in `PropsLogic._buildTree()`
+- BUG-5 (props missing badge): ✅ `normalizedKey = key.toLowerCase()` in `PropsLogic._buildTree()`
+- BUG-6 (tag filter highlights): ✅ `FilterService.hasTagFilter()` fully implemented
+- BUG-7 (active filters popup tag label): ✅ `case 'has_tag'` in `describeFilterNode()`
+- BUG-8 (selected count never updates): ✅ `onSelectionChange` callback wired in `FilesExplorerPanel` + `FiltersPage`
+- BUG-9 (Iconic icons after click): ✅ already confirmed fixed in Session 22 via `onLoaded()`
+- BUG-10 (dots on leaf nodes): ✅ leaf toggleSpan left empty (no icon set)
+- BUG-11 (abrupt expand/collapse): ✅ **FIXED THIS SESSION** — added `obsiman-tree-expand` keyframe animation to `.obsiman-tree-children` in `styles.css`
+- BUG-12 (font weight too bold): ✅ `font-weight: normal` on `.obsiman-tree-label`
+- BUG-13 (nodes too close): ✅ `padding: 4px 8px` on `.obsiman-tree-row`
+- BUG-14 (active filter toggle no icon): ✅ `use:icon={rule.enabled ? 'lucide-eye' : 'lucide-eye-off'}` in `ActiveFiltersPopup.svelte`
 
-### Runtime bugs NOT YET FIXED (for next agent — all root causes identified)
+### What's next: Iteration 15 — Statistics Dashboard
+
+## What was completed this session (2026-04-12, session 22 — Lint fixes + runtime bug diagnosis) [ARCHIVED SUMMARY]
+
+### Lint fixes ✅
+- Deleted `src/components/NavbarComponent.ts` — unused dead code
+- Created `src/utils/inputModal.ts` — `showInputModal()` replaces `prompt()`
+- `FilesExplorerPanel.ts`, `PropsExplorerPanel.ts`, `TagsExplorerPanel.ts`: unsafe assertions removed, types fixed
+- `IconicService.ts`: added `onLoaded(cb)` method
+
+### Runtime bugs diagnosed (all applied in beta.12 by Meibbo — see above)
 
 **BUG-1 — Node duplication (primary bug, causes most others):**
 - Root cause: `UnifiedTreeView.render()` calls `containerEl.empty()` + `rowEls.clear()` synchronously but defers `renderNodes()` to `requestAnimationFrame`. Two `$effect`s in Svelte call `setSearchTerm()` on the same panel simultaneously → two rAFs queue → both fire and append nodes to the already-populated container.
