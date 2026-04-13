@@ -400,4 +400,13 @@ export const en: Record<string, string> = {
 	'settings.layout.title': 'Layout',
 	'settings.layout.separate_panes': 'Separate sidebar panes',
 	'settings.layout.separate_panes.desc': 'Open Ops, Files, and Filters as individual Obsidian sidebar views instead of a combined panel.',
+
+	// Statistics
+	'stats.folders': 'Folders',
+	'stats.files': 'Files',
+	'stats.props': 'Properties',
+	'stats.values': 'Values',
+	'stats.tags': 'Tags',
+	'stats.total_links': 'Total Links',
+	'stats.word_count': 'Word Count',
 };

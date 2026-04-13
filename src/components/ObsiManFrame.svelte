@@ -10,8 +10,8 @@
 	import OperationsPage from "./pages/OperationsPage.svelte";
 	import BottomNav from "./layout/BottomNav.svelte";
 	import PopupOverlay from "./layout/PopupOverlay.svelte";
-	import { QueueListComponent } from "../components/QueueListComponent";
-	import { QueueIslandComponent } from "../components/QueueIslandComponent";
+	import { QueueListComponent } from "./QueueListComponent";
+	import { QueueIslandComponent } from "./QueueIslandComponent";
 	import { QueueDetailsModal } from "../modals/QueueDetailsModal";
 	import { FolderSuggest } from "../utils/autocomplete";
 	import { MOVE_FILE } from "../types/operation";

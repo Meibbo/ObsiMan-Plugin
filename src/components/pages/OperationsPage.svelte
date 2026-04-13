@@ -10,7 +10,7 @@
 	import { FileRenameModal } from "../../modals/FileRenameModal";
 	import { PropertyManagerModal } from "../../modals/PropertyManagerModal";
 	import { LinterModal } from "../../modals/LinterModal";
-	import { QueueListComponent } from "../../components/QueueListComponent";
+	import { QueueListComponent } from "../QueueListComponent";
 	import FileOpsTab from "../tabs/OpsFilesTab.svelte";
 	import LinterTab from "../tabs/OpsLinterTab.svelte";
 	import { type PendingChange, FIND_REPLACE_CONTENT } from "../../types/operation";
