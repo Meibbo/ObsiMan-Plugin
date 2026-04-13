@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { ObsiManPlugin } from "../../../main";
 	import type { ContentPreviewResult } from "../../types/ui";
-	import FileOpsComponent from "../components/FileOpsComponent.svelte";
-	import ContentOpsComponent from "../components/ContentOpsComponent.svelte";
+	import FileOpsComponent from "../containers/FileOpsComponent.svelte";
+	import ContentOpsComponent from "../containers/ContentOpsComponent.svelte";
 
 	let {
 		openFileRename,

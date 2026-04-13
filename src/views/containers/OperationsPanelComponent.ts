@@ -1,10 +1,11 @@
 import { setIcon } from 'obsidian';
-import type { ObsiManPlugin } from '../../main';
-import { QueueListComponent } from './QueueListComponent';
-import { LinterModal } from '../modals/LinterModal';
-import { FileRenameModal } from '../modals/FileRenameModal';
-import { SaveTemplateModal } from '../modals/SaveTemplateModal';
-import { translate } from '../i18n/index';
+import type { ObsiManPlugin } from '../../../main';
+import { QueueListComponent } from '../../components/QueueListComponent';
+import { LinterModal } from '../../modals/LinterModal';
+import { FileRenameModal } from '../../modals/FileRenameModal';
+import { SaveTemplateModal } from '../../modals/SaveTemplateModal';
+import { translate } from '../../i18n/index';
+import type { PendingChange } from '../../types/operation';
 
 type TabId = 'rename' | 'linter' | 'templates' | 'move';
 
@@ -212,7 +213,7 @@ export class OperationsPanelComponent {
 		// Queue list (selectable)
 		const listContainer = this.pinnedQueueEl.createDiv({ cls: 'obsiman-pinned-queue-list' });
 		this.pinnedQueueList = new QueueListComponent(listContainer, {
-			onRemove: (index) => {
+			onRemove: (index: number) => {
 				this.plugin.queueService.remove(index);
 				this.refreshQueue();
 			},
@@ -287,7 +288,7 @@ export class OperationsPanelComponent {
 				this.plugin.app,
 				this.plugin.propertyIndex,
 				files,
-				(change) => this.plugin.queueService.add(change)
+				(change: PendingChange) => this.plugin.queueService.add(change)
 			).open();
 		});
 	}

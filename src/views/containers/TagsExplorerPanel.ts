@@ -1,10 +1,10 @@
 // src/components/TagsExplorerPanel.ts
 import { Component, Menu } from 'obsidian';
-import type { ObsiManPlugin } from '../../main';
-import { TagsLogic } from '../logic/TagsLogic';
-import { UnifiedTreeView } from './UnifiedTreeView';
-import type { TreeNode, TagMeta } from '../types/tree';
-import { showInputModal } from '../utils/inputModal';
+import type { ObsiManPlugin } from '../../../main';
+import { TagsLogic } from '../../logic/TagsLogic';
+import { UnifiedTreeView } from '../layout/UnifiedTreeView';
+import type { TreeNode, TagMeta } from '../../types/tree';
+import { showInputModal } from '../../utils/inputModal';
 
 export class TagsExplorerPanel extends Component {
 	private plugin: ObsiManPlugin;
@@ -63,12 +63,12 @@ export class TagsExplorerPanel extends Component {
 			nodes: nodesWithIcons,
 			expandedIds: this.expandedIds,
 			activeFilterIds,
-			onToggle: (id) => {
+			onToggle: (id: string) => {
 				if (this.expandedIds.has(id)) this.expandedIds.delete(id);
 				else this.expandedIds.add(id);
 				this._render();
 			},
-			onRowClick: (id) => {
+			onRowClick: (id: string) => {
 				const node = this._findNode(id, tree);
 				if (!node) return;
 				const meta = node.meta;
@@ -79,7 +79,7 @@ export class TagsExplorerPanel extends Component {
 					values: [`#${meta.tagPath}`],
 				});
 			},
-			onContextMenu: (id, e) => this._showContextMenu(id, e, tree),
+			onContextMenu: (id: string, e: MouseEvent) => this._showContextMenu(id, e, tree),
 		});
 	}
 
@@ -130,7 +130,7 @@ export class TagsExplorerPanel extends Component {
 				const tags: string[] = Array.isArray(raw)
 					? (raw as unknown[]).map(String)
 					: [String(raw)];
-				fm.tags = tags.map(t => (t === tagPath || t === `#${tagPath}`) ? newName : t);
+				fm.tags = tags.map((t: string) => (t === tagPath || t === `#${tagPath}`) ? newName : t);
 			});
 		}
 		this.logic.invalidate();
@@ -145,7 +145,7 @@ export class TagsExplorerPanel extends Component {
 				const tags: string[] = Array.isArray(raw)
 					? (raw as unknown[]).map(String)
 					: [String(raw)];
-				const filtered = tags.filter(t => t !== tagPath && t !== `#${tagPath}`);
+				const filtered = tags.filter((t: string) => t !== tagPath && t !== `#${tagPath}`);
 				fm.tags = filtered.length > 0 ? filtered : undefined;
 			});
 		}
@@ -157,8 +157,8 @@ export class TagsExplorerPanel extends Component {
 		// Inline tags → add to frontmatter tags array
 		for (const file of this.plugin.app.vault.getMarkdownFiles()) {
 			const cache = this.plugin.app.metadataCache.getFileCache(file);
-			const inlineTags = (cache?.tags ?? []).map(t => t.tag);
-			if (inlineTags.some(t => t === `#${tagPath}` || t === tagPath)) {
+			const inlineTags = (cache?.tags ?? []).map((t) => t.tag);
+			if (inlineTags.some((t: string) => t === `#${tagPath}` || t === tagPath)) {
 				await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 					const raw = fm.tags;
 					const existing: string[] = Array.isArray(raw)

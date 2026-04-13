@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { FilesExplorerPanel } from "../../components/FilesExplorerPanel";
+  import { FilesExplorerPanel } from "../containers/FilesExplorerPanel";
   import type { ObsiManPlugin } from "../../../main";
 
   let {

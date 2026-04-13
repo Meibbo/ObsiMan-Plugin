@@ -1,10 +1,10 @@
 // src/components/PropsExplorerPanel.ts
 import { Component, Menu } from 'obsidian';
-import type { ObsiManPlugin } from '../../main';
-import { PropsLogic } from '../logic/PropsLogic';
-import { UnifiedTreeView } from './UnifiedTreeView';
-import type { TreeNode, PropMeta } from '../types/tree';
-import { showInputModal } from '../utils/inputModal';
+import type { ObsiManPlugin } from '../../../main';
+import { PropsLogic } from '../../logic/PropsLogic';
+import { UnifiedTreeView } from '../layout/UnifiedTreeView';
+import type { TreeNode, PropMeta } from '../../types/tree';
+import { showInputModal } from '../../utils/inputModal';
 
 const TYPE_ICON_MAP: Record<string, string> = {
 	text: 'lucide-text',
@@ -64,12 +64,12 @@ export class PropsExplorerPanel extends Component {
 			nodes: nodesWithIcons,
 			expandedIds: this.expandedIds,
 			warningIds,
-			onToggle: (id) => {
+			onToggle: (id: string) => {
 				if (this.expandedIds.has(id)) this.expandedIds.delete(id);
 				else this.expandedIds.add(id);
 				this._render();
 			},
-			onRowClick: (id) => {
+			onRowClick: (id: string) => {
 				const node = this._findNode(id, tree);
 				if (!node) return;
 				const meta = node.meta;
@@ -85,7 +85,7 @@ export class PropsExplorerPanel extends Component {
 					});
 				}
 			},
-			onContextMenu: (id, e) => this._showContextMenu(id, e, tree),
+			onContextMenu: (id: string, e: MouseEvent) => this._showContextMenu(id, e, tree),
 		});
 	}
 

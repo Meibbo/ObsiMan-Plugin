@@ -5,9 +5,9 @@
 	import FiltersTagsTab from "../tabs/FiltersTagsTab.svelte";
 	import FiltersPropsTab from "../tabs/FiltersPropsTab.svelte";
 	import FiltersFilesTab from "../tabs/FiltersFilesTab.svelte";
-	import type { FilesExplorerPanel } from "../../components/FilesExplorerPanel";
-	import type { PropsExplorerPanel } from "../../components/PropsExplorerPanel";
-	import type { TagsExplorerPanel } from "../../components/TagsExplorerPanel";
+	import type { FilesExplorerPanel } from "../containers/FilesExplorerPanel";
+	import type { PropsExplorerPanel } from "../containers/PropsExplorerPanel";
+	import type { TagsExplorerPanel } from "../containers/TagsExplorerPanel";
 
 	type FiltersTab = "props" | "files" | "tags";
 

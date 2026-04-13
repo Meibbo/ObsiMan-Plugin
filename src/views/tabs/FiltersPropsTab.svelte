@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { PropsExplorerPanel } from "../../components/PropsExplorerPanel";
+  import { PropsExplorerPanel } from "../containers/PropsExplorerPanel";
   import type { ObsiManPlugin } from "../../../main";
 
   let {
