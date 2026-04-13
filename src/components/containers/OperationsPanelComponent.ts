@@ -1,6 +1,6 @@
 import { setIcon } from 'obsidian';
 import type { ObsiManPlugin } from '../../../main';
-import { QueueListComponent } from '../../components/QueueListComponent';
+import { QueueListComponent } from '../QueueListComponent';
 import { LinterModal } from '../../modals/LinterModal';
 import { FileRenameModal } from '../../modals/FileRenameModal';
 import { SaveTemplateModal } from '../../modals/SaveTemplateModal';

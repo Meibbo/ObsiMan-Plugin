@@ -1,6 +1,6 @@
 <script lang="ts">
   import { setIcon } from 'obsidian';
-  import type { ObsiManPlugin } from '../../main';
+  import { translate } from '../../i18n/index';
 
   let { plugin }: { plugin: ObsiManPlugin } = $props();
 
@@ -52,17 +52,17 @@
   }));
 
   const statCards = $derived([
-    { label: 'Folders', icon: 'lucide-folder',    value: counts.folders, color: 'var(--color-blue)' },
-    { label: 'Files',   icon: 'lucide-file-text', value: counts.files,   color: 'var(--color-green)' },
-    { label: 'Props',   icon: 'lucide-tag',        value: counts.props,   color: 'var(--color-orange)' },
-    { label: 'Values',  icon: 'lucide-list',       value: counts.values,  color: 'var(--color-purple)' },
-    { label: 'Tags',    icon: 'lucide-hash',       value: counts.tags,    color: 'var(--color-red)' },
+    { label: translate('stats.folders'), icon: 'lucide-folder',    value: counts.folders, color: 'var(--color-blue)' },
+    { label: translate('stats.files'),   icon: 'lucide-file-text', value: counts.files,   color: 'var(--color-green)' },
+    { label: translate('stats.props'),   icon: 'lucide-tag',        value: counts.props,   color: 'var(--color-orange)' },
+    { label: translate('stats.values'),  icon: 'lucide-list',       value: counts.values,  color: 'var(--color-purple)' },
+    { label: translate('stats.tags'),    icon: 'lucide-hash',       value: counts.tags,    color: 'var(--color-red)' },
   ]);
 
   const scopeOptions: { id: Scope; label: string; icon: string }[] = [
-    { id: 'vault',    label: 'Vault',    icon: 'lucide-database' },
-    { id: 'filtered', label: 'Filtered', icon: 'lucide-filter' },
-    { id: 'selected', label: 'Selected', icon: 'lucide-check-square' },
+    { id: 'vault',    label: translate('scope.all'),    icon: 'lucide-database' },
+    { id: 'filtered', label: translate('scope.filtered'), icon: 'lucide-filter' },
+    { id: 'selected', label: translate('scope.selected'), icon: 'lucide-check-square' },
   ];
 
   function iconAction(el: HTMLElement, name: string) {
@@ -105,12 +105,12 @@
     <div class="obsiman-stat-meta-island">
       <div class="obsiman-stat-meta-item">
         <span class="obsiman-meta-icon" use:iconAction={'lucide-link'}></span>
-        <span class="obsiman-meta-label">Total Links</span>
+        <span class="obsiman-meta-label">{translate('stats.total_links')}</span>
         <span class="obsiman-meta-value">{metaStats.links.toLocaleString()}</span>
       </div>
       <div class="obsiman-stat-meta-item">
         <span class="obsiman-meta-icon" use:iconAction={'lucide-type'}></span>
-        <span class="obsiman-meta-label">Word Count</span>
+        <span class="obsiman-meta-label">{translate('stats.word_count')}</span>
         <span class="obsiman-meta-value">{metaStats.words > 0 ? metaStats.words.toLocaleString() : '—'}</span>
       </div>
     </div>

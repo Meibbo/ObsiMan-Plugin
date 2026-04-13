@@ -346,11 +346,11 @@ ObsiMan augments Obsidian's native ecosystem (Search, Bases, Properties, Tags) a
 
 ### ~~Iteration 14: Filters Explorer Refactor (Logic/Panel/View)~~ ✅ DONE (beta.11)
 
-### Iteration 15: Statistics Dashboard (v1.0 cards)
-- [ ] Implement 3-col card layout (Folders, Files, Props, Values, Tags)
-- [ ] Add basic stat providers with scope toggle: `in vault` / `Filtered` / `Selected`
-- [ ] Meta stats: Total links + Word count
-- [ ] Placeholder for v1.1 dashboards
+### Iteration 15: Statistics Dashboard (v1.0 cards) ✅ DONE
+- [x] Implement 3-col card layout (Folders, Files, Props, Values, Tags)
+- [x] Add basic stat providers with scope toggle: `in vault` / `Filtered` / `Selected`
+- [x] Meta stats: Total links + Word count (Word count is stubbed for performance)
+- [x] Placeholder for v1.1 dashboards
 
 ### Iteration 16: Operations Logic Completion
 - [ ] Pattern-based rename substitution in `FileRenameModal`
