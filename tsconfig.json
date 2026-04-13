@@ -30,10 +30,7 @@
 				"src/utils/*"
 			],
 			"@components/*": [
-				"src/layout/*"
-			],
-			"@views/*": [
-				"src/views/*"
+				"src/components/*"
 			],
 			"@modals/*": [
 				"src/modals/*"

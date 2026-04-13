@@ -82,26 +82,18 @@ input: AI-gen
 
 ---
 
-## What was completed this session (2026-04-13, session 24 — Final Stabilization & Architecture Sync)
+### 1. Unified Architecture ✅
+- **Folder Merge**: `src/views/` has been merged into `src/components/` to simplify the project structure. All UI-related code now lives in `src/components/` (containers, layout, pages, tabs, etc.).
+- **View Consolidation**: `ObsiManView` has been renamed and consolidated into `ObsiManFrame`.
+- **View Type**: `OBSIMAN_FRAME_TYPE` ('obsiman-frame') is now the primary view identifier used for both sidebar and main pane leaves.
 
-### 1. Source Path Stabilization ✅
-- Fixed broken relative imports in all Container and Layout components following Iteration 14 refactor.
-- Corrected `i18n`, `logic`, `types`, and `modals` paths in:
-    - `src/views/containers/FilesExplorerPanel.ts`
-    - `src/views/containers/TagsExplorerPanel.ts`
-    - `src/views/containers/PropsExplorerPanel.ts`
-    - `src/views/containers/OperationsPanelComponent.ts`
-    - `src/views/layout/GridView.ts`
-    - `src/views/layout/UnifiedTreeView.ts`
-
-### 2. TypeScript & Reactivity Hardening ✅
-- Achieved **100% type safety** in tree/grid callbacks (added explicit types to `id: string`, `e: MouseEvent`, `change: PendingChange`, etc.).
-- Resolved Svelte 5 `state_referenced_locally` warnings in `ObsiManView.svelte` by removing unused legacy explorer state variables.
-- Fixed broken Svelte component imports in `OpsFilesTab.svelte`.
-- **Final Polish**: Cleaned up redundant type assertions in `FilesExplorerPanel.ts` and removed unused `eslint-disable` directives in `PropsExplorerPanel.ts`.
-- **Note on Phantom Errors**: The IDE may still report `tsconfig.json` errors for missing components in `src/views/components/` and stringification in `TagsExplorerPanel.ts`. These are verified **ghost errors** (cache-related); the codebase is structurally sound and `npm run build` PASSES (Exit code: 0).
+### 2. Source Path Updates ✅
+- Updated `main.ts` and `tsconfig.json` to reflect the migration.
+- Alias `@components/*` now points correctly to `src/components/*`.
+- Resolved all TypeScript and build errors following the refactor.
 
 ### 3. Build Integrity Verified ✅
+- Confirmed `npm run build` finishes with `Exit code: 0`.
 - Confirmed `npm run build` finishes with `Exit code: 0`.
 - Verified that `tsconfig.json` correctly tracks all new source files.
 
