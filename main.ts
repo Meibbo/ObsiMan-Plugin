@@ -1,10 +1,10 @@
-import { Plugin } from 'obsidian';
+import { Plugin, WorkspaceLeaf } from 'obsidian';
 import type { ObsiManSettings } from './src/types/settings';
 import { DEFAULT_SETTINGS } from './src/types/settings';
 import { PropertyIndexService } from './src/services/PropertyIndexService';
 import { FilterService } from './src/services/FilterService';
 import { OperationQueueService } from './src/services/OperationQueueService';
-import { ObsiManView, OBSIMAN_VIEW_TYPE } from './src/views/ObsiManView';
+import { ObsiManFrame, OBSIMAN_FRAME_TYPE } from './src/components/ObsiManFrame';
 import { IconicService } from './src/services/IconicService';
 import { PropertyTypeService } from './src/services/PropertyTypeService';
 import { ObsiManSettingsTab } from './src/settings/ObsiManSettingsTab';
@@ -13,7 +13,7 @@ import { setLanguage, translate } from './src/i18n/index';
 export class ObsiManPlugin extends Plugin {
 	settings!: ObsiManSettings;
 
-	// Core services — public so views/modals can access them
+	// Core services — public so components/modals can access them
 	propertyIndex!: PropertyIndexService;
 	filterService!: FilterService;
 	queueService!: OperationQueueService;
@@ -54,7 +54,7 @@ export class ObsiManPlugin extends Plugin {
 			void this.activateView();
 		});
 
-		this.registerView(OBSIMAN_VIEW_TYPE, (leaf) => new ObsiManView(leaf, this));
+		this.registerView(OBSIMAN_FRAME_TYPE, (leaf) => new ObsiManFrame(leaf, this));
 
 		this.addCommand({
 			id: 'apply-queue',
@@ -114,16 +114,30 @@ export class ObsiManPlugin extends Plugin {
 	}
 
 	async activateView(): Promise<void> {
-		const { workspace } = this.app;
+		const { openMode } = this.settings;
 
-		let leaf = workspace.getLeavesOfType(OBSIMAN_VIEW_TYPE)[0];
+		if (openMode === 'sidebar' || openMode === 'both') {
+			await this.openView('sidebar');
+		}
+		if (openMode === 'main' || openMode === 'both') {
+			await this.openView('main');
+		}
+	}
+
+	async openView(mode: 'sidebar' | 'main'): Promise<void> {
+		const { workspace } = this.app;
+		let leaf: WorkspaceLeaf | null = workspace.getLeavesOfType(OBSIMAN_FRAME_TYPE)[0];
 
 		if (!leaf) {
-			const leftLeaf = workspace.getLeftLeaf(false);
-			if (leftLeaf) {
-				leaf = leftLeaf;
+			if (mode === 'sidebar') {
+				leaf = workspace.getLeftLeaf(false) || workspace.getRightLeaf(false);
+			} else {
+				leaf = workspace.getLeaf('tab');
+			}
+
+			if (leaf) {
 				await leaf.setViewState({
-					type: OBSIMAN_VIEW_TYPE,
+					type: OBSIMAN_FRAME_TYPE,
 					active: true,
 				});
 			}
@@ -133,7 +147,6 @@ export class ObsiManPlugin extends Plugin {
 			void workspace.revealLeaf(leaf);
 		}
 	}
-
 }
 
 export default ObsiManPlugin;

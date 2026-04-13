@@ -1,6 +1,9 @@
 export const en: Record<string, string> = {
 	// General
 	'plugin.name': 'ObsiMan',
+	'plugin.sidebar_name': 'ObsiMan Sidebar',
+	'plugin.frame_name': 'ObsiMan Explorer',
+	'plugin.name_explorer': 'ObsiMan Explorer',
 	'plugin.description': 'Bulk property editor and vault management tool',
 	'plugin.open': 'Open ObsiMan',
 
