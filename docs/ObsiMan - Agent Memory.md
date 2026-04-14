@@ -107,8 +107,14 @@ All 9 tasks from `docs/superpowers/plans/2026-04-13-context-menu-service.md` exe
 - **`OpsTab` union** in `src/types/ui.ts` now includes `"layout"`.
 - **Manual verification still needed**: right-click tags/props/files in panels, verify native file-menu gets ObsiMan section, test curator panel in Layout tab.
 
-### What's next
-- Iteration 16 (Operations Logic) or Statistics polish
+### What's next — TypeScript lint errors to fix (next session priority)
+El compilador TS arroja errores de "Unsafe access / error typed value" en los paneles que usan `contextMenuService`. Los archivos a revisar:
+- `src/types/settings.ts` — ya tiene `import type { MenuHideRule }` estático (correcto)
+- `src/services/ContextMenuService.ts` — leer completo para verificar
+- `src/components/containers/PropsExplorerPanel.ts` — main suspect: unsafe access on `this.plugin.contextMenuService`
+- `main.ts` — verificar que `contextMenuService!: ContextMenuService` esté declarado (lo está según commit)
+
+Probable causa raíz: el ESLint rule `@typescript-eslint/no-unsafe-*` detecta que `this.plugin` tiene tipo `ObsiManPlugin` pero `contextMenuService` podría estar tipado como `any` en algún lugar intermedio, o el import circular entre `main.ts` y los servicios hace que el tipo se resuelva como `error`. Ejecutar `npm run lint` para ver los errores exactos antes de tocar código.
 
 ---
 
