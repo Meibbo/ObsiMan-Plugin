@@ -1,4 +1,5 @@
 import type { FilterTemplate } from './filter';
+import type { MenuHideRule } from './context-menu';
 
 export type Language = 'auto' | 'en' | 'es';
 
@@ -63,7 +64,7 @@ export interface ObsiManSettings {
 	/** Show ObsiMan items in Obsidian's more-options menu (··· button) */
 	contextMenuShowInMoreOptions: boolean;
 	/** Rules for hiding native/third-party items from workspace context menus */
-	contextMenuHideRules: import('./context-menu').MenuHideRule[];
+	contextMenuHideRules: MenuHideRule[];
 }
 
 export const DEFAULT_SETTINGS: ObsiManSettings = {
