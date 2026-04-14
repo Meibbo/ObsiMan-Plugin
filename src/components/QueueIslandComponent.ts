@@ -39,27 +39,14 @@ export class QueueIslandComponent {
 	mount(): void {
 		this.islandEl = this.containerEl.createDiv({ cls: 'obsiman-queue-island' });
 
-		// Header — count label (visually distinct, can be removed without touching the rest)
-		this.headerEl = this.islandEl.createDiv({ cls: 'obsiman-queue-island-header' });
-
-		// Squircle action buttons
+		// 1. Squircle action buttons (Now first, floating above body via CSS)
 		const btnRow = this.islandEl.createDiv({ cls: 'obsiman-squircle-row obsiman-queue-island-btns' });
-
-		const executeBtn = btnRow.createDiv({
-			cls: 'obsiman-squircle',
-			attr: { 'aria-label': translate('ops.apply'), role: 'button', tabindex: '0' },
-		});
-		setIcon(executeBtn, 'lucide-play');
-		executeBtn.addEventListener('click', () => {
-			void this.queueService.execute();
-			this.onClose();
-		});
 
 		const clearBtn = btnRow.createDiv({
 			cls: 'obsiman-squircle',
 			attr: { 'aria-label': translate('ops.clear'), role: 'button', tabindex: '0' },
 		});
-		setIcon(clearBtn, 'lucide-x');
+		setIcon(clearBtn, 'lucide-trash'); // Changed from x to trash for "Clear queue"
 		clearBtn.addEventListener('click', () => {
 			this.queueService.clear();
 			this.onClose();
@@ -74,7 +61,29 @@ export class QueueIslandComponent {
 			this.onOpenDetails();
 		});
 
-		// Scrollable item list
+		const templateBtn = btnRow.createDiv({
+			cls: 'obsiman-squircle',
+			attr: { 'aria-label': 'Templates', role: 'button', tabindex: '0' },
+		});
+		setIcon(templateBtn, 'lucide-library');
+		templateBtn.addEventListener('click', () => {
+			// Stub for future templates feature
+		});
+
+		const executeBtn = btnRow.createDiv({
+			cls: 'obsiman-squircle is-accent',
+			attr: { 'aria-label': translate('ops.apply'), role: 'button', tabindex: '0' },
+		});
+		setIcon(executeBtn, 'lucide-play');
+		executeBtn.addEventListener('click', () => {
+			void this.queueService.execute();
+			this.onClose();
+		});
+
+		// 2. Header — count label (Now below squircles)
+		this.headerEl = this.islandEl.createDiv({ cls: 'obsiman-queue-island-header' });
+
+		// 3. Scrollable item list
 		this.listEl = this.islandEl.createDiv({ cls: 'obsiman-queue-island-list' });
 
 		this.render();

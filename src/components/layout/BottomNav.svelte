@@ -3,6 +3,7 @@
 	import { translate } from "../../i18n/index";
 
 	let {
+		isIslandOpen = false,
 		pageOrder,
 		activePage,
 		pageLabels,
@@ -25,6 +26,7 @@
 		navigateTo,
 		icon,
 	}: {
+		isIslandOpen?: boolean;
 		pageOrder: string[];
 		activePage: string;
 		pageLabels: Record<string, string>;
@@ -51,6 +53,7 @@
 
 <div
 	class="obsiman-bottom-nav obsiman-glass obsiman-glass--bottom"
+	class:is-island-open={isIslandOpen}
 	use:bindNav
 	class:is-bar-collapsed={navCollapsed}
 	role="navigation"
@@ -69,23 +72,28 @@
 	{/if}
 
 	{#if leftFab}
-		<div
-			class="obsiman-nav-fab"
-			aria-label={leftFab.label}
-			use:icon={leftFab.icon}
-			onclick={(e: MouseEvent) => {
-				e.stopPropagation();
-				leftFab.action?.();
-			}}
-			onkeydown={(e: KeyboardEvent) => {
-				if (e.key === "Enter" || e.key === " ") {
+		<div class="obsiman-nav-fab-wrap">
+			<div
+				class="obsiman-nav-fab"
+				aria-label={leftFab.label}
+				use:icon={leftFab.icon}
+				onclick={(e: MouseEvent) => {
 					e.stopPropagation();
 					leftFab.action?.();
-				}
-			}}
-			role="button"
-			tabindex="0"
-		></div>
+				}}
+				onkeydown={(e: KeyboardEvent) => {
+					if (e.key === "Enter" || e.key === " ") {
+						e.stopPropagation();
+						leftFab.action?.();
+					}
+				}}
+				role="button"
+				tabindex="0"
+			></div>
+			{#if queuedCount > 0}
+				<div class="obsiman-fab-badge">{queuedCount}</div>
+			{/if}
+		</div>
 	{:else}
 		<div class="obsiman-nav-fab-placeholder"></div>
 	{/if}
@@ -124,36 +132,35 @@
 				tabindex={activePage === pageId ? 0 : -1}
 			>
 				{#if !isReordering && pageId === "statistics" && selectedCount > 0}
-					<div class="obsiman-nav-dot-badge">{selectedCount}</div>
-				{/if}
-				{#if !isReordering && pageId === "filters" && filterRuleCount > 0}
-					<div class="obsiman-nav-dot-badge">{filterRuleCount}</div>
-				{/if}
-				{#if !isReordering && pageId === "ops" && queuedCount > 0}
-					<div class="obsiman-nav-dot-badge">{queuedCount}</div>
+					<div class="obsiman-nav-dot-badge"></div>
 				{/if}
 			</div>
 		{/each}
 	</div>
 
 	{#if rightFab}
-		<div
-			class="obsiman-nav-fab"
-			aria-label={rightFab.label}
-			use:icon={rightFab.icon}
-			onclick={(e: MouseEvent) => {
-				e.stopPropagation();
-				rightFab.action?.();
-			}}
-			onkeydown={(e: KeyboardEvent) => {
-				if (e.key === "Enter" || e.key === " ") {
+		<div class="obsiman-nav-fab-wrap">
+			<div
+				class="obsiman-nav-fab"
+				aria-label={rightFab.label}
+				use:icon={rightFab.icon}
+				onclick={(e: MouseEvent) => {
 					e.stopPropagation();
 					rightFab.action?.();
-				}
-			}}
-			role="button"
-			tabindex="0"
-		></div>
+				}}
+				onkeydown={(e: KeyboardEvent) => {
+					if (e.key === "Enter" || e.key === " ") {
+						e.stopPropagation();
+						rightFab.action?.();
+					}
+				}}
+				role="button"
+				tabindex="0"
+			></div>
+			{#if filterRuleCount > 0}
+				<div class="obsiman-fab-badge">{filterRuleCount}</div>
+			{/if}
+		</div>
 	{:else}
 		<div class="obsiman-nav-fab-placeholder"></div>
 	{/if}

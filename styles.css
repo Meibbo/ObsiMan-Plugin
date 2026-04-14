@@ -1874,6 +1874,62 @@ body.obsiman-bases-column-separators table th {
 /* position: absolute makes it overlay the viewport instead of pushing content up.
    A gradient pseudo-element fades content into the nav, signalling scrollability
    and keeping the nav legible against any background. */
+/* Rising backdrop when island is open */
+.obsiman-bottom-nav::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: inherit;
+  backdrop-filter: inherit;
+  -webkit-backdrop-filter: inherit;
+  border-top: inherit;
+  border-radius: inherit;
+  z-index: -1;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+/* Rising Glass Backdrop */
+.obsiman-island-backdrop {
+	position: absolute;
+	inset: 0;
+	z-index: 5; /* Behind everything within viewport */
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	background: transparent;
+}
+
+.obsiman-island-backdrop.is-open {
+	pointer-events: auto;
+	opacity: 1;
+}
+
+.obsiman-island-backdrop::before {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	/* Start at bottom of viewport */
+	height: var(--obsiman-nav-height, 64px);
+	background: color-mix(in srgb, var(--background-secondary) 40%, transparent);
+	backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
+	-webkit-backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
+	transition: height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+	-webkit-mask-image: linear-gradient(to top, black 50%, transparent 100%);
+	mask-image: linear-gradient(to top, black 50%, transparent 100%);
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.obsiman-island-backdrop.is-open::before {
+	/* Covers slightly more than the island max-height (60vh) */
+	height: 75vh;
+}
+
 .obsiman-bottom-nav {
   position: absolute;
   bottom: 0;
@@ -1882,8 +1938,8 @@ body.obsiman-bases-column-separators table th {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: 0.625em;
+  padding: 0.625em 0.75em;
   z-index: 10;
   pointer-events: none;
   transition: height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), padding 0.3s ease;
@@ -1969,7 +2025,7 @@ body.obsiman-bases-column-separators table th {
   background: var(--background-modifier-hover);
   border: 1px solid var(--background-modifier-border);
   border-radius: 999px;
-  padding: 4px 6px;
+  padding: 0.25em 0.375em;
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
   pointer-events: auto;
@@ -1978,11 +2034,10 @@ body.obsiman-bases-column-separators table th {
 
 /* Individual icon nav items inside pill */
 .obsiman-nav-icon {
-  position: relative;
   overflow: visible;
   /* ensure badge is not clipped */
-  width: 32px;
-  height: 32px;
+  width: 2em;
+  height: 2em;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -2005,18 +2060,18 @@ body.obsiman-bases-column-separators table th {
 }
 
 .obsiman-nav-icon svg {
-  width: 16px;
-  height: 16px;
+  width: 1em;
+  height: 1em;
 }
 
 /* Badge on nav icon (queue / filter count) */
 .obsiman-nav-dot-badge {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  min-width: 14px;
-  height: 14px;
-  border-radius: 7px;
+  top: 0.25em;
+  right: 0.25em;
+  min-width: 0.875em;
+  height: 0.875em;
+  border-radius: 0.5em;
   background: var(--color-accent);
   color: var(--text-on-accent);
   font-size: 9px;
@@ -2047,8 +2102,8 @@ body.obsiman-bases-column-separators table th {
 
 /* Floating action buttons — filled with accent color */
 .obsiman-nav-fab {
-  width: 36px;
-  height: 36px;
+  width: 2.25em;
+  height: 2.25em;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -2068,14 +2123,14 @@ body.obsiman-bases-column-separators table th {
 }
 
 .obsiman-nav-fab svg {
-  width: 16px;
-  height: 16px;
+  width: 1em;
+  height: 1em;
 }
 
 /* Invisible placeholder to keep pill centered when one FAB is absent */
 .obsiman-nav-fab-placeholder {
-  width: 36px;
-  height: 36px;
+  width: 2.25em;
+  height: 2.25em;
   flex-shrink: 0;
 }
 
@@ -2581,8 +2636,11 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 .obsiman-squircle:hover {
-  background: var(--background-modifier-hover);
+  background: rgba(var(--mono-rgb-100), 0.1);
   color: var(--text-normal);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(var(--mono-rgb-100), 0.2);
 }
 
 .obsiman-squircle-reserved {
@@ -3212,16 +3270,31 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 .obsiman-queue-island-header {
-  font-size: var(--font-ui-small);
-  font-weight: 600;
-  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  font-weight: 500;
+  color: var(--text-faint);
   text-align: center;
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--background-modifier-border);
+  padding-top: 4px;
+  margin-top: 2px;
 }
 
 .obsiman-queue-island-btns {
   justify-content: center;
+  position: absolute;
+  top: -18px; /* Float above the body */
+  left: 0;
+  right: 0;
+  margin-bottom: 0;
+  z-index: 10;
+}
+
+.obsiman-squircle.is-accent {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.obsiman-squircle.is-accent:hover {
+  background: var(--interactive-accent-hover);
 }
 
 .obsiman-queue-island-list {
@@ -3501,52 +3574,102 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   text-overflow: ellipsis;
 }
 
-.obsiman-cards-drill-stats {
-  color: var(--text-muted);
-  font-size: var(--font-ui-smaller);
-  flex-shrink: 0;
-}
-
-/* Cards value chips (drilldown) */
-
-.obsiman-cards-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  padding: 6px 8px;
-}
-
-.obsiman-cards-chip {
+/* Badge styling */
+.obsiman-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--background-modifier-hover);
-  border: 1px solid var(--background-modifier-border);
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border-radius: 2px;
+  font-size: 0; /* icon only */
+  color: var(--text-normal); /* Reverted to match request */
+  background: transparent;
+  border: none;
+  flex-shrink: 0;
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+.obsiman-badge.is-undoable {
   cursor: pointer;
-  font-size: var(--font-ui-smaller);
-  transition: background 0.1s, border-color 0.1s;
 }
 
-.obsiman-cards-chip:hover {
-  background: var(--interactive-hover);
-  border-color: var(--interactive-accent);
+.obsiman-badge.is-undoable:hover {
+  transform: scale(1.2);
+  filter: brightness(1.2);
 }
 
-.obsiman-cards-chip.is-active-filter {
-  background: var(--interactive-accent);
-  color: var(--text-on-accent);
+.obsiman-badge.is-undoable:active {
+  transform: scale(0.9);
 }
 
-.obsiman-cards-chip-text {
+.obsiman-badge.is-inherited {
+  opacity: 0.5; /* Subtler for parent-inherited badges */
+}
+
+.obsiman-badge-icon {
+  display: flex !important;
+  width: 10px !important;
+  height: 10px !important;
   color: inherit;
 }
 
-.obsiman-cards-chip-count {
-  color: var(--text-muted);
-  font-size: 0.85em;
+.obsiman-badge-icon svg {
+  width: 10px !important;
+  height: 10px !important;
 }
+
+.obsiman-badge--blue { color: #007aff; }
+.obsiman-badge--red { color: #ff3b30; }
+.obsiman-badge--purple { color: #af52de; }
+.obsiman-badge--orange { color: #ff9500; }
+.obsiman-badge--green { color: #34c759; }
+
+
+
+.obsiman-tree-count {
+  font-size: 9px;
+  color: var(--text-faint);
+  opacity: 0.8;
+}
+
+.obsiman-tree-icon + .obsiman-tree-label {
+  margin-left: 2px;
+}
+
+/* FAB Badges — Now glass style instead of accent */
+.obsiman-nav-fab-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.obsiman-fab-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 4px;
+  /* Glass style: match pill background */
+  background: var(--background-modifier-hover);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-normal);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  font-size: 8px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  z-index: 5;
+  pointer-events: none;
+}
+
 
 /* === Statistics Page === */
 
@@ -3716,25 +3839,93 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 
 /* ── Unified Tree ────────────────────────────────── */
 .obsiman-tree-row {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 8px;
+  padding: 0 8px;
+  height: 26px;   /* Increased from 24px for vertical separation */
+  margin-bottom: 1px; /* Extra gap */
   padding-left: calc(8px + var(--depth, 0) * 16px);
   cursor: pointer;
   border-radius: 4px;
   width: 100%;
   box-sizing: border-box;
-  overflow: hidden;           /* fix: icons escaping frame */
+  overflow: hidden;
+  color: var(--text-muted);
+  
+  /* Sharp UI Fixes */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transform: translateZ(0);
+}
+
+.obsiman-tree-toggle {
+  color: var(--text-normal);
+  opacity: 0.35; /* Even darker/more subtle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  flex-shrink: 0;
+}
+
+/* Vertical hierarchy guideline */
+.obsiman-tree-row::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--depth, 0) * 16px);
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: var(--background-modifier-border);
+  opacity: 0.6;
+}
+.obsiman-tree-row[style*="--depth: 0"]::before,
+.obsiman-tree-row:not([style*="--depth"])::before {
+  display: none;
 }
 
 .obsiman-tree-row:hover {
   background-color: var(--background-modifier-hover);
+  color: var(--text-normal);
 }
 
 .obsiman-tree-row.is-active-filter {
-  background-color: var(--color-accent);
-  color: var(--text-on-accent);
+  background-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  color: var(--text-normal);
+  box-shadow: inset 2px 0 0 0 var(--color-accent); /* Inset doesn't push */
+}
+
+.obsiman-tree-row.is-active-filter :is(.obsiman-tree-toggle, .obsiman-tree-icon, .obsiman-tree-label, .obsiman-tree-count, .obsiman-tree-badge, .obsiman-badge-icon) {
+  opacity: 1;
+}
+
+.obsiman-tree-row.is-deleted-prop,
+.obsiman-tree-row.is-deleted-value,
+.obsiman-tree-row.is-deleted-tag {
+  color: var(--text-faint) !important;
+  opacity: 0.5 !important;
+}
+
+.obsiman-tree-row.is-deleted-prop .obsiman-tree-label,
+.obsiman-tree-row.is-deleted-value .obsiman-tree-label,
+.obsiman-tree-row.is-deleted-tag .obsiman-tree-label {
+  text-decoration: line-through;
+}
+
+.obsiman-tree-row.is-deleted-prop .obsiman-tree-count,
+.obsiman-tree-row.is-deleted-value .obsiman-tree-count,
+.obsiman-tree-row.is-deleted-tag .obsiman-tree-count {
+  color: var(--text-faint);
+}
+
+.obsiman-tree-row.is-editing {
+	background: var(--background-modifier-hover);
+}
+
+.obsiman-tree-row.is-active-filter .obsiman-tree-count {
+  font-weight: 600;
 }
 
 .obsiman-tree-row.is-hidden {
@@ -3746,18 +3937,42 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 .obsiman-tree-toggle {
-  min-width: 16px;             /* fix: chevron not collapsing to zero */
+  min-width: 16px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  color: var(--text-muted);
+  color: inherit;
 }
 
 .obsiman-tree-icon {
-  min-width: 16px;             /* fix: icon not collapsing */
+  min-width: 16px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  color: inherit;
+}
+
+.obsiman-tree-input {
+	flex: 1;
+	background: var(--background-primary);
+	border: 1px solid var(--color-accent);
+	border-radius: 4px;
+	padding: 1px 4px;
+	margin: -2px 0;
+	height: 20px;
+	font-size: inherit;
+	color: var(--text-normal);
+	font-family: inherit;
+}
+
+.obsiman-tree-input:focus {
+	outline: none;
+	box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 20%, transparent);
+}
+
+/* Shrink empty icons so they don't consume horizontal space */
+.obsiman-tree-icon:empty {
+  display: none;
 }
 
 .obsiman-tree-label {
@@ -3767,41 +3982,33 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   white-space: nowrap;
   font-size: var(--font-ui-small);
   font-weight: normal;
+  color: inherit;
 }
 
 .obsiman-tree-count {
   flex-shrink: 0;
   font-size: var(--font-ui-smaller);
-  color: var(--text-muted);
-  background: var(--background-modifier-border);
-  border-radius: 10px;
-  padding: 0 5px;
+  color: var(--text-normal);
+  opacity: 0.35; /* Matches caret subtlety */
+  background: transparent;
+  padding: 0;
 }
 
 .obsiman-tree-children {
-  /* no extra indent needed — depth var handles it */
-  animation: obsiman-tree-expand 180ms ease forwards;
+  /* Removed expanding animation to prevent flashy redraws */
   transform-origin: top;
 }
 
-@keyframes obsiman-tree-expand {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .obsiman-search-highlight {
-  animation: obsiman-pulse 0.8s ease-out;
+  background-color: color-mix(in srgb, var(--color-accent) 12%, transparent) !important;
+  color: var(--text-normal) !important;
+  /* Simplified animation: opacity only to avoid sub-pixel blur from translateY */
+  animation: obsiman-fade-in-simple 0.2s ease;
 }
 
-@keyframes obsiman-pulse {
-  0% { background-color: var(--color-accent); opacity: 0.4; }
-  100% { background-color: transparent; opacity: 1; }
+@keyframes obsiman-fade-in-simple {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ── Menu Curator Panel ──────────────────────────────────────────────────── */
@@ -3864,4 +4071,159 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 .obsiman-curator-add-btn {
 	white-space: nowrap;
 }
+
+/* === Island System (Queue & Filters) === */
+.obsiman-queue-island-wrap,
+.obsiman-filters-island-wrap {
+	position: absolute;
+	bottom: calc(var(--obsiman-nav-height, 64px) + 8px);
+	left: 0;
+	right: 0;
+	pointer-events: none;
+	z-index: 40;
 }
+
+.obsiman-queue-island,
+.obsiman-active-filters-island {
+	pointer-events: auto;
+	margin: 0 12px;
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 16px;
+	padding: 12px;
+	padding-top: 36px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	max-height: 60vh;
+	transform: translateY(20px);
+	opacity: 0;
+	transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+}
+
+.obsiman-queue-island.is-open,
+.obsiman-active-filters-island.is-open {
+	transform: translateY(0);
+	opacity: 1;
+}
+
+.obsiman-squircle-row {
+	position: absolute;
+	top: -22px;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: center;
+	gap: 12px;
+	z-index: 110;
+	pointer-events: none;
+}
+
+.obsiman-squircle {
+	pointer-events: auto;
+	width: 44px;
+	height: 44px;
+	border-radius: 12px;
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	cursor: pointer;
+	color: var(--text-muted);
+	transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s;
+}
+
+.obsiman-squircle:hover {
+	transform: scale(1.1);
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+.obsiman-squircle.is-accent {
+	background: var(--color-accent);
+	color: var(--text-on-accent);
+	border-color: transparent;
+}
+
+/* Island Content Layouts */
+.obsiman-queue-island-header,
+.obsiman-active-filters-island-header {
+	font-size: var(--font-ui-smaller);
+	font-weight: 700;
+	color: var(--text-faint);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	margin-bottom: 8px;
+	text-align: center;
+	padding-bottom: 4px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.obsiman-queue-island-list,
+.obsiman-active-filters-island-list {
+	overflow-y: auto;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-height: 80px;
+}
+
+.obsiman-queue-island-row,
+.obsiman-active-filter-island-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 10px;
+	border-radius: 6px;
+	font-size: var(--font-ui-smaller);
+}
+
+.obsiman-queue-island-row:nth-child(odd),
+.obsiman-active-filters-island-list .obsiman-active-filter-island-row:nth-child(odd) {
+	background: var(--background-modifier-hover);
+}
+
+.obsiman-queue-island-row-files {
+	flex-shrink: 0;
+	color: var(--color-accent);
+	font-weight: 500;
+}
+
+.obsiman-queue-island-row-detail,
+.obsiman-active-filter-row-text {
+	flex: 1;
+	color: var(--text-muted);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.obsiman-active-filter-row-actions {
+	display: flex;
+	gap: 4px;
+}
+
+.obsiman-queue-island-empty,
+.obsiman-active-filters-island-empty {
+	color: var(--text-faint);
+	font-size: var(--font-ui-small);
+	text-align: center;
+	padding: 12px 0;
+}
+
+/* Fix node badges overlapping count */
+.obsiman-tree-badge-zone {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.obsiman-tree-count {
+  margin-left: 2px;
+}
+

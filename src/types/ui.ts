@@ -3,7 +3,6 @@ import type { TFile } from 'obsidian';
 export type PopupType =
 	| "active-filters"
 	| "scope"
-	| "view-mode"
 	| "search"
 	| "move";
 

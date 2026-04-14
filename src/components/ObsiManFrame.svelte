@@ -12,6 +12,7 @@
 	import PopupOverlay from "./layout/PopupOverlay.svelte";
 	import { QueueListComponent } from "./QueueListComponent";
 	import { QueueIslandComponent } from "./QueueIslandComponent";
+	import { ActiveFiltersIslandComponent } from "./ActiveFiltersIslandComponent";
 	import { QueueDetailsModal } from "../modals/QueueDetailsModal";
 	import { FolderSuggest } from "../utils/autocomplete";
 	import { MOVE_FILE } from "../types/operation";
@@ -55,10 +56,7 @@
 
 	// ─── Per-page FAB definitions ────────────────────────────────────────────────
 
-	const pageFabs: Record<
-		string,
-		{ left: FabDef | null; right: FabDef | null }
-	> = {
+	const pageFabs = $derived.by<Record<string, { left: FabDef | null; right: FabDef | null }>>(() => ({
 		ops: {
 			left: {
 				icon: "lucide-list-checks",
@@ -82,14 +80,20 @@
 			},
 		},
 		filters: {
-			left: null,
+			left: {
+				icon: "lucide-list-checks",
+				label: translate("ops.queue"),
+				action: () => {
+					toggleQueueIsland();
+				},
+			},
 			right: {
 				icon: "lucide-sparkles",
 				label: translate("filters.active"),
-				action: () => showPopup("active-filters"),
+				action: () => toggleFiltersIsland(),
 			},
 		},
-	};
+	}));
 
 	const leftFab = $derived.by<FabDef | null>(
 		() => pageFabs[activePage]?.left ?? null,
@@ -104,6 +108,11 @@
 	let pageIndex = $derived(pageOrder.indexOf(activePage));
 
 	function navigateTo(page: string) {
+		if (activePage !== page) {
+			closeQueueIsland();
+			closeFiltersIsland();
+			if (activePopup === 'active-filters') closePopup();
+		}
 		activePage = page;
 		applyPageTransform(true);
 	}
@@ -130,7 +139,8 @@
 			p.style.width = `${w}px`;
 		});
 		if (animated) containerEl.classList.add("is-animating");
-		containerEl.style.transform = `translateX(${-pageIndex * w}px)`;
+		// BUG-FIX: Round pixel values to prevent sub-pixel blur on high-DPI screens
+		containerEl.style.transform = `translateX(${Math.round(-pageIndex * w)}px)`;
 	}
 
 	function bindViewport(el: HTMLElement) {
@@ -330,7 +340,12 @@
 	// ─── Queue island ─────────────────────────────────────────────────────────
 	let queueIslandOpen = $state(false);
 	let queueIsland: QueueIslandComponent | undefined;
-	let queueIslandEl: HTMLElement | null = null;
+	let queueIslandEl = $state<HTMLElement | null>(null);
+
+	// ─── Filters island ───────────────────────────────────────────────────────
+	let filtersIslandOpen = $state(false);
+	let filtersIsland: ActiveFiltersIslandComponent | undefined;
+	let filtersIslandEl = $state<HTMLElement | null>(null);
 
 	function countFilterLeaves(
 		group: import("../types/filter").FilterGroup,
@@ -357,6 +372,11 @@
 	// ─── Filters page state ──────────────────────────────────────────────────
 	type FiltersTab = "tags" | "props" | "files";
 	let filtersActiveTab = $state<FiltersTab>("props");
+	$effect(() => {
+		void filtersActiveTab;
+		closeQueueIsland();
+		closeFiltersIsland();
+	});
 	let filtersSearch = $state("");
 	let filtersSearchCategory = $state<Record<FiltersTab, number>>({
 		tags: 0,
@@ -393,6 +413,8 @@
 	// ─── Actions for native components ────────────────────────────────────────
 
 	function toggleQueueIsland() {
+		closeFiltersIsland();
+		if (activePopup === "active-filters") closePopup();
 		if (queueIslandOpen) {
 			closeQueueIsland();
 		} else {
@@ -419,6 +441,32 @@
 		queueIsland?.destroy();
 		queueIsland = undefined;
 		queueIslandOpen = false;
+	}
+
+	function toggleFiltersIsland() {
+		closeQueueIsland();
+		if (filtersIslandOpen) {
+			closeFiltersIsland();
+		} else {
+			openFiltersIsland();
+		}
+	}
+
+	function openFiltersIsland() {
+		if (!filtersIslandEl) return;
+		filtersIslandOpen = true;
+		filtersIsland = new ActiveFiltersIslandComponent(
+			filtersIslandEl,
+			plugin,
+			() => closeFiltersIsland(),
+		);
+		filtersIsland.mount();
+	}
+
+	function closeFiltersIsland() {
+		filtersIsland?.destroy();
+		filtersIsland = undefined;
+		filtersIslandOpen = false;
 	}
 
 	// ─── Refresh ─────────────────────────────────────────────────────────────
@@ -493,6 +541,8 @@
 
 	// ─── View mode popup ──────────────────────────────────────────────────────
 
+	// Kept for future use (view mode toggle in Files tab)
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	function setViewMode(mode: "list" | "selected") {
 		plugin.settings.viewMode = mode;
 		void plugin.saveSettings();
@@ -672,9 +722,7 @@
 			refreshFiles();
 			refreshActiveFilterHighlights();
 			updateStats();
-			if (activePopup === "active-filters") {
-				refreshActiveFiltersPopup();
-			}
+			filtersIsland?.render();
 		};
 		const onVaultResolved = () => {
 			refreshFiles();
@@ -744,8 +792,28 @@
 		{/each}
 	</div>
 
+	<!-- ─── Island Backdrop (Rising Glass) ─────────────────────────────────── -->
+	<div
+		class="obsiman-island-backdrop obsiman-glass"
+		class:is-open={queueIslandOpen || filtersIslandOpen}
+		onclick={() => {
+			closeQueueIsland();
+			closeFiltersIsland();
+		}}
+		onkeydown={(e) => {
+			if (e.key === 'Escape' || e.key === 'Enter') {
+				closeQueueIsland();
+				closeFiltersIsland();
+			}
+		}}
+		role="button"
+		tabindex="-1"
+		aria-label="Close island"
+	></div>
+
 	<!-- ─── Queue island container — floats above bottom nav ────────────────────── -->
 	<div class="obsiman-queue-island-wrap" bind:this={queueIslandEl}></div>
+	<div class="obsiman-filters-island-wrap" bind:this={filtersIslandEl}></div>
 
 	<BottomNav
 		{pageOrder}
@@ -755,6 +823,7 @@
 		{leftFab}
 		{rightFab}
 		{navCollapsed}
+		isIslandOpen={queueIslandOpen || filtersIslandOpen}
 		bind:isReordering
 		{reorderTargetIdx}
 		bind:pillEl
@@ -784,7 +853,6 @@
 	{deleteFilterRule}
 	{scopeOptions}
 	{setScope}
-	{setViewMode}
 	bind:searchName
 	bind:searchFolder
 	{moveTargetFiles}

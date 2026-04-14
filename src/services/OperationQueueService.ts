@@ -1,6 +1,6 @@
 import { App, Component, Events, Notice, TFile, FileManager } from 'obsidian';
 import type { PendingChange, OperationResult } from '../types/operation';
-import { DELETE_PROP, RENAME_FILE, REORDER_ALL, MOVE_FILE, FIND_REPLACE_CONTENT, NATIVE_RENAME_PROP } from '../types/operation';
+import { DELETE_PROP, RENAME_FILE, REORDER_ALL, MOVE_FILE, FIND_REPLACE_CONTENT, NATIVE_RENAME_PROP, APPLY_TEMPLATE } from '../types/operation';
 import { translate } from '../i18n/index';
 
 interface InternalApp extends App {
@@ -155,31 +155,58 @@ export class OperationQueueService extends Component {
 	}
 
 	private async applyChange(file: TFile, change: PendingChange): Promise<void> {
-		// Re-read current metadata
-		const cache = this.app.metadataCache.getFileCache(file);
-		const currentMeta = { ...(cache?.frontmatter ?? {}) };
-		delete currentMeta['position']; // Remove Obsidian internal key
+		let specialUpdates: Record<string, unknown> | null = null;
 
-		const updates = change.logicFunc(file, currentMeta);
-		if (!updates) return;
+		// By executing logic inside processFrontMatter, we bypass metadataCache entirely
+		// and guarantee we are acting on the absolute freshest file frontmatter buffer.
+		await this.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
+			const updates = change.logicFunc(file, fm);
+			if (!updates) return;
 
-		// Handle special operation signals
-		if (RENAME_FILE in updates) {
-			const newName = updates[RENAME_FILE] as string;
+			// Check for special signals that require APIs outside frontmatter manipulation
+			if (RENAME_FILE in updates || MOVE_FILE in updates || FIND_REPLACE_CONTENT in updates || NATIVE_RENAME_PROP in updates || APPLY_TEMPLATE in updates) {
+				specialUpdates = updates;
+			}
+
+			// Apply frontmatter changes in the secured context
+			for (const [key, value] of Object.entries(updates)) {
+				if (key === DELETE_PROP) {
+					delete fm[value as string];
+				} else if (key === REORDER_ALL) {
+					const ordered = value as string[];
+					const copy = { ...fm };
+					for (const k of Object.keys(fm)) delete fm[k];
+					for (const k of ordered) {
+						if (k in copy) fm[k] = copy[k];
+					}
+					for (const k of Object.keys(copy)) {
+						if (!(k in fm)) fm[k] = copy[k];
+					}
+				} else if (key !== RENAME_FILE && key !== MOVE_FILE && key !== FIND_REPLACE_CONTENT && key !== NATIVE_RENAME_PROP && key !== APPLY_TEMPLATE) {
+					fm[key] = value;
+				}
+			}
+		});
+
+		if (!specialUpdates) return;
+
+		// Execute special vault operations sequentially AFTER frontmatter is safely saved
+		if (RENAME_FILE in specialUpdates) {
+			const newName = specialUpdates[RENAME_FILE] as string;
 			const newPath = file.path.replace(file.name, newName);
 			await this.app.fileManager.renameFile(file, newPath);
 			return;
 		}
 
-		if (MOVE_FILE in updates) {
-			const targetFolder = updates[MOVE_FILE] as string;
+		if (MOVE_FILE in specialUpdates) {
+			const targetFolder = specialUpdates[MOVE_FILE] as string;
 			const newPath = targetFolder ? `${targetFolder}/${file.name}` : file.name;
 			await this.app.fileManager.renameFile(file, newPath);
 			return;
 		}
 
-		if (FIND_REPLACE_CONTENT in updates) {
-			const { pattern, replacement, isRegex, caseSensitive } = updates[FIND_REPLACE_CONTENT] as {
+		if (FIND_REPLACE_CONTENT in specialUpdates) {
+			const { pattern, replacement, isRegex, caseSensitive } = specialUpdates[FIND_REPLACE_CONTENT] as {
 				pattern: string;
 				replacement: string;
 				isRegex: boolean;
@@ -196,43 +223,33 @@ export class OperationQueueService extends Component {
 			return;
 		}
 
-		if (NATIVE_RENAME_PROP in updates) {
-			const { oldName, newName } = updates[NATIVE_RENAME_PROP] as { oldName: string; newName: string };
-			// Native API call for vault-wide rename
+		if (NATIVE_RENAME_PROP in specialUpdates) {
+			const { oldName, newName } = specialUpdates[NATIVE_RENAME_PROP] as { oldName: string; newName: string };
 			await this.internalApp.fileManager.renameProperty(oldName, newName);
 			return;
 		}
 
-		// Apply frontmatter changes
-		await this.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
-			for (const [key, value] of Object.entries(updates)) {
-				if (key === DELETE_PROP) {
-					// value is the property name to delete
-					delete fm[value as string];
-				} else if (key === REORDER_ALL) {
-					const ordered = value as string[];
-					const copy = { ...fm };
-					for (const k of Object.keys(fm)) delete fm[k];
-					for (const k of ordered) {
-						if (k in copy) fm[k] = copy[k];
-					}
-					// Add any remaining keys not in the order list
-					for (const k of Object.keys(copy)) {
-						if (!(k in fm)) fm[k] = copy[k];
-					}
-				} else {
-					fm[key] = value;
-				}
+		if (APPLY_TEMPLATE in specialUpdates) {
+			const templatePath = specialUpdates[APPLY_TEMPLATE] as string;
+			const templateFile = this.app.vault.getAbstractFileByPath(templatePath);
+			if (templateFile instanceof TFile) {
+				const templateContent = await this.app.vault.read(templateFile);
+				const content = await this.app.vault.read(file);
+				
+				// Standard text append logic
+				const newContent = content + '\n\n' + templateContent;
+				await this.app.vault.modify(file, newContent);
 			}
-		});
+			return;
+		}
 	}
 
 	/**
 	 * Simulate all queued changes without writing.
 	 * Returns a map of file path → { before, after } metadata snapshots.
 	 */
-	simulateChanges(): Map<string, { before: Record<string, unknown>; after: Record<string, unknown> }> {
-		const diffs = new Map<string, { before: Record<string, unknown>; after: Record<string, unknown> }>();
+	simulateChanges(): Map<string, { before: Record<string, unknown>; after: Record<string, unknown>; newPath?: string }> {
+		const diffs = new Map<string, { before: Record<string, unknown>; after: Record<string, unknown>; newPath?: string }>();
 
 		for (const change of this.queue) {
 			for (const file of change.files) {
@@ -243,6 +260,7 @@ export class OperationQueueService extends Component {
 				// Start from previous "after" if this file was already changed
 				const existing = diffs.get(file.path);
 				const base = existing ? { ...existing.after } : { ...before };
+				let currentNewPath = existing?.newPath;
 
 				const updates = change.logicFunc(file, base);
 				if (!updates) continue;
@@ -262,7 +280,14 @@ export class OperationQueueService extends Component {
 						for (const k of Object.keys(copy)) {
 							if (!(k in after)) after[k] = copy[k];
 						}
-					} else if (key !== RENAME_FILE && key !== MOVE_FILE && key !== FIND_REPLACE_CONTENT) {
+					} else if (key === RENAME_FILE) {
+						const newName = value as string;
+						currentNewPath = (currentNewPath ?? file.path).replace(file.name, newName);
+					} else if (key === MOVE_FILE) {
+						const targetFolder = value as string;
+						const fileName = (currentNewPath ?? file.path).split('/').pop()!;
+						currentNewPath = targetFolder ? `${targetFolder}/${fileName}` : fileName;
+					} else if (key !== FIND_REPLACE_CONTENT && key !== NATIVE_RENAME_PROP && key !== APPLY_TEMPLATE) {
 						after[key] = value;
 					}
 				}
@@ -270,6 +295,7 @@ export class OperationQueueService extends Component {
 				diffs.set(file.path, {
 					before: existing?.before ?? before,
 					after,
+					newPath: currentNewPath
 				});
 			}
 		}

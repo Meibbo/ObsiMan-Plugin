@@ -6,16 +6,18 @@
   let {
     plugin,
     searchTerm = "",
+    searchMode = 0,
     tagsExplorer = $bindable<TagsExplorerPanel | null>(null),
   }: {
     plugin: ObsiManPlugin;
     searchTerm?: string;
+    searchMode?: number;
     tagsExplorer?: TagsExplorerPanel | null;
   } = $props();
 
   $effect(() => {
     if (tagsExplorer) {
-      tagsExplorer.setSearchTerm(searchTerm);
+      tagsExplorer.setSearchTerm(searchTerm, searchMode === 1 ? 'leaf' : 'all');
     }
   });
 

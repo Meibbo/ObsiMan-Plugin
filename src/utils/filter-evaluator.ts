@@ -19,6 +19,7 @@ export function evalNode(
 	universe: TFile[],
 	getMeta: MetadataGetter
 ): Set<string> {
+	if (node.enabled === false) return new Set();
 	if (node.type === 'rule') {
 		return matchRule(node, universe, getMeta);
 	}
@@ -32,12 +33,14 @@ function matchGroup(
 ): Set<string> {
 	const universePaths = new Set(universe.map((f) => f.path));
 
-	if (group.children.length === 0) {
-		// Empty group: ALL = universe, ANY = empty, NONE = universe
+	const activeChildren = group.children.filter(c => c.enabled !== false);
+
+	if (activeChildren.length === 0) {
+		// Empty / All-disabled group: ALL = universe, ANY = empty, NONE = universe
 		return group.logic === 'any' ? new Set() : new Set(universePaths);
 	}
 
-	const childResults = group.children.map((child) =>
+	const childResults = activeChildren.map((child) =>
 		evalNode(child, universe, getMeta)
 	);
 
