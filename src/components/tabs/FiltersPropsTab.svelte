@@ -5,16 +5,18 @@
   let {
     plugin,
     searchTerm = "",
+    searchMode = 0,
     propExplorer = $bindable<PropsExplorerPanel | undefined>(undefined),
   }: {
     plugin: ObsiManPlugin;
     searchTerm?: string;
+    searchMode?: number;
     propExplorer?: PropsExplorerPanel | undefined;
   } = $props();
-
+  
   $effect(() => {
     if (propExplorer) {
-      propExplorer.setSearchTerm(searchTerm);
+      propExplorer.setSearchTerm(searchTerm, searchMode);
     }
   });
 

@@ -1,5 +1,5 @@
 // src/services/ContextMenuService.ts
-import { Component, Menu, TFile, Notice, App } from 'obsidian';
+import { Component, Menu, TFile, Notice, App, MenuItem } from 'obsidian';
 import type { ActionDef, MenuCtx, MenuHideRule } from '../types/context-menu';
 
 export interface ContextMenuPluginCtx extends Component {
@@ -35,48 +35,31 @@ export class ContextMenuService extends Component {
 					this._applyHideRules(menu, surface);
 					return;
 				}
-				this._injectWorkspaceActions(menu, file, surface);
+				if (file instanceof TFile) {
+					this._injectWorkspaceActions(menu, file, surface);
+				}
 				this._applyHideRules(menu, surface);
 			}),
 		);
 
 		this.registerEvent(
-			this.plugin.app.workspace.on('editor-menu', (menu, _editor, info) => {
+			this.plugin.app.workspace.on('editor-menu', (menu) => {
 				if (!this.plugin.settings.contextMenuShowInEditorMenu) {
 					this._applyHideRules(menu, 'editor-menu');
 					return;
 				}
-				const file = 'file' in info ? info.file : null;
-				if (!(file instanceof TFile)) {
-					this._applyHideRules(menu, 'editor-menu');
-					return;
-				}
-				this._injectWorkspaceActions(menu, file, 'editor-menu');
+				const file = this.plugin.app.workspace.getActiveFile();
+				if (file) this._injectWorkspaceActions(menu, file, 'editor-menu');
 				this._applyHideRules(menu, 'editor-menu');
 			}),
 		);
-
-		// Stub: body implemented post-rename in v1.1
-		this.registerAction({
-			id: 'workspace.edit-with-vm',
-			nodeTypes: ['file'],
-			surfaces: ['file-menu', 'editor-menu'],
-			label: 'Edit with VM',
-			icon: 'lucide-dessert',
-			run: (_ctx) => {
-				// TODO v1.1: open ObsiMan focused on this file after rename to VaultMan
-			},
-		});
 	}
 
 	registerAction(def: ActionDef): void {
+		if (this._registry.some(a => a.id === def.id)) return;
 		this._registry.push(def);
 	}
 
-	/**
-	 * Build and show a Menu for an in-frame panel right-click.
-	 * The caller constructs ctx from the node that was right-clicked.
-	 */
 	openPanelMenu(ctx: MenuCtx, event: MouseEvent): void {
 		const menu = new Menu();
 		const applicable = this._registry.filter(
@@ -85,8 +68,33 @@ export class ContextMenuService extends Component {
 				def.surfaces.includes('panel') &&
 				(def.when ? def.when(ctx) : true),
 		);
+
+		const submenus = new Map<string, Menu>();
+		let currentSection: string | undefined = undefined;
+
 		for (const def of applicable) {
-			menu.addItem((item) => {
+			if (def.section && def.section !== currentSection) {
+				menu.addSeparator();
+				currentSection = def.section;
+			}
+
+			let targetMenu = menu;
+			if (def.submenu) {
+				const sm = submenus.get(def.submenu);
+				if (sm) {
+					targetMenu = sm;
+				} else {
+					const icon = def.submenu === 'Convert' ? 'lucide-arrow-right-left' : 'lucide-chevron-right';
+					menu.addItem((i: MenuItem) => {
+						i.setTitle(def.submenu!).setIcon(icon);
+						// Internal API for submenus in modern Obsidian
+						targetMenu = (i as unknown as { setSubmenu: () => Menu }).setSubmenu() || new Menu();
+					});
+					submenus.set(def.submenu, targetMenu);
+				}
+			}
+
+			targetMenu.addItem((item) => {
 				const label = typeof def.label === 'function' ? def.label(ctx) : def.label;
 				item.setTitle(label);
 				if (def.icon) item.setIcon(def.icon);
@@ -103,16 +111,11 @@ export class ContextMenuService extends Component {
 		menu.showAtMouseEvent(event);
 	}
 
-	/**
-	 * Inject ObsiMan items into a workspace menu for a specific file.
-	 * Groups them under a separator with a section header.
-	 */
 	private _injectWorkspaceActions(
 		menu: Menu,
 		file: TFile,
 		surface: 'file-menu' | 'editor-menu' | 'more-options',
 	): void {
-		// Synthetic node for file-surface context
 		const ctx: MenuCtx = {
 			nodeType: 'file',
 			node: { id: file.path, label: file.name, meta: { file }, icon: '', depth: 0 },
@@ -130,8 +133,32 @@ export class ContextMenuService extends Component {
 		if (applicable.length === 0) return;
 
 		menu.addSeparator();
+		
+		const submenus = new Map<string, Menu>();
+		let currentSection: string | undefined = undefined;
+
 		for (const def of applicable) {
-			menu.addItem((item) => {
+			if (def.section && def.section !== currentSection) {
+				menu.addSeparator();
+				currentSection = def.section;
+			}
+
+			let targetMenu = menu;
+			if (def.submenu) {
+				const sm = submenus.get(def.submenu);
+				if (sm) {
+					targetMenu = sm;
+				} else {
+					const icon = def.submenu === 'Convert' ? 'lucide-arrow-right-left' : 'lucide-chevron-right';
+					menu.addItem((i: MenuItem) => {
+						i.setTitle(def.submenu!).setIcon(icon);
+						targetMenu = (i as unknown as { setSubmenu: () => Menu }).setSubmenu() || new Menu();
+					});
+					submenus.set(def.submenu, targetMenu);
+				}
+			}
+
+			targetMenu.addItem((item) => {
 				const label = typeof def.label === 'function' ? def.label(ctx) : def.label;
 				item.setTitle(label);
 				if (def.icon) item.setIcon(def.icon);
@@ -147,37 +174,33 @@ export class ContextMenuService extends Component {
 		}
 	}
 
-	/**
-	 * Curator: remove items matching user hide-rules from any workspace menu.
-	 * Wrapped in try/catch — if Obsidian internals change, logs a warning and exits cleanly.
-	 */
 	private _applyHideRules(
 		menu: Menu,
 		surface: 'file-menu' | 'editor-menu' | 'more-options',
 	): void {
+		const rules = this.plugin.settings.contextMenuHideRules || [];
+		const activeRules = rules.filter((r) => r.surface === surface && r.enabled);
+		if (activeRules.length === 0) return;
+
 		try {
-			const rules: MenuHideRule[] = this.plugin.settings.contextMenuHideRules.filter(
-				(r) => r.enabled && r.surface === surface,
-			);
-			if (rules.length === 0) return;
+			// Access internal items array via cast to avoid 'any' lint errors
+			const items = (menu as unknown as { items: MenuItem[] }).items;
+			if (!items || !Array.isArray(items)) return;
 
-			const items: unknown[] = (menu as unknown as { items: unknown[] }).items;
-			if (!Array.isArray(items)) return;
+			for (const rule of activeRules) {
+				const matchedIdx = items.findIndex((i: MenuItem) => {
+					// Access internal title via cast
+					const title = String((i as unknown as { title: string }).title || '').toLowerCase();
+					return title.includes(rule.titleMatch.toLowerCase());
+				});
 
-			for (let i = items.length - 1; i >= 0; i--) {
-				const item = items[i] as { titleEl?: HTMLElement; dom?: HTMLElement };
-				const titleEl = item.titleEl ?? item.dom?.querySelector?.('.menu-item-title');
-				const title: string = (titleEl as HTMLElement | undefined)?.textContent?.trim() ?? '';
-				const shouldHide = rules.some(
-					(r) => title.toLowerCase().includes(r.titleMatch.toLowerCase()),
-				);
-				if (shouldHide) {
-					items.splice(i, 1);
-					(titleEl as HTMLElement | undefined)?.closest?.('.menu-item')?.remove();
+				if (matchedIdx !== -1) {
+					// Use internal items array for splice
+					(menu as unknown as { items: MenuItem[] }).items.splice(matchedIdx, 1);
 				}
 			}
-		} catch (err) {
-			console.warn('ObsiMan ContextMenuService: _applyHideRules encountered an error', err);
+		} catch (e) {
+			console.warn('ObsiMan: could not apply hide rules to context menu', e);
 		}
 	}
 }

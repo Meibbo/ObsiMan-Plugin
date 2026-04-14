@@ -15,6 +15,8 @@ export interface ActionDef {
 	surfaces: MenuCtx['surface'][];
 	label: string | ((ctx: MenuCtx) => string);
 	icon?: string;
+	submenu?: string;
+	section?: string;
 	when?: (ctx: MenuCtx) => boolean;
 	run: (ctx: MenuCtx) => Promise<void> | void;
 }

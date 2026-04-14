@@ -83,7 +83,7 @@ export class FileRenameModal extends Modal {
 		// Available placeholders reference
 		const helpEl = contentEl.createDiv({ cls: 'obsiman-rename-help' });
 		helpEl.createEl('small', {
-			text: '{basename} {date} {counter} {property_name}',
+			text: '* o {basename} | [fecha] o {date} | (1) o {counter} | {propiedad}',
 			cls: 'obsiman-text-faint',
 		});
 
@@ -137,9 +137,10 @@ export class FileRenameModal extends Modal {
 			const fm = (cache?.frontmatter ?? {}) as Record<string, unknown>;
 
 			let newName = this.pattern;
-			newName = newName.replace(/\{basename\}/g, file.basename);
-			newName = newName.replace(/\{date\}/g, today);
-			newName = newName.replace(/\{counter\}/g, String(index + 1).padStart(3, '0'));
+			// natural wildcards aliases
+			newName = newName.replace(/\{basename\}|\*/g, file.basename);
+			newName = newName.replace(/\{date\}|\[fecha\]/ig, today);
+			newName = newName.replace(/\{counter\}|\(1\)/ig, String(index + 1).padStart(3, '0'));
 
 			// Replace {propertyName} with property values
 			newName = newName.replace(/\{(\w[\w-]*)\}/g, (_match: string, prop: string) => {

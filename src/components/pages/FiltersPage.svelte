@@ -161,9 +161,9 @@
 
 <!-- Tab content via sub-components -->
 {#if filtersActiveTab === "tags"}
-	<FiltersTagsTab {plugin} searchTerm={filtersSearch} bind:tagsExplorer />
+	<FiltersTagsTab {plugin} searchTerm={filtersSearch} searchMode={filtersSearchCategory.tags} bind:tagsExplorer />
 {:else if filtersActiveTab === "props"}
-	<FiltersPropsTab {plugin} searchTerm={filtersSearch} bind:propExplorer />
+	<FiltersPropsTab {plugin} searchTerm={filtersSearch} searchMode={filtersSearchCategory.props} bind:propExplorer />
 {:else if filtersActiveTab === "files"}
 	<FiltersFilesTab
 		{plugin}

@@ -7,6 +7,7 @@ export const REORDER_ALL = '_REORDER_ALL';
 export const MOVE_FILE = '_MOVE_FILE';
 export const FIND_REPLACE_CONTENT = '_FIND_REPLACE_CONTENT';
 export const NATIVE_RENAME_PROP = '_NATIVE_RENAME_PROP';
+export const APPLY_TEMPLATE = '_APPLY_TEMPLATE';
 
 export type PropertyAction =
 	| 'set'
@@ -39,6 +40,8 @@ export interface BaseChange {
 export interface PropertyChange extends BaseChange {
 	type: 'property';
 	property: string;
+	value?: string;
+	oldValue?: string;
 	customLogic: boolean;
 }
 
@@ -58,7 +61,20 @@ export interface FileChange extends BaseChange {
 	targetFolder?: string;
 }
 
-export type PendingChange = PropertyChange | ContentChange | FileChange;
+/** Template application operation */
+export interface TemplateChange extends BaseChange {
+	type: 'template';
+	templateFileStr: string;
+}
+
+/** Operation on tags (bulk rename/delete) */
+export interface TagChange extends BaseChange {
+	type: 'tag';
+	tag: string;
+	action: 'rename' | 'delete';
+}
+
+export type PendingChange = PropertyChange | ContentChange | FileChange | TemplateChange | TagChange;
 
 export interface OperationResult {
 	success: number;

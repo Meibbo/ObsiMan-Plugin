@@ -94,11 +94,11 @@ export class QueueDetailsModal extends Modal {
 
 	private renderDiffs(
 		container: HTMLElement,
-		diffs: Map<string, { before: Record<string, unknown>; after: Record<string, unknown> }>
+		diffs: Map<string, { before: Record<string, unknown>; after: Record<string, unknown>; newPath?: string }>
 	): void {
 		container.empty();
 
-		for (const [path, { before, after }] of diffs) {
+		for (const [path, { before, after, newPath }] of diffs) {
 			const fileEl = container.createDiv({ cls: 'obsiman-diff-file' });
 
 			// Collapsible header
@@ -108,8 +108,29 @@ export class QueueDetailsModal extends Modal {
 				text: '▶',
 			});
 
-			const fileName = path.replace(/\.md$/, '').split('/').pop() ?? path;
-			headerEl.createSpan({ cls: 'obsiman-diff-path', text: fileName });
+			const oldBasename = path.replace(/\.md$/, '').split('/').pop() ?? path;
+			const newBasename = newPath ? newPath.replace(/\.md$/, '').split('/').pop() ?? newPath : undefined;
+			const oldFolder = path.includes('/') ? path.split('/').slice(0, -1).join('/') : '';
+			const newFolder = newPath?.includes('/') ? newPath.split('/').slice(0, -1).join('/') : '';
+
+			if (newPath && newPath !== path) {
+				if (oldFolder !== newFolder && oldBasename === newBasename) {
+					// Only moved
+					headerEl.createSpan({ cls: 'obsiman-diff-deleted', text: `${oldFolder ? oldFolder + '/' : ''}${oldBasename}` });
+					headerEl.createSpan({ text: ' → ' });
+					headerEl.createSpan({ cls: 'obsiman-diff-added', text: `${newFolder ? newFolder + '/' : ''}${oldBasename}` });
+				} else if (oldBasename !== newBasename) {
+					// Renamed (and possibly moved)
+					headerEl.createSpan({ cls: 'obsiman-diff-deleted', text: oldBasename });
+					headerEl.createSpan({ text: ' → ' });
+					headerEl.createSpan({ cls: 'obsiman-diff-added', text: newBasename });
+					if (oldFolder !== newFolder) {
+						headerEl.createSpan({ text: ` (moved to /${newFolder})`, cls: 'obsiman-text-faint' });
+					}
+				}
+			} else {
+				headerEl.createSpan({ cls: 'obsiman-diff-path', text: oldBasename });
+			}
 
 			// Count changes for this file
 			const allKeys = new Set([...Object.keys(before), ...Object.keys(after)]);

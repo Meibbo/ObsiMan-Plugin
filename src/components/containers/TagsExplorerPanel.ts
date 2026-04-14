@@ -1,20 +1,21 @@
 // src/components/TagsExplorerPanel.ts
 import { Component, App } from 'obsidian';
 import { TagsLogic } from '../../logic/TagsLogic';
-import type { FilterService } from '../../services/FilterService';
-import type { IconicService } from '../../services/IconicService';
-import type { ContextMenuService } from '../../services/ContextMenuService';
+import { FilterService } from '../../services/FilterService';
+import { IconicService } from '../../services/IconicService';
+import { ContextMenuService } from '../../services/ContextMenuService';
+import { OperationQueueService } from '../../services/OperationQueueService';
 
 export interface PanelPluginCtx {
 	app: App;
 	filterService: FilterService;
 	iconicService?: IconicService;
 	contextMenuService: ContextMenuService;
+	queueService: OperationQueueService;
 }
 import { UnifiedTreeView } from '../layout/UnifiedTreeView';
 import type { TreeNode, TagMeta } from '../../types/tree';
 import type { MenuCtx } from '../../types/context-menu';
-import { showInputModal } from '../../utils/inputModal';
 
 export class TagsExplorerPanel extends Component {
 	private plugin: PanelPluginCtx;
@@ -23,6 +24,7 @@ export class TagsExplorerPanel extends Component {
 	private expandedIds = new Set<string>();
 	private searchTerm = '';
 	private searchMode: 'all' | 'leaf' = 'all';
+	private editingId: string | null = null;
 
 	constructor(containerEl: HTMLElement, plugin: PanelPluginCtx) {
 		super();
@@ -42,8 +44,8 @@ export class TagsExplorerPanel extends Component {
 			label: 'Rename',
 			icon: 'lucide-pencil',
 			run: (ctx: MenuCtx) => {
-				const meta = ctx.node.meta as TagMeta;
-				return this._renameTag(meta.tagPath);
+				this.editingId = ctx.node.id;
+				this._render();
 			},
 		});
 
@@ -77,15 +79,37 @@ export class TagsExplorerPanel extends Component {
 				this._render();
 			}),
 		);
-		// Re-render after Iconic finishes loading (icons not ready on first render)
+		// Re-render after Iconic finishes loading
 		this.plugin.iconicService?.onLoaded(() => this._render());
+
+		// Re-render dynamically when filters or queues change
+		this.plugin.filterService.on('changed', this._handleStateChange);
+		this.plugin.queueService.on('changed', this._handleStateChange);
+
 		this._render();
 	}
+
+	onunload(): void {
+		this.plugin.filterService.off('changed', this._handleStateChange);
+		this.plugin.queueService.off('changed', this._handleStateChange);
+		super.onunload();
+	}
+
+	private readonly _handleStateChange = () => this._render();
 
 	setSearchTerm(term: string, mode: 'all' | 'leaf' = 'all'): void {
 		this.searchTerm = term;
 		this.searchMode = mode;
 		this._render();
+	}
+
+	private _expandAll(nodes: TreeNode<TagMeta>[]): void {
+		for (const n of nodes) {
+			if (n.children && n.children.length > 0) {
+				this.expandedIds.add(n.id);
+				this._expandAll(n.children);
+			}
+		}
 	}
 
 	private _render(): void {
@@ -96,6 +120,7 @@ export class TagsExplorerPanel extends Component {
 		}
 		if (this.searchTerm) {
 			tree = this.logic.filterTree(tree, this.searchTerm);
+			this._expandAll(tree);
 		}
 
 		const activeFilterIds = new Set<string>();
@@ -105,27 +130,58 @@ export class TagsExplorerPanel extends Component {
 			}
 		}
 
+		// For highlighting search text specifically on matching nodes
+		interface ObsMetadataCache {
+			prepareSimpleSearch?(query: string): (text: string) => unknown;
+		}
+		const cache = this.plugin.app.metadataCache as unknown as ObsMetadataCache;
+		const searchFunc: ((text: string) => unknown) | null = this.searchTerm
+			? (cache.prepareSimpleSearch ? cache.prepareSimpleSearch(this.searchTerm) : ((text: string) => text.toLowerCase().includes(this.searchTerm.toLowerCase()) ? {} : null))
+			: null;
+
+		const highlightIds = new Set<string>();
+
 		// Resolve icons via Iconic
-		const nodesWithIcons = this._resolveIcons(tree);
+		const nodesWithIcons = this._resolveIcons(tree, highlightIds, searchFunc);
 
 		this.view.render({
 			nodes: nodesWithIcons,
 			expandedIds: this.expandedIds,
 			activeFilterIds,
+			searchHighlightIds: highlightIds,
+			editingId: this.editingId,
+			onRename: (id, newLabel) => {
+				const node = this._findNode(id, tree);
+				if (node) void this._renameTag(node.meta.tagPath, newLabel);
+				this.editingId = null;
+				void this._render();
+			},
+			onCancelRename: () => {
+				this.editingId = null;
+				this._render();
+			},
 			onToggle: (id: string) => {
 				if (this.expandedIds.has(id)) this.expandedIds.delete(id);
 				else this.expandedIds.add(id);
-				this._render();
+				void this._render();
 			},
 			onRowClick: (id: string) => {
 				const node = this._findNode(id, tree);
 				if (!node) return;
 				const meta = node.meta;
+				const tagId = `#${meta.tagPath}`;
+
+				// Toggle logic: remove if already active filter
+				if (this.plugin.filterService.hasTagFilter(tagId)) {
+					void this.plugin.filterService.removeNodeByTag(tagId);
+					return;
+				}
+
 				void this.plugin.filterService.addNode({
 					type: 'rule',
 					filterType: 'has_tag',
 					property: '',
-					values: [`#${meta.tagPath}`],
+					values: [tagId],
 				});
 			},
 			onContextMenu: (id: string, e: MouseEvent) => {
@@ -136,24 +192,76 @@ export class TagsExplorerPanel extends Component {
 					e,
 				);
 			},
+			onBadgeDoubleClick: (queueIndex: number) => {
+				this.plugin.queueService.remove(queueIndex);
+				void this._render();
+			},
 		});
 	}
 
-	private _resolveIcons(nodes: TreeNode<TagMeta>[]): TreeNode<TagMeta>[] {
+	private _resolveIcons(nodes: TreeNode<TagMeta>[], highlightIds: Set<string>, searchFunc: ((text: string) => unknown) | null, parentDeleted = false): TreeNode<TagMeta>[] {
+		const queue = this.plugin.queueService.queue;
+
 		return nodes.map(node => {
 			const meta = node.meta;
-			const iconic = this.plugin.iconicService?.getTagIcon(meta.tagPath);
+			const currentCls = node.cls || '';
+			
+			// Highlight System
+			if (searchFunc && searchFunc(node.label)) {
+				highlightIds.add(node.id);
+			}
+
+			const relevantOps = queue.filter((op): op is import('../../types/operation').TagChange => 
+				op.type === 'tag' && op.tag === meta.tagPath
+			);
+
+			const isDeletedInQueue = relevantOps.some(op => op.action === 'delete');
+			const isEffectivelyDeleted = parentDeleted || isDeletedInQueue;
+
+			const cls = isEffectivelyDeleted 
+				? (currentCls + ' is-deleted-tag').trim() 
+				: currentCls;
+
+			const resolvedChildren = node.children
+				? this._resolveIcons(node.children, highlightIds, searchFunc, isEffectivelyDeleted)
+				: [];
+
+			const badges: import('../../types/tree').NodeBadge[] = [];
+			for (const op of relevantOps) {
+				const opIdx = queue.indexOf(op);
+				if (op.action === 'delete') {
+					badges.push({ text: 'Delete', icon: 'lucide-trash-2', color: 'red', queueIndex: opIdx });
+				} else if (op.action === 'rename') {
+					badges.push({ text: 'Update', icon: 'lucide-pencil', color: 'blue', queueIndex: opIdx });
+				} else badges.push({ text: 'In Queue', icon: 'lucide-clock', color: 'purple', queueIndex: opIdx });
+			}
+
+			// BUBBLE UP child badges if parent is collapsed
+			const isExpanded = this.expandedIds.has(node.id);
+			if (!isExpanded && resolvedChildren.length > 0) {
+				const childBadges = resolvedChildren.flatMap(c => c.badges || []);
+				const seen = new Set<string>();
+				for (const b of childBadges) {
+					const key = `${b.text}-${b.icon}`;
+					if (!seen.has(key)) {
+						badges.push({ ...b, isInherited: true });
+						seen.add(key);
+					}
+				}
+			}
+
 			return {
 				...node,
-				icon: iconic?.icon ?? 'lucide-tag',
-				children: node.children ? this._resolveIcons(node.children) : [],
+				cls: cls,
+				icon: this.plugin.iconicService?.getTagIcon(meta.tagPath)?.icon ?? 'lucide-tag',
+				badges: badges,
+				children: resolvedChildren,
 			};
 		});
 	}
 
-	private async _renameTag(tagPath: string): Promise<void> {
-		const newName = await showInputModal(this.plugin.app, `Rename #${tagPath} to:`);
-		if (!newName) return;
+	private async _renameTag(tagPath: string, newName: string): Promise<void> {
+		if (!newName || newName === tagPath) return;
 		for (const file of this.plugin.app.vault.getMarkdownFiles()) {
 			await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 				if (!fm.tags) return;
@@ -161,7 +269,12 @@ export class TagsExplorerPanel extends Component {
 				const tags: string[] = Array.isArray(raw)
 					? (raw as unknown[]).map(v => String(v))
 					: (typeof raw === 'string' ? [raw] : []);
-				fm.tags = tags.map((t: string) => (t === tagPath || t === `#${tagPath}`) ? newName : t);
+				
+				const newTags = tags.map((t: string) => {
+					const cleanT = t.startsWith('#') ? t.slice(1) : t;
+					return (cleanT === tagPath) ? newName : t;
+				});
+				fm.tags = newTags;
 			});
 		}
 		this.logic.invalidate();

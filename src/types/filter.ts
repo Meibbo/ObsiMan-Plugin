@@ -18,6 +18,8 @@ export interface FilterGroup {
 	type: 'group';
 	logic: GroupLogic;
 	children: FilterNode[];
+	id?: string;
+	enabled?: boolean;
 }
 
 export interface FilterRule {
@@ -25,6 +27,8 @@ export interface FilterRule {
 	filterType: FilterType;
 	property: string;
 	values: string[];
+	id?: string;
+	enabled?: boolean;
 }
 
 export type FilterNode = FilterGroup | FilterRule;

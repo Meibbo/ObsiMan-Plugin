@@ -13,6 +13,7 @@ input: AI-gen
 
 > **This file is the live project state.** Every AI agent updates it at the end of their session.
 > The next agent reads it FIRST (after AGENTS.md) to pick up exactly where work stopped.
+> **See also: [[ObsiMan - Linter Gotchas]]** for recurring typing and linter solutions.
 
 ---
 
@@ -75,20 +76,38 @@ input: AI-gen
 
 ## Last updated
 - **Date**: 2026-04-14
-- **Agent**: Antigravity (Gemini Pro) — Session 28 (Parallel Backend Thread)
+- **Agent**: Antigravity (Gemini Pro) — Session 29 (Sharp UI & Badge Refactor)
 - **Branch**: `add-functions`
-- **Version**: `1.0.0-beta.12`
-- **Build status**: ✅ Build PASSING.
+- **Version**: `1.0.0-beta.13`
+- **Build status**: ✅ Build PASSING (Clean).
 
 ---
 
-## What was completed this session (2026-04-14, session 28 — Iter.16 Backend)
-This session was executed purely in parallel with Claude Code (who works on Iter.17 Popups & CSS). **No Svelte or CSS files were touched.**
-- **Queue Race Condition Fix**: Moved `logicFunc` evaluation *inside* the native Obsidian `processFrontMatter` callback to guarantee fresh disk buffers instead of relying on the async and volatile `metadataCache`.
-- **Advanced Alias Renaming**: Expanded `FileRenameModal.ts` to accept `*`, `[fecha]` and `(1)` dynamically inside memory.
-- **Queue Details UI Diffing**: Upgraded `simulateChanges` to track and emit `newPath` calculations. Updated `QueueDetailsModal.ts` to visually render file paths before/after applying (example: `old_name.md → new_name.md`).
-- **Templater Backend Hook**: Added the `APPLY_TEMPLATE` system signal. Modifying vault contents automatically when a template string is queried. Claude Code creates the Svelte UX to interact with this logic when it's done rendering popups.
-- **Badge & Highlighting System (Iter 20 Backend)**: Added the `NodeBadge` typing interface allowing multiple complex badges per item. Injected search text matching into `PropsExplorerPanel` and `TagsExplorerPanel`, computing `searchHighlightIds`. The view generator `UnifiedTreeView.ts` now natively prints `.obsiman-badge`, `.is-solid` attributes and the `.obsiman-search-highlight` wrapper automatically.
+---
+
+## What was completed this session (2026-04-14, session 31 — Island UI Restoration & Polish)
+- **Island UI & Interaction**:
+    - **Rising Glass Backdrop**: Implemented `obsiman-island-backdrop` with animated height and blur that covers the frame when islands are open.
+    - **Outside Click Closing**: Added backdrop click handler (and a11y keyboard support) to close islands when clicking anywhere outside.
+    - **Standardized Geometry**: Adjusted island max-height to `60vh` and standardized margins/borders for parity between Queue and Active Filters islands.
+- **Aesthetic & Visual Polish**:
+    - **Highlight Restoration**: Reverted highlighted tree nodes to use standard text/caret colors while maintaining the accent background and inset left-border.
+    - **Indentation Cleanup**: Removed "dot" icons from value nodes and ensured indentation spacers don't consume extra space when icons are missing.
+    - **Deleted State**: Implemented muted (`opacity: 0.5`) and strikethrough styles for properties/tags/values currently in the operation queue for deletion.
+- **Tags Explorer Enhancements**:
+    - **Inline Rename**: Refactored `UnifiedTreeView` and `TagsExplorerPanel` to support inline input fields for renaming, replacing the standard modal.
+    - **Context Menu**: Improved tag context menu reliability and added specialized actions.
+- **Stability & Types**:
+    - **TreeNode Expansion**: Added `cls` property to `TreeNode` for dynamic row styling.
+    - **Bug Fixes**: Resolved unhandled promises in event handlers and fixed icon type mismatches (`null` vs `undefined`).
+    - **Build Certification**: Verified `npm run build` PASSES (Clean).
+
+### What's next
+- [ ] Implement actual **templates** logic in the Queue Island (currently just a UI button).
+- [ ] **Iteration 17**: Finalize Level 4 Popups for Sort and View modes in the Filters header.
+- [ ] **Interaction**: Multi-select support in the tree views (Props/Tags).
+- [ ] **Mobile**: Test island responsiveness on small screens.
+- [ ] **Bugs**: Verify performance on vaults with >10k files during high-frequency filtering.
 
 ---
 
