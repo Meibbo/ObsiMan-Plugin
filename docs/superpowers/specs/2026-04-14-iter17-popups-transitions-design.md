@@ -1,5 +1,5 @@
 # Iter 17 — Filters Popups & Transitions Design
-**Date:** 2026-04-14  
+**Date:** 2026-04-14 (updated session 30)  
 **Status:** APPROVED — ready for implementation planning  
 **Branch:** `add-functions`
 
@@ -52,40 +52,43 @@ Layout: **2 rows + vert-col absolute left**
 
 ---
 
-## 3. View Mode Popup (Type D — designed session 28/iter17)
+## 3. View Mode Popup (Type D — confirmed 2026-04-14)
 
 Triggered by LEFT btn in Filters header. Replaces header with 2-row popup entering from RIGHT.
 
-### Layout: Option B — Two fixed rows
+### Layout
 
-**Row 1:**
 ```
-[‹ close] [divider] [Tree] [D&D] [Grid] [Cards] [Masonry]
+Row 1: [ ‹ close ] [ ⊞ template ] [ 🔍 search* ]  [ pill ][ pill ][ pill ] → scroll
+Row 2: [ sq-Tree ] [ sq-D&D ] [ sq-Grid ] [ sq-Cards ]
 ```
-- `‹` is a chevron-left icon button (not ×)
-- Pills: single-select, one active at a time
-- Active pill: `background: #3d2d6e; color: #c4aeff`
 
-**Row 2 — Hub toggles** (always visible except when Masonry is active):
-Content adapts to the **active tab** (not the active view mode):
+**Row 1 — controls + pills (horizontal scroll):**
+- **‹ close btn**: closes popup, header animates back (exits RIGHT, header enters from LEFT)
+- **⊞ template btn** (circle): save/load named view configurations — UI only in Iter 17 (no persistence logic)
+- **🔍 search btn** (circle): **only rendered** when active tab = Files AND active view = Grid. Opens inline prop search to add new column pills from the filtered files' available props.
+- **Pills** (`overflow-x: auto`, no visible scrollbar): toggle which columns/elements are visible. Multi-selectable. Pills added via search persist in plugin settings.
 
-| Active tab | Hub toggles |
-|------------|-------------|
-| Props | Nombre ✓ · Tipo ✓ · Conteo ✓ · Fecha · Sub-items |
-| Tags | Conteo ✓ · Sub-tags ✓ · Anidado · Solo simples |
-| Files | Nombre ✓ · Fecha ✓ · Ruta · Tamaño · Tags |
+**Row 2 — squircles (single-select view mode):**
+- One squircle active at a time. Selecting a new one switches the view.
+- Options: Tree · D&D · Grid · Cards
+- Active style: `background: #7b5ea740; border: 1px solid #7b5ea7; color: #c4a0f8`
+- Inactive style: `background: #252525; border: 1px solid #333; color: #444`
 
-- `✓` = enabled by default
-- Toggles are multi-selectable chips
-- Hub label (e.g. "Props:") muted left of chips
+### Pills per tab
 
-**Row 2 — Masonry exception:**  
-When the active pill is **Masonry**, row 2 collapses to `height: 0` with animated transition (CSS height + opacity). No content shown. Restores when any other pill is selected.
+| Tab | Active view | Default ON | Default OFF |
+|-----|-------------|-----------|-------------|
+| Tags | any | Icon, Text, Count | Files, Nested, Date |
+| Props | any | Icon, Text, Count | Type, Values, Date |
+| Files | Grid | Name, Date | Tags, Path, Size + dynamic props |
+| Files | Tree | Name, Ext | Date, Tags, Path |
+
+Dynamic props (Files/Grid): added via 🔍 search, stored per-vault in settings.
 
 ### Animation spec
-- Enter: slides in from RIGHT (translateX from +100% to 0), 280ms `cubic-bezier(0.4, 0, 0.2, 1)`
-- Exit: slides out to LEFT (translateX 0 to -100%), same easing
-- Row 2 height collapse: 150ms `ease` height + opacity
+- Enter: slides in from RIGHT (translateX +100% → 0), 280ms `cubic-bezier(0.4, 0, 0.2, 1)`
+- Exit: slides out to LEFT (translateX 0 → -100%), same easing
 
 ---
 
