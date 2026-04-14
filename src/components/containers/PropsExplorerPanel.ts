@@ -1,7 +1,16 @@
 // src/components/PropsExplorerPanel.ts
-import { Component } from 'obsidian';
-import type { ObsiManPlugin } from '../../../main';
+import { Component, App } from 'obsidian';
 import { PropsLogic } from '../../logic/PropsLogic';
+import type { FilterService } from '../../services/FilterService';
+import type { IconicService } from '../../services/IconicService';
+import type { ContextMenuService } from '../../services/ContextMenuService';
+
+export interface PanelPluginCtx {
+	app: App;
+	filterService: FilterService;
+	iconicService?: IconicService;
+	contextMenuService: ContextMenuService;
+}
 import { UnifiedTreeView } from '../layout/UnifiedTreeView';
 import type { TreeNode, PropMeta } from '../../types/tree';
 import { showInputModal } from '../../utils/inputModal';
@@ -19,13 +28,13 @@ const TYPE_ICON_MAP: Record<string, string> = {
 };
 
 export class PropsExplorerPanel extends Component {
-	private plugin: ObsiManPlugin;
+	private plugin: PanelPluginCtx;
 	private logic: PropsLogic;
 	private view: UnifiedTreeView;
 	private expandedIds = new Set<string>();
 	private searchTerm = '';
 
-	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin) {
+	constructor(containerEl: HTMLElement, plugin: PanelPluginCtx) {
 		super();
 		this.plugin = plugin;
 		this.logic = new PropsLogic(plugin.app);

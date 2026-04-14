@@ -1,13 +1,22 @@
 // src/services/ContextMenuService.ts
-import { Component, Menu, TFile, Notice } from 'obsidian';
-import type { ObsiManPlugin } from '../../main';
+import { Component, Menu, TFile, Notice, App } from 'obsidian';
 import type { ActionDef, MenuCtx, MenuHideRule } from '../types/context-menu';
 
+export interface ContextMenuPluginCtx extends Component {
+	app: App;
+	settings: {
+		contextMenuShowInMoreOptions: boolean;
+		contextMenuShowInFileMenu: boolean;
+		contextMenuShowInEditorMenu: boolean;
+		contextMenuHideRules: MenuHideRule[];
+	};
+}
+
 export class ContextMenuService extends Component {
-	private plugin: ObsiManPlugin;
+	private plugin: ContextMenuPluginCtx;
 	private _registry: ActionDef[] = [];
 
-	constructor(plugin: ObsiManPlugin) {
+	constructor(plugin: ContextMenuPluginCtx) {
 		super();
 		this.plugin = plugin;
 	}

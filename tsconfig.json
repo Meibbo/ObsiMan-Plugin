@@ -1,4 +1,5 @@
 {
+	// Cache reload triggered
 	"compilerOptions": {
 		"baseUrl": ".",
 		"target": "ES2022",

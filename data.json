@@ -26,6 +26,26 @@
   "filtersShowTabLabels": true,
   "filtersTabLabelsMigrated": true,
   "glassBlurIntensity": 5,
+  "contextMenuShowInFileMenu": true,
+  "contextMenuShowInEditorMenu": true,
+  "contextMenuShowInMoreOptions": true,
+  "contextMenuHideRules": [
+    {
+      "surface": "file-menu",
+      "titleMatch": "Reading view",
+      "enabled": true
+    },
+    {
+      "surface": "editor-menu",
+      "titleMatch": "Reading View",
+      "enabled": true
+    },
+    {
+      "surface": "file-menu",
+      "titleMatch": "Reading view",
+      "enabled": true
+    }
+  ],
   "gridColumns": [
     "type",
     "tags",

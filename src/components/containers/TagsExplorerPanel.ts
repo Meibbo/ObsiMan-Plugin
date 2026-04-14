@@ -1,21 +1,30 @@
 // src/components/TagsExplorerPanel.ts
-import { Component } from 'obsidian';
-import type { ObsiManPlugin } from '../../../main';
+import { Component, App } from 'obsidian';
 import { TagsLogic } from '../../logic/TagsLogic';
+import type { FilterService } from '../../services/FilterService';
+import type { IconicService } from '../../services/IconicService';
+import type { ContextMenuService } from '../../services/ContextMenuService';
+
+export interface PanelPluginCtx {
+	app: App;
+	filterService: FilterService;
+	iconicService?: IconicService;
+	contextMenuService: ContextMenuService;
+}
 import { UnifiedTreeView } from '../layout/UnifiedTreeView';
 import type { TreeNode, TagMeta } from '../../types/tree';
 import type { MenuCtx } from '../../types/context-menu';
 import { showInputModal } from '../../utils/inputModal';
 
 export class TagsExplorerPanel extends Component {
-	private plugin: ObsiManPlugin;
+	private plugin: PanelPluginCtx;
 	private logic: TagsLogic;
 	private view: UnifiedTreeView;
 	private expandedIds = new Set<string>();
 	private searchTerm = '';
 	private searchMode: 'all' | 'leaf' = 'all';
 
-	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin) {
+	constructor(containerEl: HTMLElement, plugin: PanelPluginCtx) {
 		super();
 		this.plugin = plugin;
 		this.logic = new TagsLogic(plugin.app);
