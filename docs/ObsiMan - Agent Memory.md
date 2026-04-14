@@ -74,11 +74,100 @@ input: AI-gen
 ---
 
 ## Last updated
-- **Date**: 2026-04-13
-- **Agent**: Antigravity (Gemini 1.5 Pro) — Session 24
+- **Date**: 2026-04-14
+- **Agent**: Claude Code (claude-sonnet-4-6) — Session 27
 - **Branch**: `add-functions`
-- **Version**: `1.0.0-beta.12` (Fixed source)
-- **Build status**: ✅ Build PASSING (100% TS types safe, 0 errors, 7 pre-existing Svelte warnings).
+- **Version**: `1.0.0-beta.12`
+- **Build status**: ✅ Build PASSING. All 4 integrity tests PASS.
+
+---
+
+## ✅ COMPLETE — ContextMenuService (Sessions 26–27)
+
+### What was done (Session 27 — full plan execution)
+
+All 9 tasks from `docs/superpowers/plans/2026-04-13-context-menu-service.md` executed and committed:
+
+| Commit | Task |
+|--------|------|
+| `2f6c3d5` | Types: `src/types/context-menu.ts` + settings fields |
+| `4a7d098` | `ContextMenuService` scaffold (registry, openPanelMenu, workspace hooks, curator) |
+| `1342886` | Wire in `main.ts` (`addChild`) |
+| `3ca09c1` | Migrate `TagsExplorerPanel` (3 actions) |
+| `8b4e556` | Migrate `PropsExplorerPanel` (10 actions L1+L2) |
+| `cdadd0b` | Migrate `FilesExplorerPanel` (3 actions) |
+| `8120056` | Workspace stub "Edit with VM" |
+| `5779819` | `MenuCuratorPanel` + Layout tab stub in `OperationsPage.svelte` |
+| `1e3f4eb` | Integrity test + test infra fixes |
+
+### Notes for next agent
+- **Panel action registration**: Panel actions (tag.*, prop.*, value.*, file.*) register in panel `onload()`, which fires when the ObsiMan view is mounted. Integrity test only checks `workspace.edit-with-vm` (registered at service load time).
+- **Test infra**: `obsidian` package has no runtime entry. Top-level `import { TFile }` removed from test file; `evalInObsidian` callbacks resolve Obsidian types at runtime inside Obsidian.
+- **Deleted `_updateValue`** in `PropsExplorerPanel.ts` — dead code after `_showContextMenu` removal.
+- **`OpsTab` union** in `src/types/ui.ts` now includes `"layout"`.
+- **Manual verification still needed**: right-click tags/props/files in panels, verify native file-menu gets ObsiMan section, test curator panel in Layout tab.
+
+### What's next
+- Iteration 16 (Operations Logic) or Statistics polish
+
+---
+
+## ✅ BRAINSTORM COMPLETE — ContextMenuService (Session 26)
+
+### Spec: `docs/superpowers/specs/2026-04-13-context-menu-service-design.md`
+### Plan: `docs/superpowers/plans/2026-04-13-context-menu-service.md`
+
+### All decisions locked
+- **Q1**: Unified `ContextMenuService` — in-frame panels + workspace native menus (file-menu, editor-menu, more-options) + Curator
+- **Q2**: `node + surface` two-dimensional registration
+- **Q3**: Flat options object `registerAction({ id, nodeTypes, surfaces, label, icon, when?, run })`
+- **Q4**: Panels become thin — all actions register through service (full migration, 3 panels)
+- **Q5**: Settings toggle per surface (`contextMenuShowInFileMenu/EditorMenu/MoreOptions`)
+- **Q6**: 17 actions total (tag×3, prop×3, value×7, file×3, workspace×1 stub)
+- **Q7**: Curator = title substring match via Settings; UI in Layout tab (MenuCuratorPanel); visual intercept picker deferred to future
+- **Rename note**: Plugin must become VaultMan (Obsidian store forbids app name in plugin ID). Deferred to store submission milestone. Workspace action label = "Edit with VM".
+
+### Plan summary (9 tasks)
+1. Types: `src/types/context-menu.ts` + settings fields
+2. `ContextMenuService` scaffold (registry, openPanelMenu, workspace hooks, _applyHideRules)
+3. Wire in `main.ts` (addChild)
+4. Migrate `TagsExplorerPanel` (3 actions)
+5. Migrate `PropsExplorerPanel` (10 actions: L1+L2)
+6. Migrate `FilesExplorerPanel` (3 actions)
+7. Workspace stub "Edit with VM"
+8. `MenuCuratorPanel` + Layout tab stub in `OperationsPage.svelte`
+9. Integrity test + reload
+
+### Canvas artifact
+`docs/ObsiMan - Architecture & Roadmap.canvas` — 51 nodes, 3 sections: Architecture, Roadmap, Wireframe. Use json-canvas skill to update it when architecture changes.
+
+### Questions still to answer (start here next session)
+- **Q3**: What does the registration API look like? (interface for `registerAction(...)`)
+- **Q4**: How does it integrate with existing Panel code without breaking them?
+- **Q5**: How does workspace-level visibility control work at runtime?
+- **Q6**: What are the exact actions for v1.0.0 (both in-frame and workspace)?
+
+### Visual companion server
+- Session dir: `<vault>/.superpowers/brainstorm/obsiman-live/`
+- Screens saved: `scope-v100.html`, `ctx-actions-scope.html`
+- **To restart server in new session** (Windows — must use bat method):
+  ```bash
+  cat > "C:/tmp/brainstorm-launch.bat" << 'BATEOF'
+  @echo off
+  set BRAINSTORM_DIR=c:/Users/vic_A/My Drive (vic_alejandronavas@outlook.com)/plugin-dev/.obsidian/plugins/obsiman/.superpowers/brainstorm/obsiman-live
+  set BRAINSTORM_HOST=127.0.0.1
+  set BRAINSTORM_URL_HOST=localhost
+  set BRAINSTORM_OWNER_PID=0
+  cd /d "C:/Users/vic_A/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7/skills/brainstorming/scripts"
+  node server.cjs
+  BATEOF
+  powershell.exe -Command "Start-Process -FilePath 'cmd.exe' -ArgumentList '/c','C:/tmp/brainstorm-launch.bat' -WindowStyle Hidden"
+  sleep 2
+  cat "c:/Users/vic_A/My Drive (vic_alejandronavas@outlook.com)/plugin-dev/.obsidian/plugins/obsiman/.superpowers/brainstorm/obsiman-live/state/server-info"
+  ```
+
+### v1.0.0 scope (full list saved in memory: project_v100_scope.md)
+Key items: navbar swap (hub=pages, pill=tabs), Content tab → Filters page, node click model (single=select, double/ctrl=open), tree CSS fixes, View/Sort modal brainstorm needed, FAB popup continuity.
 
 ---
 
@@ -98,6 +187,17 @@ input: AI-gen
 - Verified that `tsconfig.json` correctly tracks all new source files.
 
 ---
+
+## What was completed this session (2026-04-13, session 27 — ContextMenuService Lint Fix)
+- **Settings Refactor**: Replaced inline `import()` in `src/types/settings.ts` with explicit import for `MenuHideRule`.
+- **Type Safety**: Resolved 6 "unsafe" lint errors in `src/services/ContextMenuService.ts` by enabling correct type inference for context menu hide rules.
+- **Build Certification**: Verified `npm run build` PASSES (Exit code 0).
+
+## What was completed this session (2026-04-13, session 24 — Frame Recovery + Stats Localization)
+- **Frame Restoration**: Fixed broken relative imports in `ObsiManFrame.svelte` and corrected the missing `.obsiman-frame` CSS variable scope.
+- **Layout Expansion**: Added `obsiman-pages-viewport` and `obsiman-page-container` styles to `styles.css` to fix the "collapsed content" issue (Zero height).
+- **Statistics Localization**: Internationalized all labels in `StatisticsPage.svelte` using the `translate()` function and added missing keys to `en.ts`.
+- **Iteration 15 Certified**: Marked "Statistics Dashboard" as completed in the roadmap.
 
 ## What was completed this session (2026-04-13, session 23 — BUG-1 through BUG-14 verification + BUG-11 CSS fix)
 
