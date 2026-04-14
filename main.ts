@@ -7,6 +7,7 @@ import { OperationQueueService } from './src/services/OperationQueueService';
 import { ObsiManFrame, OBSIMAN_FRAME_TYPE } from './src/components/ObsiManFrame';
 import { IconicService } from './src/services/IconicService';
 import { PropertyTypeService } from './src/services/PropertyTypeService';
+import { ContextMenuService } from './src/services/ContextMenuService';
 import { ObsiManSettingsTab } from './src/settings/ObsiManSettingsTab';
 import { setLanguage, translate } from './src/i18n/index';
 
@@ -19,6 +20,7 @@ export class ObsiManPlugin extends Plugin {
 	queueService!: OperationQueueService;
 	iconicService!: IconicService;
 	propertyTypeService!: PropertyTypeService;
+	contextMenuService!: ContextMenuService;
 
 	// Native status bar element
 	private statusBarEl!: HTMLElement;
@@ -34,12 +36,14 @@ export class ObsiManPlugin extends Plugin {
 		this.queueService = new OperationQueueService(this.app);
 		this.iconicService = new IconicService(this.app);
 		this.propertyTypeService = new PropertyTypeService(this.app);
+		this.contextMenuService = new ContextMenuService(this);
 
 		this.addChild(this.propertyIndex);
 		this.addChild(this.filterService);
 		this.addChild(this.queueService);
 		this.addChild(this.iconicService);
 		this.addChild(this.propertyTypeService);
+		this.addChild(this.contextMenuService);
 
 		this.registerEvent(
 			this.app.metadataCache.on('resolved', () => {
