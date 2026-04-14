@@ -1,5 +1,5 @@
 // src/components/PropsExplorerPanel.ts
-import { Component, Menu } from 'obsidian';
+import { Component } from 'obsidian';
 import type { ObsiManPlugin } from '../../../main';
 import { PropsLogic } from '../../logic/PropsLogic';
 import { UnifiedTreeView } from '../layout/UnifiedTreeView';
@@ -33,6 +33,158 @@ export class PropsExplorerPanel extends Component {
 	}
 
 	onload(): void {
+		const svc = this.plugin.contextMenuService;
+
+		// ── L1: Property node actions ─────────────────────────────────────────
+		svc.registerAction({
+			id: 'prop.rename',
+			nodeTypes: ['prop'],
+			surfaces: ['panel', 'file-menu'],
+			label: 'Rename',
+			icon: 'lucide-pencil',
+			when: (ctx) => !(ctx.node.meta as PropMeta).isValueNode,
+			run: (ctx) => this._renameProp((ctx.node.meta as PropMeta).propName),
+		});
+
+		svc.registerAction({
+			id: 'prop.change-type',
+			nodeTypes: ['prop'],
+			surfaces: ['panel'],
+			label: 'Type',
+			icon: 'lucide-settings-2',
+			when: (ctx) => !(ctx.node.meta as PropMeta).isValueNode,
+			run: () => {
+				(this.plugin.app as unknown as {
+					commands: { executeCommandById(id: string): void };
+				}).commands.executeCommandById('properties:open-all');
+			},
+		});
+
+		svc.registerAction({
+			id: 'prop.delete',
+			nodeTypes: ['prop'],
+			surfaces: ['panel'],
+			label: 'Delete',
+			icon: 'lucide-trash-2',
+			when: (ctx) => !(ctx.node.meta as PropMeta).isValueNode,
+			run: (ctx) => this._deleteProp((ctx.node.meta as PropMeta).propName),
+		});
+
+		// ── L2: Value node actions ────────────────────────────────────────────
+		svc.registerAction({
+			id: 'value.rename',
+			nodeTypes: ['value'],
+			surfaces: ['panel'],
+			label: 'Rename',
+			icon: 'lucide-pencil',
+			when: (ctx) => (ctx.node.meta as PropMeta).isValueNode,
+			run: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				return this._renameValue(meta.propName, meta.rawValue ?? '');
+			},
+		});
+
+		svc.registerAction({
+			id: 'value.convert-to-wikilink',
+			nodeTypes: ['value'],
+			surfaces: ['panel'],
+			label: 'Convert to wikilink',
+			icon: 'lucide-brackets',
+			when: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				return meta.isValueNode &&
+					!meta.isTypeIncompatible &&
+					['text', 'list', 'multitext'].includes(meta.propType ?? '');
+			},
+			run: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				return this._convertValue(meta.propName, meta.rawValue ?? '', v => `[[${v}]]`);
+			},
+		});
+
+		svc.registerAction({
+			id: 'value.convert-to-mdlink',
+			nodeTypes: ['value'],
+			surfaces: ['panel'],
+			label: 'Convert to Markdown link',
+			icon: 'lucide-link',
+			when: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				return meta.isValueNode &&
+					!meta.isTypeIncompatible &&
+					['text', 'list', 'multitext'].includes(meta.propType ?? '');
+			},
+			run: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				return this._convertValue(meta.propName, meta.rawValue ?? '', v => `[${v}](${v})`);
+			},
+		});
+
+		svc.registerAction({
+			id: 'value.case-lower',
+			nodeTypes: ['value'],
+			surfaces: ['panel'],
+			label: 'Lowercase',
+			icon: 'lucide-case-lower',
+			when: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				return meta.isValueNode && !meta.isTypeIncompatible && meta.propType === 'text';
+			},
+			run: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				return this._convertValue(meta.propName, meta.rawValue ?? '', v => v.toLowerCase());
+			},
+		});
+
+		svc.registerAction({
+			id: 'value.case-upper',
+			nodeTypes: ['value'],
+			surfaces: ['panel'],
+			label: 'Uppercase',
+			icon: 'lucide-case-upper',
+			when: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				return meta.isValueNode && !meta.isTypeIncompatible && meta.propType === 'text';
+			},
+			run: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				return this._convertValue(meta.propName, meta.rawValue ?? '', v => v.toUpperCase());
+			},
+		});
+
+		svc.registerAction({
+			id: 'value.case-title',
+			nodeTypes: ['value'],
+			surfaces: ['panel'],
+			label: 'Title case',
+			icon: 'lucide-type',
+			when: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				return meta.isValueNode && !meta.isTypeIncompatible && meta.propType === 'text';
+			},
+			run: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				return this._convertValue(
+					meta.propName,
+					meta.rawValue ?? '',
+					v => v.replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()),
+				);
+			},
+		});
+
+		svc.registerAction({
+			id: 'value.delete',
+			nodeTypes: ['value'],
+			surfaces: ['panel'],
+			label: 'Delete value',
+			icon: 'lucide-trash-2',
+			when: (ctx) => (ctx.node.meta as PropMeta).isValueNode,
+			run: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				return this._deleteValue(meta.propName, meta.rawValue ?? '');
+			},
+		});
+
 		this.registerEvent(
 			this.plugin.app.metadataCache.on('resolved', () => {
 				this.logic.invalidate();
@@ -85,7 +237,16 @@ export class PropsExplorerPanel extends Component {
 					});
 				}
 			},
-			onContextMenu: (id: string, e: MouseEvent) => this._showContextMenu(id, e, tree),
+			onContextMenu: (id: string, e: MouseEvent) => {
+				const node = this._findNode(id, tree);
+				if (!node) return;
+				const meta = node.meta;
+				const nodeType: 'prop' | 'value' = meta.isValueNode ? 'value' : 'prop';
+				this.plugin.contextMenuService.openPanelMenu(
+					{ nodeType, node: node as TreeNode<unknown>, surface: 'panel' },
+					e,
+				);
+			},
 		});
 	}
 
@@ -107,90 +268,6 @@ export class PropsExplorerPanel extends Component {
 					: [],
 			};
 		});
-	}
-
-	private _showContextMenu(id: string, e: MouseEvent, tree: TreeNode<PropMeta>[]): void {
-		const node = this._findNode(id, tree);
-		if (!node) return;
-		const meta = node.meta;
-		const menu = new Menu();
-
-		if (!meta.isValueNode) {
-			// Property node context menu
-			menu.addItem(item =>
-				item.setTitle('Rename').setIcon('lucide-pencil').onClick(() => {
-					void this._renameProp(meta.propName);
-				}),
-			);
-			menu.addItem(item =>
-				item.setTitle('Type').setIcon('lucide-sliders').onClick(() => {
-					// Open Obsidian native property type picker via command
-					void (this.plugin.app as unknown as { commands: { executeCommandById(id: string): void } })
-						.commands.executeCommandById('properties:open-all');
-				}),
-			);
-			menu.addItem(item =>
-				item.setTitle('Delete').setIcon('lucide-trash').onClick(() => {
-					void this._deleteProp(meta.propName);
-				}),
-			);
-		} else {
-			// Value node context menu
-			menu.addItem(item =>
-				item.setTitle('Rename').setIcon('lucide-pencil').onClick(() => {
-					void this._renameValue(meta.propName, meta.rawValue ?? '');
-				}),
-			);
-
-			if (meta.isTypeIncompatible) {
-				menu.addItem(item =>
-					item.setTitle('Update incompatible value').setIcon('lucide-alert-triangle').onClick(() => {
-						void this._updateValue(meta.propName, meta.rawValue ?? '');
-					}),
-				);
-			} else if (meta.propType === 'text' || meta.propType === 'list' || meta.propType === 'multitext') {
-				menu.addSeparator();
-				menu.addItem(item =>
-					item.setTitle('Convert to wikilink').setIcon('lucide-link').onClick(() => {
-						void this._convertValue(meta.propName, meta.rawValue ?? '', v => `[[${v}]]`);
-					}),
-				);
-				menu.addItem(item =>
-					item.setTitle('Convert to Markdown link').setIcon('lucide-external-link').onClick(() => {
-						void this._convertValue(meta.propName, meta.rawValue ?? '', v => `[${v}](${v})`);
-					}),
-				);
-				if (meta.propType === 'text') {
-					menu.addSeparator();
-					menu.addItem(item =>
-						item.setTitle('Lowercase').onClick(() => {
-							void this._convertValue(meta.propName, meta.rawValue ?? '', v => v.toLowerCase());
-						}),
-					);
-					menu.addItem(item =>
-						item.setTitle('Uppercase').onClick(() => {
-							void this._convertValue(meta.propName, meta.rawValue ?? '', v => v.toUpperCase());
-						}),
-					);
-					menu.addItem(item =>
-						item.setTitle('Title case').onClick(() => {
-							void this._convertValue(meta.propName, meta.rawValue ?? '', v =>
-								v.replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()),
-							);
-						}),
-					);
-				}
-			}
-
-			menu.addSeparator();
-			menu.addItem(item =>
-				item.setTitle('Delete value').setIcon('lucide-trash').onClick(() => {
-					void this._deleteValue(meta.propName, meta.rawValue ?? '');
-				}),
-			);
-		}
-
-		menu.showAtMouseEvent(e);
 	}
 
 	private async _renameProp(propName: string): Promise<void> {
@@ -217,12 +294,6 @@ export class PropsExplorerPanel extends Component {
 
 	private async _renameValue(propName: string, oldValue: string): Promise<void> {
 		const newVal = await showInputModal(this.plugin.app, `Rename value "${oldValue}" to:`);
-		if (!newVal) return;
-		await this._replaceValueInVault(propName, oldValue, newVal);
-	}
-
-	private async _updateValue(propName: string, oldValue: string): Promise<void> {
-		const newVal = await showInputModal(this.plugin.app, `Replace incompatible value "${oldValue}" with:`);
 		if (!newVal) return;
 		await this._replaceValueInVault(propName, oldValue, newVal);
 	}
