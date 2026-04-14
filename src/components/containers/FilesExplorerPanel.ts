@@ -1,10 +1,11 @@
 // src/components/FilesExplorerPanel.ts
-import { Component, Menu, type TFile } from 'obsidian';
+import { Component, type TFile } from 'obsidian';
 import type { ObsiManPlugin } from '../../../main';
 import { FilesLogic } from '../../logic/FilesLogic';
 import { GridView } from '../layout/GridView';
 import { UnifiedTreeView } from '../layout/UnifiedTreeView';
 import type { TreeNode, FileMeta } from '../../types/tree';
+import type { MenuCtx } from '../../types/context-menu';
 import { FileRenameModal } from '../../modals/FileRenameModal';
 import { FileMoveModal } from '../../modals/FileMoveModal';
 
@@ -32,6 +33,56 @@ export class FilesExplorerPanel extends Component {
 	}
 
 	onload(): void {
+		const svc = this.plugin.contextMenuService;
+
+		svc.registerAction({
+			id: 'file.rename',
+			nodeTypes: ['file'],
+			surfaces: ['panel', 'file-menu'],
+			label: 'Rename',
+			icon: 'lucide-pencil',
+			run: (ctx: MenuCtx) => {
+				const meta = ctx.node.meta as FileMeta;
+				if (!meta.file) return;
+				new FileRenameModal(
+					this.plugin.app,
+					this.plugin.propertyIndex,
+					[meta.file],
+					(change) => this.plugin.queueService.add(change),
+				).open();
+			},
+		});
+
+		svc.registerAction({
+			id: 'file.delete',
+			nodeTypes: ['file'],
+			surfaces: ['panel', 'file-menu'],
+			label: 'Delete',
+			icon: 'lucide-trash',
+			run: (ctx: MenuCtx) => {
+				const meta = ctx.node.meta as FileMeta;
+				if (!meta.file) return;
+				return this.plugin.app.fileManager.trashFile(meta.file);
+			},
+		});
+
+		svc.registerAction({
+			id: 'file.move',
+			nodeTypes: ['file'],
+			surfaces: ['panel'],
+			label: 'Move file',
+			icon: 'lucide-folder-input',
+			run: (ctx: MenuCtx) => {
+				const meta = ctx.node.meta as FileMeta;
+				if (!meta.file) return;
+				new FileMoveModal(
+					this.plugin.app,
+					[meta.file],
+					(change) => this.plugin.queueService.add(change),
+				).open();
+			},
+		});
+
 		this._mountView();
 		this._render();
 	}
@@ -62,7 +113,13 @@ export class FilesExplorerPanel extends Component {
 		this.treeView = null;
 		if (this.viewMode === 'grid') {
 			this.gridView = new GridView(this.containerEl, this.plugin.app, {
-				onContextMenu: (file: TFile, e: MouseEvent) => this._showFileContextMenu(file, e),
+				onContextMenu: (file: TFile, e: MouseEvent) => {
+					const syntheticNode = { id: file.path, label: file.name, meta: { file, isFolder: false } as FileMeta, icon: '', depth: 0 };
+					this.plugin.contextMenuService.openPanelMenu(
+						{ nodeType: 'file', node: syntheticNode, surface: 'panel', file },
+						e,
+					);
+				},
 				onSelectionChange: (selected: Set<string>) => {
 					if (this.onSelectionChange) this.onSelectionChange(selected.size);
 				},
@@ -99,40 +156,15 @@ export class FilesExplorerPanel extends Component {
 				onContextMenu: (id: string, e: MouseEvent) => {
 					const node = this._findNode(id, tree);
 					if (!node) return;
-					const meta = node.meta;
-					if (!meta.isFolder && meta.file) this._showFileContextMenu(meta.file, e);
+					const meta = node.meta as FileMeta;
+					if (meta.isFolder || !meta.file) return;
+					this.plugin.contextMenuService.openPanelMenu(
+						{ nodeType: 'file', node: node as TreeNode<unknown>, surface: 'panel', file: meta.file },
+						e,
+					);
 				},
 			});
 		}
-	}
-
-	private _showFileContextMenu(file: TFile, e: MouseEvent): void {
-		const menu = new Menu();
-		menu.addItem(item =>
-			item.setTitle('Rename').setIcon('lucide-pencil').onClick(() => {
-				new FileRenameModal(
-					this.plugin.app,
-					this.plugin.propertyIndex,
-					[file],
-					(change) => this.plugin.queueService.add(change),
-				).open();
-			}),
-		);
-		menu.addItem(item =>
-			item.setTitle('Delete').setIcon('lucide-trash').onClick(() => {
-				void this.plugin.app.fileManager.trashFile(file);
-			}),
-		);
-		menu.addItem(item =>
-			item.setTitle('Move file').setIcon('lucide-folder-input').onClick(() => {
-				new FileMoveModal(
-					this.plugin.app,
-					[file],
-					(change) => this.plugin.queueService.add(change),
-				).open();
-			}),
-		);
-		menu.showAtMouseEvent(e);
 	}
 
 	private _findNode(id: string, nodes: TreeNode<FileMeta>[]): TreeNode<FileMeta> | null {
