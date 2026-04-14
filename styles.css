@@ -3803,3 +3803,65 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   0% { background-color: var(--color-accent); opacity: 0.4; }
   100% { background-color: transparent; opacity: 1; }
 }
+
+/* ── Menu Curator Panel ──────────────────────────────────────────────────── */
+.obsiman-curator-wrap {
+	padding: 12px 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+.obsiman-curator-title {
+	margin: 0;
+	font-size: var(--font-ui-medium);
+	font-weight: var(--font-semibold);
+	color: var(--text-normal);
+}
+.obsiman-curator-desc {
+	margin: 0;
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+}
+.obsiman-curator-list {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.obsiman-curator-empty {
+	color: var(--text-faint);
+	font-size: var(--font-ui-small);
+}
+.obsiman-curator-rule {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 8px;
+	border-radius: var(--radius-s);
+	background: var(--obsiman-bg-section);
+}
+.obsiman-curator-rule-text {
+	flex: 1;
+	font-size: var(--font-ui-small);
+	color: var(--text-normal);
+}
+.obsiman-curator-del-btn {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: var(--text-muted);
+	padding: 2px;
+}
+.obsiman-curator-form {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	flex-wrap: wrap;
+}
+.obsiman-curator-input {
+	flex: 1;
+	min-width: 120px;
+}
+.obsiman-curator-add-btn {
+	white-space: nowrap;
+}
+}

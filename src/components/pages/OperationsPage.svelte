@@ -11,6 +11,7 @@
 	import { PropertyManagerModal } from "../../modals/PropertyManagerModal";
 	import { LinterModal } from "../../modals/LinterModal";
 	import { QueueListComponent } from "../QueueListComponent";
+	import { MenuCuratorPanel } from "../containers/MenuCuratorPanel";
 	import FileOpsTab from "../tabs/OpsFilesTab.svelte";
 	import LinterTab from "../tabs/OpsLinterTab.svelte";
 	import { type PendingChange, FIND_REPLACE_CONTENT } from "../../types/operation";
@@ -47,6 +48,11 @@
 			id: "template",
 			label: translate("ops.tabs.template"),
 			icon: "lucide-layout-template",
+		},
+		{
+			id: "layout",
+			label: translate("ops.tabs.layout"),
+			icon: "lucide-layout",
 		},
 	];
 
@@ -137,6 +143,16 @@
 		// Inital render
 		queueList.render(plugin.queueService.queue);
 		return {};
+	};
+
+	const mountCurator = (node: HTMLElement) => {
+		const panel = new MenuCuratorPanel(node, plugin);
+		plugin.addChild(panel);
+		return {
+			destroy() {
+				plugin.removeChild(panel);
+			},
+		};
 	};
 
 	// Keep queue list rendered
@@ -313,5 +329,10 @@
 		<div class="obsiman-coming-soon">
 			{translate("ops.coming_soon")}
 		</div>
+	</div>
+
+	<!-- Layout tab -->
+	<div class="obsiman-tab-content" class:is-active={opsTab === "layout"}>
+		<div class="obsiman-layout-curator" use:mountCurator></div>
 	</div>
 </div>
