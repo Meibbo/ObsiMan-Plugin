@@ -46,6 +46,18 @@ export class ContextMenuService extends Component {
 				this._applyHideRules(menu, 'editor-menu');
 			}),
 		);
+
+		// Stub: body implemented post-rename in v1.1
+		this.registerAction({
+			id: 'workspace.edit-with-vm',
+			nodeTypes: ['file'],
+			surfaces: ['file-menu', 'editor-menu'],
+			label: 'Edit with VM',
+			icon: 'lucide-dessert',
+			run: (_ctx) => {
+				// TODO v1.1: open ObsiMan focused on this file after rename to VaultMan
+			},
+		});
 	}
 
 	registerAction(def: ActionDef): void {
