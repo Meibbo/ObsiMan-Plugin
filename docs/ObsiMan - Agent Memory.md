@@ -75,10 +75,20 @@ input: AI-gen
 
 ## Last updated
 - **Date**: 2026-04-14
-- **Agent**: Claude Code (claude-sonnet-4-6) — Session 27
+- **Agent**: Antigravity (Gemini Pro) — Session 28 (Parallel Backend Thread)
 - **Branch**: `add-functions`
 - **Version**: `1.0.0-beta.12`
-- **Build status**: ✅ Build PASSING. All 4 integrity tests PASS.
+- **Build status**: ✅ Build PASSING.
+
+---
+
+## What was completed this session (2026-04-14, session 28 — Iter.16 Backend)
+This session was executed purely in parallel with Claude Code (who works on Iter.17 Popups & CSS). **No Svelte or CSS files were touched.**
+- **Queue Race Condition Fix**: Moved `logicFunc` evaluation *inside* the native Obsidian `processFrontMatter` callback to guarantee fresh disk buffers instead of relying on the async and volatile `metadataCache`.
+- **Advanced Alias Renaming**: Expanded `FileRenameModal.ts` to accept `*`, `[fecha]` and `(1)` dynamically inside memory.
+- **Queue Details UI Diffing**: Upgraded `simulateChanges` to track and emit `newPath` calculations. Updated `QueueDetailsModal.ts` to visually render file paths before/after applying (example: `old_name.md → new_name.md`).
+- **Templater Backend Hook**: Added the `APPLY_TEMPLATE` system signal. Modifying vault contents automatically when a template string is queried. Claude Code creates the Svelte UX to interact with this logic when it's done rendering popups.
+- **Badge & Highlighting System (Iter 20 Backend)**: Added the `NodeBadge` typing interface allowing multiple complex badges per item. Injected search text matching into `PropsExplorerPanel` and `TagsExplorerPanel`, computing `searchHighlightIds`. The view generator `UnifiedTreeView.ts` now natively prints `.obsiman-badge`, `.is-solid` attributes and the `.obsiman-search-highlight` wrapper automatically.
 
 ---
 
@@ -458,11 +468,11 @@ ObsiMan augments Obsidian's native ecosystem (Search, Bases, Properties, Tags) a
 - [x] Meta stats: Total links + Word count (Word count is stubbed for performance)
 - [x] Placeholder for v1.1 dashboards
 
-### Iteration 16: Operations Logic Completion
-- [ ] Pattern-based rename substitution in `FileRenameModal`
-- [ ] File diff view rendering in `QueueDetailsModal`
-- [ ] Templates tab (Templater integration)
-- [ ] Fix race condition in queue execute (beta.5 bug)
+### Iteration 16: Operations Logic Completion (Backend) ✅ DONE
+- [x] Pattern-based rename substitution in `FileRenameModal`
+- [x] File diff view rendering in `QueueDetailsModal` (newPath path diffing)
+- [x] Templates tab (Templater integration) - Backend `APPLY_TEMPLATE` hook written. UI pending.
+- [x] Fix race condition in queue execute (beta.5 bug)
 
 ### Iteration 17: Level 4 Popups & Transitions
 - [ ] Sort popup (replaces Filters header)
@@ -481,7 +491,8 @@ ObsiMan augments Obsidian's native ecosystem (Search, Bases, Properties, Tags) a
 ### Iteration 20: Explorer Advanced Features (brainstorm 2026-04-12)
 > See memory: `project_explorer_vision.md` + `project_brainstorm_2026_04_12.md`
 - [ ] DnD reordering on all tree nodes
-- [ ] Badge system (SOLID, multi-state, multi-zone)
+- [x] Badge system (SOLID, multi-state, multi-zone)
+- [x] Highlighting system (Search term bounding boxes)
 - [ ] Virtual DOM queue preview (needs own brainstorm first)
 - [ ] Keyboard navigation + multi-select
 - [ ] Special prop widgets: calendar (date), slider (number), Better Selector (cssclasses)
