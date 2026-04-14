@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { evalInObsidian } from 'obsidian-integration-testing';
-import { TFile } from 'obsidian';
 import type { App } from 'obsidian';
 
 /**
@@ -12,6 +11,9 @@ interface ObsidianPluginManager {
         propertyIndex?: unknown;
         filterService?: unknown;
         queueService?: unknown;
+        contextMenuService?: {
+            _registry: Array<{ id: string }>;
+        };
     }>;
 }
 
@@ -35,7 +37,19 @@ describe('ObsiMan Integration Tests', () => {
 
     it('can access the vault and create a file', async () => {
         const fileName = 'integration-test-sample.md';
-        
+
+        // Delete if left over from a previous failed run
+        await evalInObsidian({
+            args: { fileName },
+            fn: async ({ app, fileName }) => {
+                if (typeof fileName !== 'string') return;
+                const existing = app.vault.getAbstractFileByPath(fileName);
+                if (existing && 'extension' in existing) {
+                    await app.fileManager.trashFile(existing as Parameters<typeof app.fileManager.trashFile>[0]);
+                }
+            }
+        });
+
         await evalInObsidian({
             args: { fileName },
             fn: async ({ app, fileName }) => {
@@ -58,9 +72,9 @@ describe('ObsiMan Integration Tests', () => {
             fn: async ({ app, fileName }) => {
                 if (typeof fileName !== 'string') return;
                 const file = app.vault.getAbstractFileByPath(fileName);
-                // Use instanceof TFile instead of casting to respect linter
-                if (file instanceof TFile) {
-                    await app.fileManager.trashFile(file);
+                // Guard: only trash if it's a file (has an extension), not a folder
+                if (file && 'extension' in file) {
+                    await app.fileManager.trashFile(file as Parameters<typeof app.fileManager.trashFile>[0]);
                 }
             }
         });
@@ -78,9 +92,29 @@ describe('ObsiMan Integration Tests', () => {
                 };
             }
         });
-        
+
         expect(services.propertyIndex).toBe(true);
         expect(services.filterService).toBe(true);
         expect(services.queueService).toBe(true);
+    });
+
+    it('ContextMenuService is registered on the plugin', async () => {
+        // Panel actions (tag.*, prop.*, value.*, file.*) register in panel onload(),
+        // which only runs when the ObsiMan view is mounted. In the test environment
+        // the view is not open, so we only verify: service exists + workspace stub action.
+        const result = await evalInObsidian({
+            fn: ({ app }) => {
+                const extendedApp = app as ExtendedApp;
+                const plugin = extendedApp.plugins.plugins.obsiman;
+                if (!plugin) return { ok: false, reason: 'plugin not found' };
+                const svc = plugin.contextMenuService;
+                if (!svc) return { ok: false, reason: 'contextMenuService not found' };
+                const registeredIds = svc._registry.map((a: { id: string }) => a.id);
+                const hasStub = registeredIds.includes('workspace.edit-with-vm');
+                if (!hasStub) return { ok: false, reason: `workspace stub not found; registry: ${registeredIds.join(', ')}` };
+                return { ok: true, reason: '' };
+            }
+        });
+        expect(result.ok).toBe(true);
     });
 });
