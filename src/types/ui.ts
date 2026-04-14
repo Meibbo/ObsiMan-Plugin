@@ -7,7 +7,7 @@ export type PopupType =
 	| "search"
 	| "move";
 
-export type OpsTab = "fileops" | "linter" | "template" | "content";
+export type OpsTab = "fileops" | "linter" | "template" | "content" | "layout";
 
 export interface OpsTabDef {
 	id: OpsTab;
