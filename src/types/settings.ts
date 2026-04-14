@@ -56,6 +56,14 @@ export interface ObsiManSettings {
 	gridRenderChunkSize?: number;
 	/** Columns shown in the property grid */
 	gridColumns?: string[];
+	/** Show ObsiMan items in Obsidian's file-menu (right-click in explorer) */
+	contextMenuShowInFileMenu: boolean;
+	/** Show ObsiMan items in Obsidian's editor-menu (right-click in editor) */
+	contextMenuShowInEditorMenu: boolean;
+	/** Show ObsiMan items in Obsidian's more-options menu (··· button) */
+	contextMenuShowInMoreOptions: boolean;
+	/** Rules for hiding native/third-party items from workspace context menus */
+	contextMenuHideRules: import('./context-menu').MenuHideRule[];
 }
 
 export const DEFAULT_SETTINGS: ObsiManSettings = {
@@ -82,4 +90,8 @@ export const DEFAULT_SETTINGS: ObsiManSettings = {
 	filtersShowTabLabels: true,
 	filtersTabLabelsMigrated: true,
 	glassBlurIntensity: 60,
+	contextMenuShowInFileMenu: true,
+	contextMenuShowInEditorMenu: true,
+	contextMenuShowInMoreOptions: true,
+	contextMenuHideRules: [],
 };
