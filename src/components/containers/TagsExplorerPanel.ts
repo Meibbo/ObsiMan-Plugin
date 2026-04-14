@@ -1,9 +1,10 @@
 // src/components/TagsExplorerPanel.ts
-import { Component, Menu } from 'obsidian';
+import { Component } from 'obsidian';
 import type { ObsiManPlugin } from '../../../main';
 import { TagsLogic } from '../../logic/TagsLogic';
 import { UnifiedTreeView } from '../layout/UnifiedTreeView';
 import type { TreeNode, TagMeta } from '../../types/tree';
+import type { MenuCtx } from '../../types/context-menu';
 import { showInputModal } from '../../utils/inputModal';
 
 export class TagsExplorerPanel extends Component {
@@ -22,6 +23,45 @@ export class TagsExplorerPanel extends Component {
 	}
 
 	onload(): void {
+		// Register context menu actions through the service
+		const svc = this.plugin.contextMenuService;
+
+		svc.registerAction({
+			id: 'tag.rename',
+			nodeTypes: ['tag'],
+			surfaces: ['panel', 'file-menu'],
+			label: 'Rename',
+			icon: 'lucide-pencil',
+			run: (ctx: MenuCtx) => {
+				const meta = ctx.node.meta as TagMeta;
+				return this._renameTag(meta.tagPath);
+			},
+		});
+
+		svc.registerAction({
+			id: 'tag.delete',
+			nodeTypes: ['tag'],
+			surfaces: ['panel'],
+			label: 'Delete',
+			icon: 'lucide-trash-2',
+			run: (ctx: MenuCtx) => {
+				const meta = ctx.node.meta as TagMeta;
+				return this._deleteTag(meta.tagPath);
+			},
+		});
+
+		svc.registerAction({
+			id: 'tag.inline-to-frontmatter',
+			nodeTypes: ['tag'],
+			surfaces: ['panel'],
+			label: 'Send all inline to frontmatter',
+			icon: 'lucide-arrow-up-to-line',
+			run: (ctx: MenuCtx) => {
+				const meta = ctx.node.meta as TagMeta;
+				return this._sendToFrontmatter(meta.tagPath);
+			},
+		});
+
 		this.registerEvent(
 			this.plugin.app.metadataCache.on('resolved', () => {
 				this.logic.invalidate();
@@ -79,7 +119,14 @@ export class TagsExplorerPanel extends Component {
 					values: [`#${meta.tagPath}`],
 				});
 			},
-			onContextMenu: (id: string, e: MouseEvent) => this._showContextMenu(id, e, tree),
+			onContextMenu: (id: string, e: MouseEvent) => {
+				const node = this._findNode(id, tree);
+				if (!node) return;
+				this.plugin.contextMenuService.openPanelMenu(
+					{ nodeType: 'tag', node: node as TreeNode<unknown>, surface: 'panel' },
+					e,
+				);
+			},
 		});
 	}
 
@@ -93,31 +140,6 @@ export class TagsExplorerPanel extends Component {
 				children: node.children ? this._resolveIcons(node.children) : [],
 			};
 		});
-	}
-
-	private _showContextMenu(id: string, e: MouseEvent, tree: TreeNode<TagMeta>[]): void {
-		const node = this._findNode(id, tree);
-		if (!node) return;
-		const meta = node.meta;
-		const menu = new Menu();
-
-		menu.addItem(item =>
-			item.setTitle('Rename').setIcon('lucide-pencil').onClick(() => {
-				void this._renameTag(meta.tagPath);
-			}),
-		);
-		menu.addItem(item =>
-			item.setTitle('Delete').setIcon('lucide-trash').onClick(() => {
-				void this._deleteTag(meta.tagPath);
-			}),
-		);
-		menu.addItem(item =>
-			item.setTitle('Send to frontmatter').setIcon('lucide-arrow-up-to-line').onClick(() => {
-				void this._sendToFrontmatter(meta.tagPath);
-			}),
-		);
-
-		menu.showAtMouseEvent(e);
 	}
 
 	private async _renameTag(tagPath: string): Promise<void> {
