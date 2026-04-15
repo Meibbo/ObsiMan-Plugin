@@ -70,6 +70,7 @@ export const en: Record<string, string> = {
 	'prop.action.delete': 'Delete',
 	'prop.action.clean': 'Clean empty',
 	'prop.action.change_type': 'Change type',
+	'prop.action.add': 'Add',
 	'prop.type': 'Type',
 	'prop.type.text': 'Text',
 	'prop.type.number': 'Number',
@@ -447,6 +448,7 @@ export const en: Record<string, string> = {
 	'viewmode.pill.tags':   'Tags',
 	'viewmode.pill.path':   'Path',
 	'viewmode.pill.size':   'Size',
+	'viewmode.add_mode':    'ADD mode',
 
 	// Statistics
 	'stats.folders': 'Folders',

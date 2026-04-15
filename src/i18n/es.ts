@@ -67,6 +67,7 @@ export const es: Record<string, string> = {
 	'prop.action.delete': 'Eliminar',
 	'prop.action.clean': 'Limpiar vacías',
 	'prop.action.change_type': 'Cambiar tipo',
+	'prop.action.add': 'Agregar',
 	'prop.type': 'Tipo',
 	'prop.type.text': 'Texto',
 	'prop.type.number': 'Número',
@@ -271,4 +272,5 @@ export const es: Record<string, string> = {
 	'settings.grid_editable_columns.desc': 'Columnas que permiten edición en línea (separadas por coma, incluir "name" para renombrar)',
 	'settings.base_file': 'Ruta del archivo base',
 	'settings.base_file.desc': 'Ruta a un archivo .base para sincronización bidireccional con Obsidian Bases',
+	'viewmode.add_mode':    'Modo AGREGAR',
 };

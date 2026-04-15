@@ -17,6 +17,7 @@
     propExplorer,
     fileList,
     icon,
+    addOpCount = 0,
   }: {
     activeTab: FiltersTab;
     filtersSearch: string;
@@ -25,6 +26,7 @@
     propExplorer: PropsExplorerPanel | undefined;
     fileList: FilesExplorerPanel | undefined;
     icon: (node: HTMLElement, name: string) => { update(n: string): void };
+    addOpCount?: number;
   } = $props();
 
   const CATEGORY_ICONS: Record<FiltersTab, [string, string]> = {
@@ -57,32 +59,24 @@
   }
 
   function handleSortChange(sortBy: string, direction: "asc" | "desc") {
-    // @ts-ignore — setSortBy added in Task 7
     if (activeTab === "files")  fileList?.setSortBy(sortBy, direction);
-    // @ts-ignore — setSortBy added in Task 7
     if (activeTab === "props")  propExplorer?.setSortBy(sortBy, direction);
-    // @ts-ignore — setSortBy added in Task 7
     if (activeTab === "tags")   tagsExplorer?.setSortBy(sortBy, direction);
   }
 
   function handleViewModeChange(mode: "tree" | "dnd" | "grid" | "cards") {
     currentViewMode = mode;
     if (activeTab === "files") {
-      // @ts-ignore — setViewMode exists on FilesExplorerPanel
       fileList?.setViewMode(mode === "grid" ? "grid" : "tree");
     } else if (activeTab === "props") {
-      // @ts-ignore — setViewMode exists on PropsExplorerPanel
       propExplorer?.setViewMode(mode === "grid" ? "grid" : "tree");
     }
     // tags: tree-only, no-op
   }
 
   function handleAddModeChange(active: boolean) {
-    // @ts-ignore — setAddMode added in Task 9
     propExplorer?.setAddMode(active);
-    // @ts-ignore
     fileList?.setAddMode(active);
-    // @ts-ignore
     tagsExplorer?.setAddMode(active);
   }
 </script>
@@ -149,6 +143,7 @@
           onViewModeChange={handleViewModeChange}
           onAddModeChange={handleAddModeChange}
           initialViewMode={activeTab === "files" ? currentViewMode : "tree"}
+          {addOpCount}
           {icon} />
       </div>
     {/if}

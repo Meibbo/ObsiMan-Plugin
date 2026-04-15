@@ -218,7 +218,7 @@ export class TagsExplorerPanel extends Component {
 					this.plugin.queueService.add({
 						type: 'tag',
 						tag: meta.tagPath,
-						action: 'rename' as 'rename' | 'delete', // placeholder until TagChange.action includes 'add'
+						action: 'add',
 						details: `Add tag "#${meta.tagPath}"`,
 						files: this.plugin.filterService.filteredFiles,
 						customLogic: true,
@@ -299,6 +299,8 @@ export class TagsExplorerPanel extends Component {
 					badges.push({ text: 'Delete', icon: 'lucide-trash-2', color: 'red', queueIndex: opIdx });
 				} else if (op.action === 'rename') {
 					badges.push({ text: 'Update', icon: 'lucide-pencil', color: 'blue', queueIndex: opIdx });
+				} else if (op.action === 'add') {
+					badges.push({ text: 'Add', icon: 'lucide-plus', color: 'green', queueIndex: opIdx });
 				} else badges.push({ text: 'In Queue', icon: 'lucide-clock', color: 'purple', queueIndex: opIdx });
 			}
 

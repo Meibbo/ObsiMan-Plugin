@@ -8,6 +8,7 @@ import type { TreeNode, FileMeta } from '../../types/typeTree';
 import type { MenuCtx } from '../../types/typeCMenu';
 import { FileRenameModal } from '../../modals/modalFileRename';
 import { FileMoveModal } from '../../modals/modalFileMove';
+import { PropertyManagerModal } from '../../modals/modalPropertyManager';
 
 export type FilesViewMode = 'grid' | 'tree';
 
@@ -23,6 +24,7 @@ export class FilesExplorerPanel extends Component {
 	private _totalCount = 0;
 	private sortBy: string = 'name';
 	private sortDir: 'asc' | 'desc' = 'asc';
+	private addMode = false;
 
 	private onSelectionChange?: (count: number) => void;
 
@@ -89,8 +91,8 @@ export class FilesExplorerPanel extends Component {
 		this._render();
 	}
 
-	setAddMode(_active: boolean): void {
-		// ADD mode for files is a no-op in Iter 19 — wired so navbarFilters call doesn't throw
+	setAddMode(active: boolean): void {
+		this.addMode = active;
 	}
 
 	setViewMode(mode: FilesViewMode): void {
@@ -142,6 +144,17 @@ export class FilesExplorerPanel extends Component {
 					if (this.onSelectionChange) this.onSelectionChange(selected.size);
 				},
 				onFileClick: (file: TFile) => {
+					if (this.addMode) {
+						const selected = this.getSelectedFiles();
+						const targets = selected.length > 0 ? (selected.includes(file) ? selected : [...selected, file]) : [file];
+						new PropertyManagerModal(
+							this.plugin.app,
+							this.plugin.propertyIndex,
+							targets,
+							(change) => this.plugin.queueService.add(change),
+						).open();
+						return;
+					}
 					void this.plugin.app.workspace.openLinkText(file.path, '', false);
 				},
 			});
@@ -196,6 +209,15 @@ export class FilesExplorerPanel extends Component {
 					if (!node) return;
 					const meta = node.meta;
 					if (!meta.isFolder && meta.file) {
+						if (this.addMode) {
+							new PropertyManagerModal(
+								this.plugin.app,
+								this.plugin.propertyIndex,
+								[meta.file],
+								(change) => this.plugin.queueService.add(change),
+							).open();
+							return;
+						}
 						void this.plugin.app.workspace.openLinkText(meta.file.path, '', false);
 					}
 				},
