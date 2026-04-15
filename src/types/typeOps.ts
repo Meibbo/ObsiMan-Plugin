@@ -14,7 +14,8 @@ export type PropertyAction =
 	| 'rename'
 	| 'delete'
 	| 'clean_empty'
-	| 'change_type';
+	| 'change_type'
+	| 'add';
 
 export type PropertyType =
 	| 'text'

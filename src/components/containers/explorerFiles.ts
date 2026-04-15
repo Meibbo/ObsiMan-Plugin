@@ -89,6 +89,10 @@ export class FilesExplorerPanel extends Component {
 		this._render();
 	}
 
+	setAddMode(_active: boolean): void {
+		// ADD mode for files is a no-op in Iter 19 — wired so navbarFilters call doesn't throw
+	}
+
 	setViewMode(mode: FilesViewMode): void {
 		this.viewMode = mode;
 		this._mountView();

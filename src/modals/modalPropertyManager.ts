@@ -363,6 +363,9 @@ export class PropertyManagerModal extends Modal {
 					},
 					customLogic: false,
 				};
+
+			default:
+				return null;
 		}
 	}
 
