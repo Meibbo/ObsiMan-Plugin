@@ -76,16 +76,20 @@ input: AI-gen
 
 ## Last updated
 - **Date**: 2026-04-15
-- **Agent**: Antigravity (Gemini 1.5) — Session 36 (Finalizing ADD mode + Badge system)
+- **Agent**: Antigravity (Gemini 1.5) — Session 36 (Finalizing ADD mode + Badge system + beta.15 release)
 
 ## Iter 19.2 summary (2026-04-15)
-All deferred and cleanup tasks for Iteration 19 / 20-start shipped. Key accomplishments:
+All deferred and cleanup tasks for Iteration 19 / 20-start shipped. Released as **1.0.0-beta.15**.
+Key accomplishments:
 - **Tag Operations**: Extended `TagChange.action` union to include `'add'`.
 - **Files Explorer ADD mode**: Implemented behavior for ADD mode in `FilesExplorerPanel`. Clicking a file (or selected files) now opens `PropertyManagerModal` in 'add' mode.
 - **Property Manager**: Added `'add'` action support to `PropertyManagerModal` (UI dropdown + `buildChange()` logic).
 - **Badge System**: Implemented `addOpCount` tracking using `$derived` from `queueService`. Passed the count through `FiltersPage` → `NavbarFilters` → `ViewModePopup` to render a badge on the ADD mode FAB.
 - **Localisation**: Added strings for `'add'` action and `'ADD mode'` in both `en.ts` and `es.ts`.
 - **Cleanup**: Removed legacy `@ts-ignore` from `navbarFilters.svelte` as methods are now fully typed and implemented.
+- **Git**: Merged `add-functions` into `main` and tagged `1.0.0-beta.15`.
+- **Branch**: `add-functions`
+- **Version**: `1.0.0-beta.15`
 - **Build status**: ✅ Build PASSING (Clean — 0 warnings, 0 errors).
 
 ---

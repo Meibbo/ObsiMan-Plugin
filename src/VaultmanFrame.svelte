@@ -9,7 +9,7 @@
 	import FiltersPage from "./components/pages/pageFilters.svelte";
 	import OperationsPage from "./components/pages/pageOps.svelte";
 	import BottomNav from "./components/layout/navbarPillFab.svelte";
-	import PopupOverlay from "./components/layout/popupOverlay.svelte";
+	import PopupOverlay from "./components/layout/PopupOverlay.svelte";
 	import { QueueListComponent } from "./components/componentQueueList";
 	import { QueueIslandComponent } from "./components/layout/islandQueue";
 	import { ActiveFiltersIslandComponent } from "./components/layout/islandActiveFilters";
