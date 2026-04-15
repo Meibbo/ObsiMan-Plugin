@@ -154,3 +154,4 @@ export class VaultmanPlugin extends Plugin {
 }
 
 export default VaultmanPlugin;
+
