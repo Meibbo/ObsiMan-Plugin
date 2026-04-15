@@ -1,12 +1,11 @@
 import { PluginSettingTab, Setting, type App } from 'obsidian';
-import type { VaultmanPlugin } from '../../main';
-import type { Language } from '../types/settings';
+import type { iVaultmanPlugin, Language } from '../types/settings';
 import { translate, setLanguage } from '../i18n/index';
 
 export class VaultmanSettingsTab extends PluginSettingTab {
-	private plugin: VaultmanPlugin;
+	private plugin: iVaultmanPlugin;
 
-	constructor(app: App, plugin: VaultmanPlugin) {
+	constructor(app: App, plugin: iVaultmanPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}

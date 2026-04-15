@@ -1,3 +1,4 @@
+import type { Plugin } from 'obsidian';
 import type { FilterTemplate } from './filter';
 import type { MenuHideRule } from './context-menu';
 
@@ -65,6 +66,13 @@ export interface VaultmanSettings {
 	contextMenuShowInMoreOptions: boolean;
 	/** Rules for hiding native/third-party items from workspace context menus */
 	contextMenuHideRules: MenuHideRule[];
+}
+
+/** Minimal interface used by VaultmanSettingsTab — breaks the main.ts circular import. */
+export interface iVaultmanPlugin extends Plugin {
+	settings: VaultmanSettings;
+	saveSettings(): Promise<void>;
+	updateGlassBlur(): void;
 }
 
 export const DEFAULT_SETTINGS: VaultmanSettings = {
