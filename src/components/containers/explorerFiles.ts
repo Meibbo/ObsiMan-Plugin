@@ -158,6 +158,15 @@ export class FilesExplorerPanel extends Component {
 			this.gridView.render(this._sortFiles(this._currentFiles), this._totalCount);
 		} else if (this.viewMode === 'tree' && this.treeView) {
 			const tree = this.logic.buildFileTree(this._sortFiles(this._currentFiles));
+			const applyFolderIcons = (nodes: TreeNode<FileMeta>[], expanded: Set<string>): void => {
+				for (const n of nodes) {
+					if (n.meta.isFolder) {
+						n.icon = expanded.has(n.id) ? 'lucide-folder-open' : 'lucide-folder';
+					}
+					if (n.children?.length) applyFolderIcons(n.children, expanded);
+				}
+			};
+			applyFolderIcons(tree, this.expandedIds);
 			this.treeView.render({
 				nodes: tree as TreeNode[],
 				expandedIds: this.expandedIds,
