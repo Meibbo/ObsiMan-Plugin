@@ -1,12 +1,59 @@
 # HANDOFF — Vaultman Next Session
 
-> Generated: 2026-04-15 | From: Claude Code (Sonnet 4.6) Session 35 → To: next agent
-> Branch: `add-functions` | Version: `1.0.0-beta.13` | Build: ✅ passing (EXIT 0, 4 warnings)
-> **Iter 19 COMPLETE. Iter 20 spec TBD — see deferred items below.**
+> Generated: 2026-04-15 | From: Claude Code (Sonnet 4.6) Session 35 → To: next agent (Gemini)
+> Branch: `add-functions` | Version: `1.0.0-beta.13` | Build: ⚠️ passing (EXIT 0, **4 warnings to fix**)
+> **Iter 19 COMPLETE. Next task: fix warnings → bump beta.14 → push + PR.**
 
 ---
 
-## What to do next: Iter 20 (deferred items from Iter 19)
+## IMMEDIATE NEXT TASK (do this before anything else)
+
+### Step A — Fix 4 Svelte build warnings in `popupView.svelte`
+
+All 4 warnings are `state_referenced_locally` from Svelte 5. The fix is wrapping initializations with `untrack()`:
+
+**File:** `src/components/layout/popupView.svelte`
+
+Add import at top of `<script>`:
+```typescript
+import { untrack } from 'svelte';
+```
+
+Then change the three `$state` initializations that capture prop values:
+```typescript
+// BEFORE
+let activeView  = $state<ViewMode>(initialViewMode);
+let activePills = $state<Set<string>>(defaultPills(pillsKey(activeTab, initialViewMode)));
+let _prevTab    = $state<FiltersTab>(activeTab);
+
+// AFTER
+let activeView  = $state<ViewMode>(untrack(() => initialViewMode));
+let activePills = $state<Set<string>>(untrack(() => defaultPills(pillsKey(activeTab, initialViewMode))));
+let _prevTab    = $state<FiltersTab>(untrack(() => activeTab));
+```
+
+Run `npm run build` — should show **0 warnings**.
+Commit: `fix(svelte): use untrack() for $state prop initialization in popupView`
+
+### Step B — Bump version to beta.14
+
+In `package.json` and `manifest.json`, change version from `1.0.0-beta.13` → `1.0.0-beta.14`.
+Run `npm run build` to confirm.
+Commit: `chore: bump version to 1.0.0-beta.14`
+Tag: `git tag 1.0.0-beta.14`
+
+### Step C — Push branch + create PR
+
+```bash
+git push -u origin add-functions
+gh pr create --title "feat(iter19): bug fixes + ADD operation mode" --body "..."
+```
+
+PR body should cover: squircle z-order fix, FAB sizing, ViewMode active state fix, files root path, grid sort, descending defaults, date sort (max mtime), queue file scoping, ADD mode button.
+
+---
+
+## Iter 20 deferred items (after PR merges)
 
 Define spec and plan for these deferred items before implementing:
 
