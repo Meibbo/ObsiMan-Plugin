@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { translate } from "../../i18n/index";
+	import { untrack } from 'svelte';
 
 	type FiltersTab = "props" | "files" | "tags";
 	type ViewMode   = "tree" | "dnd" | "grid" | "cards";
@@ -77,11 +78,11 @@
 		initialViewMode?: ViewMode;
 	} = $props();
 
-	let activeView  = $state<ViewMode>(initialViewMode);
-	let activePills = $state<Set<string>>(defaultPills(pillsKey(activeTab, initialViewMode)));
+	let activeView  = $state<ViewMode>(untrack(() => initialViewMode));
+	let activePills = $state<Set<string>>(untrack(() => defaultPills(pillsKey(activeTab, initialViewMode))));
 
 	// Reset when activeTab changes (not on first render — initialViewMode handled above)
-	let _prevTab = $state<FiltersTab>(activeTab);
+	let _prevTab = $state<FiltersTab>(untrack(() => activeTab));
 	$effect(() => {
 		if (activeTab !== _prevTab) {
 			_prevTab = activeTab;
