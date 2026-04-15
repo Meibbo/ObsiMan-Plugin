@@ -97,6 +97,12 @@ export class TagsExplorerPanel extends Component {
 		super.onunload();
 	}
 
+	private addMode = false;
+
+	setAddMode(active: boolean): void {
+		this.addMode = active;
+	}
+
 	private readonly _handleStateChange = () => this._render();
 
 	setSearchTerm(term: string, mode: 'all' | 'leaf' = 'all'): void {
@@ -206,6 +212,29 @@ export class TagsExplorerPanel extends Component {
 				const node = this._findNode(id, tree);
 				if (!node) return;
 				const meta = node.meta;
+
+				// ADD MODE: queue add-tag operation instead of toggling filter
+				if (this.addMode) {
+					this.plugin.queueService.add({
+						type: 'tag',
+						tag: meta.tagPath,
+						action: 'rename' as 'rename' | 'delete', // placeholder until TagChange.action includes 'add'
+						details: `Add tag "#${meta.tagPath}"`,
+						files: this.plugin.filterService.filteredFiles,
+						customLogic: true,
+						logicFunc: (_file, fm) => {
+							const raw: unknown = fm.tags;
+							const existing: string[] = Array.isArray(raw)
+								? (raw as unknown[]).map(v => String(v))
+								: (typeof raw === 'string' ? [raw] : []);
+							if (existing.includes(meta.tagPath)) return null;
+							fm.tags = [...existing, meta.tagPath];
+							return fm;
+						},
+					});
+					return;
+				}
+
 				const tagId = `#${meta.tagPath}`;
 
 				// Toggle logic: remove if already active filter

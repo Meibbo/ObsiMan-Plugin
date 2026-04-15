@@ -195,6 +195,12 @@ export class PropsExplorerPanel extends Component {
 		super.onunload();
 	}
 
+	private addMode = false;
+
+	setAddMode(active: boolean): void {
+		this.addMode = active;
+	}
+
 	private readonly _handleStateChange = () => this._render();
 
 	private _getFilesWithProp(propName: string): import('obsidian').TFile[] {
@@ -291,6 +297,24 @@ export class PropsExplorerPanel extends Component {
 				const node = this._findNode(id, tree);
 				if (!node) return;
 				const meta = node.meta;
+
+				// ADD MODE: queue add-property operation instead of toggling filter
+				if (this.addMode && !meta.isValueNode) {
+					this.plugin.queueService.add({
+						type: 'property',
+						property: meta.propName,
+						action: 'add',
+						details: `Add property "${meta.propName}"`,
+						files: this.plugin.filterService.filteredFiles,
+						customLogic: true,
+						logicFunc: (_file, fm) => {
+							if (meta.propName in fm) return null;
+							fm[meta.propName] = '';
+							return fm;
+						},
+					});
+					return;
+				}
 
 				// Block interaction if property is being deleted
 				const isPropDeleted = this.plugin.queueService.queue.some(op =>
