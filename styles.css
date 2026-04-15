@@ -2010,6 +2010,9 @@ body.vaultman-bases-column-separators table th {
   top: 0;
   z-index: 10;
   flex-shrink: 0;
+  max-width: 520px;
+  width: 100%;
+  margin-inline: auto;
 }
 
 /* Transparent container — blur on ::before pseudo */
@@ -2032,11 +2035,6 @@ body.vaultman-bases-column-separators table th {
   mask-image: linear-gradient(to top, transparent 0%, black 70%);
 }
 
-/* Header FABs slightly smaller than bottom-nav FABs */
-.vaultman-navbar-filters .vaultman-nav-fab {
-  width: 1.9em;
-  height: 1.9em;
-}
 
 /* Full frame overlay: covers the entire plugin (blocked state) */
 .vaultman-glass--full {
@@ -4212,7 +4210,8 @@ input.vaultman-filters-search-input::-webkit-search-results-decoration {
   opacity: 1;
 }
 
-.vaultman-squircle-row {
+.vaultman-queue-island .vaultman-squircle-row,
+.vaultman-active-filters-island .vaultman-squircle-row {
   position: absolute;
   top: -22px;
   left: 0;
