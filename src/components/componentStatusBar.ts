@@ -1,4 +1,4 @@
-import { translate } from '../../i18n/index';
+import { translate } from '../i18n/index';
 
 export interface StatusBarData {
 	filtered: number;
