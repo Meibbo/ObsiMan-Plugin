@@ -1,10 +1,10 @@
 <script lang="ts">
 	import type { VaultmanPlugin } from "../../../main";
-	import type { PopupType } from "../../types/ui";
-	import ActiveFiltersPopup from "../popups/ActiveFiltersPopup.svelte";
-	import ScopePopup from "../popups/ScopePopup.svelte";
-	import SearchPopup from "../popups/SearchPopup.svelte";
-	import MovePopup from "../popups/MovePopup.svelte";
+	import type { PopupType } from "../../types/typeUI";
+	import ActiveFiltersPopup from "../popups/popupFilters.svelte";
+	import ScopePopup from "../popups/popupScope.svelte";
+	import SearchPopup from "../popups/popupSearch.svelte";
+	import MovePopup from "../popups/popupMove.svelte";
 
 	let {
 		plugin,
