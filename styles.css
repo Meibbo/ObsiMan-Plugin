@@ -2004,6 +2004,40 @@ body.vaultman-bases-column-separators table th {
   mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
 }
 
+/* ── Filters top navbar: sticky glass strip ── */
+.vaultman-navbar-filters {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+/* Transparent container — blur on ::before pseudo */
+.vaultman-glass.vaultman-glass--top {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: transparent;
+}
+
+/* Fading blur: opaque at top, fades toward bottom */
+.vaultman-glass.vaultman-glass--top::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
+  -webkit-mask-image: linear-gradient(to top, transparent 0%, black 70%);
+  mask-image: linear-gradient(to top, transparent 0%, black 70%);
+}
+
+/* Header FABs slightly smaller than bottom-nav FABs */
+.vaultman-navbar-filters .vaultman-nav-fab {
+  width: 1.9em;
+  height: 1.9em;
+}
+
 /* Full frame overlay: covers the entire plugin (blocked state) */
 .vaultman-glass--full {
   position: absolute;
@@ -2495,6 +2529,33 @@ input.vaultman-filters-search-input::-webkit-search-results-decoration {
   font-size: var(--font-ui-small);
   color: var(--text-muted);
 }
+
+/* ── Props grid view (card layout) ── */
+.vaultman-props-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+.vaultman-prop-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px 6px;
+  border-radius: var(--radius-m);
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  cursor: pointer;
+  text-align: center;
+  overflow: hidden;
+  transition: background 0.12s;
+}
+.vaultman-prop-card:hover { background: var(--background-modifier-hover); }
+.vaultman-prop-card-icon { display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+.vaultman-prop-card-icon svg { width: 16px; height: 16px; }
+.vaultman-prop-card-name { font-size: var(--font-ui-smaller); color: var(--text-normal); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.vaultman-prop-card-count { font-size: 10px; color: var(--text-faint); }
 
 .vaultman-view-panel-option:hover {
   background: var(--background-modifier-hover);
