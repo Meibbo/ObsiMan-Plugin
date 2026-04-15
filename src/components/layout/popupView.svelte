@@ -90,6 +90,7 @@
 		if (activeView === v) return;
 		activeView  = v;
 		activePills = defaultPills(pillsKey(activeTab, v));
+		onViewModeChange?.(v);
 	}
 
 	function togglePill(id: string) {
