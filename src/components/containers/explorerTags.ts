@@ -113,6 +113,25 @@ export class TagsExplorerPanel extends Component {
 
 	private _applySort(nodes: TreeNode<TagMeta>[]): TreeNode<TagMeta>[] {
 		const dir = this.sortDir === 'asc' ? 1 : -1;
+		if (this.sortBy === 'date') {
+			const mtimeMap = new Map<string, number>();
+			for (const node of nodes) {
+				const tagPath = node.meta.tagPath;
+				let maxMtime = 0;
+				for (const file of this.plugin.app.vault.getMarkdownFiles()) {
+					const cache = this.plugin.app.metadataCache.getFileCache(file);
+					const hasFmTag = (cache?.frontmatter?.tags as unknown[] | undefined)?.some(
+						t => String(t).replace(/^#/, '') === tagPath
+					);
+					const hasInlineTag = cache?.tags?.some(t => t.tag === `#${tagPath}`);
+					if ((hasFmTag || hasInlineTag) && file.stat.mtime > maxMtime) {
+						maxMtime = file.stat.mtime;
+					}
+				}
+				mtimeMap.set(node.id, maxMtime);
+			}
+			return [...nodes].sort((a, b) => dir * ((mtimeMap.get(a.id) ?? 0) - (mtimeMap.get(b.id) ?? 0)));
+		}
 		return [...nodes].sort((a, b) => {
 			if (this.sortBy === 'count') return dir * ((a.count ?? 0) - (b.count ?? 0));
 			if (this.sortBy === 'sub')   return dir * ((a.children?.length ?? 0) - (b.children?.length ?? 0));
