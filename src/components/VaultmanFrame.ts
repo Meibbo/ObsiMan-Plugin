@@ -4,7 +4,7 @@ import { mount, unmount } from 'svelte';
 import VaultmanFrameSvelte from './VaultmanFrame.svelte';
 import { translate } from '../i18n/index';
 
-export const Vaultman_FRAME_TYPE = 'vaultman-frame';
+export const VAULTMAN_FRAME_TYPE = 'vaultman-frame';
 
 /**
  * Full-width explorer view shell.
@@ -18,7 +18,7 @@ export class VaultmanFrame extends ItemView {
 		this.plugin = plugin;
 	}
 
-	getViewType(): string { return Vaultman_FRAME_TYPE; }
+	getViewType(): string { return VAULTMAN_FRAME_TYPE; }
 	getDisplayText(): string { return translate('plugin.frame_name'); }
 	getIcon(): string { return 'lucide-dessert'; }
 
