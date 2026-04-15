@@ -24,7 +24,8 @@ export class FilesLogic {
 		);
 
 		for (const file of sortedFiles) {
-			const folderPath = file.parent?.path ?? '';
+			const rawPath = file.parent?.path ?? '';
+			const folderPath = rawPath === '/' ? '' : rawPath;
 			if (folderPath && !folderMap.has(folderPath)) {
 				const parts = folderPath.split('/');
 				const folderNode: TreeNode<FileMeta> = {
@@ -50,9 +51,9 @@ export class FilesLogic {
 				id: file.path,
 				label: file.basename,
 				count: propCount,
-				depth: (file.parent?.path ?? '').split('/').filter(Boolean).length,
+				depth: folderPath.split('/').filter(Boolean).length,
 				children: [],
-				meta: { file, isFolder: false, folderPath: file.parent?.path ?? '' },
+				meta: { file, isFolder: false, folderPath },
 			};
 
 			const parentFolder = folderPath ? folderMap.get(folderPath) : null;
