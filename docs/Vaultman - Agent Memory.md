@@ -41,6 +41,8 @@ input: AI-gen
 ### Workflow mandatory rule: Plugin Reloading
 - **CRITICAL**: Al finalizar cada iteración de código (o al proponer una prueba visual), el agente **debe obligatoriamente recargar el plugin** usando el comando de la skill Obsidian CLI:
   Ejecutar el comando de consola: `obsidian vault=plugin-dev plugin:reload id=vaultman` para que los cambios se reflejen inmediatamente en la aplicación (NUNCA usar `obsidian.bat` ya que falla en este entorno).
+- **RELEASES**: Los tags de Git **NUNCA** deben llevar el prefijo "v" (ej: usar `1.0.0-beta.15`, NO `v1.0.0-beta.15`).
+- **BRAT**: Para que el plugin sea detectable por BRAT, los archivos de build (`main.js`, `manifest.json`, `styles.css`) deben estar actualizados y committeados en la rama `main`.
 
 ### Queue execution model
 - **Queue auto-clears** after `execute()` completes — regardless of Obsidian's indexing state. This is intentional: the plugin's job (renaming files via `fileManager.renameFile`) is done; Obsidian's background indexing is independent.
