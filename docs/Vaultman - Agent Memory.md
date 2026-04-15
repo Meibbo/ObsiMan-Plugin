@@ -39,8 +39,8 @@ input: AI-gen
 ## Documented behaviors (for future agents)
 
 ### Workflow mandatory rule: Plugin Reloading
-- **CRITICAL**: Al finalizar cada iteración de código (o al proponer una prueba visual), el agente **debe obligatoriamente recargar el plugin** usando la skill Obsidian CLI:
-  Ejecutar el comando de consola: `obsidian.bat "vault=plugin-dev" "plugin:reload" "id=vaultman"` para que los cambios se reflejen inmediatamente en la aplicación.
+- **CRITICAL**: Al finalizar cada iteración de código (o al proponer una prueba visual), el agente **debe obligatoriamente recargar el plugin** usando el comando de la skill Obsidian CLI:
+  Ejecutar el comando de consola: `obsidian vault=plugin-dev plugin:reload id=vaultman` para que los cambios se reflejen inmediatamente en la aplicación (NUNCA usar `obsidian.bat` ya que falla en este entorno).
 
 ### Queue execution model
 - **Queue auto-clears** after `execute()` completes — regardless of Obsidian's indexing state. This is intentional: the plugin's job (renaming files via `fileManager.renameFile`) is done; Obsidian's background indexing is independent.
