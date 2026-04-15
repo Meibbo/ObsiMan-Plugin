@@ -38,10 +38,12 @@
 	let {
 		activeTab,
 		onClose,
+		onSortChange,
 		icon,
 	}: {
 		activeTab: FiltersTab;
 		onClose: () => void;
+		onSortChange?: (sortBy: string, direction: "asc" | "desc") => void;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	} = $props();
 
