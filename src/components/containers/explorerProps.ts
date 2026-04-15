@@ -197,6 +197,22 @@ export class PropsExplorerPanel extends Component {
 
 	private readonly _handleStateChange = () => this._render();
 
+	private _getFilesWithProp(propName: string): import('obsidian').TFile[] {
+		return this.plugin.app.vault.getMarkdownFiles().filter(f =>
+			propName in (this.plugin.app.metadataCache.getFileCache(f)?.frontmatter ?? {})
+		);
+	}
+
+	private _getFilesWithValue(propName: string, value: string): import('obsidian').TFile[] {
+		return this.plugin.app.vault.getMarkdownFiles().filter(f => {
+			const fm = this.plugin.app.metadataCache.getFileCache(f)?.frontmatter ?? {};
+			if (!(propName in fm)) return false;
+			const v = fm[propName];
+			if (Array.isArray(v)) return (v as unknown[]).some(x => String(x) === value);
+			return String(v) === value;
+		});
+	}
+
 	setSearchTerm(term: string): void {
 		this.searchTerm = term;
 		this._render();
@@ -453,7 +469,7 @@ export class PropsExplorerPanel extends Component {
 	}
 
 	private async _changePropType(propName: string, newType: string): Promise<void> {
-		const files = this.plugin.app.vault.getMarkdownFiles();
+		const files = this._getFilesWithProp(propName);
 		this.plugin.queueService.add({
 			type: 'property',
 			property: propName,
@@ -468,7 +484,7 @@ export class PropsExplorerPanel extends Component {
 	private async _renameProp(propName: string): Promise<void> {
 		const newName = await showInputModal(this.plugin.app, `Rename "${propName}" to:`);
 		if (!newName) return;
-		const files = this.plugin.app.vault.getMarkdownFiles();
+		const files = this._getFilesWithProp(propName);
 		this.plugin.queueService.add({
 			type: 'property',
 			property: propName,
@@ -486,7 +502,7 @@ export class PropsExplorerPanel extends Component {
 	}
 
 	private async _deleteProp(propName: string): Promise<void> {
-		const files = this.plugin.app.vault.getMarkdownFiles();
+		const files = this._getFilesWithProp(propName);
 		this.plugin.queueService.add({
 			type: 'property',
 			property: propName,
@@ -509,7 +525,7 @@ export class PropsExplorerPanel extends Component {
 	}
 
 	private async _deleteValue(propName: string, oldValue: string): Promise<void> {
-		const files = this.plugin.app.vault.getMarkdownFiles();
+		const files = this._getFilesWithValue(propName, oldValue);
 		this.plugin.queueService.add({
 			type: 'property',
 			property: propName,
@@ -537,7 +553,7 @@ export class PropsExplorerPanel extends Component {
 	}
 
 	private async _replaceValueInVault(propName: string, oldValue: string, newValue: string, label?: string): Promise<void> {
-		const files = this.plugin.app.vault.getMarkdownFiles();
+		const files = this._getFilesWithValue(propName, oldValue);
 		this.plugin.queueService.add({
 			type: 'property',
 			property: propName,
