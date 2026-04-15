@@ -4268,3 +4268,277 @@ input.vaultman-filters-search-input::-webkit-search-results-decoration {
 .vaultman-tree-count {
   margin-left: 2px;
 }
+/* =========================================================
+   Iter 17 — Filters header replacement + popup layouts
+   ========================================================= */
+
+/* Wrapper that gives the header + popups a fixed height so
+   they don't reflow the tab content below. */
+.vaultman-filters-header-wrap {
+  position: relative;
+  overflow: hidden;
+  min-height: 40px;
+}
+
+/* Slide-in animations for Level 4 popups */
+@keyframes vaultman-slide-in-from-left {
+  from { transform: translateX(-100%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes vaultman-slide-in-from-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.vaultman-filters-popup-slot {
+  width: 100%;
+}
+.vaultman-filters-popup-slot.popup-enter-from-left {
+  animation: vaultman-slide-in-from-left 280ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.vaultman-filters-popup-slot.popup-enter-from-right {
+  animation: vaultman-slide-in-from-right 280ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Tab content wrapper for the {#key} fade */
+.vaultman-filters-tab-content {
+  display: contents;
+}
+
+/* ----------------------------------------------------------
+   Sort Popup
+   ---------------------------------------------------------- */
+.vaultman-sort-popup {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 4px 8px;
+  position: relative;
+}
+
+/* Vert-col: absolute, floats over tab content */
+.vaultman-sort-vertcol {
+  position: absolute;
+  left: 9px;
+  top: 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  z-index: 10;
+}
+
+.vaultman-sort-vertcol-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  transition: background 150ms ease, color 150ms ease;
+}
+.vaultman-sort-vertcol-btn:hover,
+.vaultman-sort-vertcol-btn.is-active {
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+  border-color: var(--color-accent);
+}
+.vaultman-sort-vertcol-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Drawer inside vert-col */
+.vaultman-sort-vertcol-drawer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: #12101a;
+  border: 1px solid #4a3a6a;
+  border-radius: 6px;
+  padding: 4px 6px;
+  min-width: 80px;
+  margin-top: 2px;
+}
+.vaultman-sort-drawer-item {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 2px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.vaultman-sort-drawer-item:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+/* Main content: rows */
+.vaultman-sort-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  padding-left: 40px; /* leave room for vert-col */
+}
+
+.vaultman-sort-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Scope dropdown */
+.vaultman-sort-scope-select {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-normal);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Circle buttons in sort row */
+.vaultman-sort-circle-btn,
+.vaultman-sort-close-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: background 150ms ease, color 150ms ease;
+}
+.vaultman-sort-circle-btn:hover,
+.vaultman-sort-close-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+.vaultman-sort-circle-btn svg,
+.vaultman-sort-close-btn svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Direction indicator inside squircle */
+.vaultman-sort-dir {
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+.vaultman-sort-dir svg {
+  width: 10px;
+  height: 10px;
+}
+
+/* Icon span inside squircle */
+.vaultman-squircle-icon {
+  display: flex;
+  align-items: center;
+}
+.vaultman-squircle-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Squircle row in sort popup — bounded/centered */
+.vaultman-sort-squircle-row {
+  justify-content: flex-start;
+}
+
+/* ----------------------------------------------------------
+   View Mode Popup
+   ---------------------------------------------------------- */
+.vaultman-viewmode-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 8px;
+}
+
+.vaultman-viewmode-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vaultman-viewmode-row-controls {
+  overflow: hidden;
+}
+
+/* Close + circle buttons in view-mode row */
+.vaultman-viewmode-close-btn,
+.vaultman-viewmode-circle-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: background 150ms ease, color 150ms ease;
+}
+.vaultman-viewmode-close-btn:hover,
+.vaultman-viewmode-circle-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+.vaultman-viewmode-close-btn svg,
+.vaultman-viewmode-circle-btn svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Pills container: horizontal scroll, no scrollbar */
+.vaultman-viewmode-pills {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+  min-width: 0;
+}
+.vaultman-viewmode-pills::-webkit-scrollbar {
+  display: none;
+}
+
+/* Individual pill */
+.vaultman-viewmode-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  white-space: nowrap;
+  cursor: pointer;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+  flex-shrink: 0;
+}
+.vaultman-viewmode-pill.is-active {
+  background: #7b5ea740;
+  border-color: #7b5ea7;
+  color: #c4a0f8;
+}
+.vaultman-viewmode-pill:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
