@@ -25,11 +25,11 @@ export class FileMoveModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClasses(['obsiman-modal', 'obsiman-move-modal']);
+		contentEl.addClasses(['vaultman-modal', 'vaultman-move-modal']);
 
 		contentEl.createEl('h3', { text: translate('move.title') });
 		contentEl.createEl('p', {
-			cls: 'obsiman-modal-subtitle',
+			cls: 'vaultman-modal-subtitle',
 			text: `${this.targetFiles.length} ${translate('section.files').toLowerCase()}`,
 		});
 
@@ -39,7 +39,7 @@ export class FileMoveModal extends Modal {
 			.setDesc(translate('move.root_hint'));
 
 		const folderInput = folderSetting.controlEl.createEl('input', {
-			cls: 'obsiman-rename-pattern-input',
+			cls: 'vaultman-rename-pattern-input',
 			attr: { type: 'text', placeholder: translate('move.target_folder_placeholder') },
 		});
 
@@ -55,7 +55,7 @@ export class FileMoveModal extends Modal {
 		});
 
 		// Preview
-		this.previewEl = contentEl.createDiv({ cls: 'obsiman-rename-preview' });
+		this.previewEl = contentEl.createDiv({ cls: 'vaultman-rename-preview' });
 		this.renderPreview();
 
 		// Buttons
@@ -85,15 +85,15 @@ export class FileMoveModal extends Modal {
 				? `${this.targetFolder}/${file.name}`
 				: file.name;
 
-			const row = this.previewEl.createDiv({ cls: 'obsiman-rename-row' });
-			row.createSpan({ cls: 'obsiman-diff-deleted', text: file.path });
+			const row = this.previewEl.createDiv({ cls: 'vaultman-rename-row' });
+			row.createSpan({ cls: 'vaultman-diff-deleted', text: file.path });
 			row.createSpan({ text: ' → ' });
-			row.createSpan({ cls: 'obsiman-diff-added', text: newPath });
+			row.createSpan({ cls: 'vaultman-diff-added', text: newPath });
 		}
 
 		if (this.targetFiles.length > limit) {
 			this.previewEl.createDiv({
-				cls: 'obsiman-text-faint',
+				cls: 'vaultman-text-faint',
 				text: `... and ${this.targetFiles.length - limit} more`,
 			});
 		}

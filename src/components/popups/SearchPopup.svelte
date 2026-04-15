@@ -15,8 +15,9 @@
 </script>
 
 <div>
-	<div class="obsiman-popup-header">
-		<span class="obsiman-popup-title">{translate("nav.search_files")}</span>
+	<div class="vaultman-popup-header">
+		<span class="vaultman-popup-title">{translate("nav.search_files")}</span
+		>
 		<div
 			class="clickable-icon"
 			aria-label="Close"
@@ -29,15 +30,15 @@
 			tabindex="0"
 		></div>
 	</div>
-	<div class="obsiman-search-fields">
+	<div class="vaultman-search-fields">
 		<input
-			class="obsiman-search-input"
+			class="vaultman-search-input"
 			type="text"
 			placeholder={translate("search.name_placeholder")}
 			bind:value={searchName}
 		/>
 		<input
-			class="obsiman-search-input"
+			class="vaultman-search-input"
 			type="text"
 			placeholder={translate("search.folder_placeholder")}
 			bind:value={searchFolder}

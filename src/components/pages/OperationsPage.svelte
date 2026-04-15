@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { translate } from "../../i18n/index";
 	import { Notice, type TFile } from "obsidian";
-	import type { ObsiManPlugin } from "../../../main";
+	import type { VaultmanPlugin } from "../../../main";
 	import type {
 		OpsTab,
 		OpsTabDef,
@@ -14,7 +14,10 @@
 	import { MenuCuratorPanel } from "../containers/MenuCuratorPanel";
 	import FileOpsTab from "../tabs/OpsFilesTab.svelte";
 	import LinterTab from "../tabs/OpsLinterTab.svelte";
-	import { type PendingChange, FIND_REPLACE_CONTENT } from "../../types/operation";
+	import {
+		type PendingChange,
+		FIND_REPLACE_CONTENT,
+	} from "../../types/operation";
 
 	let {
 		plugin,
@@ -24,7 +27,7 @@
 		selectedCount,
 		icon,
 	}: {
-		plugin: ObsiManPlugin;
+		plugin: VaultmanPlugin;
 		getSelectedFiles: () => TFile[];
 		openMovePopup: () => void;
 		filteredCount: number;
@@ -270,10 +273,10 @@
 	}
 </script>
 
-<div class="obsiman-tab-bar">
+<div class="vaultman-tab-bar">
 	{#each opsTabs as tab}
 		<div
-			class="obsiman-tab nav-action-button"
+			class="vaultman-tab nav-action-button"
 			class:is-active={opsTab === tab.id}
 			data-tab={tab.id}
 			onclick={() => {
@@ -289,15 +292,15 @@
 				}
 			}}
 		>
-			<span class="obsiman-tab-icon" use:icon={tab.icon}></span>
-			<span class="obsiman-tab-label">{tab.label}</span>
+			<span class="vaultman-tab-icon" use:icon={tab.icon}></span>
+			<span class="vaultman-tab-label">{tab.label}</span>
 		</div>
 	{/each}
 </div>
 
-<div class="obsiman-tab-area">
+<div class="vaultman-tab-area">
 	<!-- File Ops tab (always in DOM so QueueListComponent persists) -->
-	<div class="obsiman-tab-content" class:is-active={opsTab === "fileops"}>
+	<div class="vaultman-tab-content" class:is-active={opsTab === "fileops"}>
 		<FileOpsTab
 			{plugin}
 			{openFileRename}
@@ -320,19 +323,19 @@
 	</div>
 
 	<!-- Linter tab (always in DOM) -->
-	<div class="obsiman-tab-content" class:is-active={opsTab === "linter"}>
+	<div class="vaultman-tab-content" class:is-active={opsTab === "linter"}>
 		<LinterTab {openLinter} />
 	</div>
 
 	<!-- Template tab -->
-	<div class="obsiman-tab-content" class:is-active={opsTab === "template"}>
-		<div class="obsiman-coming-soon">
+	<div class="vaultman-tab-content" class:is-active={opsTab === "template"}>
+		<div class="vaultman-coming-soon">
 			{translate("ops.coming_soon")}
 		</div>
 	</div>
 
 	<!-- Layout tab -->
-	<div class="obsiman-tab-content" class:is-active={opsTab === "layout"}>
-		<div class="obsiman-layout-curator" use:mountCurator></div>
+	<div class="vaultman-tab-content" class:is-active={opsTab === "layout"}>
+		<div class="vaultman-layout-curator" use:mountCurator></div>
 	</div>
 </div>

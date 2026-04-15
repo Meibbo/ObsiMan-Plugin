@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to ObsiMan will be documented in this file.
+All notable changes to Vaultman will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -26,8 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Internal
 - `src/services/OperationQueueService.ts`: `simulateChanges()` now skips `MOVE_FILE` and `FIND_REPLACE_CONTENT` alongside the existing `RENAME_FILE` skip
 - `src/modals/QueueDetailsModal.ts`: new async `renderContentOps()` method reads files via `vault.read()` and renders snippet-style diffs for `find_replace_content` ops
-- `src/views/ObsiManView.svelte`: `propBrowserItems` reactive state + `refreshPropBrowser()` reads from `PropertyIndexService`; refreshes on mount and `metadataCache.resolved`
-- `styles.css`: new `.obsiman-prop-browser*` and `.obsiman-diff-content-*` CSS utility classes
+- `src/views/VaultmanView.svelte`: `propBrowserItems` reactive state + `refreshPropBrowser()` reads from `PropertyIndexService`; refreshes on mount and `metadataCache.resolved`
+- `styles.css`: new `.vaultman-prop-browser*` and `.vaultman-diff-content-*` CSS utility classes
 
 ---
 
@@ -48,14 +48,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Ribbon icon now opens the sidebar (was incorrectly calling the bases picker)
 - Navbar click navigation (was broken after pointer-capture refactor in Iter.3)
-- Blank pages 2 & 3 — root cause: `overflow: hidden` was on the same element as `translateX`, clipping pages in local space. Fixed by adding `.obsiman-pages-viewport` wrapper
+- Blank pages 2 & 3 — root cause: `overflow: hidden` was on the same element as `translateX`, clipping pages in local space. Fixed by adding `.vaultman-pages-viewport` wrapper
 - `addClass('class1 class2')` → `addClasses(['class1', 'class2'])` in all 4 modals
 
 ### Internal
 - `FIND_REPLACE_CONTENT` and `MOVE_FILE` signal constants in `src/types/operation.ts`
 - `FolderSuggest` added to `src/utils/autocomplete.ts`
 - Svelte 5 `$state` + `$derived` for all reactive UI — no framework bindings
-- `.obsiman-pages-viewport` overflow wrapper pattern for horizontal slide navigation
+- `.vaultman-pages-viewport` overflow wrapper pattern for horizontal slide navigation
 
 ---
 
@@ -64,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > Full Svelte 5 migration, redesigned navigation, major layout fixes.
 
 ### Added
-- **Svelte 5 sidebar**: `ObsiManView.svelte` replaces the old imperative TypeScript view — 3-page horizontal slide navigation (Ops | Files | Filters) with CSS `translateX` and `transitionend` guard
+- **Svelte 5 sidebar**: `VaultmanView.svelte` replaces the old imperative TypeScript view — 3-page horizontal slide navigation (Ops | Files | Filters) with CSS `translateX` and `transitionend` guard
 - **Frosted glass pill nav**: Lucide icons per page, active glow via `color-mix`, `backdrop-filter: blur`, per-page FABs on outer edges following the wireframe spec
 - **Per-page FABs**: Files page always gets both FABs (View mode popup, Search popup); Ops page gets left FAB (Queue Details modal); Filters page gets right FAB (Active Filters popup)
 - **View mode popup, Search popup, Active Filters popup, Scope popup**: all as in-frame overlays (slide-up spring animation)
@@ -157,7 +157,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Operations panel**: opens by default alongside the grid
 - **Property grid**: uses a single `<table>` with `table-layout: fixed` and `<colgroup>` for precise column alignment
 - **Property grid**: virtual scroll now uses spacer `<tr>` elements inside `<tbody>` instead of separate spacer divs
-- Removed custom `.obsiman-statusbar` HTML in favor of Obsidian's native `addStatusBarItem()` API
+- Removed custom `.vaultman-statusbar` HTML in favor of Obsidian's native `addStatusBarItem()` API
 - Removed `HeaderBarComponent` from the main view
 
 ### Fixed
@@ -196,7 +196,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] — 2026-03-25
 
 ### Added
-- Initial release of ObsiMan as an Obsidian TypeScript plugin
+- Initial release of Vaultman as an Obsidian TypeScript plugin
 - Property explorer with hierarchical tree view, search, sort, and Iconic integration
 - Virtual-scrolled property grid with inline editing
 - Advanced filter system with boolean logic (AND/OR/NOT) and 8 filter types
@@ -216,13 +216,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > Versions 0.2–0.6 correspond to the Python script predecessor (PKM Manager).
 > See `docs/pkm_manager_python_architecture.md` for that history.
 
-[Unreleased]: https://github.com/Meibbo/ObsiMan-Plugin/compare/1.0.0-beta.5...HEAD
-[1.0.0-beta.5]: https://github.com/Meibbo/ObsiMan-Plugin/compare/1.0.0-beta.4...1.0.0-beta.5
-[1.0.0-beta.4]: https://github.com/Meibbo/ObsiMan-Plugin/compare/1.0.0-beta.3...1.0.0-beta.4
-[1.0.0-beta.3]: https://github.com/Meibbo/ObsiMan-Plugin/compare/1.0.0-beta.2...1.0.0-beta.3
-[1.0.0-beta.2]: https://github.com/Meibbo/ObsiMan-Plugin/compare/1.0.0-beta.1...1.0.0-beta.2
-[1.0.0-beta.1]: https://github.com/Meibbo/ObsiMan-Plugin/compare/0.9.0...1.0.0-beta.1
-[0.9.0]: https://github.com/Meibbo/ObsiMan-Plugin/compare/0.8.0...0.9.0
-[0.8.0]: https://github.com/Meibbo/ObsiMan-Plugin/compare/0.7.0...0.8.0
-[0.7.0]: https://github.com/Meibbo/ObsiMan-Plugin/compare/0.1.0...0.7.0
-[0.1.0]: https://github.com/Meibbo/ObsiMan-Plugin/releases/tag/0.1.0
+[Unreleased]: https://github.com/Meibbo/Vaultman-Plugin/compare/1.0.0-beta.5...HEAD
+[1.0.0-beta.5]: https://github.com/Meibbo/Vaultman-Plugin/compare/1.0.0-beta.4...1.0.0-beta.5
+[1.0.0-beta.4]: https://github.com/Meibbo/Vaultman-Plugin/compare/1.0.0-beta.3...1.0.0-beta.4
+[1.0.0-beta.3]: https://github.com/Meibbo/Vaultman-Plugin/compare/1.0.0-beta.2...1.0.0-beta.3
+[1.0.0-beta.2]: https://github.com/Meibbo/Vaultman-Plugin/compare/1.0.0-beta.1...1.0.0-beta.2
+[1.0.0-beta.1]: https://github.com/Meibbo/Vaultman-Plugin/compare/0.9.0...1.0.0-beta.1
+[0.9.0]: https://github.com/Meibbo/Vaultman-Plugin/compare/0.8.0...0.9.0
+[0.8.0]: https://github.com/Meibbo/Vaultman-Plugin/compare/0.7.0...0.8.0
+[0.7.0]: https://github.com/Meibbo/Vaultman-Plugin/compare/0.1.0...0.7.0
+[0.1.0]: https://github.com/Meibbo/Vaultman-Plugin/releases/tag/0.1.0

@@ -22,8 +22,8 @@
 </script>
 
 <div>
-	<div class="obsiman-popup-header">
-		<span class="obsiman-popup-title"
+	<div class="vaultman-popup-header">
+		<span class="vaultman-popup-title"
 			>{translate("move.title")} ({moveTargetFiles.length})</span
 		>
 		<div
@@ -39,7 +39,7 @@
 		></div>
 	</div>
 	<input
-		class="obsiman-search-input"
+		class="vaultman-search-input"
 		type="text"
 		placeholder={translate("move.target_folder_placeholder")}
 		use:attachFolderSuggest
@@ -48,29 +48,29 @@
 		}}
 	/>
 	<p
-		class="obsiman-text-faint"
+		class="vaultman-text-faint"
 		style="font-size: var(--font-ui-smaller); margin: 4px 0 8px;"
 	>
 		{translate("move.root_hint")}
 	</p>
-	<div class="obsiman-rename-preview">
+	<div class="vaultman-rename-preview">
 		{#each movePreviews as row}
-			<div class="obsiman-rename-row">
-				<span class="obsiman-diff-deleted">{row.oldPath}</span>
+			<div class="vaultman-rename-row">
+				<span class="vaultman-diff-deleted">{row.oldPath}</span>
 				<span> → </span>
-				<span class="obsiman-diff-added">{row.newPath}</span>
+				<span class="vaultman-diff-added">{row.newPath}</span>
 			</div>
 		{/each}
 		{#if moveTargetFiles.length > movePreviews.length}
-			<div class="obsiman-text-faint">
+			<div class="vaultman-text-faint">
 				... and {moveTargetFiles.length - movePreviews.length} more
 			</div>
 		{/if}
 	</div>
-	<div class="obsiman-popup-actions">
-		<button class="obsiman-btn mod-cta" onclick={queueMoves}
+	<div class="vaultman-popup-actions">
+		<button class="vaultman-btn mod-cta" onclick={queueMoves}
 			>{translate("prop.add_to_queue")}</button
 		>
-		<button class="obsiman-btn" onclick={closePopup}>Cancel</button>
+		<button class="vaultman-btn" onclick={closePopup}>Cancel</button>
 	</div>
 </div>

@@ -48,7 +48,7 @@ export class UnifiedTreeView {
 				this._renderRow(node, parent, opts);
 				rendered++;
 				if (node.children?.length && opts.expandedIds.has(node.id)) {
-					const childWrap = parent.createDiv({ cls: 'obsiman-tree-children' });
+					const childWrap = parent.createDiv({ cls: 'vaultman-tree-children' });
 					renderNodes(node.children, childWrap);
 				}
 			}
@@ -89,21 +89,21 @@ export class UnifiedTreeView {
 		const isWarning = opts.warningIds?.has(node.id) ?? false;
 		const isEditing = opts.editingId === node.id;
 
-		const row = parent.createDiv({ cls: 'obsiman-tree-row' });
+		const row = parent.createDiv({ cls: 'vaultman-tree-row' });
 		if (typeof node.cls === 'string' && node.cls.trim()) {
 			for (const c of node.cls.trim().split(/\s+/)) row.addClass(c);
 		}
 		row.dataset.id = node.id;
 		row.style.setProperty('--depth', String(node.depth));
 		if (isActive) row.addClass('is-active-filter');
-		if (isWarning) row.addClass('obsiman-badge-warning');
-		if (opts.searchHighlightIds?.has(node.id)) row.addClass('obsiman-search-highlight');
+		if (isWarning) row.addClass('vaultman-badge-warning');
+		if (opts.searchHighlightIds?.has(node.id)) row.addClass('vaultman-search-highlight');
 		if (isEditing) row.addClass('is-editing');
 
 		this.rowEls.set(node.id, row);
 
 		// Chevron / spacer
-		const toggleSpan = row.createSpan({ cls: 'obsiman-tree-toggle' });
+		const toggleSpan = row.createSpan({ cls: 'vaultman-tree-toggle' });
 		if (hasChildren) {
 			setIcon(toggleSpan, isExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right');
 			toggleSpan.addEventListener('click', (e) => {
@@ -114,14 +114,14 @@ export class UnifiedTreeView {
 
 		// Icon
 		if (node.icon) {
-			const iconSpan = row.createSpan({ cls: 'obsiman-tree-icon' });
+			const iconSpan = row.createSpan({ cls: 'vaultman-tree-icon' });
 			setIcon(iconSpan, node.icon);
 		}
 
 		// Label / Input
 		if (isEditing) {
 			const input = row.createEl('input', {
-				cls: 'obsiman-tree-input',
+				cls: 'vaultman-tree-input',
 				value: node.label,
 			});
 			input.addEventListener('click', (e) => e.stopPropagation());
@@ -139,23 +139,23 @@ export class UnifiedTreeView {
 				}
 			});
 		} else {
-			row.createSpan({ cls: 'obsiman-tree-label', text: node.label });
+			row.createSpan({ cls: 'vaultman-tree-label', text: node.label });
 		}
 
 		// Multi-zone Badges container
 		if ((node.count != null && node.count > 0) || (node.badges && node.badges.length > 0)) {
-			const badgeZone = row.createDiv({ cls: 'obsiman-tree-badge-zone' });
-			
+			const badgeZone = row.createDiv({ cls: 'vaultman-tree-badge-zone' });
+
 			// Priority: Operations/Conflicts badges first
 			if (node.badges) {
 				for (const badge of node.badges) {
-					const bEl = badgeZone.createSpan({ cls: 'obsiman-badge' });
+					const bEl = badgeZone.createSpan({ cls: 'vaultman-badge' });
 					// Only apply color class for solid/inherited badges; default is --text-normal
-					if (badge.solid && badge.color) bEl.addClass(`obsiman-badge--${badge.color}`);
+					if (badge.solid && badge.color) bEl.addClass(`vaultman-badge--${badge.color}`);
 					if (badge.solid) bEl.addClass('is-solid');
 					if (badge.isInherited) bEl.addClass('is-inherited');
 					if (badge.icon) {
-						const iEl = bEl.createSpan({ cls: 'obsiman-badge-icon' });
+						const iEl = bEl.createSpan({ cls: 'vaultman-badge-icon' });
 						setIcon(iEl, badge.icon);
 					}
 					if (badge.text) {
@@ -175,7 +175,7 @@ export class UnifiedTreeView {
 
 			// Frequency counter second
 			if (node.count != null && node.count > 0) {
-				badgeZone.createSpan({ cls: 'obsiman-tree-count', text: String(node.count) });
+				badgeZone.createSpan({ cls: 'vaultman-tree-count', text: String(node.count) });
 			}
 		}
 
@@ -183,14 +183,14 @@ export class UnifiedTreeView {
 		row.addEventListener('click', () => opts.onRowClick(node.id));
 		row.addEventListener('contextmenu', (e) => {
 			e.preventDefault();
-			e.stopPropagation(); 
+			e.stopPropagation();
 			opts.onContextMenu(node.id, e);
 		});
 	}
 
 	private _renderShowMore(opts: TreeViewOptions): void {
 		const btn = this.containerEl.createEl('button', {
-			cls: 'obsiman-btn-small obsiman-show-more',
+			cls: 'vaultman-btn-small vaultman-show-more',
 			text: `Show all ${opts.nodes.length} items…`,
 		});
 		btn.addEventListener('click', () => {

@@ -30,15 +30,15 @@
 </script>
 
 <!-- Find row: input + Aa + .* toggles -->
-<div class="obsiman-content-find-row">
+<div class="vaultman-content-find-row">
 	<input
-		class="obsiman-search-input"
+		class="vaultman-search-input"
 		type="text"
 		placeholder={translate("content.find_placeholder")}
 		bind:value={contentFind}
 	/>
 	<button
-		class="obsiman-icon-toggle"
+		class="vaultman-icon-toggle"
 		class:is-active={contentCaseSensitive}
 		aria-label={translate("content.toggle_case")}
 		title={translate("content.toggle_case")}
@@ -47,7 +47,7 @@
 		}}>Aa</button
 	>
 	<button
-		class="obsiman-icon-toggle"
+		class="vaultman-icon-toggle"
 		class:is-active={contentIsRegex}
 		aria-label={translate("content.toggle_regex")}
 		title={translate("content.toggle_regex")}
@@ -57,38 +57,38 @@
 	>
 </div>
 {#if contentRegexError}
-	<div class="obsiman-content-regex-error">
+	<div class="vaultman-content-regex-error">
 		{contentRegexError}
 	</div>
 {/if}
 <input
-	class="obsiman-search-input"
+	class="vaultman-search-input"
 	type="text"
 	placeholder={translate("content.replace_placeholder")}
 	bind:value={contentReplace}
 />
-<div class="obsiman-content-scope-hint">
+<div class="vaultman-content-scope-hint">
 	{contentScopeHint}
 </div>
-<div class="obsiman-content-actions">
+<div class="vaultman-content-actions">
 	<button
-		class="obsiman-btn"
+		class="vaultman-btn"
 		disabled={!contentFind || contentPreviewing}
 		onclick={() => {
 			void previewContentReplace();
-		}}
-		>{contentPreviewing ? "…" : translate("content.preview")}</button
+		}}>{contentPreviewing ? "…" : translate("content.preview")}</button
 	>
 	<button
-		class="obsiman-btn mod-cta"
+		class="vaultman-btn mod-cta"
 		disabled={!contentFind}
-		onclick={queueContentReplace}>{translate("content.queue_replace")}</button
+		onclick={queueContentReplace}
+		>{translate("content.queue_replace")}</button
 	>
 </div>
 {#if contentPreviewResult !== null}
-	<div class="obsiman-content-preview">
+	<div class="vaultman-content-preview">
 		<div
-			class="obsiman-content-preview-header"
+			class="vaultman-content-preview-header"
 			onclick={() => {
 				contentPreviewOpen = !contentPreviewOpen;
 			}}
@@ -101,7 +101,7 @@
 			role="button"
 			tabindex="0"
 		>
-			<span class="obsiman-preview-chevron"
+			<span class="vaultman-preview-chevron"
 				>{contentPreviewOpen ? "▼" : "▶"}</span
 			>
 			{#if contentPreviewResult.totalMatches === 0}
@@ -109,7 +109,10 @@
 			{:else}
 				<span
 					>{translate("content.preview_count")
-						.replace("{matches}", String(contentPreviewResult.totalMatches))
+						.replace(
+							"{matches}",
+							String(contentPreviewResult.totalMatches),
+						)
 						.replace(
 							"{files}",
 							String(
@@ -122,18 +125,18 @@
 		</div>
 		{#if contentPreviewOpen && contentPreviewResult.totalMatches > 0}
 			{#each contentPreviewResult.files as fileResult}
-				<div class="obsiman-content-preview-file">
+				<div class="vaultman-content-preview-file">
 					{fileResult.file.path} ({fileResult.matchCount})
 				</div>
 				{#each fileResult.snippets as snippet}
-					<div class="obsiman-content-preview-snippet">
+					<div class="vaultman-content-preview-snippet">
 						<span>{snippet.before}</span><mark>{snippet.match}</mark
 						><span>{snippet.after}</span>
 					</div>
 				{/each}
 			{/each}
 			{#if contentPreviewResult.moreFiles > 0}
-				<div class="obsiman-text-faint">
+				<div class="vaultman-text-faint">
 					{translate("content.preview_more").replace(
 						"{count}",
 						String(contentPreviewResult.moreFiles),

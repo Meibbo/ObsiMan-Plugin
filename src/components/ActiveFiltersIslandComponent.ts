@@ -1,6 +1,6 @@
 import { setIcon, Menu } from 'obsidian';
 import { translate } from '../i18n/index';
-import type { ObsiManPlugin } from '../../main';
+import type { VaultmanPlugin } from '../../main';
 import { SaveTemplateModal } from '../modals/SaveTemplateModal';
 
 /**
@@ -9,7 +9,7 @@ import { SaveTemplateModal } from '../modals/SaveTemplateModal';
  */
 export class ActiveFiltersIslandComponent {
 	private containerEl: HTMLElement;
-	private plugin: ObsiManPlugin;
+	private plugin: VaultmanPlugin;
 	private onClose: () => void;
 
 	private islandEl: HTMLElement | null = null;
@@ -18,7 +18,7 @@ export class ActiveFiltersIslandComponent {
 
 	constructor(
 		containerEl: HTMLElement,
-		plugin: ObsiManPlugin,
+		plugin: VaultmanPlugin,
 		onClose: () => void
 	) {
 		this.containerEl = containerEl;
@@ -27,14 +27,14 @@ export class ActiveFiltersIslandComponent {
 	}
 
 	mount(): void {
-		this.islandEl = this.containerEl.createDiv({ cls: 'obsiman-active-filters-island' });
+		this.islandEl = this.containerEl.createDiv({ cls: 'vaultman-active-filters-island' });
 
 		// 1. Squircle action buttons row
-		const btnRow = this.islandEl.createDiv({ cls: 'obsiman-squircle-row obsiman-filters-island-btns' });
+		const btnRow = this.islandEl.createDiv({ cls: 'vaultman-squircle-row vaultman-filters-island-btns' });
 
 		// Left: Clear All
 		const clearAllBtn = btnRow.createDiv({
-			cls: 'obsiman-squircle',
+			cls: 'vaultman-squircle',
 			attr: { 'aria-label': translate('filters.popup.clear_all'), role: 'button', tabindex: '0' },
 		});
 		setIcon(clearAllBtn, 'lucide-trash-2');
@@ -45,7 +45,7 @@ export class ActiveFiltersIslandComponent {
 
 		// Left: List Details (Reserved/Toggle View?)
 		const detailsBtn = btnRow.createDiv({
-			cls: 'obsiman-squircle',
+			cls: 'vaultman-squircle',
 			attr: { 'aria-label': translate('ops.details'), role: 'button', tabindex: '0' },
 		});
 		setIcon(detailsBtn, 'lucide-list');
@@ -55,7 +55,7 @@ export class ActiveFiltersIslandComponent {
 
 		// Right: Templates
 		const templateBtn = btnRow.createDiv({
-			cls: 'obsiman-squircle',
+			cls: 'vaultman-squircle',
 			attr: { 'aria-label': translate('filters.popup.templates'), role: 'button', tabindex: '0' },
 		});
 		setIcon(templateBtn, 'lucide-bookmark');
@@ -81,7 +81,7 @@ export class ActiveFiltersIslandComponent {
 
 		// Right: Apply (reserved for active filters, maybe "Save for later")
 		const saveBtn = btnRow.createDiv({
-			cls: 'obsiman-squircle is-accent',
+			cls: 'vaultman-squircle is-accent',
 			attr: { 'aria-label': 'Save Filter', role: 'button', tabindex: '0' },
 		});
 		setIcon(saveBtn, 'lucide-check');
@@ -91,10 +91,10 @@ export class ActiveFiltersIslandComponent {
 		});
 
 		// 2. Header
-		this.headerEl = this.islandEl.createDiv({ cls: 'obsiman-active-filters-island-header' });
+		this.headerEl = this.islandEl.createDiv({ cls: 'vaultman-active-filters-island-header' });
 
 		// 3. Scrollable item list
-		this.listEl = this.islandEl.createDiv({ cls: 'obsiman-active-filters-island-list' });
+		this.listEl = this.islandEl.createDiv({ cls: 'vaultman-active-filters-island-list' });
 
 		this.render();
 
@@ -111,20 +111,20 @@ export class ActiveFiltersIslandComponent {
 
 		this.listEl.empty();
 		if (rules.length === 0) {
-			this.listEl.createDiv({ cls: 'obsiman-active-filters-empty', text: translate('filters.popup.empty') });
+			this.listEl.createDiv({ cls: 'vaultman-active-filters-empty', text: translate('filters.popup.empty') });
 			return;
 		}
 
 		for (const rule of rules) {
-			const row = this.listEl.createDiv({ cls: 'obsiman-active-filter-island-row' });
+			const row = this.listEl.createDiv({ cls: 'vaultman-active-filter-island-row' });
 			row.toggleClass('is-disabled', !rule.enabled);
 
-			row.createSpan({ cls: 'obsiman-active-filter-row-text', text: rule.description });
-			
-			const actions = row.createDiv({ cls: 'obsiman-active-filter-row-actions' });
-			
-			const toggle = actions.createDiv({ 
-				cls: 'obsiman-active-filter-toggle clickable-icon',
+			row.createSpan({ cls: 'vaultman-active-filter-row-text', text: rule.description });
+
+			const actions = row.createDiv({ cls: 'vaultman-active-filter-row-actions' });
+
+			const toggle = actions.createDiv({
+				cls: 'vaultman-active-filter-toggle clickable-icon',
 				attr: { 'aria-label': rule.enabled ? 'Disable' : 'Enable' }
 			});
 			setIcon(toggle, rule.enabled ? 'lucide-eye' : 'lucide-eye-off');
@@ -134,8 +134,8 @@ export class ActiveFiltersIslandComponent {
 				this.render();
 			});
 
-			const del = actions.createDiv({ 
-				cls: 'obsiman-active-filter-delete clickable-icon',
+			const del = actions.createDiv({
+				cls: 'vaultman-active-filter-delete clickable-icon',
 				attr: { 'aria-label': 'Delete' }
 			});
 			setIcon(del, 'lucide-trash-2');

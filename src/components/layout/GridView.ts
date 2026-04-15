@@ -35,16 +35,16 @@ export class GridView {
 		this.containerEl.empty();
 
 		// Header row
-		const headerEl = this.containerEl.createDiv({ cls: 'obsiman-files-header' });
+		const headerEl = this.containerEl.createDiv({ cls: 'vaultman-files-header' });
 		headerEl.createSpan({
-			cls: 'obsiman-files-count',
+			cls: 'vaultman-files-count',
 			text: translate('files.count', { filtered: files.length, total: totalCount }),
 		});
 
 		// Column headers
-		const colHeader = this.containerEl.createDiv({ cls: 'obsiman-files-col-header' });
+		const colHeader = this.containerEl.createDiv({ cls: 'vaultman-files-col-header' });
 		this.headerCheckbox = colHeader.createEl('input', {
-			cls: 'obsiman-file-checkbox',
+			cls: 'vaultman-file-checkbox',
 			attr: { type: 'checkbox' },
 		});
 		this.headerCheckbox.addEventListener('change', () => {
@@ -61,7 +61,7 @@ export class GridView {
 		this._createSortHeader(colHeader, 'props', translate('files.col.props'), files, totalCount);
 		this._createSortHeader(colHeader, 'path', translate('files.col.path'), files, totalCount);
 
-		this.containerEl.createDiv({ cls: 'obsiman-files-list' });
+		this.containerEl.createDiv({ cls: 'vaultman-files-list' });
 		this._updateList(files, totalCount);
 	}
 
@@ -69,7 +69,7 @@ export class GridView {
 		const isActive = this.sortColumn === col;
 		const arrow = isActive ? (this.sortDirection === 'asc' ? ' ↑' : ' ↓') : '';
 		const btn = parent.createEl('button', {
-			cls: `obsiman-col-header${isActive ? ' active' : ''}`,
+			cls: `vaultman-col-header${isActive ? ' active' : ''}`,
 			text: label + arrow,
 		});
 		btn.addEventListener('click', () => {
@@ -84,7 +84,7 @@ export class GridView {
 	}
 
 	private _updateList(files: TFile[], _total: number): void {
-		const listEl = this.containerEl.querySelector('.obsiman-files-list');
+		const listEl = this.containerEl.querySelector('.vaultman-files-list');
 		if (!listEl) return;
 		listEl.empty();
 
@@ -98,7 +98,7 @@ export class GridView {
 
 		if (!this.showAll && sorted.length > this.RENDER_LIMIT) {
 			(listEl as HTMLElement).createEl('button', {
-				cls: 'obsiman-btn-small obsiman-show-more',
+				cls: 'vaultman-btn-small vaultman-show-more',
 				text: `Show all ${sorted.length} files…`,
 			}).addEventListener('click', () => {
 				this.showAll = true;
@@ -110,9 +110,9 @@ export class GridView {
 	}
 
 	private _renderRow(parent: HTMLElement, file: TFile): void {
-		const row = parent.createDiv({ cls: 'obsiman-file-row' });
+		const row = parent.createDiv({ cls: 'vaultman-file-row' });
 
-		const cb = row.createEl('input', { cls: 'obsiman-file-checkbox', attr: { type: 'checkbox' } });
+		const cb = row.createEl('input', { cls: 'vaultman-file-checkbox', attr: { type: 'checkbox' } });
 		cb.checked = this.selectedFiles.has(file.path);
 		cb.addEventListener('change', () => {
 			if (cb.checked) this.selectedFiles.add(file.path);
@@ -121,13 +121,13 @@ export class GridView {
 			this.callbacks.onSelectionChange(this.selectedFiles);
 		});
 
-		const nameEl = row.createSpan({ cls: 'obsiman-file-name', text: file.basename });
+		const nameEl = row.createSpan({ cls: 'vaultman-file-name', text: file.basename });
 		nameEl.addEventListener('click', () => this.callbacks.onFileClick(file));
 
 		const fm = this.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
 		const propCount = Object.keys(fm).filter(k => k !== 'position').length;
-		row.createSpan({ cls: 'obsiman-file-props', text: String(propCount) });
-		row.createSpan({ cls: 'obsiman-file-path', text: file.parent?.path ?? '' });
+		row.createSpan({ cls: 'vaultman-file-props', text: String(propCount) });
+		row.createSpan({ cls: 'vaultman-file-path', text: file.parent?.path ?? '' });
 
 		row.addEventListener('contextmenu', (e) => {
 			e.preventDefault();

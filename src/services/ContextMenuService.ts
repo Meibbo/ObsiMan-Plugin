@@ -102,7 +102,7 @@ export class ContextMenuService extends Component {
 					try {
 						void def.run(ctx);
 					} catch (err) {
-						new Notice(`ObsiMan: action "${def.id}" failed`);
+						new Notice(`Vaultman: action "${def.id}" failed`);
 						console.error(err);
 					}
 				});
@@ -133,7 +133,7 @@ export class ContextMenuService extends Component {
 		if (applicable.length === 0) return;
 
 		menu.addSeparator();
-		
+
 		const submenus = new Map<string, Menu>();
 		let currentSection: string | undefined = undefined;
 
@@ -166,7 +166,7 @@ export class ContextMenuService extends Component {
 					try {
 						void def.run(ctx);
 					} catch (err) {
-						new Notice(`ObsiMan: action "${def.id}" failed`);
+						new Notice(`Vaultman: action "${def.id}" failed`);
 						console.error(err);
 					}
 				});
@@ -200,7 +200,7 @@ export class ContextMenuService extends Component {
 				}
 			}
 		} catch (e) {
-			console.warn('ObsiMan: could not apply hide rules to context menu', e);
+			console.warn('Vaultman: could not apply hide rules to context menu', e);
 		}
 	}
 }

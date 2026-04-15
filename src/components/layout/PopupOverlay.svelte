@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ObsiManPlugin } from "../../../main";
+	import type { VaultmanPlugin } from "../../../main";
 	import type { PopupType } from "../../types/ui";
 	import ActiveFiltersPopup from "../popups/ActiveFiltersPopup.svelte";
 	import ScopePopup from "../popups/ScopePopup.svelte";
@@ -31,7 +31,7 @@
 		queueMoves,
 		icon,
 	}: {
-		plugin: ObsiManPlugin;
+		plugin: VaultmanPlugin;
 		activePopup: PopupType | null;
 		popupOpen: boolean;
 		closePopup: () => void;
@@ -54,7 +54,7 @@
 </script>
 
 <div
-	class="obsiman-popup-overlay"
+	class="vaultman-popup-overlay"
 	class:is-hidden={activePopup === null}
 	class:is-open={popupOpen}
 	onclick={(e: MouseEvent) => {
@@ -67,7 +67,7 @@
 	aria-modal="true"
 	tabindex="-1"
 >
-	<div class="obsiman-popup-content">
+	<div class="vaultman-popup-content">
 		{#if activePopup === "active-filters"}
 			<ActiveFiltersPopup
 				{plugin}
@@ -80,7 +80,13 @@
 				{icon}
 			/>
 		{:else if activePopup === "scope"}
-			<ScopePopup {plugin} {scopeOptions} {setScope} {closePopup} {icon} />
+			<ScopePopup
+				{plugin}
+				{scopeOptions}
+				{setScope}
+				{closePopup}
+				{icon}
+			/>
 		{:else if activePopup === "search"}
 			<SearchPopup
 				bind:searchName

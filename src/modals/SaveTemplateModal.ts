@@ -1,6 +1,6 @@
 import { Modal, Setting, type App } from 'obsidian';
 import type { FilterGroup, FilterTemplate } from '../types/filter';
-import type { ObsiManPlugin } from '../../main';
+import type { VaultmanPlugin } from '../../main';
 import { translate } from '../i18n/index';
 
 /**
@@ -8,11 +8,11 @@ import { translate } from '../i18n/index';
  * Templates are stored in plugin settings and persist across sessions.
  */
 export class SaveTemplateModal extends Modal {
-	private plugin: ObsiManPlugin;
+	private plugin: VaultmanPlugin;
 	private filterRoot: FilterGroup;
 	private templateName = '';
 
-	constructor(app: App, plugin: ObsiManPlugin, filterRoot: FilterGroup) {
+	constructor(app: App, plugin: VaultmanPlugin, filterRoot: FilterGroup) {
 		super(app);
 		this.plugin = plugin;
 		this.filterRoot = filterRoot;
@@ -21,16 +21,16 @@ export class SaveTemplateModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass('obsiman-modal');
+		contentEl.addClass('vaultman-modal');
 
 		contentEl.createEl('h3', { text: translate('filter.template.save') });
 
 		// Show existing templates for reference
 		const existing = this.plugin.settings.filterTemplates;
 		if (existing.length > 0) {
-			const listEl = contentEl.createDiv({ cls: 'obsiman-template-list' });
+			const listEl = contentEl.createDiv({ cls: 'vaultman-template-list' });
 			listEl.createEl('small', {
-				cls: 'obsiman-text-faint',
+				cls: 'vaultman-text-faint',
 				text: `${translate('settings.templates')}: ${existing.map((t) => t.name).join(', ')}`,
 			});
 		}

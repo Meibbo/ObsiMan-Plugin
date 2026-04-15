@@ -3,7 +3,7 @@ import type { MenuHideRule } from './context-menu';
 
 export type Language = 'auto' | 'en' | 'es';
 
-export interface ObsiManSettings {
+export interface VaultmanSettings {
 	language: Language;
 	defaultPropertyType: string;
 	filterTemplates: FilterTemplate[];
@@ -19,7 +19,7 @@ export interface ObsiManSettings {
 	explorerOperationScope: 'auto' | 'selected' | 'filtered' | 'all';
 	/** Position of the operations panel */
 	operationsPanelPosition: 'right' | 'bottom' | 'replace';
-	/** Path to last .base file used with ObsiMan */
+	/** Path to last .base file used with Vaultman */
 	basesLastUsedPath: string;
 	/** Fallback when no .base file is open */
 	basesOpenMode: 'last-used' | 'picker';
@@ -57,17 +57,17 @@ export interface ObsiManSettings {
 	gridRenderChunkSize?: number;
 	/** Columns shown in the property grid */
 	gridColumns?: string[];
-	/** Show ObsiMan items in Obsidian's file-menu (right-click in explorer) */
+	/** Show Vaultman items in Obsidian's file-menu (right-click in explorer) */
 	contextMenuShowInFileMenu: boolean;
-	/** Show ObsiMan items in Obsidian's editor-menu (right-click in editor) */
+	/** Show Vaultman items in Obsidian's editor-menu (right-click in editor) */
 	contextMenuShowInEditorMenu: boolean;
-	/** Show ObsiMan items in Obsidian's more-options menu (··· button) */
+	/** Show Vaultman items in Obsidian's more-options menu (··· button) */
 	contextMenuShowInMoreOptions: boolean;
 	/** Rules for hiding native/third-party items from workspace context menus */
 	contextMenuHideRules: MenuHideRule[];
 }
 
-export const DEFAULT_SETTINGS: ObsiManSettings = {
+export const DEFAULT_SETTINGS: VaultmanSettings = {
 	language: 'auto',
 	defaultPropertyType: 'text',
 	filterTemplates: [],
