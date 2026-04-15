@@ -1,24 +1,24 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { setIcon } from "obsidian";
-	import type { VaultmanPlugin } from "../../main";
-	import type { FilesExplorerPanel } from "./containers/explorerFiles";
-	import type { PropsExplorerPanel } from "./containers/explorerProps";
-	import type { TagsExplorerPanel } from "./containers/explorerTags";
-	import StatisticsPage from "./pages/pageStatistics.svelte";
-	import FiltersPage from "./pages/pageFilters.svelte";
-	import OperationsPage from "./pages/pageOperations.svelte";
-	import BottomNav from "./layout/navbarPillFab.svelte";
-	import PopupOverlay from "./layout/popupOverlay.svelte";
-	import { QueueListComponent } from "./QueueListComponent";
-	import { QueueIslandComponent } from "./QueueIslandComponent";
-	import { ActiveFiltersIslandComponent } from "./ActiveFiltersIslandComponent";
-	import { QueueDetailsModal } from "../modals/modalQueueDetails";
-	import { FolderSuggest } from "../utils/autocomplete";
-	import { MOVE_FILE } from "../types/typeOps";
-	import type { PendingChange } from "../types/typeOps";
-	import { translate } from "../i18n/index";
-	import type { PopupType, FabDef } from "../types/typeUI";
+	import type { VaultmanPlugin } from "../main";
+	import type { FilesExplorerPanel } from "./components/containers/explorerFiles";
+	import type { PropsExplorerPanel } from "./components/containers/explorerProps";
+	import type { TagsExplorerPanel } from "./components/containers/explorerTags";
+	import StatisticsPage from "./components/pages/pageStatistics.svelte";
+	import FiltersPage from "./components/pages/pageFilters.svelte";
+	import OperationsPage from "./components/pages/pageOps.svelte";
+	import BottomNav from "./components/layout/navbarPillFab.svelte";
+	import PopupOverlay from "./components/layout/popupOverlay.svelte";
+	import { QueueListComponent } from "./components/componentQueueList";
+	import { QueueIslandComponent } from "./components/layout/islandQueue";
+	import { ActiveFiltersIslandComponent } from "./components/layout/islandActiveFilters";
+	import { QueueDetailsModal } from "./modals/modalQueueDetails";
+	import { FolderSuggest } from "./utils/autocomplete";
+	import { MOVE_FILE } from "./types/typeOps";
+	import type { PendingChange } from "./types/typeOps";
+	import { translate } from "./i18n/index";
+	import type { PopupType, FabDef } from "./types/typeUI";
 
 	// ─── Props ────────────────────────────────────────────────────────────────
 
@@ -352,7 +352,7 @@
 	let filtersIslandEl = $state<HTMLElement | null>(null);
 
 	function countFilterLeaves(
-		group: import("../types/typeFilter").FilterGroup,
+		group: import("./types/typeFilter").FilterGroup,
 	): number {
 		let count = 0;
 		for (const child of group.children) {
@@ -486,7 +486,7 @@
 	function refreshActiveFilterHighlights(): void {
 		const props = new Set<string>();
 		const vals = new Map<string, Set<string>>();
-		function walk(node: import("../types/typeFilter").FilterNode): void {
+		function walk(node: import("./types/typeFilter").FilterNode): void {
 			if (node.type === "rule") {
 				if (node.property) {
 					props.add(node.property);
@@ -571,8 +571,8 @@
 	type ActiveFilterRule = {
 		id: string;
 		description: string;
-		node: import("../types/typeFilter").FilterNode;
-		parent: import("../types/typeFilter").FilterGroup;
+		node: import("./types/typeFilter").FilterNode;
+		parent: import("./types/typeFilter").FilterGroup;
 		enabled: boolean;
 	};
 
@@ -581,7 +581,7 @@
 	function refreshActiveFiltersPopup(): void {
 		const rules: ActiveFilterRule[] = [];
 		let counter = 0;
-		function walk(group: import("../types/typeFilter").FilterGroup): void {
+		function walk(group: import("./types/typeFilter").FilterGroup): void {
 			for (const child of group.children) {
 				if (child.type === "rule") {
 					rules.push({
@@ -601,7 +601,7 @@
 	}
 
 	function describeFilterNode(
-		node: import("../types/typeFilter").FilterNode,
+		node: import("./types/typeFilter").FilterNode,
 	): string {
 		if (node.type !== "rule") return "Group";
 		const prop = (node as any).property ?? "";

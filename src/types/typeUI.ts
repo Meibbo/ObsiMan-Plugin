@@ -8,7 +8,7 @@ export type PopupType =
 
 export type OpsTab = "linter" | "template" | "layout";
 
-export interface OpsTabDef {
+export interface defOpsTab {
 	id: OpsTab;
 	label: string;
 	icon: string;
