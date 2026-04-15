@@ -42,8 +42,9 @@
     CATEGORY_ICONS[activeTab]?.[filtersSearchCategory[activeTab] ?? 0] ?? "lucide-search",
   );
 
-  let headerMode    = $state<HeaderMode>("header");
-  let headerExitDir = $state<"left" | "right">("right");
+  let headerMode      = $state<HeaderMode>("header");
+  let headerExitDir   = $state<"left" | "right">("right");
+  let currentViewMode = $state<"tree" | "dnd" | "grid" | "cards">("grid"); // Files default is grid
 
   function openSortPopup()     { headerExitDir = "right"; headerMode = "sort";     }
   function openViewModePopup() { headerExitDir = "left";  headerMode = "viewmode"; }
@@ -65,14 +66,24 @@
   }
 
   function handleViewModeChange(mode: "tree" | "dnd" | "grid" | "cards") {
+    currentViewMode = mode;
     if (activeTab === "files") {
-      // @ts-ignore — setViewMode added in Task 6
+      // @ts-ignore — setViewMode exists on FilesExplorerPanel
       fileList?.setViewMode(mode === "grid" ? "grid" : "tree");
     } else if (activeTab === "props") {
-      // @ts-ignore — setViewMode added in Task 6
+      // @ts-ignore — setViewMode exists on PropsExplorerPanel
       propExplorer?.setViewMode(mode === "grid" ? "grid" : "tree");
     }
     // tags: tree-only, no-op
+  }
+
+  function handleAddModeChange(active: boolean) {
+    // @ts-ignore — setAddMode added in Task 9
+    propExplorer?.setAddMode(active);
+    // @ts-ignore
+    fileList?.setAddMode(active);
+    // @ts-ignore
+    tagsExplorer?.setAddMode(active);
   }
 </script>
 
@@ -134,9 +145,11 @@
         class:popup-enter-from-left={headerExitDir === "right"}
         class:popup-enter-from-right={headerExitDir === "left"}
       >
-        <!-- @ts-ignore — onViewModeChange added to popupView in Task 6 -->
         <ViewModePopup {activeTab} onClose={closeHeaderPopup}
-          onViewModeChange={handleViewModeChange} {icon} />
+          onViewModeChange={handleViewModeChange}
+          onAddModeChange={handleAddModeChange}
+          initialViewMode={activeTab === "files" ? currentViewMode : "tree"}
+          {icon} />
       </div>
     {/if}
   </div>

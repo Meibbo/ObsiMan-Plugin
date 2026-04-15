@@ -65,21 +65,29 @@
 		activeTab,
 		onClose,
 		onViewModeChange,
+		onAddModeChange,
 		icon,
+		initialViewMode = "tree" as ViewMode,
 	}: {
 		activeTab: FiltersTab;
 		onClose: () => void;
 		onViewModeChange?: (mode: "tree" | "dnd" | "grid" | "cards") => void;
+		onAddModeChange?: (active: boolean) => void;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
+		initialViewMode?: ViewMode;
 	} = $props();
 
-	let activeView  = $state<ViewMode>("tree");
-	let activePills = $state<Set<string>>(new Set<string>());
+	let activeView  = $state<ViewMode>(initialViewMode);
+	let activePills = $state<Set<string>>(defaultPills(pillsKey(activeTab, initialViewMode)));
 
-	// Set initial pills on mount, then reset whenever the tab changes.
+	// Reset when activeTab changes (not on first render — initialViewMode handled above)
+	let _prevTab = $state<FiltersTab>(activeTab);
 	$effect(() => {
-		activeView  = "tree";
-		activePills = defaultPills(pillsKey(activeTab, "tree"));
+		if (activeTab !== _prevTab) {
+			_prevTab = activeTab;
+			activeView  = "tree";
+			activePills = defaultPills(pillsKey(activeTab, "tree"));
+		}
 	});
 
 	const currentPillKey  = $derived(pillsKey(activeTab, activeView));
@@ -101,6 +109,13 @@
 			next.add(id);
 		}
 		activePills = next;
+	}
+
+	let addMode = $state(false);
+
+	function toggleAddMode() {
+		addMode = !addMode;
+		onAddModeChange?.(addMode);
 	}
 </script>
 
@@ -142,6 +157,17 @@
 				use:icon={"lucide-search"}
 			></div>
 		{/if}
+		<!-- ADD mode FAB -->
+		<div
+			class="vaultman-nav-fab"
+			class:is-add-active={addMode}
+			role="button"
+			tabindex="0"
+			aria-label="ADD mode"
+			onclick={toggleAddMode}
+			onkeydown={(e: KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") toggleAddMode(); }}
+			use:icon={"lucide-plus"}
+		></div>
 		<!-- Pills (horizontal scroll, no scrollbar) -->
 		<div class="vaultman-viewmode-pills">
 			{#each currentPillDefs as pill (pill.id)}

@@ -2150,6 +2150,10 @@ body.vaultman-bases-column-separators table th {
   pointer-events: auto;
 }
 
+.vaultman-nav-fab.is-add-active {
+  box-shadow: 0 0 0 2px var(--color-accent), 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 .vaultman-nav-fab:hover {
   opacity: 0.85;
   transform: scale(1.05);
