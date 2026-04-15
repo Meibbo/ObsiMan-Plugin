@@ -2340,6 +2340,7 @@ body.vaultman-bases-column-separators table th {
 
 .vaultman-filters-header-search-pill {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   background: var(--background-modifier-form-field);
@@ -4276,8 +4277,7 @@ input.vaultman-filters-search-input::-webkit-search-results-decoration {
    they don't reflow the tab content below. */
 .vaultman-filters-header-wrap {
   position: relative;
-  overflow: hidden;
-  min-height: 40px;
+  overflow: visible;
 }
 
 /* Slide-in animations for Level 4 popups */
@@ -4314,6 +4314,7 @@ input.vaultman-filters-search-input::-webkit-search-results-decoration {
   gap: 6px;
   padding: 4px 8px;
   position: relative;
+  overflow: visible;
 }
 
 /* Vert-col: absolute, floats over tab content */
@@ -4325,7 +4326,8 @@ input.vaultman-filters-search-input::-webkit-search-results-decoration {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  z-index: 10;
+  z-index: 50;
+  overflow: visible;
 }
 
 .vaultman-sort-vertcol-btn {
@@ -4363,6 +4365,8 @@ input.vaultman-filters-search-input::-webkit-search-results-decoration {
   padding: 4px 6px;
   min-width: 80px;
   margin-top: 2px;
+  z-index: 55;
+  position: relative;
 }
 .vaultman-sort-drawer-item {
   font-size: 11px;
@@ -4429,6 +4433,10 @@ input.vaultman-filters-search-input::-webkit-search-results-decoration {
 .vaultman-sort-close-btn svg {
   width: 13px;
   height: 13px;
+}
+
+.vaultman-sort-row-controls .vaultman-sort-close-btn {
+  margin-left: auto;
 }
 
 /* Direction indicator inside squircle */
