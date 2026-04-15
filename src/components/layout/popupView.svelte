@@ -64,10 +64,12 @@
 	let {
 		activeTab,
 		onClose,
+		onViewModeChange,
 		icon,
 	}: {
 		activeTab: FiltersTab;
 		onClose: () => void;
+		onViewModeChange?: (mode: "tree" | "dnd" | "grid" | "cards") => void;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	} = $props();
 
