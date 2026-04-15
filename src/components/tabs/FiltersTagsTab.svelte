@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { TagsExplorerPanel } from "../containers/TagsExplorerPanel";
-  import type { ObsiManPlugin } from "../../../main";
+  import type { VaultmanPlugin } from "../../../main";
 
   let {
     plugin,
@@ -9,7 +9,7 @@
     searchMode = 0,
     tagsExplorer = $bindable<TagsExplorerPanel | null>(null),
   }: {
-    plugin: ObsiManPlugin;
+    plugin: VaultmanPlugin;
     searchTerm?: string;
     searchMode?: number;
     tagsExplorer?: TagsExplorerPanel | null;
@@ -17,7 +17,7 @@
 
   $effect(() => {
     if (tagsExplorer) {
-      tagsExplorer.setSearchTerm(searchTerm, searchMode === 1 ? 'leaf' : 'all');
+      tagsExplorer.setSearchTerm(searchTerm, searchMode === 1 ? "leaf" : "all");
     }
   });
 
@@ -36,10 +36,10 @@
   });
 </script>
 
-<div class="obsiman-tags-tab-content" bind:this={containerEl}></div>
+<div class="vaultman-tags-tab-content" bind:this={containerEl}></div>
 
 <style>
-  .obsiman-tags-tab-content {
+  .vaultman-tags-tab-content {
     flex: 1;
     overflow-y: auto;
     min-height: 0;

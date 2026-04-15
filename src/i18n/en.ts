@@ -1,11 +1,11 @@
 export const en: Record<string, string> = {
 	// General
-	'plugin.name': 'ObsiMan',
-	'plugin.sidebar_name': 'ObsiMan Sidebar',
-	'plugin.frame_name': 'ObsiMan Explorer',
-	'plugin.name_explorer': 'ObsiMan Explorer',
+	'plugin.name': 'Vaultman',
+	'plugin.sidebar_name': 'Vaultman Sidebar',
+	'plugin.frame_name': 'Vaultman Explorer',
+	'plugin.name_explorer': 'Vaultman Explorer',
 	'plugin.description': 'Bulk property editor and vault management tool',
-	'plugin.open': 'Open ObsiMan',
+	'plugin.open': 'Open Vaultman',
 
 	// Sections
 	'section.filters': 'Filters',
@@ -113,9 +113,9 @@ export const en: Record<string, string> = {
 	'settings.templates.desc': 'Manage saved filter templates',
 
 	// Main view
-	'view.main.title': 'ObsiMan',
-	'command.open_main': 'Open ObsiMan (full view)',
-	'command.open_sidebar': 'Open ObsiMan sidebar',
+	'view.main.title': 'Vaultman',
+	'command.open_main': 'Open Vaultman (full view)',
+	'command.open_sidebar': 'Open Vaultman sidebar',
 	'command.apply_queue': 'Apply pending operations',
 
 	// Toolbar
@@ -275,7 +275,7 @@ export const en: Record<string, string> = {
 	// View mode settings
 	'settings.view_section': 'View',
 	'settings.open_mode': 'Default view',
-	'settings.open_mode.desc': 'What to open when clicking the ObsiMan ribbon icon',
+	'settings.open_mode.desc': 'What to open when clicking the Vaultman ribbon icon',
 	'settings.open_mode.sidebar': 'Sidebar',
 	'settings.open_mode.main': 'Main view (full-width)',
 	'settings.open_mode.both': 'Both',

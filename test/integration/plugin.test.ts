@@ -24,12 +24,12 @@ interface ExtendedApp extends App {
     plugins: ObsidianPluginManager;
 }
 
-describe('ObsiMan Integration Tests', () => {
+describe('Vaultman Integration Tests', () => {
     it('should be loaded by Obsidian', async () => {
         const isLoaded = await evalInObsidian({
             fn: ({ app }) => {
                 const extendedApp = app as ExtendedApp;
-                return extendedApp.plugins.enabledPlugins.has('obsiman');
+                return extendedApp.plugins.enabledPlugins.has('vaultman');
             }
         });
         expect(isLoaded).toBe(true);
@@ -84,7 +84,7 @@ describe('ObsiMan Integration Tests', () => {
         const services = await evalInObsidian({
             fn: ({ app }) => {
                 const extendedApp = app as ExtendedApp;
-                const plugin = extendedApp.plugins.plugins.obsiman;
+                const plugin = extendedApp.plugins.plugins.vaultman;
                 return {
                     propertyIndex: !!plugin?.propertyIndex,
                     filterService: !!plugin?.filterService,
@@ -100,12 +100,12 @@ describe('ObsiMan Integration Tests', () => {
 
     it('ContextMenuService is registered on the plugin', async () => {
         // Panel actions (tag.*, prop.*, value.*, file.*) register in panel onload(),
-        // which only runs when the ObsiMan view is mounted. In the test environment
+        // which only runs when the Vaultman view is mounted. In the test environment
         // the view is not open, so we only verify: service exists + workspace stub action.
         const result = await evalInObsidian({
             fn: ({ app }) => {
                 const extendedApp = app as ExtendedApp;
-                const plugin = extendedApp.plugins.plugins.obsiman;
+                const plugin = extendedApp.plugins.plugins.vaultman;
                 if (!plugin) return { ok: false, reason: 'plugin not found' };
                 const svc = plugin.contextMenuService;
                 if (!svc) return { ok: false, reason: 'contextMenuService not found' };

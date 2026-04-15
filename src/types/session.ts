@@ -1,7 +1,7 @@
 import type { FilterGroup } from './filter';
 
 /** Parsed state of a session .md file */
-export interface ObsiManSession {
+export interface VaultmanSession {
 	/** Filter tree stored in frontmatter */
 	filters: FilterGroup;
 	/** Property columns to display in the grid */
@@ -13,6 +13,6 @@ export interface ObsiManSession {
 }
 
 /** Frontmatter keys used by session files */
-export const SESSION_FM_KEY = 'obsiman-session';
-export const SESSION_FILTERS_KEY = 'obsiman-filters';
-export const SESSION_COLUMNS_KEY = 'obsiman-columns';
+export const SESSION_FM_KEY = 'vaultman-session';
+export const SESSION_FILTERS_KEY = 'vaultman-filters';
+export const SESSION_COLUMNS_KEY = 'vaultman-columns';

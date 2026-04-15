@@ -1,33 +1,33 @@
 import { ItemView, type WorkspaceLeaf } from 'obsidian';
-import type { ObsiManPlugin } from '../../main';
+import type { VaultmanPlugin } from '../../main';
 import { mount, unmount } from 'svelte';
-import ObsiManFrameSvelte from './ObsiManFrame.svelte';
+import VaultmanFrameSvelte from './VaultmanFrame.svelte';
 import { translate } from '../i18n/index';
 
-export const OBSIMAN_FRAME_TYPE = 'obsiman-frame';
+export const Vaultman_FRAME_TYPE = 'vaultman-frame';
 
 /**
  * Full-width explorer view shell.
  */
-export class ObsiManFrame extends ItemView {
-	private plugin: ObsiManPlugin;
+export class VaultmanFrame extends ItemView {
+	private plugin: VaultmanPlugin;
 	private svelteApp: ReturnType<typeof mount> | null = null;
 
-	constructor(leaf: WorkspaceLeaf, plugin: ObsiManPlugin) {
+	constructor(leaf: WorkspaceLeaf, plugin: VaultmanPlugin) {
 		super(leaf);
 		this.plugin = plugin;
 	}
 
-	getViewType(): string { return OBSIMAN_FRAME_TYPE; }
+	getViewType(): string { return Vaultman_FRAME_TYPE; }
 	getDisplayText(): string { return translate('plugin.frame_name'); }
-	getIcon(): string { return 'lucide-layout-dashboard'; }
+	getIcon(): string { return 'lucide-dessert'; }
 
 	async onOpen(): Promise<void> {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass('obsiman-frame');
+		contentEl.addClass('vaultman-frame');
 
-		this.svelteApp = mount(ObsiManFrameSvelte, {
+		this.svelteApp = mount(VaultmanFrameSvelte, {
 			target: contentEl,
 			props: { plugin: this.plugin },
 		});

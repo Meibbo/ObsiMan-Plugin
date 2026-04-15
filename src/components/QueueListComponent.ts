@@ -26,19 +26,19 @@ export class QueueListComponent {
 
 		if (queue.length === 0) {
 			this.containerEl.createDiv({
-				cls: 'obsiman-queue-empty',
+				cls: 'vaultman-queue-empty',
 				text: translate('ops.queue.empty'),
 			});
 			return;
 		}
 
-		const headerEl = this.containerEl.createDiv({ cls: 'obsiman-queue-header' });
+		const headerEl = this.containerEl.createDiv({ cls: 'vaultman-queue-header' });
 		headerEl.createSpan({
 			text: translate('ops.queue', { count: queue.length }),
-			cls: 'obsiman-queue-title',
+			cls: 'vaultman-queue-title',
 		});
 
-		const listEl = this.containerEl.createDiv({ cls: 'obsiman-queue-list' });
+		const listEl = this.containerEl.createDiv({ cls: 'vaultman-queue-list' });
 		for (let i = 0; i < queue.length; i++) {
 			this.renderItem(listEl, queue[i], i);
 		}
@@ -49,12 +49,12 @@ export class QueueListComponent {
 	}
 
 	private renderItem(parent: HTMLElement, change: PendingChange, index: number): void {
-		const itemEl = parent.createDiv({ cls: 'obsiman-queue-item' });
+		const itemEl = parent.createDiv({ cls: 'vaultman-queue-item' });
 
 		// Checkbox for selection (when selectable)
 		if (this.callbacks.selectable) {
 			const cb = itemEl.createEl('input', {
-				cls: 'obsiman-queue-checkbox',
+				cls: 'vaultman-queue-checkbox',
 				attr: { type: 'checkbox' },
 			});
 			cb.addEventListener('change', () => {
@@ -67,15 +67,15 @@ export class QueueListComponent {
 		}
 
 		itemEl.createSpan({
-			cls: 'obsiman-queue-index',
+			cls: 'vaultman-queue-index',
 			text: `${index + 1}.`,
 		});
 
 		const descEl = itemEl.createSpan({
-			cls: 'obsiman-queue-desc',
+			cls: 'vaultman-queue-desc',
 		});
 		descEl.createSpan({
-			cls: 'obsiman-queue-action',
+			cls: 'vaultman-queue-action',
 			text: change.action,
 		});
 		descEl.createSpan({
@@ -83,12 +83,12 @@ export class QueueListComponent {
 		});
 
 		itemEl.createSpan({
-			cls: 'obsiman-queue-file-count',
+			cls: 'vaultman-queue-file-count',
 			text: `(${change.files.length} files)`,
 		});
 
 		const removeBtn = itemEl.createEl('button', {
-			cls: 'obsiman-filter-remove-btn clickable-icon',
+			cls: 'vaultman-filter-remove-btn clickable-icon',
 			attr: { 'aria-label': 'Remove from queue' },
 		});
 		removeBtn.setText('\u00d7');

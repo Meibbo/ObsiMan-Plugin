@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { setIcon } from "obsidian";
-	import type { ObsiManPlugin } from "../../main";
+	import type { VaultmanPlugin } from "../../main";
 	import type { FilesExplorerPanel } from "./containers/FilesExplorerPanel";
 	import type { PropsExplorerPanel } from "./containers/PropsExplorerPanel";
 	import type { TagsExplorerPanel } from "./containers/TagsExplorerPanel";
@@ -22,7 +22,7 @@
 
 	// ─── Props ────────────────────────────────────────────────────────────────
 
-	let { plugin }: { plugin: ObsiManPlugin } = $props();
+	let { plugin }: { plugin: VaultmanPlugin } = $props();
 
 	// ─── Page navigation ──────────────────────────────────────────────────────
 
@@ -75,7 +75,7 @@
 				action: () => {
 					// Stub settings open hook
 					(plugin.app as any).setting?.open?.();
-					(plugin.app as any).setting?.openTabById?.("obsiman");
+					(plugin.app as any).setting?.openTabById?.("vaultman");
 				},
 			},
 		},
@@ -134,7 +134,7 @@
 		if (w === 0) return;
 		// Set each page to exact pixel width
 		const pages =
-			containerEl.querySelectorAll<HTMLElement>(".obsiman-page");
+			containerEl.querySelectorAll<HTMLElement>(".vaultman-page");
 		pages.forEach((p) => {
 			p.style.width = `${w}px`;
 		});
@@ -216,9 +216,9 @@
 		if (!isReordering || reorderSourceIdx < 0 || !pillEl) return;
 		// Find which icon the pointer is currently over
 		const el = document.elementFromPoint(e.clientX, e.clientY);
-		const iconEl = el?.closest?.(".obsiman-nav-icon") as HTMLElement | null;
+		const iconEl = el?.closest?.(".vaultman-nav-icon") as HTMLElement | null;
 		if (iconEl && pillEl.contains(iconEl)) {
-			const icons = pillEl.querySelectorAll(".obsiman-nav-icon");
+			const icons = pillEl.querySelectorAll(".vaultman-nav-icon");
 			const idx = Array.from(icons).indexOf(iconEl);
 			if (idx >= 0 && idx !== reorderSourceIdx) {
 				reorderTargetIdx = idx;
@@ -274,10 +274,10 @@
 		};
 	}
 
-	// ResizeObserver on .obsiman-view updates nav state
+	// ResizeObserver on .vaultman-view updates nav state
 	function bindViewRoot(el: HTMLElement) {
 		const target =
-			(el.closest(".obsiman-view") as HTMLElement) ??
+			(el.closest(".vaultman-view") as HTMLElement) ??
 			el.parentElement ??
 			el;
 		viewRootEl = target;
@@ -753,15 +753,15 @@
 </script>
 
 <!-- ─── Page container (horizontal slide strip) ────────────────────────────── -->
-<!-- obsiman-pages-viewport clips via overflow:hidden; the container slides inside it -->
-<div class="obsiman-pages-viewport" use:bindViewport use:bindViewRoot>
+<!-- vaultman-pages-viewport clips via overflow:hidden; the container slides inside it -->
+<div class="vaultman-pages-viewport" use:bindViewport use:bindViewRoot>
 	<div
-		class="obsiman-page-container"
+		class="vaultman-page-container"
 		use:bindContainer
 		ontransitionend={onContainerTransitionEnd}
 	>
 		{#each pageOrder as pageId (pageId)}
-			<div class="obsiman-page" data-page={pageId}>
+			<div class="vaultman-page" data-page={pageId}>
 				{#key pageRenderKey}
 					{#if pageId === "ops"}
 						<OperationsPage
@@ -794,7 +794,7 @@
 
 	<!-- ─── Island Backdrop (Rising Glass) ─────────────────────────────────── -->
 	<div
-		class="obsiman-island-backdrop obsiman-glass"
+		class="vaultman-island-backdrop vaultman-glass"
 		class:is-open={queueIslandOpen || filtersIslandOpen}
 		onclick={() => {
 			closeQueueIsland();
@@ -812,8 +812,8 @@
 	></div>
 
 	<!-- ─── Queue island container — floats above bottom nav ────────────────────── -->
-	<div class="obsiman-queue-island-wrap" bind:this={queueIslandEl}></div>
-	<div class="obsiman-filters-island-wrap" bind:this={filtersIslandEl}></div>
+	<div class="vaultman-queue-island-wrap" bind:this={queueIslandEl}></div>
+	<div class="vaultman-filters-island-wrap" bind:this={filtersIslandEl}></div>
 
 	<BottomNav
 		{pageOrder}

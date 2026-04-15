@@ -1,4 +1,4 @@
-# Contributing to ObsiMan
+# Contributing to Vaultman
 
 ## Prerequisites
 
@@ -11,8 +11,8 @@
 1. Clone the repository into your vault's plugin directory:
    ```bash
    cd /path/to/your/vault/.obsidian/plugins
-   git clone https://github.com/Meibbo/obsiman.git
-   cd obsiman
+   git clone https://github.com/Meibbo/vaultman.git
+   cd vaultman
    ```
 
 2. Install dependencies:
@@ -25,7 +25,7 @@
    npm run dev
    ```
 
-4. Enable the plugin in Obsidian: Settings > Community Plugins > ObsiMan
+4. Enable the plugin in Obsidian: Settings > Community Plugins > Vaultman
 
 5. Use Ctrl+Shift+I to open the developer console for debugging.
 
@@ -51,10 +51,10 @@ src/
     SessionFileService     # Session .md file read/write
     BasesCheckboxInjector  # Injects checkboxes into Obsidian Bases table DOM
   views/                   # Obsidian ItemView subclasses
-    ObsiManView.ts         # Thin shell — mounts/unmounts ObsiManView.svelte
-    ObsiManView.svelte     # Main sidebar UI (Svelte 5): 3-page nav, all tabs
-    ObsiManExplorerView.ts # Full-width property explorer (legacy, not in active use)
-    ObsiManOpsView.ts      # Full-width operations panel (legacy, not in active use)
+    VaultmanView.ts         # Thin shell — mounts/unmounts VaultmanView.svelte
+    VaultmanView.svelte     # Main sidebar UI (Svelte 5): 3-page nav, all tabs
+    VaultmanExplorerView.ts # Full-width property explorer (legacy, not in active use)
+    VaultmanOpsView.ts      # Full-width operations panel (legacy, not in active use)
   components/              # Plain TypeScript UI classes (no framework)
     PropertyGridComponent  # Virtual-scrolled spreadsheet grid with inline editing
     FileListComponent      # Checkable file list with search filtering
@@ -71,7 +71,7 @@ src/
   types/                   # TypeScript interfaces only
     filter.ts              # FilterNode, FilterGroup, FilterRule, FilterType
     operation.ts           # PendingChange, OperationResult, signal constants
-    settings.ts            # ObsiManSettings, DEFAULT_SETTINGS
+    settings.ts            # VaultmanSettings, DEFAULT_SETTINGS
   utils/                   # Pure functions
     filter-evaluator.ts    # evalNode() — pure filter evaluation function
     autocomplete.ts        # PropertySuggest, FolderSuggest (AbstractInputSuggest)
@@ -80,10 +80,10 @@ src/
     en.ts                  # English translations (source of truth)
     es.ts                  # Spanish translations
   settings/
-    ObsiManSettingsTab.ts  # Plugin settings tab
+    VaultmanSettingsTab.ts  # Plugin settings tab
 ```
 
-### ObsiManView.svelte — key patterns
+### VaultmanView.svelte — key patterns
 
 The sidebar Svelte component manages all page/tab state. Key rules:
 - All user-visible strings use `t('key')` from `src/i18n/index.ts`
@@ -179,7 +179,7 @@ const file = this.app.vault.getMarkdownFiles().find(f => f.path === path);
 
 Before submitting changes, verify manually in Obsidian:
 
-- [ ] Plugin reloads without console errors (`obsidian 'vault=...' 'plugin:reload' 'id=obsiman'` then `dev:errors`)
+- [ ] Plugin reloads without console errors (`obsidian 'vault=...' 'plugin:reload' 'id=vaultman'` then `dev:errors`)
 - [ ] Build passes: `npm run build` (1 pre-existing Svelte warning, 0 errors)
 - [ ] Sidebar opens via ribbon icon
 - [ ] All 3 pages navigate correctly (Ops | Files | Filters)

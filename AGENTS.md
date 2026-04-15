@@ -1,44 +1,44 @@
-# AGENTS.md — ObsiMan Plugin
+# AGENTS.md — Vaultman Plugin
 
 > **Mandatory start-of-session protocol for ALL AI agents (Claude Code, Gemini CLI, Gemini Pro, Warp Agent, ChatGPT Codex, or any other).**
-> Read this file FIRST before any work. Then read `docs/ObsiMan - Agent Memory.md` for current session state.
+> Read this file FIRST before any work. Then read `docs/Vaultman - Agent Memory.md` for current session state.
 
 ---
 
 ## 0. Start-of-session checklist (REQUIRED — do not skip)
 
 1. **Read this file** — architecture rules, coding patterns, constraints
-2. **Read `docs/ObsiMan - Agent Memory.md`** — current project state, pending iterations, last agent's notes
-3. **Read `docs/ObsiMan - Bugs.md`** — open bugs (don't reintroduce fixed ones)
-4. **Find your tasks** — check `docs/ObsiMan - User Interface.md`, `docs/ObsiMan - Bugs.md` or `docs/ObsiMan - Structure.md` for task checkboxes `[ ]`.
+2. **Read `docs/Vaultman - Agent Memory.md`** — current project state, pending iterations, last agent's notes
+3. **Read `docs/Vaultman - Bugs.md`** — open bugs (don't reintroduce fixed ones)
+4. **Find your tasks** — check `docs/Vaultman - User Interface.md`, `docs/Vaultman - Bugs.md` or `docs/Vaultman - Structure.md` for task checkboxes `[ ]`.
 5. **Run `git log --oneline -5`** — confirm you're on the right branch and know last commits
 6. **Ask the user** *(or verify via `npm run build`)* whether features from the last session are working
 7. **Check your own context budget** — estimate how many large files you can read. If <20% remaining, warn the user and suggest switching agents BEFORE starting implementation
-8. **Update `docs/ObsiMan - Agent Memory.md`** at the END of your session with: what you completed, what's next, any blockers. Move completed tasks to `docs/ObsiMan - Archived tasks.md`. Keep iterations to a strict maximum of 6 tasks.
+8. **Update `docs/Vaultman - Agent Memory.md`** at the END of your session with: what you completed, what's next, any blockers. Move completed tasks to `docs/Vaultman - Archived tasks.md`. Keep iterations to a strict maximum of 6 tasks.
 8. **Before implementing any integration with a core or community plugin** — search online for its API docs, GitHub repo, and any known inter-plugin communication patterns. Never assume an API exists; verify it first. See section 11 for the integration philosophy and known API surfaces.
 
 ---
 
 ## 1. Project identity & philosophy
 
-- **Plugin**: ObsiMan — bulk property editor and vault management for Obsidian
+- **Plugin**: Vaultman — bulk property editor and vault management for Obsidian
 - **Stack**: TypeScript + Obsidian Plugin API + esbuild + ESLint
-- **Repo**: `https://github.com/Meibbo/ObsiMan-Plugin`
+- **Repo**: `https://github.com/Meibbo/Vaultman-Plugin`
 - **Current branch**: `add-functions`
 - **Version**: `1.0.0-beta.9` (working toward `1.0.0` stable)
 - **Primary author**: Meibbo
 
 ### Core philosophy — "Augment, don't replace"
 
-ObsiMan is a **layer on top of Obsidian's native ecosystem**, not a standalone tool. Every feature should ask: *"Which core or community plugin already does this well, and how can we add what it's missing?"*
+Vaultman is a **layer on top of Obsidian's native ecosystem**, not a standalone tool. Every feature should ask: *"Which core or community plugin already does this well, and how can we add what it's missing?"*
 
-| Native capability | What it lacks | ObsiMan adds |
+| Native capability | What it lacks | Vaultman adds |
 |---|---|---|
 | **Search** (core) | No replace, no batch action | Find & Replace in content (Content tab) |
 | **Bases** (core) | No bulk property edit, no multi-file ops | Property grid, checkbox injection, queue ops |
 | **Properties** (core) | No bulk rename/delete/clean | Property Manager modal |
 | **Tags** (core) | No bulk rename/merge | Tag operations (planned) |
-| **Linter** (community) | Requires manual run per-file | Batch linting via ObsiMan queue |
+| **Linter** (community) | Requires manual run per-file | Batch linting via Vaultman queue |
 | **Tag Wrangler** (community) | No integration with file filters | Tag ops scoped to filtered/selected files |
 | **MultiProperties** (community) | No bulk queue | Queued multi-property ops (planned) |
 
@@ -58,7 +58,7 @@ src/
   types/                   # TypeScript interfaces only
   utils/                   # Pure functions
   i18n/                    # t() with EN/ES + auto-detect
-  settings/                # ObsiManSettingsTab
+  settings/                # VaultmanSettingsTab
 ```
 
 ### Key services
@@ -73,9 +73,9 @@ src/
 ### View types
 | View | Type ID | Purpose |
 |------|---------|---------|
-| `ObsiManView` | `obsiman-view` | **Main sidebar** (3-page nav, default) |
-| `ObsiManExplorerView` | `obsiman-explorer-view` | Full-width property explorer |
-| `ObsiManOpsView` | `obsiman-ops-view` | Full-width operations panel |
+| `VaultmanView` | `vaultman-view` | **Main sidebar** (3-page nav, default) |
+| `VaultmanExplorerView` | `vaultman-explorer-view` | Full-width property explorer |
+| `VaultmanOpsView` | `vaultman-ops-view` | Full-width operations panel |
 
 ---
 
@@ -137,13 +137,13 @@ npm run test:e2e         # full E2E tests in real Obsidian (wdio-obsidian-servic
 npm run test:all         # runs both test suites
 ```
 
-**After every coding session, run `npm run build` before updating ObsiMan - Agent Memory.md.**
+**After every coding session, run `npm run build` before updating Vaultman - Agent Memory.md.**
 Pre-existing lint errors (do not fix unless asked):
 - `main.ts:70` sentence-case ribbon text
 - `main.ts:189` async BasesFilePicker callback
 - `BasesCheckboxInjector.ts:67` unnecessary type assertion
-- `ObsiManExplorerView.ts:17`, `ObsiManOpsView.ts:17` sentence-case
-- `ObsiManSettingsTab.ts:159,205,217,229` sentence-case in Bases section
+- `VaultmanExplorerView.ts:17`, `VaultmanOpsView.ts:17` sentence-case
+- `VaultmanSettingsTab.ts:159,205,217,229` sentence-case in Bases section
 - `version-bump.mjs:3` and `.obsidian/...excalidraw` — outside project scope
 
 ---
@@ -159,7 +159,7 @@ Pre-existing lint errors (do not fix unless asked):
 
 ## 6. Settings fields reference
 
-Current `ObsiManSettings` fields (in `src/types/settings.ts`):
+Current `VaultmanSettings` fields (in `src/types/settings.ts`):
 - `language`, `defaultPropertyType`, `filterTemplates`, `sessionFilePath`
 - `explorerCtrlClickSearch`, `explorerShowQueuePreview`, `explorerContentSearch`, `explorerOperationScope`
 - `operationsPanelPosition`, `basesLastUsedPath`, `basesOpenMode`, `basesOpsPanelSide`, `basesExplorerSide`
@@ -171,8 +171,8 @@ Current `ObsiManSettings` fields (in `src/types/settings.ts`):
 
 ## 7. UI Design spec (wireframe source of truth)
 
-**Wireframe**: `img/ObsiMan - Ui.png` — read this before implementing any UI change.
-**Full design doc**: `docs/ObsiMan - Wireframe.md` — read this for complete component specs, anatomy, and CSS class system.
+**Wireframe**: `img/Vaultman - Ui.png` — read this before implementing any UI change.
+**Full design doc**: `docs/Vaultman - Wireframe.md` — read this for complete component specs, anatomy, and CSS class system.
 
 ### Frame hierarchy (corrected)
 | Level | Name | What it describes |
@@ -241,8 +241,8 @@ The "bottom bar" is the **complete assembly**: pill navbar (●●●) + FAB but
 
 - All plugin styles in `styles.css` (single file)
 - Use Obsidian variables: `--text-normal`, `--text-muted`, `--color-accent`, `--background-primary`, etc.
-- Use plugin tokens: `--obsiman-accent`, `--obsiman-bg-section`, `--obsiman-border`
-- Class prefix: always `.obsiman-*`
+- Use plugin tokens: `--vaultman-accent`, `--vaultman-bg-section`, `--vaultman-border`
+- Class prefix: always `.vaultman-*`
 - Mobile touch targets: min 44px
 - Animations follow the **Workflow spec** from the UI design:
   - Pages: `cubic-bezier(0.4, 0, 0.2, 1)` 280ms horizontal slide
@@ -271,11 +271,11 @@ The "bottom bar" is the **complete assembly**: pill navbar (●●●) + FAB but
 ### Gemini CLI
 - Excellent for large-context reads (2M token window)
 - Use for reviewing multiple files at once
-- Run: `gemini -p "Read AGENTS.md and ObsiMan - Agent Memory.md, then continue from where it left off"`
+- Run: `gemini -p "Read AGENTS.md and Vaultman - Agent Memory.md, then continue from where it left off"`
 
 ### Gemini Pro / Google Antigravity
 - Best for reading the full codebase at once
-- Paste `AGENTS.md + ObsiMan - Agent Memory.md` as system context
+- Paste `AGENTS.md + Vaultman - Agent Memory.md` as system context
 
 ### Warp Agent
 - Terminal-focused — good for running build/lint/git commands

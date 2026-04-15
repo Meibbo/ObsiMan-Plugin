@@ -1,8 +1,8 @@
 export const es: Record<string, string> = {
 	// General
-	'plugin.name': 'ObsiMan',
+	'plugin.name': 'Vaultman',
 	'plugin.description': 'Editor masivo de propiedades y herramienta de gestión de vault',
-	'plugin.open': 'Abrir ObsiMan',
+	'plugin.open': 'Abrir Vaultman',
 
 	// Sections
 	'section.filters': 'Filtros',
@@ -109,9 +109,9 @@ export const es: Record<string, string> = {
 	'settings.templates.desc': 'Gestionar plantillas de filtros guardadas',
 
 	// Main view
-	'view.main.title': 'ObsiMan',
-	'command.open_main': 'Abrir ObsiMan (vista completa)',
-	'command.open_sidebar': 'Abrir barra lateral de ObsiMan',
+	'view.main.title': 'Vaultman',
+	'command.open_main': 'Abrir Vaultman (vista completa)',
+	'command.open_sidebar': 'Abrir barra lateral de Vaultman',
 	'command.apply_queue': 'Aplicar operaciones pendientes',
 
 	// Toolbar

@@ -1,6 +1,6 @@
 // src/components/FilesExplorerPanel.ts
 import { Component, type TFile } from 'obsidian';
-import type { ObsiManPlugin } from '../../../main';
+import type { VaultmanPlugin } from '../../../main';
 import { FilesLogic } from '../../logic/FilesLogic';
 import { GridView } from '../layout/GridView';
 import { UnifiedTreeView } from '../layout/UnifiedTreeView';
@@ -13,7 +13,7 @@ export type FilesViewMode = 'grid' | 'tree';
 
 export class FilesExplorerPanel extends Component {
 	private containerEl: HTMLElement;
-	private plugin: ObsiManPlugin;
+	private plugin: VaultmanPlugin;
 	private logic: FilesLogic;
 	private gridView: GridView | null = null;
 	private treeView: UnifiedTreeView | null = null;
@@ -24,7 +24,7 @@ export class FilesExplorerPanel extends Component {
 
 	private onSelectionChange?: (count: number) => void;
 
-	constructor(containerEl: HTMLElement, plugin: ObsiManPlugin, onSelectionChange?: (count: number) => void) {
+	constructor(containerEl: HTMLElement, plugin: VaultmanPlugin, onSelectionChange?: (count: number) => void) {
 		super();
 		this.containerEl = containerEl;
 		this.plugin = plugin;

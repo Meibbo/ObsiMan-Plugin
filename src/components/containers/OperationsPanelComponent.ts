@@ -1,5 +1,5 @@
 import { setIcon } from 'obsidian';
-import type { ObsiManPlugin } from '../../../main';
+import type { VaultmanPlugin } from '../../../main';
 import { QueueListComponent } from '../QueueListComponent';
 import { LinterModal } from '../../modals/LinterModal';
 import { FileRenameModal } from '../../modals/FileRenameModal';
@@ -54,7 +54,7 @@ export interface OperationsPanelCallbacks {
  */
 export class OperationsPanelComponent {
 	private containerEl: HTMLElement;
-	private plugin: ObsiManPlugin;
+	private plugin: VaultmanPlugin;
 	private callbacks: OperationsPanelCallbacks;
 
 	private expanded = true;
@@ -70,7 +70,7 @@ export class OperationsPanelComponent {
 
 	constructor(
 		containerEl: HTMLElement,
-		plugin: ObsiManPlugin,
+		plugin: VaultmanPlugin,
 		callbacks: OperationsPanelCallbacks = {}
 	) {
 		this.containerEl = containerEl;
@@ -93,14 +93,14 @@ export class OperationsPanelComponent {
 	// --- Collapsed: vertical icon strip ---
 
 	private renderCollapsed(): void {
-		this.containerEl.addClass('obsiman-ops-collapsed');
-		this.containerEl.removeClass('obsiman-ops-expanded');
+		this.containerEl.addClass('vaultman-ops-collapsed');
+		this.containerEl.removeClass('vaultman-ops-expanded');
 
-		const strip = this.containerEl.createDiv({ cls: 'obsiman-ops-strip' });
+		const strip = this.containerEl.createDiv({ cls: 'vaultman-ops-strip' });
 
 		// Toggle button (top)
 		const toggleBtn = strip.createDiv({
-			cls: 'clickable-icon obsiman-ops-strip-toggle',
+			cls: 'clickable-icon vaultman-ops-strip-toggle',
 			attr: { 'aria-label': translate('ops.panel.title') },
 		});
 		setIcon(toggleBtn, 'lucide-panel-left');
@@ -109,7 +109,7 @@ export class OperationsPanelComponent {
 		// Tab icons
 		for (const tab of TABS) {
 			const btn = strip.createDiv({
-				cls: `clickable-icon obsiman-ops-strip-tab${tab.id === this.activeTab ? ' is-active' : ''}`,
+				cls: `clickable-icon vaultman-ops-strip-tab${tab.id === this.activeTab ? ' is-active' : ''}`,
 				attr: { 'aria-label': translate(tab.labelKey) },
 			});
 			setIcon(btn, tab.icon);
@@ -123,15 +123,15 @@ export class OperationsPanelComponent {
 	// --- Expanded: full panel ---
 
 	private renderExpanded(): void {
-		this.containerEl.removeClass('obsiman-ops-collapsed');
-		this.containerEl.addClass('obsiman-ops-expanded');
+		this.containerEl.removeClass('vaultman-ops-collapsed');
+		this.containerEl.addClass('vaultman-ops-expanded');
 
 		// Tab bar (horizontal)
-		const tabBar = this.containerEl.createDiv({ cls: 'obsiman-ops-tabbar' });
+		const tabBar = this.containerEl.createDiv({ cls: 'vaultman-ops-tabbar' });
 
 		// Toggle button (top-right of tab bar)
 		const toggleBtn = tabBar.createDiv({
-			cls: 'clickable-icon obsiman-ops-tabbar-toggle',
+			cls: 'clickable-icon vaultman-ops-tabbar-toggle',
 			attr: { 'aria-label': translate('ops.panel.title') },
 		});
 		setIcon(toggleBtn, 'lucide-panel-left-close');
@@ -140,7 +140,7 @@ export class OperationsPanelComponent {
 		// Tab buttons
 		for (const tab of TABS) {
 			const tabBtn = tabBar.createDiv({
-				cls: `obsiman-operations-tab${tab.id === this.activeTab ? ' is-active' : ''}`,
+				cls: `vaultman-operations-tab${tab.id === this.activeTab ? ' is-active' : ''}`,
 				attr: { 'aria-label': translate(tab.labelKey) },
 			});
 			const iconSpan = tabBtn.createSpan();
@@ -151,11 +151,11 @@ export class OperationsPanelComponent {
 		}
 
 		// Tab content area
-		this.contentEl = this.containerEl.createDiv({ cls: 'obsiman-operations-content' });
+		this.contentEl = this.containerEl.createDiv({ cls: 'vaultman-operations-content' });
 		this.renderTabContent();
 
 		// Pinned queue
-		this.pinnedQueueEl = this.containerEl.createDiv({ cls: 'obsiman-operations-pinned-queue' });
+		this.pinnedQueueEl = this.containerEl.createDiv({ cls: 'vaultman-operations-pinned-queue' });
 		this.renderPinnedQueue();
 	}
 
@@ -204,14 +204,14 @@ export class OperationsPanelComponent {
 		this.pinnedQueueEl.empty();
 
 		// Header
-		const header = this.pinnedQueueEl.createDiv({ cls: 'obsiman-pinned-queue-header' });
-		header.createSpan({ text: translate('ops.tab.queue'), cls: 'obsiman-pinned-queue-title' });
+		const header = this.pinnedQueueEl.createDiv({ cls: 'vaultman-pinned-queue-header' });
+		header.createSpan({ text: translate('ops.tab.queue'), cls: 'vaultman-pinned-queue-title' });
 
-		const badge = header.createSpan({ cls: 'obsiman-pinned-queue-badge' });
+		const badge = header.createSpan({ cls: 'vaultman-pinned-queue-badge' });
 		badge.setText(String(this.plugin.queueService.queue.length));
 
 		// Queue list (selectable)
-		const listContainer = this.pinnedQueueEl.createDiv({ cls: 'obsiman-pinned-queue-list' });
+		const listContainer = this.pinnedQueueEl.createDiv({ cls: 'vaultman-pinned-queue-list' });
 		this.pinnedQueueList = new QueueListComponent(listContainer, {
 			onRemove: (index: number) => {
 				this.plugin.queueService.remove(index);
@@ -222,10 +222,10 @@ export class OperationsPanelComponent {
 		this.pinnedQueueList.render(this.plugin.queueService.queue);
 
 		// Action buttons
-		const actionRow = this.pinnedQueueEl.createDiv({ cls: 'obsiman-pinned-queue-actions' });
+		const actionRow = this.pinnedQueueEl.createDiv({ cls: 'vaultman-pinned-queue-actions' });
 
 		const removeSelectedBtn = actionRow.createEl('button', {
-			cls: 'obsiman-btn-small',
+			cls: 'vaultman-btn-small',
 			text: translate('ops.remove_selected') ?? 'Remove selected',
 		});
 		removeSelectedBtn.addEventListener('click', () => {
@@ -239,7 +239,7 @@ export class OperationsPanelComponent {
 		});
 
 		const applyBtn = actionRow.createEl('button', {
-			cls: 'obsiman-btn-small mod-cta',
+			cls: 'vaultman-btn-small mod-cta',
 			text: translate('ops.apply') ?? 'Apply',
 		});
 		applyBtn.addEventListener('click', () => {
@@ -249,7 +249,7 @@ export class OperationsPanelComponent {
 		});
 
 		const clearQueueBtn = actionRow.createEl('button', {
-			cls: 'obsiman-btn-small',
+			cls: 'vaultman-btn-small',
 			text: translate('ops.clear'),
 		});
 		clearQueueBtn.addEventListener('click', () => {
@@ -259,7 +259,7 @@ export class OperationsPanelComponent {
 
 		if (this.callbacks.onClearSelected) {
 			const clearSelectedBtn = actionRow.createEl('button', {
-				cls: 'obsiman-btn-small',
+				cls: 'vaultman-btn-small',
 				text: translate('statusbar.clear_selected') ?? 'Clear selected',
 			});
 			clearSelectedBtn.addEventListener('click', () => {
@@ -274,12 +274,12 @@ export class OperationsPanelComponent {
 		if (!this.contentEl) return;
 
 		this.contentEl.createEl('p', {
-			cls: 'obsiman-ops-tab-desc',
+			cls: 'vaultman-ops-tab-desc',
 			text: translate('rename.title'),
 		});
 
 		const openBtn = this.contentEl.createEl('button', {
-			cls: 'obsiman-btn',
+			cls: 'vaultman-btn',
 			text: translate('rename.title'),
 		});
 		openBtn.addEventListener('click', () => {
@@ -297,7 +297,7 @@ export class OperationsPanelComponent {
 		if (!this.contentEl) return;
 
 		const openBtn = this.contentEl.createEl('button', {
-			cls: 'obsiman-btn',
+			cls: 'vaultman-btn',
 			text: translate('linter.button'),
 		});
 		openBtn.addEventListener('click', () => {
@@ -313,21 +313,21 @@ export class OperationsPanelComponent {
 
 		if (templates.length === 0) {
 			this.contentEl.createEl('p', {
-				cls: 'obsiman-ops-tab-desc',
+				cls: 'vaultman-ops-tab-desc',
 				text: translate('settings.templates.desc'),
 			});
 		} else {
-			const listEl = this.contentEl.createDiv({ cls: 'obsiman-template-list' });
+			const listEl = this.contentEl.createDiv({ cls: 'vaultman-template-list' });
 			for (const tmpl of templates) {
-				const row = listEl.createDiv({ cls: 'obsiman-template-row' });
+				const row = listEl.createDiv({ cls: 'vaultman-template-row' });
 				row.createSpan({ text: tmpl.name });
 				row.createSpan({
-					cls: 'obsiman-text-muted',
+					cls: 'vaultman-text-muted',
 					text: ` (${tmpl.root.children.length})`,
 				});
 
 				const loadBtn = row.createEl('button', {
-					cls: 'obsiman-btn-small',
+					cls: 'vaultman-btn-small',
 					text: translate('filter.template.load'),
 				});
 				loadBtn.addEventListener('click', () => {
@@ -337,7 +337,7 @@ export class OperationsPanelComponent {
 		}
 
 		const saveBtn = this.contentEl.createEl('button', {
-			cls: 'obsiman-btn-small',
+			cls: 'vaultman-btn-small',
 			text: translate('filter.template.save'),
 		});
 		saveBtn.addEventListener('click', () => {
@@ -353,7 +353,7 @@ export class OperationsPanelComponent {
 		if (!this.contentEl) return;
 
 		this.contentEl.createEl('p', {
-			cls: 'obsiman-ops-tab-desc obsiman-text-muted',
+			cls: 'vaultman-ops-tab-desc vaultman-text-muted',
 			text: translate('ops.move.coming_soon'),
 		});
 	}

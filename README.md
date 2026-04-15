@@ -1,10 +1,10 @@
-# ObsiMan
-![](https://img.shields.io/github/v/release/Meibbo/ObsiMan-Plugin)
-![Obsidian](https://img.shields.io/badge/Obsidian-%E2%89%A51.7.0-purple)
-![](https://img.shields.io/github/license/Meibbo/ObsiMan-Plugin) 
-![](https://img.shields.io/github/downloads/Meibbo/ObsiMan-Plugin/total)
+# VaultMan
+![](https://img.shields.io/github/v/release/Meibbo/vaultman-Plugin)
+![Obsidian](https://img.shields.io/badge/Obsidian-%E2%89%A51.12.0-purple)
+![](https://img.shields.io/github/license/Meibbo/vaultman-Plugin) 
+![](https://img.shields.io/github/downloads/Meibbo/vaultman-Plugin/total)
 
-![](img/obsiman_icon.png)ObsiMan is a Swiss Army Knife of Obsidian tools for managing the files of your vault at scale. Once you have hundreds of notes, the built-in properties view gets limiting fast: you can see your tags and properties listed, rename them one at a time, and that's about it.
+![](img/vaultman_icon.png)Vaultman is a Swiss Army Knife of Obsidian tools for managing the files of your vault at scale. Once you have hundreds of notes, the built-in properties view gets limiting fast: you can see your tags and properties listed, rename them one at a time, and that's about it.
 
 This plugin gives you a **control panel for your vault**. It can filter your files, select what you care about, queue up a batch of operations, preview exactly what they will change and apply everything at once.
 
@@ -20,10 +20,10 @@ This plugin gives you a **control panel for your vault**. It can filter your fil
 ### Via BRAT
 1. Install [BRAT](https://github.com/TfTHacker/obsidian42-brat) from the community plugins store
 2. In BRAT settings → **Add Beta Plugin**
-3. Enter `Meibbo/ObsiMan-Plugin`
-4. Enable **ObsiMan** in Settings → Community Plugins
+3. Enter `Meibbo/VaultMan`
+4. Enable **Vaultman** in Settings → Community Plugins
 
-*ObsiMan is not yet in the official Obsidian plugin store. I want to receive community feedback to know if this plugin has its plubic and is really helpful for others*
+*Vaultman is not yet in the official Obsidian plugin store. I want to receive community feedback to know if this plugin has its plubic and is really helpful for others*
 
 ## Features
 
@@ -51,8 +51,8 @@ Stage property operations on filtered/selected files:
 ## Development
 
 ```bash
-git clone https://github.com/Meibbo/ObsiMan-Plugin
-cd ObsiMan-Plugin
+git clone https://github.com/Meibbo/VaultMan
+cd VaultMan
 npm install
 npm run dev    # watch mode with sourcemaps
 npm run build  # tsc type-check + esbuild production bundle

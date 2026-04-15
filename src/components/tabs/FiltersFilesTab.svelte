@@ -1,13 +1,13 @@
 <script lang="ts">
   import { FilesExplorerPanel } from "../containers/FilesExplorerPanel";
-  import type { ObsiManPlugin } from "../../../main";
+  import type { VaultmanPlugin } from "../../../main";
 
   let {
     plugin,
     fileList = $bindable<FilesExplorerPanel | undefined>(undefined),
     onSelectionChange,
   }: {
-    plugin: ObsiManPlugin;
+    plugin: VaultmanPlugin;
     fileList?: FilesExplorerPanel | undefined;
     onSelectionChange?: (count: number) => void;
   } = $props();
@@ -28,10 +28,10 @@
   }
 </script>
 
-<div class="obsiman-files-tab-content" use:initFilesPanel></div>
+<div class="vaultman-files-tab-content" use:initFilesPanel></div>
 
 <style>
-  .obsiman-files-tab-content {
+  .vaultman-files-tab-content {
     flex: 1;
     overflow-y: auto;
     min-height: 0;

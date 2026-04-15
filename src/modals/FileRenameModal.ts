@@ -41,11 +41,11 @@ export class FileRenameModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClasses(['obsiman-modal', 'obsiman-rename-modal']);
+		contentEl.addClasses(['vaultman-modal', 'vaultman-rename-modal']);
 
 		contentEl.createEl('h3', { text: translate('rename.title') });
 		contentEl.createEl('p', {
-			cls: 'obsiman-modal-subtitle',
+			cls: 'vaultman-modal-subtitle',
 			text: `${this.targetFiles.length} ${translate('section.files').toLowerCase()}`,
 		});
 
@@ -55,7 +55,7 @@ export class FileRenameModal extends Modal {
 			.setDesc(translate('rename.pattern_desc'));
 
 		const patternInput = patternSetting.controlEl.createEl('input', {
-			cls: 'obsiman-rename-pattern-input',
+			cls: 'vaultman-rename-pattern-input',
 			attr: { type: 'text', value: this.pattern },
 		});
 
@@ -81,14 +81,14 @@ export class FileRenameModal extends Modal {
 		});
 
 		// Available placeholders reference
-		const helpEl = contentEl.createDiv({ cls: 'obsiman-rename-help' });
+		const helpEl = contentEl.createDiv({ cls: 'vaultman-rename-help' });
 		helpEl.createEl('small', {
 			text: '* o {basename} | [fecha] o {date} | (1) o {counter} | {propiedad}',
-			cls: 'obsiman-text-faint',
+			cls: 'vaultman-text-faint',
 		});
 
 		// Preview
-		this.previewEl = contentEl.createDiv({ cls: 'obsiman-rename-preview' });
+		this.previewEl = contentEl.createDiv({ cls: 'vaultman-rename-preview' });
 		this.renderPreview();
 
 		// Buttons
@@ -116,15 +116,15 @@ export class FileRenameModal extends Modal {
 
 		for (let i = 0; i < limit; i++) {
 			const { oldName, newName } = previews[i];
-			const row = this.previewEl.createDiv({ cls: 'obsiman-rename-row' });
-			row.createSpan({ cls: 'obsiman-diff-deleted', text: oldName });
+			const row = this.previewEl.createDiv({ cls: 'vaultman-rename-row' });
+			row.createSpan({ cls: 'vaultman-diff-deleted', text: oldName });
 			row.createSpan({ text: ' → ' });
-			row.createSpan({ cls: 'obsiman-diff-added', text: newName });
+			row.createSpan({ cls: 'vaultman-diff-added', text: newName });
 		}
 
 		if (previews.length > limit) {
 			this.previewEl.createDiv({
-				cls: 'obsiman-text-faint',
+				cls: 'vaultman-text-faint',
 				text: `... and ${previews.length - limit} more`,
 			});
 		}

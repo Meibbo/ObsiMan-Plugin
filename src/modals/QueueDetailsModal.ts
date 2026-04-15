@@ -23,7 +23,7 @@ export class QueueDetailsModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClasses(['obsiman-modal', 'obsiman-queue-details']);
+		contentEl.addClasses(['vaultman-modal', 'vaultman-queue-details']);
 
 		contentEl.createEl('h3', { text: translate('queue.title') });
 
@@ -36,28 +36,28 @@ export class QueueDetailsModal extends Modal {
 
 		// --- Summary header ---
 		const operationCount = this.queueService.queue.length;
-		const summaryEl = contentEl.createDiv({ cls: 'obsiman-diff-summary' });
+		const summaryEl = contentEl.createDiv({ cls: 'vaultman-diff-summary' });
 		summaryEl.createSpan({
 			text: `${diffs.size} ${translate('section.files').toLowerCase()} · ${operationCount} ${translate('section.operations').toLowerCase()}`,
 		});
 
 		// --- Operations list ---
-		const opsEl = contentEl.createDiv({ cls: 'obsiman-diff-ops' });
+		const opsEl = contentEl.createDiv({ cls: 'vaultman-diff-ops' });
 		for (let i = 0; i < this.queueService.queue.length; i++) {
 			const op = this.queueService.queue[i];
-			const opEl = opsEl.createDiv({ cls: 'obsiman-diff-op' });
-			opEl.createSpan({ cls: 'obsiman-diff-op-index', text: `${i + 1}.` });
-			opEl.createSpan({ cls: 'obsiman-diff-op-action', text: op.action });
-			opEl.createSpan({ cls: 'obsiman-diff-op-detail', text: op.details });
+			const opEl = opsEl.createDiv({ cls: 'vaultman-diff-op' });
+			opEl.createSpan({ cls: 'vaultman-diff-op-index', text: `${i + 1}.` });
+			opEl.createSpan({ cls: 'vaultman-diff-op-action', text: op.action });
+			opEl.createSpan({ cls: 'vaultman-diff-op-detail', text: op.details });
 			opEl.createSpan({
-				cls: 'obsiman-diff-op-files',
+				cls: 'vaultman-diff-op-files',
 				text: `(${op.files.length} files)`,
 			});
 		}
 
 		// --- Show unchanged toggle ---
-		const toggleRow = contentEl.createDiv({ cls: 'obsiman-diff-toggle-row' });
-		const toggleLabel = toggleRow.createEl('label', { cls: 'obsiman-diff-toggle' });
+		const toggleRow = contentEl.createDiv({ cls: 'vaultman-diff-toggle-row' });
+		const toggleLabel = toggleRow.createEl('label', { cls: 'vaultman-diff-toggle' });
 		const toggleCb = toggleLabel.createEl('input', {
 			attr: { type: 'checkbox' },
 		});
@@ -69,7 +69,7 @@ export class QueueDetailsModal extends Modal {
 		});
 
 		// --- File diffs ---
-		const diffContainer = contentEl.createEl('div', { cls: 'obsiman-diff-container' });
+		const diffContainer = contentEl.createEl('div', { cls: 'vaultman-diff-container' });
 		this.renderDiffs(diffContainer, diffs);
 
 		// --- Async content-op snippet section (below property diffs) ---
@@ -99,12 +99,12 @@ export class QueueDetailsModal extends Modal {
 		container.empty();
 
 		for (const [path, { before, after, newPath }] of diffs) {
-			const fileEl = container.createDiv({ cls: 'obsiman-diff-file' });
+			const fileEl = container.createDiv({ cls: 'vaultman-diff-file' });
 
 			// Collapsible header
-			const headerEl = fileEl.createDiv({ cls: 'obsiman-diff-file-header' });
+			const headerEl = fileEl.createDiv({ cls: 'vaultman-diff-file-header' });
 			const toggleIcon = headerEl.createSpan({
-				cls: 'obsiman-diff-file-toggle',
+				cls: 'vaultman-diff-file-toggle',
 				text: '▶',
 			});
 
@@ -116,20 +116,20 @@ export class QueueDetailsModal extends Modal {
 			if (newPath && newPath !== path) {
 				if (oldFolder !== newFolder && oldBasename === newBasename) {
 					// Only moved
-					headerEl.createSpan({ cls: 'obsiman-diff-deleted', text: `${oldFolder ? oldFolder + '/' : ''}${oldBasename}` });
+					headerEl.createSpan({ cls: 'vaultman-diff-deleted', text: `${oldFolder ? oldFolder + '/' : ''}${oldBasename}` });
 					headerEl.createSpan({ text: ' → ' });
-					headerEl.createSpan({ cls: 'obsiman-diff-added', text: `${newFolder ? newFolder + '/' : ''}${oldBasename}` });
+					headerEl.createSpan({ cls: 'vaultman-diff-added', text: `${newFolder ? newFolder + '/' : ''}${oldBasename}` });
 				} else if (oldBasename !== newBasename) {
 					// Renamed (and possibly moved)
-					headerEl.createSpan({ cls: 'obsiman-diff-deleted', text: oldBasename });
+					headerEl.createSpan({ cls: 'vaultman-diff-deleted', text: oldBasename });
 					headerEl.createSpan({ text: ' → ' });
-					headerEl.createSpan({ cls: 'obsiman-diff-added', text: newBasename });
+					headerEl.createSpan({ cls: 'vaultman-diff-added', text: newBasename });
 					if (oldFolder !== newFolder) {
-						headerEl.createSpan({ text: ` (moved to /${newFolder})`, cls: 'obsiman-text-faint' });
+						headerEl.createSpan({ text: ` (moved to /${newFolder})`, cls: 'vaultman-text-faint' });
 					}
 				}
 			} else {
-				headerEl.createSpan({ cls: 'obsiman-diff-path', text: oldBasename });
+				headerEl.createSpan({ cls: 'vaultman-diff-path', text: oldBasename });
 			}
 
 			// Count changes for this file
@@ -141,22 +141,22 @@ export class QueueDetailsModal extends Modal {
 				}
 			}
 			headerEl.createSpan({
-				cls: 'obsiman-diff-change-count',
+				cls: 'vaultman-diff-change-count',
 				text: `${changeCount} change${changeCount !== 1 ? 's' : ''}`,
 			});
 
 			// Content (collapsed by default)
 			const contentEl = fileEl.createDiv({
-				cls: 'obsiman-diff-content obsiman-diff-collapsed',
+				cls: 'vaultman-diff-content vaultman-diff-collapsed',
 			});
 
 			headerEl.addEventListener('click', () => {
-				const isCollapsed = contentEl.hasClass('obsiman-diff-collapsed');
+				const isCollapsed = contentEl.hasClass('vaultman-diff-collapsed');
 				if (isCollapsed) {
-					contentEl.removeClass('obsiman-diff-collapsed');
+					contentEl.removeClass('vaultman-diff-collapsed');
 					toggleIcon.setText('▼');
 				} else {
-					contentEl.addClass('obsiman-diff-collapsed');
+					contentEl.addClass('vaultman-diff-collapsed');
 					toggleIcon.setText('▶');
 				}
 			});
@@ -171,35 +171,35 @@ export class QueueDetailsModal extends Modal {
 				if (!isChanged && !this.showUnchanged) continue;
 
 				const rowEl = contentEl.createDiv({
-					cls: `obsiman-diff-row ${isChanged ? '' : 'obsiman-diff-unchanged'}`,
+					cls: `vaultman-diff-row ${isChanged ? '' : 'vaultman-diff-unchanged'}`,
 				});
-				rowEl.createSpan({ cls: 'obsiman-diff-key', text: key });
+				rowEl.createSpan({ cls: 'vaultman-diff-key', text: key });
 
 				if (!isChanged) {
 					rowEl.createSpan({
-						cls: 'obsiman-diff-same',
+						cls: 'vaultman-diff-same',
 						text: this.formatValue(beforeVal),
 					});
 				} else if (beforeVal !== undefined && afterVal === undefined) {
 					// Deleted
 					rowEl.createSpan({
-						cls: 'obsiman-diff-deleted',
+						cls: 'vaultman-diff-deleted',
 						text: `− ${this.formatValue(beforeVal)}`,
 					});
 				} else if (beforeVal === undefined && afterVal !== undefined) {
 					// Added
 					rowEl.createSpan({
-						cls: 'obsiman-diff-added',
+						cls: 'vaultman-diff-added',
 						text: `+ ${this.formatValue(afterVal)}`,
 					});
 				} else {
 					// Changed
 					rowEl.createSpan({
-						cls: 'obsiman-diff-deleted',
+						cls: 'vaultman-diff-deleted',
 						text: `− ${this.formatValue(beforeVal)}`,
 					});
 					rowEl.createSpan({
-						cls: 'obsiman-diff-added',
+						cls: 'vaultman-diff-added',
 						text: `+ ${this.formatValue(afterVal)}`,
 					});
 				}
@@ -217,7 +217,7 @@ export class QueueDetailsModal extends Modal {
 		const result = await this.queueService.execute();
 
 		if (result.errors > 0 && result.messages.length > 0) {
-			console.warn('ObsiMan execution errors:', result.messages);
+			console.warn('Vaultman execution errors:', result.messages);
 		}
 	}
 
@@ -237,9 +237,9 @@ export class QueueDetailsModal extends Modal {
 		);
 		if (contentOps.length === 0) return;
 
-		const section = container.createDiv({ cls: 'obsiman-diff-content-section' });
+		const section = container.createDiv({ cls: 'vaultman-diff-content-section' });
 		section.createDiv({
-			cls: 'obsiman-diff-content-section-title',
+			cls: 'vaultman-diff-content-section-title',
 			text: translate('queue.content_changes'),
 		});
 
@@ -269,9 +269,9 @@ export class QueueDetailsModal extends Modal {
 			const filesToShow = op.files.slice(0, MAX_FILES_SHOWN);
 
 			for (const file of filesToShow) {
-				const fileEl = section.createDiv({ cls: 'obsiman-diff-content-file' });
+				const fileEl = section.createDiv({ cls: 'vaultman-diff-content-file' });
 				fileEl.createDiv({
-					cls: 'obsiman-diff-content-file-path',
+					cls: 'vaultman-diff-content-file-path',
 					text: file.path,
 				});
 
@@ -285,7 +285,7 @@ export class QueueDetailsModal extends Modal {
 				const matches = [...content.matchAll(new RegExp(escaped, flags))];
 				if (matches.length === 0) {
 					fileEl.createDiv({
-						cls: 'obsiman-diff-content-no-matches',
+						cls: 'vaultman-diff-content-no-matches',
 						text: translate('queue.content_no_matches'),
 					});
 					continue;
@@ -301,17 +301,17 @@ export class QueueDetailsModal extends Modal {
 						? matchText.replace(new RegExp(escaped, flags.replace('g', '')), replacement)
 						: replacement;
 
-					const snippetEl = fileEl.createDiv({ cls: 'obsiman-diff-snippet' });
+					const snippetEl = fileEl.createDiv({ cls: 'vaultman-diff-snippet' });
 					snippetEl.createSpan({ text: (start > CONTEXT_LEN ? '…' : '') + before });
 					snippetEl.createEl('mark', { text: matchText });
-					snippetEl.createSpan({ cls: 'obsiman-diff-replace-arrow', text: '→' });
-					snippetEl.createEl('mark', { cls: 'obsiman-diff-replace-new', text: replText });
+					snippetEl.createSpan({ cls: 'vaultman-diff-replace-arrow', text: '→' });
+					snippetEl.createEl('mark', { cls: 'vaultman-diff-replace-new', text: replText });
 					snippetEl.createSpan({ text: after + (end + CONTEXT_LEN < content.length ? '…' : '') });
 				}
 
 				if (matches.length > MAX_SNIPPETS_PER_FILE) {
 					fileEl.createDiv({
-						cls: 'obsiman-diff-content-no-matches',
+						cls: 'vaultman-diff-content-no-matches',
 						text: `…and ${matches.length - MAX_SNIPPETS_PER_FILE} more match(es)`,
 					});
 				}
@@ -319,7 +319,7 @@ export class QueueDetailsModal extends Modal {
 
 			if (op.files.length > MAX_FILES_SHOWN) {
 				section.createDiv({
-					cls: 'obsiman-diff-content-no-matches',
+					cls: 'vaultman-diff-content-no-matches',
 					text: `…and ${op.files.length - MAX_FILES_SHOWN} more files`,
 				});
 			}

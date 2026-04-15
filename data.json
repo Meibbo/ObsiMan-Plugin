@@ -17,9 +17,9 @@
   "basesShowColumnSeparators": false,
   "openMode": "sidebar",
   "pageOrder": [
+    "filters",
     "ops",
-    "statistics",
-    "filters"
+    "statistics"
   ],
   "separatePanes": false,
   "viewMode": "list",

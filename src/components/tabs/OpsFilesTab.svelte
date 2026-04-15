@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ObsiManPlugin } from "../../../main";
+	import type { VaultmanPlugin } from "../../../main";
 	import type { ContentPreviewResult } from "../../types/ui";
 	import FileOpsComponent from "../containers/FileOpsComponent.svelte";
 	import ContentOpsComponent from "../containers/ContentOpsComponent.svelte";
@@ -22,7 +22,7 @@
 		previewContentReplace,
 		queueContentReplace,
 	}: {
-		plugin: ObsiManPlugin;
+		plugin: VaultmanPlugin;
 		openFileRename: () => void;
 		openPropertyManager: () => void;
 		openMovePopup: () => void;
@@ -42,7 +42,7 @@
 	} = $props();
 </script>
 
-<div class="obsiman-ops-files-tab">
+<div class="vaultman-ops-files-tab">
 	<!-- File Management Component -->
 	<FileOpsComponent
 		{openFileRename}
@@ -51,7 +51,7 @@
 		{icon}
 	/>
 
-	<div class="obsiman-ops-separator"></div>
+	<div class="vaultman-ops-separator"></div>
 
 	<!-- Content Operations Component -->
 	<ContentOpsComponent
@@ -68,19 +68,19 @@
 		{queueContentReplace}
 	/>
 
-	<div class="obsiman-ops-separator"></div>
+	<div class="vaultman-ops-separator"></div>
 </div>
 
 <style>
-	.obsiman-ops-files-tab {
+	.vaultman-ops-files-tab {
 		display: flex;
 		flex-direction: column;
 		gap: 16px;
 	}
 
-	.obsiman-ops-separator {
+	.vaultman-ops-separator {
 		height: 1px;
-		background: var(--obsiman-border);
+		background: var(--vaultman-border);
 		margin: 4px 0;
 		opacity: 0.5;
 	}

@@ -37,13 +37,13 @@ export class QueueIslandComponent {
 	}
 
 	mount(): void {
-		this.islandEl = this.containerEl.createDiv({ cls: 'obsiman-queue-island' });
+		this.islandEl = this.containerEl.createDiv({ cls: 'vaultman-queue-island' });
 
 		// 1. Squircle action buttons (Now first, floating above body via CSS)
-		const btnRow = this.islandEl.createDiv({ cls: 'obsiman-squircle-row obsiman-queue-island-btns' });
+		const btnRow = this.islandEl.createDiv({ cls: 'vaultman-squircle-row vaultman-queue-island-btns' });
 
 		const clearBtn = btnRow.createDiv({
-			cls: 'obsiman-squircle',
+			cls: 'vaultman-squircle',
 			attr: { 'aria-label': translate('ops.clear'), role: 'button', tabindex: '0' },
 		});
 		setIcon(clearBtn, 'lucide-trash'); // Changed from x to trash for "Clear queue"
@@ -53,7 +53,7 @@ export class QueueIslandComponent {
 		});
 
 		const detailsBtn = btnRow.createDiv({
-			cls: 'obsiman-squircle',
+			cls: 'vaultman-squircle',
 			attr: { 'aria-label': translate('ops.details'), role: 'button', tabindex: '0' },
 		});
 		setIcon(detailsBtn, 'lucide-list');
@@ -62,7 +62,7 @@ export class QueueIslandComponent {
 		});
 
 		const templateBtn = btnRow.createDiv({
-			cls: 'obsiman-squircle',
+			cls: 'vaultman-squircle',
 			attr: { 'aria-label': 'Templates', role: 'button', tabindex: '0' },
 		});
 		setIcon(templateBtn, 'lucide-library');
@@ -71,7 +71,7 @@ export class QueueIslandComponent {
 		});
 
 		const executeBtn = btnRow.createDiv({
-			cls: 'obsiman-squircle is-accent',
+			cls: 'vaultman-squircle is-accent',
 			attr: { 'aria-label': translate('ops.apply'), role: 'button', tabindex: '0' },
 		});
 		setIcon(executeBtn, 'lucide-play');
@@ -81,10 +81,10 @@ export class QueueIslandComponent {
 		});
 
 		// 2. Header — count label (Now below squircles)
-		this.headerEl = this.islandEl.createDiv({ cls: 'obsiman-queue-island-header' });
+		this.headerEl = this.islandEl.createDiv({ cls: 'vaultman-queue-island-header' });
 
 		// 3. Scrollable item list
-		this.listEl = this.islandEl.createDiv({ cls: 'obsiman-queue-island-list' });
+		this.listEl = this.islandEl.createDiv({ cls: 'vaultman-queue-island-list' });
 
 		this.render();
 
@@ -103,19 +103,19 @@ export class QueueIslandComponent {
 
 		this.listEl.empty();
 		if (queue.length === 0) {
-			this.listEl.createDiv({ cls: 'obsiman-queue-island-empty', text: translate('queue.island.empty') });
+			this.listEl.createDiv({ cls: 'vaultman-queue-island-empty', text: translate('queue.island.empty') });
 			return;
 		}
 
 		for (const change of queue) {
-			const rowEl = this.listEl.createDiv({ cls: 'obsiman-queue-island-row' });
+			const rowEl = this.listEl.createDiv({ cls: 'vaultman-queue-island-row' });
 			const fileCount = change.files.length;
 			rowEl.createSpan({
-				cls: 'obsiman-queue-island-row-files',
+				cls: 'vaultman-queue-island-row-files',
 				text: `${fileCount} file${fileCount !== 1 ? 's' : ''}`,
 			});
 			rowEl.createSpan({
-				cls: 'obsiman-queue-island-row-detail',
+				cls: 'vaultman-queue-island-row-detail',
 				text: change.details,
 			});
 		}

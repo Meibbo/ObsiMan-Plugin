@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ObsiManPlugin } from "../../../main";
+	import type { VaultmanPlugin } from "../../../main";
 	import { translate } from "../../i18n/index";
 	import { setIcon } from "obsidian";
 	import FiltersTagsTab from "../tabs/FiltersTagsTab.svelte";
@@ -21,7 +21,7 @@
 		fileList = $bindable(),
 		selectedCount = $bindable(0),
 	}: {
-		plugin: ObsiManPlugin;
+		plugin: VaultmanPlugin;
 		filtersActiveTab: FiltersTab;
 		filtersSearch: string;
 		filtersSearchCategory: Record<FiltersTab, number>;
@@ -87,12 +87,12 @@
 
 <!-- 3-tab bar: Tags · Props · Files -->
 <div
-	class="obsiman-tab-bar"
+	class="vaultman-tab-bar"
 	class:has-labels={plugin.settings.filtersShowTabLabels}
 >
 	{#each ["props", "files", "tags"] as FiltersTab[] as tab}
 		<div
-			class="obsiman-tab nav-action-button"
+			class="vaultman-tab nav-action-button"
 			class:is-active={filtersActiveTab === tab}
 			onclick={() => switchFiltersTab(tab)}
 			onkeydown={(e) => {
@@ -105,9 +105,9 @@
 			role="tab"
 			tabindex="0"
 		>
-			<span class="obsiman-tab-icon" use:icon={TAB_ICONS[tab]}></span>
+			<span class="vaultman-tab-icon" use:icon={TAB_ICONS[tab]}></span>
 			{#if plugin.settings.filtersShowTabLabels}
-				<span class="obsiman-tab-label"
+				<span class="vaultman-tab-label"
 					>{translate("filter.tab." + tab)}</span
 				>
 			{/if}
@@ -116,15 +116,15 @@
 </div>
 
 <!-- Persistent header: [view-mode] [search pill] [sort] -->
-<div class="obsiman-filters-header">
+<div class="vaultman-filters-header">
 	<button
-		class="obsiman-filters-header-btn"
+		class="vaultman-filters-header-btn"
 		aria-label="View mode (WIP)"
 		use:icon={"lucide-layout-list"}
 	></button>
-	<div class="obsiman-filters-header-search-pill">
+	<div class="vaultman-filters-header-search-pill">
 		<input
-			class="obsiman-filters-search-input"
+			class="vaultman-filters-search-input"
 			type="text"
 			autocomplete="off"
 			autocorrect="off"
@@ -135,7 +135,7 @@
 		/>
 		{#if filtersSearch}
 			<button
-				class="obsiman-filters-search-clear"
+				class="vaultman-filters-search-clear"
 				aria-label="Clear search"
 				use:icon={"lucide-x"}
 				onclick={() => {
@@ -144,7 +144,7 @@
 			></button>
 		{/if}
 		<button
-			class="obsiman-filters-search-mode"
+			class="vaultman-filters-search-mode"
 			aria-label={CATEGORY_LABELS[filtersActiveTab]?.[
 				filtersSearchCategory[filtersActiveTab] ?? 0
 			] ?? "Search mode"}
@@ -153,7 +153,7 @@
 		></button>
 	</div>
 	<button
-		class="obsiman-filters-header-btn"
+		class="vaultman-filters-header-btn"
 		aria-label="Sort (WIP)"
 		use:icon={"lucide-arrow-up-down"}
 	></button>
@@ -161,9 +161,19 @@
 
 <!-- Tab content via sub-components -->
 {#if filtersActiveTab === "tags"}
-	<FiltersTagsTab {plugin} searchTerm={filtersSearch} searchMode={filtersSearchCategory.tags} bind:tagsExplorer />
+	<FiltersTagsTab
+		{plugin}
+		searchTerm={filtersSearch}
+		searchMode={filtersSearchCategory.tags}
+		bind:tagsExplorer
+	/>
 {:else if filtersActiveTab === "props"}
-	<FiltersPropsTab {plugin} searchTerm={filtersSearch} searchMode={filtersSearchCategory.props} bind:propExplorer />
+	<FiltersPropsTab
+		{plugin}
+		searchTerm={filtersSearch}
+		searchMode={filtersSearchCategory.props}
+		bind:propExplorer
+	/>
 {:else if filtersActiveTab === "files"}
 	<FiltersFilesTab
 		{plugin}

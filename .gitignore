@@ -1,11 +1,13 @@
 node_modules/
 docs/
 img/
+.agents/
+.claude/*
+.obsidian
+.superpowers/
 main.js
 AGENTS.md
 CLAUDE.md
 settings.local.json
 .DS_Store
 .env
-.claude/*
-.obsidian

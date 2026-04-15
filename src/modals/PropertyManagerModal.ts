@@ -43,11 +43,11 @@ export class PropertyManagerModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass('obsiman-modal');
+		contentEl.addClass('vaultman-modal');
 
 		contentEl.createEl('h3', { text: translate('prop.title') });
 		contentEl.createEl('p', {
-			cls: 'obsiman-modal-subtitle',
+			cls: 'vaultman-modal-subtitle',
 			text: `${this.targetFiles.length} files`,
 		});
 
@@ -70,12 +70,12 @@ export class PropertyManagerModal extends Modal {
 					})
 			);
 
-		contentEl.createDiv({ cls: 'obsiman-prop-form' });
+		contentEl.createDiv({ cls: 'vaultman-prop-form' });
 		this.renderForm();
 	}
 
 	private renderForm(): void {
-		const formEl = this.contentEl.querySelector('.obsiman-prop-form');
+		const formEl = this.contentEl.querySelector('.vaultman-prop-form');
 		if (!formEl) return;
 		formEl.empty();
 

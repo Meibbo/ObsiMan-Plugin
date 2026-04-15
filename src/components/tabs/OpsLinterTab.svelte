@@ -8,9 +8,9 @@
 	} = $props();
 </script>
 
-<div class="obsiman-linter-desc">
+<div class="vaultman-linter-desc">
 	{translate("ops.linter.desc")}
 </div>
-<button class="obsiman-btn mod-cta" onclick={openLinter}
+<button class="vaultman-btn mod-cta" onclick={openLinter}
 	>{translate("ops.linter.run")}</button
 >

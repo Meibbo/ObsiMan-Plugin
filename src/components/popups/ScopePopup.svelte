@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { translate } from "../../i18n/index";
-	import type { ObsiManPlugin } from "../../../main";
+	import type { VaultmanPlugin } from "../../../main";
 
 	let {
 		plugin,
@@ -9,7 +9,7 @@
 		closePopup,
 		icon,
 	}: {
-		plugin: ObsiManPlugin;
+		plugin: VaultmanPlugin;
 		scopeOptions: any[];
 		setScope: (val: string) => void;
 		closePopup: () => void;
@@ -18,8 +18,8 @@
 </script>
 
 <div>
-	<div class="obsiman-popup-header">
-		<span class="obsiman-popup-title">{translate("scope.title")}</span>
+	<div class="vaultman-popup-header">
+		<span class="vaultman-popup-title">{translate("scope.title")}</span>
 		<div
 			class="clickable-icon"
 			aria-label="Close"
@@ -32,10 +32,10 @@
 			tabindex="0"
 		></div>
 	</div>
-	<div class="obsiman-scope-list">
+	<div class="vaultman-scope-list">
 		{#each scopeOptions as opt}
 			<div
-				class="obsiman-scope-item"
+				class="vaultman-scope-item"
 				class:is-active={plugin.settings.explorerOperationScope ===
 					opt.value}
 				onclick={() => setScope(opt.value)}
@@ -47,7 +47,7 @@
 					opt.value}
 				tabindex="0"
 			>
-				<div class="obsiman-scope-icon" use:icon={opt.icon}></div>
+				<div class="vaultman-scope-icon" use:icon={opt.icon}></div>
 				<span>{opt.label}</span>
 			</div>
 		{/each}

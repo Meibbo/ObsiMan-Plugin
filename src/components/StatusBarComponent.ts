@@ -23,25 +23,25 @@ export class StatusBarComponent {
 		this.containerEl.empty();
 
 		// Left group: total | filtered | selected | pending
-		const leftEl = this.containerEl.createDiv({ cls: 'obsiman-statusbar-left' });
+		const leftEl = this.containerEl.createDiv({ cls: 'vaultman-statusbar-left' });
 
 		leftEl.createSpan({
-			cls: 'obsiman-statusbar-item',
+			cls: 'vaultman-statusbar-item',
 			text: translate('statusbar.files', { count: data.total }),
 		});
 
 		this.addSep(leftEl, '|');
 
 		leftEl.createSpan({
-			cls: 'obsiman-statusbar-item',
+			cls: 'vaultman-statusbar-item',
 			text: translate('statusbar.filtered_label', { count: data.filtered }),
 		});
 
 		this.addSep(leftEl, '|');
 
 		const selCls = data.selected > 0
-			? 'obsiman-statusbar-item obsiman-statusbar-selected'
-			: 'obsiman-statusbar-item';
+			? 'vaultman-statusbar-item vaultman-statusbar-selected'
+			: 'vaultman-statusbar-item';
 		leftEl.createSpan({
 			cls: selCls,
 			text: translate('statusbar.selected', { count: data.selected }),
@@ -50,32 +50,32 @@ export class StatusBarComponent {
 		this.addSep(leftEl, '|');
 
 		const qCls = data.queued > 0
-			? 'obsiman-statusbar-item obsiman-statusbar-queued'
-			: 'obsiman-statusbar-item';
+			? 'vaultman-statusbar-item vaultman-statusbar-queued'
+			: 'vaultman-statusbar-item';
 		leftEl.createSpan({
 			cls: qCls,
 			text: translate('statusbar.pending', { count: data.queued }),
 		});
 
 		// Right group: props · values
-		const rightEl = this.containerEl.createDiv({ cls: 'obsiman-statusbar-right' });
+		const rightEl = this.containerEl.createDiv({ cls: 'vaultman-statusbar-right' });
 
 		rightEl.createSpan({
-			cls: 'obsiman-statusbar-item',
+			cls: 'vaultman-statusbar-item',
 			text: translate('statusbar.props_label', { count: data.propertyCount }),
 		});
 
 		this.addSep(rightEl, '·');
 
 		rightEl.createSpan({
-			cls: 'obsiman-statusbar-item',
+			cls: 'vaultman-statusbar-item',
 			text: translate('statusbar.values_label', { count: data.valueCount }),
 		});
 	}
 
 	private addSep(parent: HTMLElement, char: string): void {
 		parent.createSpan({
-			cls: 'obsiman-statusbar-separator',
+			cls: 'vaultman-statusbar-separator',
 			text: ` ${char} `,
 		});
 	}

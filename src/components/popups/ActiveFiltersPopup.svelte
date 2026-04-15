@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Menu } from "obsidian";
 	import { translate } from "../../i18n/index";
-	import type { ObsiManPlugin } from "../../../main";
+	import type { VaultmanPlugin } from "../../../main";
 	import { SaveTemplateModal } from "../../modals/SaveTemplateModal";
 
 	let {
@@ -14,7 +14,7 @@
 		deleteFilterRule,
 		icon,
 	}: {
-		plugin: ObsiManPlugin;
+		plugin: VaultmanPlugin;
 		activeFilterRules: any[];
 		refreshActiveFiltersPopup: () => void;
 		updateStats: () => void;
@@ -25,11 +25,11 @@
 	} = $props();
 </script>
 
-<div class="obsiman-active-filters-popup">
+<div class="vaultman-active-filters-popup">
 	<!-- Squircle action buttons row -->
-	<div class="obsiman-squircle-row">
+	<div class="vaultman-squircle-row">
 		<div
-			class="obsiman-squircle"
+			class="vaultman-squircle"
 			aria-label={translate("filters.popup.clear_all")}
 			use:icon={"lucide-x"}
 			onclick={() => {
@@ -50,14 +50,14 @@
 			tabindex="0"
 		></div>
 		<div
-			class="obsiman-squircle obsiman-squircle-reserved"
+			class="vaultman-squircle vaultman-squircle-reserved"
 			aria-label="Reserved"
 			use:icon={"lucide-plus"}
 			role="button"
 			tabindex="0"
 		></div>
 		<div
-			class="obsiman-squircle"
+			class="vaultman-squircle"
 			aria-label={translate("filters.popup.templates")}
 			use:icon={"lucide-bookmark"}
 			onclick={(e: MouseEvent) => {
@@ -106,14 +106,16 @@
 					});
 					menu.addSeparator();
 					menu.addItem((item) =>
-						item.setTitle(translate("filter.template.save")).onClick(() => {
-							new SaveTemplateModal(
-								plugin.app,
-								plugin,
-								plugin.filterService.activeFilter,
-							).open();
-							closePopup();
-						}),
+						item
+							.setTitle(translate("filter.template.save"))
+							.onClick(() => {
+								new SaveTemplateModal(
+									plugin.app,
+									plugin,
+									plugin.filterService.activeFilter,
+								).open();
+								closePopup();
+							}),
 					);
 					menu.showAtPosition({ x: rect.left, y: rect.bottom });
 				}
@@ -122,7 +124,7 @@
 			tabindex="0"
 		></div>
 		<div
-			class="obsiman-squircle obsiman-squircle-reserved"
+			class="vaultman-squircle vaultman-squircle-reserved"
 			aria-label="Reserved"
 			use:icon={"lucide-check"}
 			role="button"
@@ -131,26 +133,28 @@
 	</div>
 
 	<!-- Filter rules list -->
-	<div class="obsiman-active-filters-list">
+	<div class="vaultman-active-filters-list">
 		{#if activeFilterRules.length === 0}
-			<div class="obsiman-active-filters-empty">
+			<div class="vaultman-active-filters-empty">
 				{translate("filters.popup.empty")}
 			</div>
 		{:else}
 			{#each activeFilterRules as rule (rule.id)}
 				<div
-					class="obsiman-active-filter-rule"
+					class="vaultman-active-filter-rule"
 					class:is-disabled={!rule.enabled}
 				>
-					<span class="obsiman-active-filter-rule-text"
+					<span class="vaultman-active-filter-rule-text"
 						>{rule.description}</span
 					>
 					<div
-						class="obsiman-active-filter-toggle clickable-icon"
+						class="vaultman-active-filter-toggle clickable-icon"
 						aria-label={rule.enabled
 							? translate("filters.popup.rule.disable")
 							: translate("filters.popup.rule.enable")}
-						use:icon={rule.enabled ? "lucide-eye" : "lucide-eye-off"}
+						use:icon={rule.enabled
+							? "lucide-eye"
+							: "lucide-eye-off"}
 						onclick={() => toggleFilterRule(rule)}
 						onkeydown={(e: KeyboardEvent) => {
 							if (e.key === "Enter" || e.key === " ")
@@ -160,7 +164,7 @@
 						tabindex="0"
 					></div>
 					<div
-						class="obsiman-active-filter-delete clickable-icon"
+						class="vaultman-active-filter-delete clickable-icon"
 						aria-label={translate("filters.popup.rule.delete")}
 						use:icon={"lucide-x"}
 						onclick={() => deleteFilterRule(rule)}

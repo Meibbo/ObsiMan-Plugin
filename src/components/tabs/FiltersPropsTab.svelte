@@ -1,6 +1,6 @@
 <script lang="ts">
   import { PropsExplorerPanel } from "../containers/PropsExplorerPanel";
-  import type { ObsiManPlugin } from "../../../main";
+  import type { VaultmanPlugin } from "../../../main";
 
   let {
     plugin,
@@ -8,12 +8,12 @@
     searchMode = 0,
     propExplorer = $bindable<PropsExplorerPanel | undefined>(undefined),
   }: {
-    plugin: ObsiManPlugin;
+    plugin: VaultmanPlugin;
     searchTerm?: string;
     searchMode?: number;
     propExplorer?: PropsExplorerPanel | undefined;
   } = $props();
-  
+
   $effect(() => {
     if (propExplorer) {
       propExplorer.setSearchTerm(searchTerm, searchMode);
@@ -32,10 +32,10 @@
   }
 </script>
 
-<div class="obsiman-props-tab-content" use:initPropsPanel></div>
+<div class="vaultman-props-tab-content" use:initPropsPanel></div>
 
 <style>
-  .obsiman-props-tab-content {
+  .vaultman-props-tab-content {
     flex: 1;
     overflow-y: auto;
     min-height: 0;

@@ -1,12 +1,12 @@
 import { PluginSettingTab, Setting, type App } from 'obsidian';
-import type { ObsiManPlugin } from '../../main';
+import type { VaultmanPlugin } from '../../main';
 import type { Language } from '../types/settings';
 import { translate, setLanguage } from '../i18n/index';
 
-export class ObsiManSettingsTab extends PluginSettingTab {
-	private plugin: ObsiManPlugin;
+export class VaultmanSettingsTab extends PluginSettingTab {
+	private plugin: VaultmanPlugin;
 
-	constructor(app: App, plugin: ObsiManPlugin) {
+	constructor(app: App, plugin: VaultmanPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
@@ -238,7 +238,7 @@ export class ObsiManSettingsTab extends PluginSettingTab {
 					.onChange(async (v) => {
 						this.plugin.settings.basesShowColumnSeparators = v;
 						await this.plugin.saveSettings();
-						document.body.toggleClass('obsiman-bases-column-separators', v);
+						document.body.toggleClass('vaultman-bases-column-separators', v);
 					})
 			);
 
