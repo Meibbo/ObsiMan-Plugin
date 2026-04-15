@@ -69,6 +69,7 @@
 			sortBy  = id;
 			sortDir = "asc";
 		}
+		onSortChange?.(sortBy, sortDir);
 	}
 
 	const vertTopIcon = $derived(

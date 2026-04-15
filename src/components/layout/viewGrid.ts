@@ -83,6 +83,11 @@ export class GridView {
 		});
 	}
 
+	setSortColumn(col: SortColumn, dir: SortDirection): void {
+		this.sortColumn = col;
+		this.sortDirection = dir;
+	}
+
 	private _updateList(files: TFile[], _total: number): void {
 		const listEl = this.containerEl.querySelector('.vaultman-files-list');
 		if (!listEl) return;
