@@ -1,133 +1,133 @@
-/* ObsiMan — Sidebar Plugin Styles */
+/* vaultman — Sidebar Plugin Styles */
 
 /* === CSS Variables (Style Settings compatible) === */
-.obsiman-view,
-.obsiman-frame,
-.obsiman-main-view {
-  --obsiman-accent: var(--interactive-accent);
-  --obsiman-bg-section: var(--background-secondary);
-  --obsiman-bg-hover: var(--background-modifier-hover);
-  --obsiman-border: var(--background-modifier-border);
-  --obsiman-text-muted: var(--text-muted);
-  --obsiman-text-faint: var(--text-faint);
-  --obsiman-diff-added: #2ea04366;
-  --obsiman-diff-deleted: #f8514966;
-  --obsiman-badge-bg: var(--background-modifier-hover);
+.vaultman-view,
+.vaultman-frame,
+.vaultman-main-view {
+  --vaultman-accent: var(--interactive-accent);
+  --vaultman-bg-section: var(--background-secondary);
+  --vaultman-bg-hover: var(--background-modifier-hover);
+  --vaultman-border: var(--background-modifier-border);
+  --vaultman-text-muted: var(--text-muted);
+  --vaultman-text-faint: var(--text-faint);
+  --vaultman-diff-added: #2ea04366;
+  --vaultman-diff-deleted: #f8514966;
+  --vaultman-badge-bg: var(--background-modifier-hover);
 }
 
 /* === View Layout (overridden by Svelte redesign rules below) === */
 
 /* === Sections === */
-.obsiman-section {
-  border-bottom: 1px solid var(--obsiman-border);
+.vaultman-section {
+  border-bottom: 1px solid var(--vaultman-border);
   padding: 8px 12px;
 }
 
-.obsiman-section-header h4 {
+.vaultman-section-header h4 {
   margin: 0 0 6px 0;
   font-size: 0.85em;
   font-weight: 600;
   text-transform: uppercase;
-  color: var(--obsiman-text-muted);
+  color: var(--vaultman-text-muted);
   letter-spacing: 0.05em;
 }
 
 /* === Buttons === */
-.obsiman-btn {
+.vaultman-btn {
   font-size: 0.8em;
   padding: 4px 10px;
   border-radius: var(--radius-s);
   cursor: pointer;
   background: var(--interactive-normal);
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
   color: var(--text-normal);
 }
 
-.obsiman-btn:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-btn:hover {
+  background: var(--vaultman-bg-hover);
 }
 
-.obsiman-btn.mod-cta {
-  background: var(--obsiman-accent);
+.vaultman-btn.mod-cta {
+  background: var(--vaultman-accent);
   color: var(--text-on-accent);
-  border-color: var(--obsiman-accent);
+  border-color: var(--vaultman-accent);
 }
 
-.obsiman-btn.mod-cta:hover {
+.vaultman-btn.mod-cta:hover {
   opacity: 0.9;
 }
 
-.obsiman-btn-small {
+.vaultman-btn-small {
   font-size: 0.75em;
   padding: 2px 8px;
   border-radius: var(--radius-s);
   cursor: pointer;
   background: transparent;
-  border: 1px solid var(--obsiman-border);
-  color: var(--obsiman-text-muted);
+  border: 1px solid var(--vaultman-border);
+  color: var(--vaultman-text-muted);
 }
 
-.obsiman-btn-small:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-btn-small:hover {
+  background: var(--vaultman-bg-hover);
 }
 
 /* === Filter Section === */
-.obsiman-filter-actions {
+.vaultman-filter-actions {
   margin-bottom: 6px;
 }
 
-.obsiman-template-select {
+.vaultman-template-select {
   width: 100%;
   font-size: 0.8em;
 }
 
-.obsiman-filter-buttons {
+.vaultman-filter-buttons {
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
   margin-bottom: 8px;
 }
 
-.obsiman-filter-tree {
+.vaultman-filter-tree {
   overflow-y: auto;
 }
 
-.obsiman-filter-group {
+.vaultman-filter-group {
   margin-left: 8px;
-  border-left: 2px solid var(--obsiman-border);
+  border-left: 2px solid var(--vaultman-border);
   padding-left: 8px;
   margin-bottom: 4px;
 }
 
-.obsiman-filter-group-header {
+.vaultman-filter-group-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 2px;
 }
 
-.obsiman-filter-logic-badge {
+.vaultman-filter-logic-badge {
   font-size: 0.7em;
   font-weight: 600;
   text-transform: uppercase;
   padding: 1px 6px;
   border-radius: var(--radius-s);
-  background: var(--obsiman-badge-bg);
-  color: var(--obsiman-accent);
+  background: var(--vaultman-badge-bg);
+  color: var(--vaultman-accent);
 }
 
-.obsiman-filter-children {
+.vaultman-filter-children {
   margin-left: 4px;
 }
 
-.obsiman-filter-empty {
+.vaultman-filter-empty {
   font-size: 0.75em;
-  color: var(--obsiman-text-faint);
+  color: var(--vaultman-text-faint);
   font-style: italic;
   padding: 2px 0;
 }
 
-.obsiman-filter-rule {
+.vaultman-filter-rule {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -135,12 +135,12 @@
   font-size: 0.8em;
 }
 
-.obsiman-filter-rule-type {
+.vaultman-filter-rule-type {
   font-weight: 500;
-  color: var(--obsiman-text-muted);
+  color: var(--vaultman-text-muted);
 }
 
-.obsiman-filter-rule-detail {
+.vaultman-filter-rule-detail {
   color: var(--text-normal);
   flex: 1;
   white-space: nowrap;
@@ -148,63 +148,63 @@
   text-overflow: ellipsis;
 }
 
-.obsiman-filter-remove-btn {
+.vaultman-filter-remove-btn {
   font-size: 1em;
   padding: 0 4px;
   line-height: 1;
   border: none;
   background: transparent;
-  color: var(--obsiman-text-faint);
+  color: var(--vaultman-text-faint);
   cursor: pointer;
 }
 
-.obsiman-filter-remove-btn:hover {
+.vaultman-filter-remove-btn:hover {
   color: var(--text-error);
 }
 
 /* === File List Section === */
-.obsiman-files-header {
+.vaultman-files-header {
   margin-bottom: 6px;
 }
 
-.obsiman-files-count {
+.vaultman-files-count {
   font-size: 0.75em;
-  color: var(--obsiman-text-muted);
+  color: var(--vaultman-text-muted);
   display: block;
   margin-bottom: 4px;
 }
 
-.obsiman-files-search {
+.vaultman-files-search {
   width: 100%;
   font-size: 0.8em;
   padding: 4px 8px;
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
   border-radius: var(--radius-s);
   background: var(--background-primary);
   color: var(--text-normal);
   margin-bottom: 4px;
 }
 
-.obsiman-files-bulk {
+.vaultman-files-bulk {
   display: flex;
   gap: 4px;
   margin-bottom: 4px;
 }
 
-.obsiman-files-col-header {
+.vaultman-files-col-header {
   display: grid;
   grid-template-columns: 18px 1fr 50px 50px;
   gap: 4px;
-  border-bottom: 1px solid var(--obsiman-border);
+  border-bottom: 1px solid var(--vaultman-border);
   padding-bottom: 2px;
   margin-bottom: 2px;
 }
 
-.obsiman-col-header {
+.vaultman-col-header {
   font-size: 0.7em;
   font-weight: 600;
   text-transform: uppercase;
-  color: var(--obsiman-text-muted);
+  color: var(--vaultman-text-muted);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -212,12 +212,12 @@
   padding: 2px 0;
 }
 
-.obsiman-col-header:hover,
-.obsiman-col-header.active {
+.vaultman-col-header:hover,
+.vaultman-col-header.active {
   color: var(--text-normal);
 }
 
-.obsiman-file-row {
+.vaultman-file-row {
   display: grid;
   grid-template-columns: 18px 1fr 36px 50px;
   gap: 4px;
@@ -227,16 +227,16 @@
   border-radius: var(--radius-s);
 }
 
-.obsiman-file-row:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-file-row:hover {
+  background: var(--vaultman-bg-hover);
 }
 
-.obsiman-file-checkbox {
+.vaultman-file-checkbox {
   width: 14px;
   height: 14px;
 }
 
-.obsiman-file-name {
+.vaultman-file-name {
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
@@ -244,151 +244,151 @@
   color: var(--text-normal);
 }
 
-.obsiman-file-name:hover {
-  color: var(--obsiman-accent);
+.vaultman-file-name:hover {
+  color: var(--vaultman-accent);
   text-decoration: underline;
 }
 
-.obsiman-file-props {
+.vaultman-file-props {
   text-align: center;
-  color: var(--obsiman-text-muted);
+  color: var(--vaultman-text-muted);
   font-size: 0.9em;
 }
 
-.obsiman-file-path {
-  color: var(--obsiman-text-faint);
+.vaultman-file-path {
+  color: var(--vaultman-text-faint);
   font-size: 0.85em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.obsiman-show-more {
+.vaultman-show-more {
   width: 100%;
   margin-top: 4px;
 }
 
 /* === Operations Section === */
-.obsiman-ops-buttons {
+.vaultman-ops-buttons {
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
   margin-bottom: 8px;
 }
 
-.obsiman-queue-container {
+.vaultman-queue-container {
   margin-bottom: 8px;
 }
 
-.obsiman-queue-header {
+.vaultman-queue-header {
   margin-bottom: 4px;
 }
 
-.obsiman-queue-title {
+.vaultman-queue-title {
   font-size: 0.8em;
   font-weight: 500;
-  color: var(--obsiman-text-muted);
+  color: var(--vaultman-text-muted);
 }
 
-.obsiman-queue-empty {
+.vaultman-queue-empty {
   font-size: 0.8em;
-  color: var(--obsiman-text-faint);
+  color: var(--vaultman-text-faint);
   font-style: italic;
 }
 
-.obsiman-queue-item {
+.vaultman-queue-item {
   display: flex;
   align-items: center;
   gap: 4px;
   padding: 3px 0;
   font-size: 0.8em;
-  border-bottom: 1px solid var(--obsiman-border);
+  border-bottom: 1px solid var(--vaultman-border);
 }
 
-.obsiman-queue-checkbox {
+.vaultman-queue-checkbox {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
 }
 
-.obsiman-queue-index {
-  color: var(--obsiman-text-faint);
+.vaultman-queue-index {
+  color: var(--vaultman-text-faint);
   font-size: 0.85em;
   min-width: 18px;
 }
 
-.obsiman-queue-desc {
+.vaultman-queue-desc {
   flex: 1;
   overflow: hidden;
 }
 
-.obsiman-queue-action {
+.vaultman-queue-action {
   font-weight: 500;
-  color: var(--obsiman-accent);
+  color: var(--vaultman-accent);
 }
 
-.obsiman-queue-file-count {
-  color: var(--obsiman-text-faint);
+.vaultman-queue-file-count {
+  color: var(--vaultman-text-faint);
   font-size: 0.85em;
   white-space: nowrap;
 }
 
-.obsiman-queue-actions {
+.vaultman-queue-actions {
   display: flex;
   gap: 4px;
 }
 
-.obsiman-stats {
+.vaultman-stats {
   margin-top: 8px;
   padding-top: 6px;
-  border-top: 1px solid var(--obsiman-border);
+  border-top: 1px solid var(--vaultman-border);
 }
 
-.obsiman-stats-text {
+.vaultman-stats-text {
   font-size: 0.75em;
-  color: var(--obsiman-text-faint);
+  color: var(--vaultman-text-faint);
 }
 
 /* === Modals === */
-.obsiman-modal {
+.vaultman-modal {
   max-width: 500px;
 }
 
-.obsiman-modal h3 {
+.vaultman-modal h3 {
   margin-top: 0;
 }
 
-.obsiman-modal-subtitle {
+.vaultman-modal-subtitle {
   font-size: 0.85em;
-  color: var(--obsiman-text-muted);
+  color: var(--vaultman-text-muted);
   margin-top: -8px;
 }
 
 /* === Queue Details / Diff === */
-.obsiman-queue-details {
+.vaultman-queue-details {
   max-width: 600px;
 }
 
-.obsiman-diff-container {
+.vaultman-diff-container {
   max-height: 400px;
   overflow-y: auto;
   margin-bottom: 12px;
 }
 
-.obsiman-diff-file {
+.vaultman-diff-file {
   margin-bottom: 12px;
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
   border-radius: var(--radius-s);
   padding: 8px;
 }
 
-.obsiman-diff-path {
+.vaultman-diff-path {
   font-size: 0.85em;
   margin: 0 0 6px 0;
   word-break: break-all;
 }
 
-.obsiman-diff-row {
+.vaultman-diff-row {
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -398,78 +398,78 @@
   font-family: var(--font-monospace);
 }
 
-.obsiman-diff-key {
+.vaultman-diff-key {
   font-weight: 600;
   color: var(--text-normal);
 }
 
-.obsiman-diff-added {
-  background: var(--obsiman-diff-added);
+.vaultman-diff-added {
+  background: var(--vaultman-diff-added);
   padding: 1px 4px;
   border-radius: 2px;
 }
 
-.obsiman-diff-deleted {
-  background: var(--obsiman-diff-deleted);
+.vaultman-diff-deleted {
+  background: var(--vaultman-diff-deleted);
   padding: 1px 4px;
   border-radius: 2px;
 }
 
 /* Enhanced diff styles */
-.obsiman-diff-summary {
+.vaultman-diff-summary {
   font-size: 0.85em;
-  color: var(--obsiman-text-muted);
+  color: var(--vaultman-text-muted);
   margin-bottom: 8px;
   padding: 4px 8px;
-  background: var(--obsiman-bg-section);
+  background: var(--vaultman-bg-section);
   border-radius: var(--radius-s);
 }
 
-.obsiman-diff-ops {
+.vaultman-diff-ops {
   margin-bottom: 8px;
   font-size: 0.8em;
 }
 
-.obsiman-diff-op {
+.vaultman-diff-op {
   display: flex;
   gap: 6px;
   padding: 2px 0;
 }
 
-.obsiman-diff-op-index {
-  color: var(--obsiman-text-faint);
+.vaultman-diff-op-index {
+  color: var(--vaultman-text-faint);
   min-width: 20px;
 }
 
-.obsiman-diff-op-action {
+.vaultman-diff-op-action {
   font-weight: 600;
-  color: var(--obsiman-accent);
+  color: var(--vaultman-accent);
   text-transform: uppercase;
 }
 
-.obsiman-diff-op-detail {
+.vaultman-diff-op-detail {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.obsiman-diff-op-files {
-  color: var(--obsiman-text-faint);
+.vaultman-diff-op-files {
+  color: var(--vaultman-text-faint);
   white-space: nowrap;
 }
 
-.obsiman-diff-toggle-row {
+.vaultman-diff-toggle-row {
   margin-bottom: 8px;
   font-size: 0.8em;
 }
 
-.obsiman-diff-toggle {
+.vaultman-diff-toggle {
   cursor: pointer;
-  color: var(--obsiman-text-muted);
+  color: var(--vaultman-text-muted);
 }
 
-.obsiman-diff-file-header {
+.vaultman-diff-file-header {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -478,44 +478,44 @@
   border-radius: var(--radius-s);
 }
 
-.obsiman-diff-file-header:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-diff-file-header:hover {
+  background: var(--vaultman-bg-hover);
 }
 
-.obsiman-diff-file-toggle {
+.vaultman-diff-file-toggle {
   font-size: 0.7em;
-  color: var(--obsiman-text-faint);
+  color: var(--vaultman-text-faint);
   width: 12px;
 }
 
-.obsiman-diff-change-count {
+.vaultman-diff-change-count {
   font-size: 0.85em;
-  color: var(--obsiman-text-faint);
+  color: var(--vaultman-text-faint);
   margin-left: auto;
 }
 
-.obsiman-diff-collapsed {
+.vaultman-diff-collapsed {
   display: none;
 }
 
-.obsiman-diff-unchanged {
+.vaultman-diff-unchanged {
   opacity: 0.5;
 }
 
-.obsiman-diff-same {
-  color: var(--obsiman-text-faint);
+.vaultman-diff-same {
+  color: var(--vaultman-text-faint);
   padding: 1px 4px;
 }
 
 /* === Tags Explorer === */
 
-.obsiman-tags-tree {
+.vaultman-tags-tree {
   flex: 1;
   overflow-y: auto;
   padding: 4px 0;
 }
 
-.obsiman-tags-row {
+.vaultman-tags-row {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -525,16 +525,16 @@
   font-size: var(--font-ui-small);
 }
 
-.obsiman-tags-row:hover {
+.vaultman-tags-row:hover {
   background: var(--background-modifier-hover);
 }
 
-.obsiman-tags-row.is-active-filter {
+.vaultman-tags-row.is-active-filter {
   background: var(--background-modifier-active-hover);
   color: var(--text-accent);
 }
 
-.obsiman-tags-toggle {
+.vaultman-tags-toggle {
   display: flex;
   align-items: center;
   width: 16px;
@@ -543,12 +543,12 @@
   color: var(--text-muted);
 }
 
-.obsiman-tags-toggle svg {
+.vaultman-tags-toggle svg {
   width: 14px;
   height: 14px;
 }
 
-.obsiman-tags-icon {
+.vaultman-tags-icon {
   display: flex;
   align-items: center;
   width: 14px;
@@ -557,12 +557,12 @@
   color: var(--text-muted);
 }
 
-.obsiman-tags-icon svg {
+.vaultman-tags-icon svg {
   width: 12px;
   height: 12px;
 }
 
-.obsiman-tags-label {
+.vaultman-tags-label {
   flex: 1;
   color: var(--text-normal);
   white-space: nowrap;
@@ -570,47 +570,47 @@
   text-overflow: ellipsis;
 }
 
-.obsiman-tags-count {
+.vaultman-tags-count {
   color: var(--text-faint);
   font-size: var(--font-ui-smaller);
   flex-shrink: 0;
 }
 
 /* === Property Explorer === */
-.obsiman-explorer-container {
+.vaultman-explorer-container {
   max-height: 250px;
   overflow-y: auto;
 }
 
-.obsiman-explorer-search {
+.vaultman-explorer-search {
   margin-bottom: 6px;
 }
 
-.obsiman-explorer-search-input {
+.vaultman-explorer-search-input {
   width: 100%;
   font-size: 0.8em;
   padding: 4px 8px;
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
   border-radius: var(--radius-s);
   background: var(--background-primary);
   color: var(--text-normal);
 }
 
-.obsiman-explorer-tree {
+.vaultman-explorer-tree {
   font-size: 0.8em;
 }
 
-.obsiman-explorer-empty {
-  color: var(--obsiman-text-faint);
+.vaultman-explorer-empty {
+  color: var(--vaultman-text-faint);
   font-style: italic;
   padding: 4px 0;
 }
 
-.obsiman-explorer-node {
+.vaultman-explorer-node {
   margin-bottom: 1px;
 }
 
-.obsiman-explorer-header {
+.vaultman-explorer-header {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -620,23 +620,23 @@
   user-select: none;
 }
 
-.obsiman-explorer-header:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-explorer-header:hover {
+  background: var(--vaultman-bg-hover);
 }
 
-.obsiman-explorer-header.is-expanded {
+.vaultman-explorer-header.is-expanded {
   font-weight: 500;
 }
 
-.obsiman-explorer-toggle {
+.vaultman-explorer-toggle {
   font-size: 0.7em;
   width: 12px;
   text-align: center;
-  color: var(--obsiman-text-faint);
+  color: var(--vaultman-text-faint);
   flex-shrink: 0;
 }
 
-.obsiman-explorer-prop-name {
+.vaultman-explorer-prop-name {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -644,21 +644,21 @@
   color: var(--text-normal);
 }
 
-.obsiman-explorer-badge {
+.vaultman-explorer-badge {
   font-size: 0.8em;
-  color: var(--obsiman-text-faint);
+  color: var(--vaultman-text-faint);
   min-width: 18px;
   text-align: center;
   flex-shrink: 0;
 }
 
-.obsiman-explorer-children {
+.vaultman-explorer-children {
   margin-left: 16px;
-  border-left: 1px solid var(--obsiman-border);
+  border-left: 1px solid var(--vaultman-border);
   padding-left: 6px;
 }
 
-.obsiman-explorer-value {
+.vaultman-explorer-value {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -667,87 +667,87 @@
   cursor: pointer;
 }
 
-.obsiman-explorer-value:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-explorer-value:hover {
+  background: var(--vaultman-bg-hover);
 }
 
-.obsiman-explorer-value-text {
+.vaultman-explorer-value-text {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--obsiman-text-muted);
+  color: var(--vaultman-text-muted);
 }
 
-.obsiman-explorer-value:hover .obsiman-explorer-value-text {
-  color: var(--obsiman-accent);
+.vaultman-explorer-value:hover .vaultman-explorer-value-text {
+  color: var(--vaultman-accent);
 }
 
 /* Active filter highlight in PropertyExplorer */
-.obsiman-explorer-node.is-active-filter>.obsiman-explorer-header {
+.vaultman-explorer-node.is-active-filter>.vaultman-explorer-header {
   border-left: 2px solid var(--color-accent);
   background: color-mix(in srgb, var(--color-accent) 8%, transparent);
   padding-left: calc(var(--size-4-2) - 2px);
 }
 
-.obsiman-explorer-value.is-active-filter {
+.vaultman-explorer-value.is-active-filter {
   border-left: 2px solid var(--color-accent);
   background: color-mix(in srgb, var(--color-accent) 6%, transparent);
 }
 
 /* Explorer nav toolbar */
-.obsiman-explorer-nav {
+.vaultman-explorer-nav {
   display: flex;
   align-items: center;
   gap: 2px;
   padding: 4px;
-  border-bottom: 1px solid var(--obsiman-border);
+  border-bottom: 1px solid var(--vaultman-border);
 }
 
-.obsiman-explorer-nav .clickable-icon {
+.vaultman-explorer-nav .clickable-icon {
   padding: 4px;
   border-radius: var(--radius-s);
-  color: var(--obsiman-text-muted);
+  color: var(--vaultman-text-muted);
 }
 
-.obsiman-explorer-nav .clickable-icon:hover {
+.vaultman-explorer-nav .clickable-icon:hover {
   color: var(--text-normal);
-  background: var(--obsiman-bg-hover);
+  background: var(--vaultman-bg-hover);
 }
 
-.obsiman-explorer-nav .clickable-icon.is-active {
-  color: var(--obsiman-accent);
+.vaultman-explorer-nav .clickable-icon.is-active {
+  color: var(--vaultman-accent);
 }
 
 /* Collapsible search */
-.obsiman-explorer-search-collapsible {
+.vaultman-explorer-search-collapsible {
   overflow: hidden;
   max-height: 0;
   transition: max-height 0.15s ease;
 }
 
-.obsiman-explorer-search-collapsible.is-open {
+.vaultman-explorer-search-collapsible.is-open {
   max-height: 40px;
 }
 
-.obsiman-explorer-search-row {
+.vaultman-explorer-search-row {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.obsiman-explorer-search-input-wrap {
+.vaultman-explorer-search-input-wrap {
   position: relative;
   flex: 1;
 }
 
-.obsiman-explorer-search-input-wrap .obsiman-explorer-search-input {
+.vaultman-explorer-search-input-wrap .vaultman-explorer-search-input {
   width: 100%;
   padding-right: 28px;
   box-sizing: border-box;
 }
 
-.obsiman-explorer-search-clear {
+.vaultman-explorer-search-clear {
   position: absolute;
   right: 4px;
   top: 50%;
@@ -759,11 +759,11 @@
   justify-content: center;
 }
 
-.obsiman-explorer-search-clear.is-hidden {
+.vaultman-explorer-search-clear.is-hidden {
   display: none;
 }
 
-.obsiman-search-mode-toggle {
+.vaultman-search-mode-toggle {
   width: 24px;
   height: 24px;
   display: flex;
@@ -775,17 +775,17 @@
   flex-shrink: 0;
 }
 
-.obsiman-search-mode-toggle:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-search-mode-toggle:hover {
+  background: var(--vaultman-bg-hover);
   color: var(--text-normal);
 }
 
-.obsiman-search-mode-toggle.is-active {
-  color: var(--obsiman-accent);
+.vaultman-search-mode-toggle.is-active {
+  color: var(--vaultman-accent);
 }
 
 /* Iconic icon in explorer */
-.obsiman-explorer-icon {
+.vaultman-explorer-icon {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
@@ -794,108 +794,108 @@
   justify-content: center;
 }
 
-.obsiman-explorer-icon svg {
+.vaultman-explorer-icon svg {
   width: 14px;
   height: 14px;
 }
 
-.obsiman-explorer-icon-default {
+.vaultman-explorer-icon-default {
   opacity: 0.5;
 }
 
 /* Queue preview states */
-.obsiman-explorer-pending {
+.vaultman-explorer-pending {
   opacity: 0.7;
   border-left: 2px dashed var(--interactive-accent);
   padding-left: 4px;
 }
 
-.obsiman-explorer-deleting {
+.vaultman-explorer-deleting {
   text-decoration: line-through;
   opacity: 0.5;
 }
 
 /* === Linter Modal === */
-.obsiman-linter-modal {
+.vaultman-linter-modal {
   max-width: 450px;
 }
 
-.obsiman-linter-warning {
+.vaultman-linter-warning {
   color: var(--text-error);
   font-style: italic;
 }
 
-.obsiman-linter-scope {
+.vaultman-linter-scope {
   font-size: 0.85em;
-  color: var(--obsiman-text-muted);
+  color: var(--vaultman-text-muted);
   margin-bottom: 8px;
 }
 
-.obsiman-linter-list {
+.vaultman-linter-list {
   max-height: 300px;
   overflow-y: auto;
   margin-bottom: 8px;
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
   border-radius: var(--radius-s);
 }
 
-.obsiman-linter-item {
+.vaultman-linter-item {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 4px 8px;
-  border-bottom: 1px solid var(--obsiman-border);
+  border-bottom: 1px solid var(--vaultman-border);
   font-size: 0.85em;
 }
 
-.obsiman-linter-item:last-child {
+.vaultman-linter-item:last-child {
   border-bottom: none;
 }
 
-.obsiman-linter-index {
-  color: var(--obsiman-text-faint);
+.vaultman-linter-index {
+  color: var(--vaultman-text-faint);
   font-size: 0.85em;
   min-width: 20px;
   text-align: right;
 }
 
-.obsiman-linter-prop {
+.vaultman-linter-prop {
   flex: 1;
   color: var(--text-normal);
 }
 
-.obsiman-linter-add-row {
+.vaultman-linter-add-row {
   margin-bottom: 12px;
 }
 
-.obsiman-linter-add-input {
+.vaultman-linter-add-input {
   width: 100%;
   font-size: 0.85em;
   padding: 4px 8px;
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
   border-radius: var(--radius-s);
   background: var(--background-primary);
   color: var(--text-normal);
 }
 
 /* === Explorer panel in main view === */
-.obsiman-content-area {
+.vaultman-content-area {
   flex: 1;
   display: flex;
   overflow: hidden;
 }
 
-.obsiman-explorer-panel {
+.vaultman-explorer-panel {
   width: 260px;
   min-width: 200px;
   max-width: 400px;
-  border-right: 1px solid var(--obsiman-border);
+  border-right: 1px solid var(--vaultman-border);
   overflow-y: auto;
   padding: 8px;
   flex-shrink: 0;
 }
 
-.obsiman-explorer-hidden {
+.vaultman-explorer-hidden {
   display: none;
 }
 
@@ -903,7 +903,7 @@
    MAIN VIEW (Full-screen)
    ============================================ */
 
-.obsiman-main-view {
+.vaultman-main-view {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -911,27 +911,27 @@
 }
 
 /* --- Navbar (dual-orientation) --- */
-.obsiman-navbar {
+.vaultman-navbar {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 4px 0;
   gap: 2px;
-  border-right: 1px solid var(--obsiman-border);
-  background: var(--obsiman-bg-section);
+  border-right: 1px solid var(--vaultman-border);
+  background: var(--vaultman-bg-section);
   width: 36px;
   flex-shrink: 0;
 }
 
-.obsiman-navbar.is-horizontal {
+.vaultman-navbar.is-horizontal {
   flex-direction: row;
   width: auto;
   border-right: none;
-  border-bottom: 1px solid var(--obsiman-border);
+  border-bottom: 1px solid var(--vaultman-border);
   padding: 4px;
 }
 
-.obsiman-navbar .clickable-icon {
+.vaultman-navbar .clickable-icon {
   width: 28px;
   height: 28px;
   display: flex;
@@ -942,20 +942,20 @@
   cursor: pointer;
 }
 
-.obsiman-navbar .clickable-icon:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-navbar .clickable-icon:hover {
+  background: var(--vaultman-bg-hover);
   color: var(--text-normal);
 }
 
-.obsiman-navbar .clickable-icon.is-active {
-  color: var(--obsiman-accent);
+.vaultman-navbar .clickable-icon.is-active {
+  color: var(--vaultman-accent);
 }
 
-.obsiman-navbar-badge {
+.vaultman-navbar-badge {
   font-size: 0.65em;
   font-weight: 600;
   color: var(--text-on-accent);
-  background: var(--obsiman-accent);
+  background: var(--vaultman-accent);
   border-radius: 8px;
   padding: 0 4px;
   min-width: 14px;
@@ -966,33 +966,33 @@
   right: -4px;
 }
 
-.obsiman-navbar .clickable-icon {
+.vaultman-navbar .clickable-icon {
   position: relative;
 }
 
 /* --- (session row removed in dev) --- */
 
-.obsiman-hidden {
+.vaultman-hidden {
   display: none !important;
 }
 
 /* --- Operations Column (LEFT — smart vertical/horizontal tabs) --- */
-.obsiman-ops-column {
+.vaultman-ops-column {
   display: flex;
   flex-direction: column;
   width: 280px;
   flex-shrink: 0;
-  border-right: 1px solid var(--obsiman-border);
+  border-right: 1px solid var(--vaultman-border);
   transition: width 0.2s ease;
   overflow: hidden;
 }
 
-.obsiman-ops-column.is-collapsed {
+.vaultman-ops-column.is-collapsed {
   width: 36px;
 }
 
 /* Collapsed: vertical icon strip */
-.obsiman-ops-strip {
+.vaultman-ops-strip {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1002,7 +1002,7 @@
   height: 100%;
 }
 
-.obsiman-ops-strip .clickable-icon {
+.vaultman-ops-strip .clickable-icon {
   width: 28px;
   height: 28px;
   display: flex;
@@ -1013,39 +1013,39 @@
   cursor: pointer;
 }
 
-.obsiman-ops-strip .clickable-icon:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-ops-strip .clickable-icon:hover {
+  background: var(--vaultman-bg-hover);
   color: var(--text-normal);
 }
 
-.obsiman-ops-strip .clickable-icon.is-active {
-  color: var(--obsiman-accent);
+.vaultman-ops-strip .clickable-icon.is-active {
+  color: var(--vaultman-accent);
 }
 
-.obsiman-ops-strip-toggle {
+.vaultman-ops-strip-toggle {
   margin-bottom: 4px;
   padding-bottom: 4px;
-  border-bottom: 1px solid var(--obsiman-border);
+  border-bottom: 1px solid var(--vaultman-border);
 }
 
 /* Expanded: horizontal tab bar + content */
-.obsiman-ops-expanded {
+.vaultman-ops-expanded {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-.obsiman-ops-tabbar {
+.vaultman-ops-tabbar {
   display: flex;
   align-items: center;
   gap: 0;
-  border-bottom: 1px solid var(--obsiman-border);
-  background: var(--obsiman-bg-section);
+  border-bottom: 1px solid var(--vaultman-border);
+  background: var(--vaultman-bg-section);
   flex-shrink: 0;
   overflow-x: auto;
 }
 
-.obsiman-ops-tabbar-toggle {
+.vaultman-ops-tabbar-toggle {
   width: 28px;
   height: 28px;
   display: flex;
@@ -1058,29 +1058,29 @@
   margin: 2px 4px;
 }
 
-.obsiman-ops-tabbar-toggle:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-ops-tabbar-toggle:hover {
+  background: var(--vaultman-bg-hover);
   color: var(--text-normal);
 }
 
 /* --- Properties Panel (RIGHT) --- */
-.obsiman-properties-panel-right {
+.vaultman-properties-panel-right {
   width: 240px;
   flex-shrink: 0;
-  border-left: 1px solid var(--obsiman-border);
+  border-left: 1px solid var(--vaultman-border);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: width 0.2s ease;
 }
 
-.obsiman-properties-panel-right.is-collapsed {
+.vaultman-properties-panel-right.is-collapsed {
   width: 0;
   border-left: none;
 }
 
 /* Toggle strip between grid and properties */
-.obsiman-props-toggle-strip {
+.vaultman-props-toggle-strip {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1088,7 +1088,7 @@
   flex-shrink: 0;
 }
 
-.obsiman-props-toggle-strip .clickable-icon {
+.vaultman-props-toggle-strip .clickable-icon {
   width: 24px;
   height: 24px;
   display: flex;
@@ -1099,22 +1099,22 @@
   cursor: pointer;
 }
 
-.obsiman-props-toggle-strip .clickable-icon:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-props-toggle-strip .clickable-icon:hover {
+  background: var(--vaultman-bg-hover);
   color: var(--text-normal);
 }
 
-.obsiman-props-toolbar {
+.vaultman-props-toolbar {
   display: flex;
   align-items: center;
   gap: 2px;
   padding: 4px;
-  border-bottom: 1px solid var(--obsiman-border);
-  background: var(--obsiman-bg-section);
+  border-bottom: 1px solid var(--vaultman-border);
+  background: var(--vaultman-bg-section);
   flex-shrink: 0;
 }
 
-.obsiman-props-toolbar .clickable-icon {
+.vaultman-props-toolbar .clickable-icon {
   width: 28px;
   height: 28px;
   display: flex;
@@ -1125,32 +1125,32 @@
   cursor: pointer;
 }
 
-.obsiman-props-toolbar .clickable-icon:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-props-toolbar .clickable-icon:hover {
+  background: var(--vaultman-bg-hover);
   color: var(--text-normal);
 }
 
-.obsiman-props-explorer-wrap {
+.vaultman-props-explorer-wrap {
   flex: 1;
   overflow-y: auto;
   padding: 8px;
 }
 
-.obsiman-popover-anchor {
+.vaultman-popover-anchor {
   position: relative;
 }
 
 /* Operations panel tabs */
-.obsiman-operations-tabs {
+.vaultman-operations-tabs {
   display: flex;
   gap: 0;
-  border-bottom: 1px solid var(--obsiman-border);
-  background: var(--obsiman-bg-section);
+  border-bottom: 1px solid var(--vaultman-border);
+  background: var(--vaultman-bg-section);
   flex-shrink: 0;
   overflow-x: auto;
 }
 
-.obsiman-operations-tab {
+.vaultman-operations-tab {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -1162,40 +1162,40 @@
   white-space: nowrap;
 }
 
-.obsiman-operations-tab:hover {
+.vaultman-operations-tab:hover {
   color: var(--text-normal);
-  background: var(--obsiman-bg-hover);
+  background: var(--vaultman-bg-hover);
 }
 
-.obsiman-operations-tab.is-active {
-  border-bottom-color: var(--obsiman-accent);
+.vaultman-operations-tab.is-active {
+  border-bottom-color: var(--vaultman-accent);
   color: var(--text-normal);
 }
 
-.obsiman-operations-tab svg {
+.vaultman-operations-tab svg {
   width: 14px;
   height: 14px;
 }
 
-.obsiman-operations-content {
+.vaultman-operations-content {
   flex: 1;
   overflow-y: auto;
   padding: 8px;
 }
 
-.obsiman-ops-tab-desc {
+.vaultman-ops-tab-desc {
   font-size: 0.85em;
   margin: 0 0 8px;
 }
 
-.obsiman-template-list {
+.vaultman-template-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
   margin-bottom: 8px;
 }
 
-.obsiman-template-row {
+.vaultman-template-row {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1203,23 +1203,23 @@
   border-radius: var(--radius-s);
 }
 
-.obsiman-template-row:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-template-row:hover {
+  background: var(--vaultman-bg-hover);
 }
 
-.obsiman-text-muted {
+.vaultman-text-muted {
   color: var(--text-muted);
 }
 
 /* --- Operations panel split layout (pinned queue) --- */
-.obsiman-operations-split {
+.vaultman-operations-split {
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
 }
 
-.obsiman-operations-top {
+.vaultman-operations-top {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -1227,40 +1227,40 @@
   overflow: hidden;
 }
 
-.obsiman-operations-top .obsiman-operations-content {
+.vaultman-operations-top .vaultman-operations-content {
   flex: 1;
   overflow-y: auto;
 }
 
 /* Pinned queue section (always visible at bottom) */
-.obsiman-operations-pinned-queue {
+.vaultman-operations-pinned-queue {
   flex-shrink: 0;
   max-height: 45%;
   overflow-y: auto;
-  border-top: 1px solid var(--obsiman-border);
+  border-top: 1px solid var(--vaultman-border);
   padding: 6px 8px;
-  background: var(--obsiman-bg-section);
+  background: var(--vaultman-bg-section);
 }
 
-.obsiman-pinned-queue-header {
+.vaultman-pinned-queue-header {
   display: flex;
   align-items: center;
   gap: 6px;
   margin-bottom: 4px;
 }
 
-.obsiman-pinned-queue-title {
+.vaultman-pinned-queue-title {
   font-size: 0.8em;
   font-weight: 600;
   text-transform: uppercase;
-  color: var(--obsiman-text-muted);
+  color: var(--vaultman-text-muted);
 }
 
-.obsiman-pinned-queue-badge {
+.vaultman-pinned-queue-badge {
   font-size: 0.75em;
   font-weight: 600;
   color: var(--text-on-accent);
-  background: var(--obsiman-accent);
+  background: var(--vaultman-accent);
   border-radius: 8px;
   padding: 0 5px;
   min-width: 16px;
@@ -1268,82 +1268,82 @@
   line-height: 16px;
 }
 
-.obsiman-pinned-queue-list {
+.vaultman-pinned-queue-list {
   margin-bottom: 6px;
 }
 
-.obsiman-pinned-queue-actions {
+.vaultman-pinned-queue-actions {
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
 }
 
 /* --- Toolbar --- */
-.obsiman-toolbar {
+.vaultman-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 6px 12px;
-  border-bottom: 1px solid var(--obsiman-border);
-  background: var(--obsiman-bg-section);
+  border-bottom: 1px solid var(--vaultman-border);
+  background: var(--vaultman-bg-section);
   flex-shrink: 0;
   flex-wrap: wrap;
   gap: 6px;
   position: relative;
 }
 
-.obsiman-toolbar-left,
-.obsiman-toolbar-right {
+.vaultman-toolbar-left,
+.vaultman-toolbar-right {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.obsiman-toolbar-select {
+.vaultman-toolbar-select {
   font-size: 0.85em;
   max-width: 200px;
 }
 
-.obsiman-toolbar-btn {
+.vaultman-toolbar-btn {
   font-size: 0.8em;
   padding: 4px 10px;
   border-radius: var(--radius-s);
   cursor: pointer;
   background: var(--interactive-normal);
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
   color: var(--text-normal);
 }
 
-.obsiman-toolbar-btn:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-toolbar-btn:hover {
+  background: var(--vaultman-bg-hover);
 }
 
-.obsiman-toolbar-badge {
+.vaultman-toolbar-badge {
   font-size: 0.85em;
-  color: var(--obsiman-accent);
+  color: var(--vaultman-accent);
   font-weight: 600;
 }
 
 /* Sync status indicator */
-.obsiman-sync-indicator {
+.vaultman-sync-indicator {
   font-size: 0.9em;
   line-height: 1;
 }
 
-.obsiman-sync-ok {
+.vaultman-sync-ok {
   color: #2ea043;
 }
 
-.obsiman-sync-external {
+.vaultman-sync-external {
   color: #d29922;
 }
 
-.obsiman-sync-conflict {
+.vaultman-sync-conflict {
   color: #f85149;
 }
 
 /* --- Popover panels --- */
-.obsiman-popover {
+.vaultman-popover {
   position: absolute;
   top: 100%;
   left: 12px;
@@ -1352,137 +1352,137 @@
   max-height: 400px;
   overflow-y: auto;
   background: var(--background-primary);
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
   border-radius: var(--radius-m);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   padding: 10px;
 }
 
-.obsiman-popover-hidden {
+.vaultman-popover-hidden {
   display: none;
 }
 
-.obsiman-popover-header h4 {
+.vaultman-popover-header h4 {
   margin: 0 0 8px 0;
   font-size: 0.85em;
   font-weight: 600;
   text-transform: uppercase;
-  color: var(--obsiman-text-muted);
+  color: var(--vaultman-text-muted);
 }
 
 /* --- Grid wrapper --- */
-.obsiman-grid-wrapper {
+.vaultman-grid-wrapper {
   flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.obsiman-grid-header {
+.vaultman-grid-header {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  border-bottom: 1px solid var(--obsiman-border);
+  border-bottom: 1px solid var(--vaultman-border);
   flex-shrink: 0;
 }
 
-.obsiman-grid-search {
+.vaultman-grid-search {
   flex: 1;
   max-width: 300px;
   font-size: 0.85em;
   padding: 4px 8px;
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
   border-radius: var(--radius-s);
   background: var(--background-primary);
   color: var(--text-normal);
 }
 
-.obsiman-grid-filter-toggle {
+.vaultman-grid-filter-toggle {
   padding: 4px;
   border-radius: var(--radius-s);
   color: var(--text-muted);
   transition: color 0.15s ease, background 0.15s ease;
 }
 
-.obsiman-grid-filter-toggle.is-active {
-  color: var(--obsiman-accent);
-  background: color-mix(in srgb, var(--obsiman-accent) 12%, transparent);
+.vaultman-grid-filter-toggle.is-active {
+  color: var(--vaultman-accent);
+  background: color-mix(in srgb, var(--vaultman-accent) 12%, transparent);
 }
 
 /* --- Table --- */
-.obsiman-grid-table-wrapper {
+.vaultman-grid-table-wrapper {
   flex: 1;
   overflow: auto;
 }
 
-.obsiman-grid-table {
+.vaultman-grid-table {
   border-collapse: collapse;
   font-size: 0.85em;
 }
 
-.obsiman-grid-fixed {
+.vaultman-grid-fixed {
   table-layout: fixed;
 }
 
-.obsiman-grid-table thead {
+.vaultman-grid-table thead {
   position: sticky;
   top: 0;
   z-index: 2;
   background: var(--background-secondary);
 }
 
-.obsiman-grid-th-check {
+.vaultman-grid-th-check {
   width: 30px;
   text-align: center;
   padding: 6px 4px;
-  border-bottom: 2px solid var(--obsiman-border);
+  border-bottom: 2px solid var(--vaultman-border);
   transition: border-color 0.15s ease;
 }
 
-.obsiman-grid-th-check input[type="checkbox"] {
+.vaultman-grid-th-check input[type="checkbox"] {
   width: 14px;
   height: 14px;
 }
 
-.obsiman-grid-th-check.is-indeterminate {
-  border-color: var(--obsiman-accent);
+.vaultman-grid-th-check.is-indeterminate {
+  border-color: var(--vaultman-accent);
 }
 
-.obsiman-grid-th-check.is-indeterminate input[type="checkbox"] {
-  border-color: var(--obsiman-accent);
-  box-shadow: 0 0 0 1px var(--obsiman-accent);
+.vaultman-grid-th-check.is-indeterminate input[type="checkbox"] {
+  border-color: var(--vaultman-accent);
+  box-shadow: 0 0 0 1px var(--vaultman-accent);
 }
 
-.obsiman-grid-th-sortable {
+.vaultman-grid-th-sortable {
   position: relative;
   padding: 6px 8px;
   text-align: left;
   font-weight: 600;
   font-size: 0.9em;
-  color: var(--obsiman-text-muted);
+  color: var(--vaultman-text-muted);
   white-space: nowrap;
-  border-bottom: 2px solid var(--obsiman-border);
+  border-bottom: 2px solid var(--vaultman-border);
   user-select: none;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.obsiman-grid-th-label {
+.vaultman-grid-th-label {
   cursor: pointer;
 }
 
-.obsiman-grid-th-sortable:hover {
+.vaultman-grid-th-sortable:hover {
   color: var(--text-normal);
-  background: var(--obsiman-bg-hover);
+  background: var(--vaultman-bg-hover);
 }
 
-.obsiman-grid-th-active {
+.vaultman-grid-th-active {
   color: var(--text-normal);
 }
 
 /* Column resize handle */
-.obsiman-grid-resize-handle {
+.vaultman-grid-resize-handle {
   position: absolute;
   top: 0;
   right: 0;
@@ -1492,64 +1492,64 @@
   z-index: 3;
 }
 
-.obsiman-grid-resize-handle:hover,
-body.obsiman-resizing .obsiman-grid-resize-handle {
-  background: var(--obsiman-accent);
+.vaultman-grid-resize-handle:hover,
+body.vaultman-resizing .vaultman-grid-resize-handle {
+  background: var(--vaultman-accent);
   opacity: 0.4;
 }
 
-body.obsiman-resizing {
+body.vaultman-resizing {
   cursor: col-resize !important;
   user-select: none !important;
 }
 
-.obsiman-grid-row {
-  border-bottom: 1px solid var(--obsiman-border);
+.vaultman-grid-row {
+  border-bottom: 1px solid var(--vaultman-border);
   cursor: default;
   user-select: none;
 }
 
-.obsiman-grid-row:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-grid-row:hover {
+  background: var(--vaultman-bg-hover);
 }
 
-.obsiman-grid-row.is-selected {
-  background: color-mix(in srgb, var(--obsiman-accent) 12%, transparent);
+.vaultman-grid-row.is-selected {
+  background: color-mix(in srgb, var(--vaultman-accent) 12%, transparent);
 }
 
-.obsiman-grid-row.is-selected:hover {
-  background: color-mix(in srgb, var(--obsiman-accent) 18%, transparent);
+.vaultman-grid-row.is-selected:hover {
+  background: color-mix(in srgb, var(--vaultman-accent) 18%, transparent);
 }
 
-.obsiman-grid-td-check {
+.vaultman-grid-td-check {
   width: 30px;
   text-align: center;
   padding: 4px;
 }
 
-.obsiman-grid-td-check input[type="checkbox"] {
+.vaultman-grid-td-check input[type="checkbox"] {
   width: 14px;
   height: 14px;
 }
 
-.obsiman-grid-td-name {
+.vaultman-grid-td-name {
   padding: 4px 8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.obsiman-grid-name-link {
+.vaultman-grid-name-link {
   cursor: pointer;
   color: var(--text-normal);
 }
 
-.obsiman-grid-name-link:hover {
-  color: var(--obsiman-accent);
+.vaultman-grid-name-link:hover {
+  color: var(--vaultman-accent);
   text-decoration: underline;
 }
 
-.obsiman-grid-td-prop {
+.vaultman-grid-td-prop {
   padding: 4px 8px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1558,20 +1558,20 @@ body.obsiman-resizing {
   cursor: default;
 }
 
-.obsiman-grid-td-prop:hover {
+.vaultman-grid-td-prop:hover {
   background: var(--background-modifier-hover);
 }
 
 /* Inline editing */
-.obsiman-grid-editing {
+.vaultman-grid-editing {
   padding: 2px 4px !important;
 }
 
-.obsiman-grid-edit-input {
+.vaultman-grid-edit-input {
   width: 100%;
   font-size: 1em;
   padding: 2px 4px;
-  border: 2px solid var(--obsiman-accent);
+  border: 2px solid var(--vaultman-accent);
   border-radius: var(--radius-s);
   background: var(--background-primary);
   color: var(--text-normal);
@@ -1579,38 +1579,38 @@ body.obsiman-resizing {
 }
 
 /* Live preview cells */
-.obsiman-grid-live-cell {
+.vaultman-grid-live-cell {
   overflow: hidden;
 }
 
-.obsiman-grid-live-cell p {
+.vaultman-grid-live-cell p {
   margin: 0;
   line-height: inherit;
 }
 
-.obsiman-grid-live-cell .tag {
+.vaultman-grid-live-cell .tag {
   font-size: 0.85em;
 }
 
-.obsiman-grid-live-cell .internal-link {
+.vaultman-grid-live-cell .internal-link {
   cursor: pointer;
 }
 
 /* Mobile: taller rows for touch targets */
 @media (pointer: coarse) {
-  .obsiman-grid-row {
+  .vaultman-grid-row {
     min-height: 44px;
   }
 }
 
 /* --- Native Status bar item --- */
-.obsiman-native-statusbar {
+.vaultman-native-statusbar {
   font-size: 0.85em;
   color: var(--text-muted);
 }
 
 /* --- File Filter Popover --- */
-.obsiman-file-filter-popover {
+.vaultman-file-filter-popover {
   position: absolute;
   top: 0;
   left: 0;
@@ -1619,7 +1619,7 @@ body.obsiman-resizing {
   max-height: 400px;
   overflow-y: auto;
   background: var(--background-primary);
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
   border-radius: var(--radius-m);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   padding: 10px;
@@ -1627,17 +1627,17 @@ body.obsiman-resizing {
 
 /* --- Mobile touch targets --- */
 @media (pointer: coarse) {
-  .obsiman-navbar .clickable-icon {
+  .vaultman-navbar .clickable-icon {
     width: 36px;
     height: 36px;
   }
 
-  .obsiman-header-bar .clickable-icon {
+  .vaultman-header-bar .clickable-icon {
     width: 36px;
     height: 36px;
   }
 
-  .obsiman-operations-tab {
+  .vaultman-operations-tab {
     padding: 8px 12px;
   }
 }
@@ -1647,19 +1647,19 @@ body.obsiman-resizing {
    ============================================================ */
 
 
-.obsiman-sidebar-toggle-bar {
+.vaultman-sidebar-toggle-bar {
   display: flex;
   align-items: center;
   padding: 4px 8px;
-  border-bottom: 1px solid var(--obsiman-border);
+  border-bottom: 1px solid var(--vaultman-border);
   flex-shrink: 0;
 }
 
-.obsiman-sidebar-toggle-spacer {
+.vaultman-sidebar-toggle-spacer {
   flex: 1;
 }
 
-.obsiman-sidebar-toggle-btn {
+.vaultman-sidebar-toggle-btn {
   padding: 4px;
   border-radius: var(--radius-s);
   color: var(--text-muted);
@@ -1667,46 +1667,46 @@ body.obsiman-resizing {
   transition: color 0.15s, background 0.15s;
 }
 
-.obsiman-sidebar-toggle-btn:hover {
+.vaultman-sidebar-toggle-btn:hover {
   color: var(--text-normal);
   background: var(--background-modifier-hover);
 }
 
-.obsiman-sidebar-toggle-btn.is-active {
+.vaultman-sidebar-toggle-btn.is-active {
   color: var(--interactive-accent);
   background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
 }
 
-.obsiman-sidebar-main {
+.vaultman-sidebar-main {
   flex: 1;
   overflow-y: auto;
   padding: 8px;
 }
 
-.obsiman-sidebar-stats {
+.vaultman-sidebar-stats {
   padding: 8px 4px 12px;
-  border-bottom: 1px solid var(--obsiman-border);
+  border-bottom: 1px solid var(--vaultman-border);
   margin-bottom: 8px;
 }
 
-.obsiman-sidebar-stat {
+.vaultman-sidebar-stat {
   font-size: 0.8em;
   color: var(--text-muted);
   line-height: 1.6;
 }
 
-.obsiman-sidebar-stat-pending {
+.vaultman-sidebar-stat-pending {
   color: var(--color-orange);
 }
 
 /* Sliding panels */
-.obsiman-sidebar-panel {
+.vaultman-sidebar-panel {
   position: absolute;
   top: 0;
   bottom: 0;
   width: 100%;
   background: var(--background-primary);
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
   overflow-y: auto;
   z-index: 20;
   display: flex;
@@ -1714,41 +1714,41 @@ body.obsiman-resizing {
   transition: transform 0.2s ease;
 }
 
-.obsiman-sidebar-panel-ops {
+.vaultman-sidebar-panel-ops {
   left: 0;
   transform: translateX(-100%);
 }
 
-.obsiman-sidebar-panel-ops.is-open {
+.vaultman-sidebar-panel-ops.is-open {
   transform: translateX(0);
 }
 
-.obsiman-sidebar-panel-explorer {
+.vaultman-sidebar-panel-explorer {
   right: 0;
   transform: translateX(100%);
 }
 
-.obsiman-sidebar-panel-explorer.is-open {
+.vaultman-sidebar-panel-explorer.is-open {
   transform: translateX(0);
 }
 
-.obsiman-sidebar-panel-header {
+.vaultman-sidebar-panel-header {
   display: flex;
   align-items: center;
   padding: 8px 12px;
-  border-bottom: 1px solid var(--obsiman-border);
+  border-bottom: 1px solid var(--vaultman-border);
   flex-shrink: 0;
 }
 
-.obsiman-sidebar-panel-title {
+.vaultman-sidebar-panel-title {
   flex: 1;
   font-weight: 600;
   font-size: 0.9em;
 }
 
 /* === Bases table injections === */
-th.obsiman-bases-th-check,
-td.obsiman-bases-td-check {
+th.vaultman-bases-th-check,
+td.vaultman-bases-td-check {
   width: 30px;
   min-width: 30px;
   max-width: 30px;
@@ -1756,8 +1756,8 @@ td.obsiman-bases-td-check {
   padding: 4px;
 }
 
-td.obsiman-bases-td-check input[type="checkbox"],
-th.obsiman-bases-th-check input[type="checkbox"] {
+td.vaultman-bases-td-check input[type="checkbox"],
+th.vaultman-bases-th-check input[type="checkbox"] {
   width: 14px;
   height: 14px;
   cursor: pointer;
@@ -1773,35 +1773,35 @@ table tbody tr.is-selected:hover {
 }
 
 /* Column separators (opt-in) */
-body.obsiman-bases-column-separators table td,
-body.obsiman-bases-column-separators table th {
-  border-right: 1px solid var(--obsiman-border);
+body.vaultman-bases-column-separators table td,
+body.vaultman-bases-column-separators table th {
+  border-right: 1px solid var(--vaultman-border);
 }
 
-/* === ObsiMan ops/explorer leaf views === */
-.obsiman-ops-view,
-.obsiman-explorer-view {
+/* === vaultman ops/explorer leaf views === */
+.vaultman-ops-view,
+.vaultman-explorer-view {
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
 }
 
-.obsiman-explorer-view .obsiman-props-toolbar {
+.vaultman-explorer-view .vaultman-props-toolbar {
   flex-shrink: 0;
 }
 
-.obsiman-explorer-view .obsiman-props-explorer-wrap {
+.vaultman-explorer-view .vaultman-props-explorer-wrap {
   flex: 1;
   overflow-y: auto;
 }
 
 /* ============================================================
-   ObsiMan Sidebar — Page navigation (Iteración 1)
+   vaultman Sidebar — Page navigation (Iteración 1)
    ============================================================ */
 
 /* === View shell === */
-.obsiman-view {
+.vaultman-view {
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1811,7 +1811,7 @@ body.obsiman-bases-column-separators table th {
 }
 
 /* === Header bar === */
-.obsiman-view-header {
+.vaultman-view-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1820,7 +1820,7 @@ body.obsiman-bases-column-separators table th {
   border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.obsiman-view-title {
+.vaultman-view-title {
   font-size: var(--font-ui-small);
   font-weight: 600;
   color: var(--text-muted);
@@ -1828,7 +1828,7 @@ body.obsiman-bases-column-separators table th {
   text-transform: uppercase;
 }
 
-.obsiman-view-expand {
+.vaultman-view-expand {
   color: var(--text-muted);
   padding: 2px;
 }
@@ -1836,7 +1836,7 @@ body.obsiman-bases-column-separators table th {
 /* === Page container — slides horizontally === */
 /* Viewport: clips the sliding strip and contains the floating bottom nav */
 /* transition applied only during animation — JS adds/removes this class */
-.obsiman-pages-viewport {
+.vaultman-pages-viewport {
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -1844,18 +1844,18 @@ body.obsiman-bases-column-separators table th {
   /* needed so bottom-nav can position: absolute inside it */
 }
 
-/* Sliding strip: transform applied via JS (see ObsiManView.svelte) */
-.obsiman-page-container {
+/* Sliding strip: transform applied via JS (see vaultmanView.svelte) */
+.vaultman-page-container {
   display: flex;
   height: 100%;
   /* transform removed — applied via JS */
 }
 
-.obsiman-page-container.is-animating {
+.vaultman-page-container.is-animating {
   transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.obsiman-page {
+.vaultman-page {
   min-width: 0;
   flex: 0 0 auto;
   /* width set explicitly via JS */
@@ -1875,7 +1875,7 @@ body.obsiman-bases-column-separators table th {
    A gradient pseudo-element fades content into the nav, signalling scrollability
    and keeping the nav legible against any background. */
 /* Rising backdrop when island is open */
-.obsiman-bottom-nav::before {
+.vaultman-bottom-nav::before {
   content: '';
   position: absolute;
   bottom: 0;
@@ -1893,44 +1893,45 @@ body.obsiman-bases-column-separators table th {
 }
 
 /* Rising Glass Backdrop */
-.obsiman-island-backdrop {
-	position: absolute;
-	inset: 0;
-	z-index: 5; /* Behind everything within viewport */
-	pointer-events: none;
-	opacity: 0;
-	transition: opacity 0.3s ease;
-	background: transparent;
+.vaultman-island-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  /* Behind everything within viewport */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: transparent;
 }
 
-.obsiman-island-backdrop.is-open {
-	pointer-events: auto;
-	opacity: 1;
+.vaultman-island-backdrop.is-open {
+  pointer-events: auto;
+  opacity: 1;
 }
 
-.obsiman-island-backdrop::before {
-	content: "";
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	/* Start at bottom of viewport */
-	height: var(--obsiman-nav-height, 64px);
-	background: color-mix(in srgb, var(--background-secondary) 40%, transparent);
-	backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
-	-webkit-backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
-	transition: height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-	-webkit-mask-image: linear-gradient(to top, black 50%, transparent 100%);
-	mask-image: linear-gradient(to top, black 50%, transparent 100%);
-	border-top: 1px solid var(--background-modifier-border);
+.vaultman-island-backdrop::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  /* Start at bottom of viewport */
+  height: var(--vaultman-nav-height, 64px);
+  background: color-mix(in srgb, var(--background-secondary) 40%, transparent);
+  backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
+  transition: height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  -webkit-mask-image: linear-gradient(to top, black 50%, transparent 100%);
+  mask-image: linear-gradient(to top, black 50%, transparent 100%);
+  border-top: 1px solid var(--background-modifier-border);
 }
 
-.obsiman-island-backdrop.is-open::before {
-	/* Covers slightly more than the island max-height (60vh) */
-	height: 75vh;
+.vaultman-island-backdrop.is-open::before {
+  /* Covers slightly more than the island max-height (60vh) */
+  height: 75vh;
 }
 
-.obsiman-bottom-nav {
+.vaultman-bottom-nav {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -1946,36 +1947,36 @@ body.obsiman-bases-column-separators table th {
 }
 
 /* Responsive nav — collapses to slim bar when frame is very narrow */
-.obsiman-bottom-nav.is-bar-collapsed {
+.vaultman-bottom-nav.is-bar-collapsed {
   height: 8px;
   overflow: hidden;
   cursor: pointer;
 }
 
-.obsiman-bottom-nav.is-bar-collapsed .obsiman-nav-pill,
-.obsiman-bottom-nav.is-bar-collapsed .obsiman-nav-fab,
-.obsiman-bottom-nav.is-bar-collapsed .obsiman-nav-fab-placeholder {
+.vaultman-bottom-nav.is-bar-collapsed .vaultman-nav-pill,
+.vaultman-bottom-nav.is-bar-collapsed .vaultman-nav-fab,
+.vaultman-bottom-nav.is-bar-collapsed .vaultman-nav-fab-placeholder {
   opacity: 0;
   pointer-events: none;
   transform: translateY(15px) scale(0.9);
 }
 
 /* Expand animation when collapsed bar is clicked */
-.obsiman-bottom-nav.is-bar-expanding {
+.vaultman-bottom-nav.is-bar-expanding {
   transition: height 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  height: var(--obsiman-nav-height, 64px);
+  height: var(--vaultman-nav-height, 64px);
 }
 
 /* Glass system — glassmorphism shared across bottom bar and popups */
 
 /* Surface: shared visual appearance for all glass elements */
-.obsiman-glass {
-  backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
-  -webkit-backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
+.vaultman-glass {
+  backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
 }
 
 /* Bottom bar: fixed strip at the bottom of the plugin frame */
-.obsiman-glass--bottom {
+.vaultman-glass--bottom {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -1984,41 +1985,41 @@ body.obsiman-bases-column-separators table th {
 }
 
 /* Disable main blur on container so children (Pill/FAB) don't get clipped/masked */
-.obsiman-glass.obsiman-glass--bottom {
+.vaultman-glass.vaultman-glass--bottom {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   background: transparent;
 }
 
 /* Pseudo-element strictly for the fading gradient background */
-.obsiman-glass.obsiman-glass--bottom::before {
+.vaultman-glass.vaultman-glass--bottom::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
-  -webkit-backdrop-filter: blur(var(--obsiman-glass-blur, 12px));
+  backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
   mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
 }
 
 /* Full frame overlay: covers the entire plugin (blocked state) */
-.obsiman-glass--full {
+.vaultman-glass--full {
   position: absolute;
   inset: 0;
   z-index: 100;
 }
 
 /* Content area overlay: covers only the tab content (active filters backdrop) */
-.obsiman-glass--content {
+.vaultman-glass--content {
   position: absolute;
   inset: 0;
   z-index: 10;
 }
 
 /* Frosted glass pill containing page icons */
-.obsiman-nav-pill {
+.vaultman-nav-pill {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -2033,7 +2034,7 @@ body.obsiman-bases-column-separators table th {
 }
 
 /* Individual icon nav items inside pill */
-.obsiman-nav-icon {
+.vaultman-nav-icon {
   overflow: visible;
   /* ensure badge is not clipped */
   width: 2em;
@@ -2048,24 +2049,24 @@ body.obsiman-bases-column-separators table th {
   flex-shrink: 0;
 }
 
-.obsiman-nav-icon:hover {
+.vaultman-nav-icon:hover {
   color: var(--text-normal);
   background: var(--background-modifier-hover);
 }
 
-.obsiman-nav-icon.is-active {
+.vaultman-nav-icon.is-active {
   color: var(--color-accent);
   background: color-mix(in srgb, var(--color-accent) 12%, transparent);
   box-shadow: 0 0 10px color-mix(in srgb, var(--color-accent) 40%, transparent);
 }
 
-.obsiman-nav-icon svg {
+.vaultman-nav-icon svg {
   width: 1em;
   height: 1em;
 }
 
 /* Badge on nav icon (queue / filter count) */
-.obsiman-nav-dot-badge {
+.vaultman-nav-dot-badge {
   position: absolute;
   top: 0.25em;
   right: 0.25em;
@@ -2084,24 +2085,24 @@ body.obsiman-bases-column-separators table th {
 }
 
 /* Navbar reorder mode */
-.obsiman-nav-pill.is-reordering {
+.vaultman-nav-pill.is-reordering {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
-.obsiman-nav-pill.is-reordering .obsiman-nav-icon {
+.vaultman-nav-pill.is-reordering .vaultman-nav-icon {
   cursor: grab;
   opacity: 0.75;
 }
 
-.obsiman-nav-icon.is-reorder-target {
+.vaultman-nav-icon.is-reorder-target {
   background: color-mix(in srgb, var(--color-accent) 25%, transparent);
   border-radius: 50%;
   opacity: 1;
 }
 
 /* Floating action buttons — filled with accent color */
-.obsiman-nav-fab {
+.vaultman-nav-fab {
   width: 2.25em;
   height: 2.25em;
   border-radius: 50%;
@@ -2117,25 +2118,25 @@ body.obsiman-bases-column-separators table th {
   pointer-events: auto;
 }
 
-.obsiman-nav-fab:hover {
+.vaultman-nav-fab:hover {
   opacity: 0.85;
   transform: scale(1.05);
 }
 
-.obsiman-nav-fab svg {
+.vaultman-nav-fab svg {
   width: 1em;
   height: 1em;
 }
 
 /* Invisible placeholder to keep pill centered when one FAB is absent */
-.obsiman-nav-fab-placeholder {
+.vaultman-nav-fab-placeholder {
   width: 2.25em;
   height: 2.25em;
   flex-shrink: 0;
 }
 
 /* === Files page === */
-.obsiman-files-topbar {
+.vaultman-files-topbar {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -2143,7 +2144,7 @@ body.obsiman-bases-column-separators table th {
   flex-shrink: 0;
 }
 
-.obsiman-sidebar-stats {
+.vaultman-sidebar-stats {
   flex: 1;
   font-size: var(--font-ui-smaller);
   color: var(--text-muted);
@@ -2152,7 +2153,7 @@ body.obsiman-bases-column-separators table th {
   text-overflow: ellipsis;
 }
 
-.obsiman-active-filters-btn {
+.vaultman-active-filters-btn {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -2166,16 +2167,16 @@ body.obsiman-bases-column-separators table th {
   transition: border-color 0.12s, color 0.12s;
 }
 
-.obsiman-active-filters-btn:hover {
+.vaultman-active-filters-btn:hover {
   border-color: var(--color-accent);
   color: var(--text-normal);
 }
 
-.obsiman-active-filters-label {
+.vaultman-active-filters-label {
   font-size: var(--font-ui-smaller);
 }
 
-.obsiman-files-toggle-row {
+.vaultman-files-toggle-row {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -2185,14 +2186,14 @@ body.obsiman-bases-column-separators table th {
   color: var(--text-muted);
 }
 
-.obsiman-file-list-container {
+.vaultman-file-list-container {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
 }
 
 /* === Filters page === */
-.obsiman-filter-buttons {
+.vaultman-filter-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
@@ -2201,7 +2202,7 @@ body.obsiman-bases-column-separators table th {
 }
 
 /* === Unified tab bar — shared by Ops and Filters pages === */
-.obsiman-tab-bar {
+.vaultman-tab-bar {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2211,11 +2212,11 @@ body.obsiman-bases-column-separators table th {
   overflow-x: auto;
 }
 
-.obsiman-tab-bar.has-labels {
+.vaultman-tab-bar.has-labels {
   gap: var(--size-4-2, 8px);
 }
 
-.obsiman-tab {
+.vaultman-tab {
   /* Inherits theme base from nav-action-button */
   display: flex;
   align-items: center;
@@ -2230,17 +2231,17 @@ body.obsiman-bases-column-separators table th {
   transition: color 0.12s, border-color 0.12s;
 }
 
-.obsiman-tab:hover {
+.vaultman-tab:hover {
   color: var(--text-normal);
 }
 
-.obsiman-tab.is-active {
+.vaultman-tab.is-active {
   color: var(--text-normal);
   border-bottom-color: var(--color-accent);
   font-weight: 500;
 }
 
-.obsiman-tab-icon {
+.vaultman-tab-icon {
   display: flex;
   align-items: center;
   width: 14px;
@@ -2248,18 +2249,18 @@ body.obsiman-bases-column-separators table th {
   flex-shrink: 0;
 }
 
-.obsiman-tab-icon svg {
+.vaultman-tab-icon svg {
   width: 14px;
   height: 14px;
 }
 
 @container (max-width: 220px) {
-  .obsiman-tab-label {
+  .vaultman-tab-label {
     display: none;
   }
 }
 
-.obsiman-tab-area {
+.vaultman-tab-area {
   flex: 1;
   position: relative;
   overflow: hidden;
@@ -2268,13 +2269,13 @@ body.obsiman-bases-column-separators table th {
 
 /* ─── Filters page ──────────────────────────────────────────────────────── */
 
-/* Hack to completely remove strict inner padding on ObsiMan view, allowing full height sweep */
-.workspace-leaf-content[data-type="obsiman-view"] .view-content,
-.workspace-leaf-content[data-type="obsiman-frame"] .view-content {
+/* Hack to completely remove strict inner padding on vaultman view, allowing full height sweep */
+.workspace-leaf-content[data-type="vaultman-view"] .view-content,
+.workspace-leaf-content[data-type="vaultman-frame"] .view-content {
   padding: 0 !important;
 }
 
-.obsiman-pages-viewport {
+.vaultman-pages-viewport {
   position: relative;
   width: 100%;
   height: 100%;
@@ -2283,17 +2284,19 @@ body.obsiman-bases-column-separators table th {
   flex-direction: column;
 }
 
-.obsiman-page-container {
+.vaultman-page-container {
   display: flex;
   height: 100%;
-  width: 300%; /* 3 pages */
+  width: 300%;
+  /* 3 pages */
   will-change: transform;
 }
 
-.obsiman-page {
+.vaultman-page {
   display: flex;
   flex-direction: column;
-  width: 100%; /* Each page takes full viewport width */
+  width: 100%;
+  /* Each page takes full viewport width */
   height: 100%;
   flex-shrink: 0;
 }
@@ -2301,7 +2304,7 @@ body.obsiman-bases-column-separators table th {
 
 
 /* ─── Filters header (above tabbar) ───────────────────────────────────────── */
-.obsiman-filters-header {
+.vaultman-filters-header {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -2309,7 +2312,7 @@ body.obsiman-bases-column-separators table th {
   flex-shrink: 0;
 }
 
-.obsiman-filters-header-btn {
+.vaultman-filters-header-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2325,17 +2328,17 @@ body.obsiman-bases-column-separators table th {
   transition: background 0.12s, color 0.12s;
 }
 
-.obsiman-filters-header-btn:hover {
-  background: var(--obsiman-bg-hover);
+.vaultman-filters-header-btn:hover {
+  background: var(--vaultman-bg-hover);
   color: var(--text-normal);
 }
 
-.obsiman-filters-header-btn svg {
+.vaultman-filters-header-btn svg {
   width: 15px;
   height: 15px;
 }
 
-.obsiman-filters-header-search-pill {
+.vaultman-filters-header-search-pill {
   flex: 1;
   display: flex;
   align-items: center;
@@ -2348,11 +2351,11 @@ body.obsiman-bases-column-separators table th {
   transition: border-color 0.12s;
 }
 
-.obsiman-filters-header-search-pill:focus-within {
+.vaultman-filters-header-search-pill:focus-within {
   border-color: var(--color-accent);
 }
 
-input.obsiman-filters-search-input {
+input.vaultman-filters-search-input {
   flex: 1;
   border: none !important;
   background: transparent !important;
@@ -2371,21 +2374,21 @@ input.obsiman-filters-search-input {
   border-radius: 0 !important;
 }
 
-input.obsiman-filters-search-input::-webkit-search-cancel-button,
-input.obsiman-filters-search-input::-webkit-search-decoration,
-input.obsiman-filters-search-input::-webkit-search-results-button,
-input.obsiman-filters-search-input::-webkit-search-results-decoration {
+input.vaultman-filters-search-input::-webkit-search-cancel-button,
+input.vaultman-filters-search-input::-webkit-search-decoration,
+input.vaultman-filters-search-input::-webkit-search-results-button,
+input.vaultman-filters-search-input::-webkit-search-results-decoration {
   display: none !important;
   appearance: none !important;
   -webkit-appearance: none !important;
 }
 
-.obsiman-filters-search-input::placeholder {
+.vaultman-filters-search-input::placeholder {
   color: var(--text-faint);
 }
 
-.obsiman-filters-search-clear,
-.obsiman-filters-search-mode {
+.vaultman-filters-search-clear,
+.vaultman-filters-search-mode {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2401,19 +2404,19 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   transition: opacity 0.15s, color 0.15s;
 }
 
-.obsiman-filters-search-clear:hover,
-.obsiman-filters-search-mode:hover {
+.vaultman-filters-search-clear:hover,
+.vaultman-filters-search-mode:hover {
   opacity: 1;
   color: var(--text-normal);
 }
 
-.obsiman-filters-search-clear svg,
-.obsiman-filters-search-mode svg {
+.vaultman-filters-search-clear svg,
+.vaultman-filters-search-mode svg {
   width: 14px;
   height: 14px;
 }
 
-.obsiman-filters-explorer-wrap {
+.vaultman-filters-explorer-wrap {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -2438,7 +2441,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* ─── Search result highlight pulse animation ─────────────────────────────── */
-@keyframes obsiman-search-pulse {
+@keyframes vaultman-search-pulse {
   0% {
     background-color: transparent;
   }
@@ -2452,17 +2455,17 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   }
 }
 
-.obsiman-search-highlight {
-  animation: obsiman-search-pulse 0.8s ease-out;
+.vaultman-search-highlight {
+  animation: vaultman-search-pulse 0.8s ease-out;
 }
 
-.obsiman-filters-view-panel {
+.vaultman-filters-view-panel {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
   right: 0;
   background: var(--background-primary);
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
   border-radius: var(--radius-m);
   padding: 10px;
   z-index: 100;
@@ -2472,19 +2475,19 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
-.obsiman-view-panel-section {
+.vaultman-view-panel-section {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.obsiman-view-panel-label {
+.vaultman-view-panel-label {
   font-size: var(--font-ui-small);
   color: var(--text-muted);
   font-weight: 600;
 }
 
-.obsiman-view-panel-option {
+.vaultman-view-panel-option {
   padding: 4px 8px;
   border-radius: var(--radius-s);
   cursor: pointer;
@@ -2492,17 +2495,17 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   color: var(--text-muted);
 }
 
-.obsiman-view-panel-option:hover {
+.vaultman-view-panel-option:hover {
   background: var(--background-modifier-hover);
   color: var(--text-normal);
 }
 
-.obsiman-view-panel-option.is-active {
+.vaultman-view-panel-option.is-active {
   color: var(--color-accent);
   font-weight: 600;
 }
 
-.obsiman-view-panel-check {
+.vaultman-view-panel-check {
   display: flex;
   align-items: flex-start;
   gap: 6px;
@@ -2510,7 +2513,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   cursor: pointer;
 }
 
-.obsiman-tab-content {
+.vaultman-tab-content {
   position: absolute;
   inset: 0;
   display: flex;
@@ -2521,13 +2524,13 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   transition: opacity 0.18s ease;
 }
 
-.obsiman-tab-content.is-active {
+.vaultman-tab-content.is-active {
   opacity: 1;
   pointer-events: auto;
 }
 
 /* File Ops tab */
-.obsiman-ops-buttons {
+.vaultman-ops-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
@@ -2535,18 +2538,18 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   flex-shrink: 0;
 }
 
-.obsiman-btn-icon {
+.vaultman-btn-icon {
   display: inline-flex;
   vertical-align: middle;
   margin-right: 3px;
 }
 
-.obsiman-btn-icon svg {
+.vaultman-btn-icon svg {
   width: 13px;
   height: 13px;
 }
 
-.obsiman-queue-actions {
+.vaultman-queue-actions {
   display: flex;
   gap: 4px;
   padding: 6px 0 2px;
@@ -2554,7 +2557,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* Linter tab */
-.obsiman-linter-desc {
+.vaultman-linter-desc {
   font-size: var(--font-ui-smaller);
   color: var(--text-muted);
   margin-bottom: 10px;
@@ -2562,7 +2565,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* Coming soon tab */
-.obsiman-coming-soon {
+.vaultman-coming-soon {
   font-size: var(--font-ui-smaller);
   color: var(--text-faint);
   padding: 24px 0;
@@ -2571,7 +2574,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* === Popup overlay — slides up from bottom with spring === */
-.obsiman-popup-overlay {
+.vaultman-popup-overlay {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
@@ -2586,18 +2589,18 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   transition: opacity 0.2s ease;
 }
 
-.obsiman-popup-overlay.is-open {
+.vaultman-popup-overlay.is-open {
   opacity: 1;
 }
 
-.obsiman-popup-overlay.is-hidden {
+.vaultman-popup-overlay.is-hidden {
   display: none;
 }
 
-.obsiman-popup-content {
+.vaultman-popup-content {
   background: var(--background-primary);
   border-radius: var(--radius-m) var(--radius-m) 0 0;
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
   border-bottom: none;
   position: absolute;
   bottom: 0;
@@ -2610,18 +2613,18 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   overflow-y: auto;
 }
 
-.obsiman-popup-overlay.is-open .obsiman-popup-content {
+.vaultman-popup-overlay.is-open .vaultman-popup-content {
   transform: translateY(0);
 }
 
 /* Squircle action buttons */
-.obsiman-squircle-row {
+.vaultman-squircle-row {
   display: flex;
   gap: 8px;
   margin-bottom: 10px;
 }
 
-.obsiman-squircle {
+.vaultman-squircle {
   width: 36px;
   height: 36px;
   border-radius: 10px;
@@ -2635,7 +2638,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   flex-shrink: 0;
 }
 
-.obsiman-squircle:hover {
+.vaultman-squircle:hover {
   background: rgba(var(--mono-rgb-100), 0.1);
   color: var(--text-normal);
   backdrop-filter: blur(8px);
@@ -2643,13 +2646,13 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   border: 1px solid rgba(var(--mono-rgb-100), 0.2);
 }
 
-.obsiman-squircle-reserved {
+.vaultman-squircle-reserved {
   opacity: 0.4;
   cursor: not-allowed;
 }
 
 /* Active filter rule rows */
-.obsiman-active-filters-list {
+.vaultman-active-filters-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -2657,7 +2660,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   overflow-y: auto;
 }
 
-.obsiman-active-filter-rule {
+.vaultman-active-filter-rule {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -2666,11 +2669,11 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   background: var(--background-secondary);
 }
 
-.obsiman-active-filter-rule.is-disabled {
+.vaultman-active-filter-rule.is-disabled {
   opacity: 0.45;
 }
 
-.obsiman-active-filter-rule-text {
+.vaultman-active-filter-rule-text {
   flex: 1;
   font-size: var(--font-ui-small);
   overflow: hidden;
@@ -2678,7 +2681,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   white-space: nowrap;
 }
 
-.obsiman-active-filter-toggle {
+.vaultman-active-filter-toggle {
   width: 18px;
   height: 18px;
   border-radius: 50%;
@@ -2687,48 +2690,48 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   cursor: pointer;
 }
 
-.obsiman-active-filter-rule:not(.is-disabled) .obsiman-active-filter-toggle {
+.vaultman-active-filter-rule:not(.is-disabled) .vaultman-active-filter-toggle {
   background: var(--color-accent);
 }
 
-.obsiman-active-filter-delete {
+.vaultman-active-filter-delete {
   flex-shrink: 0;
   color: var(--text-muted);
 }
 
-.obsiman-active-filters-empty {
+.vaultman-active-filters-empty {
   font-size: var(--font-ui-small);
   color: var(--text-muted);
   padding: 8px;
   text-align: center;
 }
 
-.obsiman-popup-header {
+.vaultman-popup-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 10px;
 }
 
-.obsiman-popup-title {
+.vaultman-popup-title {
   font-size: var(--font-ui-small);
   font-weight: 600;
 }
 
-.obsiman-popup-actions {
+.vaultman-popup-actions {
   display: flex;
   gap: 6px;
   margin-top: 10px;
   flex-wrap: wrap;
 }
 
-.obsiman-popup-filter-tree {
+.vaultman-popup-filter-tree {
   max-height: 180px;
   overflow-y: auto;
 }
 
 /* Scope tab description */
-.obsiman-scope-desc {
+.vaultman-scope-desc {
   font-size: var(--font-ui-smaller);
   color: var(--text-muted);
   margin-bottom: 8px;
@@ -2736,13 +2739,13 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* Scope popup / tab */
-.obsiman-scope-list {
+.vaultman-scope-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.obsiman-scope-item {
+.vaultman-scope-item {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2754,34 +2757,34 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   transition: background 0.1s, border-color 0.1s;
 }
 
-.obsiman-scope-item:hover {
+.vaultman-scope-item:hover {
   background: var(--background-modifier-hover);
 }
 
-.obsiman-scope-item.is-active {
+.vaultman-scope-item.is-active {
   border-color: var(--color-accent);
   background: var(--background-modifier-hover);
 }
 
-.obsiman-scope-icon {
+.vaultman-scope-icon {
   display: inline-flex;
   color: var(--text-muted);
 }
 
-.obsiman-scope-icon svg {
+.vaultman-scope-icon svg {
   width: 15px;
   height: 15px;
 }
 
 /* Disabled scope/view-mode item */
-.obsiman-scope-item.is-disabled {
+.vaultman-scope-item.is-disabled {
   opacity: 0.45;
   cursor: not-allowed;
   pointer-events: none;
 }
 
 /* Coming soon badge inside a disabled item */
-.obsiman-coming-soon-badge {
+.vaultman-coming-soon-badge {
   margin-left: auto;
   font-size: 9px;
   font-weight: 600;
@@ -2794,14 +2797,14 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* Search popup inputs */
-.obsiman-search-fields {
+.vaultman-search-fields {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-top: 4px;
 }
 
-.obsiman-search-input {
+.vaultman-search-input {
   width: 100%;
   padding: 6px 8px;
   border-radius: var(--radius-s);
@@ -2812,13 +2815,13 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   box-sizing: border-box;
 }
 
-.obsiman-search-input:focus {
+.vaultman-search-input:focus {
   outline: none;
   border-color: var(--color-accent);
 }
 
 /* Active filters count badge on the filter button */
-.obsiman-active-filters-count {
+.vaultman-active-filters-count {
   margin-left: 4px;
   min-width: 16px;
   height: 16px;
@@ -2834,14 +2837,14 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* === Settings — drag-and-drop page order list === */
-.obsiman-page-order-list {
+.vaultman-page-order-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
   margin: 8px 0 12px;
 }
 
-.obsiman-page-order-row {
+.vaultman-page-order-row {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -2854,29 +2857,29 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   transition: background 0.12s, border-color 0.12s, transform 0.1s;
 }
 
-.obsiman-page-order-row:hover {
+.vaultman-page-order-row:hover {
   background: var(--background-modifier-hover);
 }
 
-.obsiman-page-order-row.is-dragging {
+.vaultman-page-order-row.is-dragging {
   opacity: 0.45;
   cursor: grabbing;
 }
 
-.obsiman-page-order-row.drag-over {
+.vaultman-page-order-row.drag-over {
   border-color: var(--color-accent);
   background: var(--background-modifier-hover);
   transform: scale(1.01);
 }
 
-.obsiman-page-order-handle {
+.vaultman-page-order-handle {
   color: var(--text-faint);
   display: flex;
   align-items: center;
   flex-shrink: 0;
 }
 
-.obsiman-page-order-pos {
+.vaultman-page-order-pos {
   font-size: var(--font-ui-smaller);
   font-weight: 600;
   color: var(--text-faint);
@@ -2885,7 +2888,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   flex-shrink: 0;
 }
 
-.obsiman-page-order-label {
+.vaultman-page-order-label {
   font-size: var(--font-ui-small);
   color: var(--text-normal);
   flex: 1;
@@ -2895,7 +2898,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
    Main view — 3-section layout (Filters | Grid | Ops)
    ============================================================ */
 
-.obsiman-main-layout {
+.vaultman-main-layout {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -2903,7 +2906,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* Section shell */
-.obsiman-main-section {
+.vaultman-main-section {
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid var(--background-modifier-border);
@@ -2912,13 +2915,13 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* Grid section grows to fill remaining space */
-.obsiman-main-grid {
+.vaultman-main-grid {
   flex: 1;
   min-height: 0;
 }
 
 /* Section header row */
-.obsiman-main-section-header {
+.vaultman-main-section-header {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -2928,12 +2931,12 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.obsiman-main-section-toggle {
+.vaultman-main-section-toggle {
   color: var(--text-muted);
   flex-shrink: 0;
 }
 
-.obsiman-main-section-title {
+.vaultman-main-section-title {
   font-size: var(--font-ui-small);
   font-weight: 600;
   color: var(--text-muted);
@@ -2941,7 +2944,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   letter-spacing: 0.04em;
 }
 
-.obsiman-main-badge {
+.vaultman-main-badge {
   font-size: var(--font-ui-smaller);
   font-weight: 600;
   background: var(--color-accent);
@@ -2952,20 +2955,20 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   text-align: center;
 }
 
-.obsiman-main-stats {
+.vaultman-main-stats {
   flex: 1;
   font-size: var(--font-ui-smaller);
   color: var(--text-muted);
 }
 
-.obsiman-main-section-actions {
+.vaultman-main-section-actions {
   display: flex;
   gap: 4px;
   margin-left: auto;
 }
 
 /* Section body — scrolls if collapsed */
-.obsiman-main-section-body {
+.vaultman-main-section-body {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
@@ -2973,20 +2976,20 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* Grid body — no extra padding, grid manages its own scroll */
-.obsiman-main-grid-body {
+.vaultman-main-grid-body {
   flex: 1;
   overflow: hidden;
   min-height: 0;
 }
 
 /* Collapsed sections: show only header */
-.obsiman-main-section.is-collapsed .obsiman-main-section-body,
-.obsiman-main-section.is-collapsed .obsiman-main-ops-body {
+.vaultman-main-section.is-collapsed .vaultman-main-section-body,
+.vaultman-main-section.is-collapsed .vaultman-main-ops-body {
   display: none;
 }
 
 /* Ops body: slightly taller default, component owns layout */
-.obsiman-main-ops-body {
+.vaultman-main-ops-body {
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -2994,19 +2997,19 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 
 /* ─── Content tab — Find & Replace ─────────────────────────────────────── */
 
-.obsiman-content-find-row {
+.vaultman-content-find-row {
   display: flex;
   gap: 4px;
   align-items: center;
   margin-bottom: 6px;
 }
 
-.obsiman-content-find-row .obsiman-search-input {
+.vaultman-content-find-row .vaultman-search-input {
   flex: 1;
   margin-bottom: 0;
 }
 
-.obsiman-icon-toggle {
+.vaultman-icon-toggle {
   background: var(--background-modifier-form-field);
   border: 1px solid var(--background-modifier-border);
   border-radius: var(--radius-s);
@@ -3020,39 +3023,39 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   line-height: 1.4;
 }
 
-.obsiman-icon-toggle.is-active {
+.vaultman-icon-toggle.is-active {
   background: var(--color-accent);
   color: var(--text-on-accent);
   border-color: var(--color-accent);
 }
 
-.obsiman-content-regex-error {
+.vaultman-content-regex-error {
   font-size: var(--font-ui-smaller);
   color: var(--text-error);
   margin: -2px 0 6px;
 }
 
-.obsiman-content-scope-hint {
+.vaultman-content-scope-hint {
   font-size: var(--font-ui-smaller);
   color: var(--text-muted);
   margin: 4px 0 8px;
 }
 
-.obsiman-content-actions {
+.vaultman-content-actions {
   display: flex;
   gap: 6px;
   margin-bottom: 8px;
 }
 
-.obsiman-content-actions .obsiman-btn {
+.vaultman-content-actions .vaultman-btn {
   flex: 1;
 }
 
-.obsiman-content-preview {
+.vaultman-content-preview {
   font-size: var(--font-ui-smaller);
 }
 
-.obsiman-content-preview-header {
+.vaultman-content-preview-header {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -3062,23 +3065,23 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   user-select: none;
 }
 
-.obsiman-preview-chevron {
+.vaultman-preview-chevron {
   color: var(--text-muted);
   font-size: 10px;
 }
 
-.obsiman-content-preview-file {
+.vaultman-content-preview-file {
   color: var(--color-accent);
   margin-top: 4px;
 }
 
-.obsiman-content-preview-snippet {
+.vaultman-content-preview-snippet {
   color: var(--text-muted);
   padding-left: 10px;
   word-break: break-word;
 }
 
-.obsiman-content-preview-snippet mark {
+.vaultman-content-preview-snippet mark {
   background: var(--text-highlight-bg);
   color: var(--text-normal);
   border-radius: 2px;
@@ -3086,7 +3089,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* ─── Property Browser (Filters page Rules tab) ──────────────────────── */
-.obsiman-prop-browser {
+.vaultman-prop-browser {
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -3096,13 +3099,13 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   min-height: 0;
 }
 
-.obsiman-prop-browser-empty {
+.vaultman-prop-browser-empty {
   color: var(--text-muted);
   font-size: var(--font-smallest);
   padding: 8px 4px;
 }
 
-.obsiman-prop-browser-row {
+.vaultman-prop-browser-row {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -3112,11 +3115,11 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   min-height: 28px;
 }
 
-.obsiman-prop-browser-row:hover {
+.vaultman-prop-browser-row:hover {
   background: var(--background-modifier-hover);
 }
 
-.obsiman-prop-browser-expand {
+.vaultman-prop-browser-expand {
   background: none;
   border: none;
   padding: 0;
@@ -3132,12 +3135,12 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   border-radius: 2px;
 }
 
-.obsiman-prop-browser-expand:hover {
+.vaultman-prop-browser-expand:hover {
   color: var(--text-normal);
   background: var(--background-modifier-hover);
 }
 
-.obsiman-prop-browser-name {
+.vaultman-prop-browser-name {
   flex: 1;
   font-size: var(--font-ui-small);
   color: var(--text-normal);
@@ -3146,20 +3149,20 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   text-overflow: ellipsis;
 }
 
-.obsiman-prop-browser-count {
+.vaultman-prop-browser-count {
   font-size: var(--font-smallest);
   color: var(--text-muted);
   flex-shrink: 0;
 }
 
-.obsiman-prop-browser-values {
+.vaultman-prop-browser-values {
   display: flex;
   flex-direction: column;
   gap: 1px;
   padding-left: 20px;
 }
 
-.obsiman-prop-browser-value {
+.vaultman-prop-browser-value {
   padding: 3px 6px;
   font-size: var(--font-ui-small);
   color: var(--text-muted);
@@ -3170,19 +3173,19 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   align-items: center;
 }
 
-.obsiman-prop-browser-value:hover {
+.vaultman-prop-browser-value:hover {
   background: var(--background-modifier-hover);
   color: var(--text-normal);
 }
 
 /* ─── Queue Details — Content Op Snippets ─────────────────────────────── */
-.obsiman-diff-content-section {
+.vaultman-diff-content-section {
   margin-top: 12px;
   border-top: 1px solid var(--background-modifier-border);
   padding-top: 8px;
 }
 
-.obsiman-diff-content-section-title {
+.vaultman-diff-content-section-title {
   font-size: var(--font-ui-small);
   font-weight: 600;
   color: var(--text-muted);
@@ -3191,18 +3194,18 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   letter-spacing: 0.05em;
 }
 
-.obsiman-diff-content-file {
+.vaultman-diff-content-file {
   margin-bottom: 8px;
 }
 
-.obsiman-diff-content-file-path {
+.vaultman-diff-content-file-path {
   font-size: var(--font-ui-small);
   color: var(--text-muted);
   margin-bottom: 4px;
   font-style: italic;
 }
 
-.obsiman-diff-snippet {
+.vaultman-diff-snippet {
   font-family: var(--font-monospace);
   font-size: var(--font-ui-smaller);
   padding: 4px 8px;
@@ -3213,40 +3216,40 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   word-break: break-all;
 }
 
-.obsiman-diff-snippet mark {
-  background: var(--obsiman-diff-deleted);
+.vaultman-diff-snippet mark {
+  background: var(--vaultman-diff-deleted);
   color: inherit;
   border-radius: 2px;
 }
 
-.obsiman-diff-replace-arrow {
+.vaultman-diff-replace-arrow {
   color: var(--text-muted);
   margin: 0 4px;
 }
 
-.obsiman-diff-replace-new {
-  background: var(--obsiman-diff-added);
+.vaultman-diff-replace-new {
+  background: var(--vaultman-diff-added);
   border-radius: 2px;
   padding: 0 2px;
 }
 
-.obsiman-diff-content-no-matches {
+.vaultman-diff-content-no-matches {
   color: var(--text-muted);
   font-size: var(--font-ui-small);
   padding: 2px 8px;
 }
 
 /* === Queue Island === */
-.obsiman-queue-island-wrap {
+.vaultman-queue-island-wrap {
   position: absolute;
-  bottom: calc(var(--obsiman-nav-height, 64px) + 8px);
+  bottom: calc(var(--vaultman-nav-height, 64px) + 8px);
   left: 0;
   right: 0;
   pointer-events: none;
   z-index: 20;
 }
 
-.obsiman-queue-island {
+.vaultman-queue-island {
   pointer-events: auto;
   margin: 0 12px;
   background: var(--background-secondary);
@@ -3264,12 +3267,12 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
     opacity 0.2s ease;
 }
 
-.obsiman-queue-island.is-open {
+.vaultman-queue-island.is-open {
   transform: translateY(0);
   opacity: 1;
 }
 
-.obsiman-queue-island-header {
+.vaultman-queue-island-header {
   font-size: var(--font-ui-smaller);
   font-weight: 500;
   color: var(--text-faint);
@@ -3278,26 +3281,27 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   margin-top: 2px;
 }
 
-.obsiman-queue-island-btns {
+.vaultman-queue-island-btns {
   justify-content: center;
   position: absolute;
-  top: -18px; /* Float above the body */
+  top: -18px;
+  /* Float above the body */
   left: 0;
   right: 0;
   margin-bottom: 0;
   z-index: 10;
 }
 
-.obsiman-squircle.is-accent {
+.vaultman-squircle.is-accent {
   background: var(--interactive-accent);
   color: var(--text-on-accent);
 }
 
-.obsiman-squircle.is-accent:hover {
+.vaultman-squircle.is-accent:hover {
   background: var(--interactive-accent-hover);
 }
 
-.obsiman-queue-island-list {
+.vaultman-queue-island-list {
   overflow-y: auto;
   flex: 1;
   display: flex;
@@ -3306,7 +3310,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   min-height: 80px;
 }
 
-.obsiman-queue-island-row {
+.vaultman-queue-island-row {
   display: flex;
   align-items: baseline;
   gap: 8px;
@@ -3315,24 +3319,24 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   font-size: var(--font-ui-smaller);
 }
 
-.obsiman-queue-island-row:nth-child(odd) {
+.vaultman-queue-island-row:nth-child(odd) {
   background: var(--background-modifier-hover);
 }
 
-.obsiman-queue-island-row-files {
+.vaultman-queue-island-row-files {
   flex-shrink: 0;
   color: var(--color-accent);
   font-weight: 500;
 }
 
-.obsiman-queue-island-row-detail {
+.vaultman-queue-island-row-detail {
   color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.obsiman-queue-island-empty {
+.vaultman-queue-island-empty {
   color: var(--text-faint);
   font-size: var(--font-ui-small);
   text-align: center;
@@ -3341,29 +3345,29 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 
 /* === Grid View — properties as rows, value chips in col 2 === */
 
-.obsiman-explorer-grid {
+.vaultman-explorer-grid {
   overflow-y: auto;
   flex: 1;
 }
 
-.obsiman-grid-table {
+.vaultman-grid-table {
   border-collapse: collapse;
   width: 100%;
   font-size: var(--font-ui-smaller);
 }
 
-.obsiman-grid-td {
+.vaultman-grid-td {
   border-bottom: 1px solid var(--background-modifier-border);
   padding: 5px 8px;
   vertical-align: middle;
 }
 
-.obsiman-grid-row:hover .obsiman-grid-td {
+.vaultman-grid-row:hover .vaultman-grid-td {
   background: var(--background-modifier-hover);
 }
 
 /* Col 1 — property name */
-.obsiman-grid-td-prop {
+.vaultman-grid-td-prop {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -3374,7 +3378,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   padding-right: 12px;
 }
 
-.obsiman-grid-prop-name {
+.vaultman-grid-prop-name {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3382,12 +3386,12 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* Col 2 — value chips */
-.obsiman-grid-td-values {
+.vaultman-grid-td-values {
   width: 100%;
   padding-left: 4px;
 }
 
-.obsiman-grid-value-chip {
+.vaultman-grid-value-chip {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -3401,51 +3405,51 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   transition: background 0.1s, border-color 0.1s;
 }
 
-.obsiman-grid-value-chip:hover {
+.vaultman-grid-value-chip:hover {
   background: var(--interactive-hover);
   border-color: var(--interactive-accent);
 }
 
-.obsiman-grid-value-chip.is-active-filter {
+.vaultman-grid-value-chip.is-active-filter {
   background: var(--interactive-accent);
   color: var(--text-on-accent);
   border-color: var(--interactive-accent);
 }
 
-.obsiman-grid-chip-text {
+.vaultman-grid-chip-text {
   max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.obsiman-grid-chip-count {
+.vaultman-grid-chip-count {
   color: var(--text-muted);
   font-size: 0.85em;
 }
 
-.obsiman-grid-value-chip.is-active-filter .obsiman-grid-chip-count {
+.vaultman-grid-value-chip.is-active-filter .vaultman-grid-chip-count {
   color: var(--text-on-accent);
   opacity: 0.8;
 }
 
 /* === Cards View === */
 
-.obsiman-explorer-cards {
+.vaultman-explorer-cards {
   overflow-y: auto;
   flex: 1;
 }
 
 /* Cards grid — one card per property */
 
-.obsiman-cards-grid {
+.vaultman-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   gap: 8px;
   padding: 8px;
 }
 
-.obsiman-card {
+.vaultman-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3460,17 +3464,17 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   text-align: center;
 }
 
-.obsiman-card:hover {
+.vaultman-card:hover {
   border-color: var(--interactive-accent);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
-.obsiman-card.is-active-filter {
+.vaultman-card.is-active-filter {
   border-color: var(--interactive-accent);
   background: var(--background-modifier-active-hover);
 }
 
-.obsiman-card-icon {
+.vaultman-card-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3480,12 +3484,12 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   flex-shrink: 0;
 }
 
-.obsiman-card-icon svg {
+.vaultman-card-icon svg {
   width: 22px;
   height: 22px;
 }
 
-.obsiman-card-title {
+.vaultman-card-title {
   font-weight: 600;
   font-size: var(--font-ui-small);
   white-space: nowrap;
@@ -3495,7 +3499,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   color: var(--text-normal);
 }
 
-.obsiman-card-stats {
+.vaultman-card-stats {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -3504,11 +3508,11 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   margin-top: 2px;
 }
 
-.obsiman-card-stat-count {
+.vaultman-card-stat-count {
   color: var(--text-muted);
 }
 
-.obsiman-card-stat-type {
+.vaultman-card-stat-type {
   display: flex;
   align-items: center;
   width: 14px;
@@ -3516,14 +3520,14 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   color: var(--text-faint);
 }
 
-.obsiman-card-stat-type svg {
+.vaultman-card-stat-type svg {
   width: 12px;
   height: 12px;
 }
 
 /* Cards drilldown */
 
-.obsiman-cards-drill-topbar {
+.vaultman-cards-drill-topbar {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -3532,7 +3536,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   margin-bottom: 6px;
 }
 
-.obsiman-cards-back {
+.vaultman-cards-back {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3544,12 +3548,12 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   color: var(--text-muted);
 }
 
-.obsiman-cards-back:hover {
+.vaultman-cards-back:hover {
   background: var(--background-modifier-hover);
   color: var(--text-normal);
 }
 
-.obsiman-cards-drill-icon {
+.vaultman-cards-drill-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3559,12 +3563,12 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   flex-shrink: 0;
 }
 
-.obsiman-cards-drill-icon svg {
+.vaultman-cards-drill-icon svg {
   width: 18px;
   height: 18px;
 }
 
-.obsiman-cards-drill-title {
+.vaultman-cards-drill-title {
   font-weight: 600;
   font-size: var(--font-ui-small);
   color: var(--text-normal);
@@ -3575,7 +3579,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* Badge styling */
-.obsiman-badge {
+.vaultman-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3583,70 +3587,87 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   height: 12px;
   padding: 0;
   border-radius: 2px;
-  font-size: 0; /* icon only */
-  color: var(--text-normal); /* Reverted to match request */
+  font-size: 0;
+  /* icon only */
+  color: var(--text-normal);
+  /* Reverted to match request */
   background: transparent;
   border: none;
   flex-shrink: 0;
   transition: transform 0.1s ease, filter 0.1s ease;
 }
 
-.obsiman-badge.is-undoable {
+.vaultman-badge.is-undoable {
   cursor: pointer;
 }
 
-.obsiman-badge.is-undoable:hover {
+.vaultman-badge.is-undoable:hover {
   transform: scale(1.2);
   filter: brightness(1.2);
 }
 
-.obsiman-badge.is-undoable:active {
+.vaultman-badge.is-undoable:active {
   transform: scale(0.9);
 }
 
-.obsiman-badge.is-inherited {
-  opacity: 0.5; /* Subtler for parent-inherited badges */
+.vaultman-badge.is-inherited {
+  opacity: 0.5;
+  /* Subtler for parent-inherited badges */
 }
 
-.obsiman-badge-icon {
+.vaultman-badge-icon {
   display: flex !important;
   width: 10px !important;
   height: 10px !important;
   color: inherit;
 }
 
-.obsiman-badge-icon svg {
+.vaultman-badge-icon svg {
   width: 10px !important;
   height: 10px !important;
 }
 
-.obsiman-badge--blue { color: #007aff; }
-.obsiman-badge--red { color: #ff3b30; }
-.obsiman-badge--purple { color: #af52de; }
-.obsiman-badge--orange { color: #ff9500; }
-.obsiman-badge--green { color: #34c759; }
+.vaultman-badge--blue {
+  color: #007aff;
+}
+
+.vaultman-badge--red {
+  color: #ff3b30;
+}
+
+.vaultman-badge--purple {
+  color: #af52de;
+}
+
+.vaultman-badge--orange {
+  color: #ff9500;
+}
+
+.vaultman-badge--green {
+  color: #34c759;
+}
 
 
 
-.obsiman-tree-count {
+.vaultman-tree-count {
   font-size: 9px;
   color: var(--text-faint);
   opacity: 0.8;
 }
 
-.obsiman-tree-icon + .obsiman-tree-label {
+.vaultman-tree-icon+.vaultman-tree-label {
   margin-left: 2px;
 }
 
 /* FAB Badges — Now glass style instead of accent */
-.obsiman-nav-fab-wrap {
+.vaultman-nav-fab-wrap {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.obsiman-fab-badge {
+.vaultman-fab-badge {
   position: absolute;
   top: -4px;
   right: -4px;
@@ -3665,7 +3686,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   z-index: 5;
   pointer-events: none;
 }
@@ -3673,7 +3694,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 
 /* === Statistics Page === */
 
-.obsiman-statistics-page {
+.vaultman-statistics-page {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3683,7 +3704,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   overflow-y: auto;
 }
 
-.obsiman-statistics-vault-name {
+.vaultman-statistics-vault-name {
   font-size: var(--font-ui-large);
   font-weight: 700;
   color: var(--text-normal);
@@ -3692,28 +3713,28 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* === Statistics Page (Iteration 15) === */
-.obsiman-statistics-page {
+.vaultman-statistics-page {
   display: flex;
   flex-direction: column;
   gap: 16px;
   padding: 16px 12px;
 }
 
-.obsiman-stat-header {
+.vaultman-stat-header {
   display: flex;
   justify-content: center;
 }
 
-.obsiman-stat-scope-pills {
+.vaultman-stat-scope-pills {
   display: flex;
   gap: 4px;
   background: var(--background-modifier-hover);
   padding: 4px;
   border-radius: 999px;
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
 }
 
-.obsiman-stat-scope-pill {
+.vaultman-stat-scope-pill {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -3727,33 +3748,33 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   transition: all 0.2s ease;
 }
 
-.obsiman-stat-scope-pill:hover {
+.vaultman-stat-scope-pill:hover {
   color: var(--text-normal);
 }
 
-.obsiman-stat-scope-pill.is-active {
+.vaultman-stat-scope-pill.is-active {
   background: var(--background-primary);
   color: var(--text-accent);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.obsiman-pill-icon {
+.vaultman-pill-icon {
   display: flex;
   align-items: center;
 }
 
-.obsiman-pill-icon svg {
+.vaultman-pill-icon svg {
   width: 14px;
   height: 14px;
 }
 
-.obsiman-stat-cards-grid {
+.vaultman-stat-cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
 
-.obsiman-stat-card {
+.vaultman-stat-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3761,30 +3782,30 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   gap: 6px;
   padding: 12px 8px;
   background: var(--background-secondary);
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
   border-radius: 12px;
   transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
-.obsiman-stat-card:hover {
-  border-color: var(--card-color, var(--obsiman-accent));
+.vaultman-stat-card:hover {
+  border-color: var(--card-color, var(--vaultman-accent));
   transform: translateY(-2px);
 }
 
-.obsiman-stat-card-icon {
+.vaultman-stat-card-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--card-color, var(--obsiman-accent));
+  color: var(--card-color, var(--vaultman-accent));
   opacity: 0.8;
 }
 
-.obsiman-stat-card-icon svg {
+.vaultman-stat-card-icon svg {
   width: 20px;
   height: 20px;
 }
 
-.obsiman-stat-card-value {
+.vaultman-stat-card-value {
   display: block;
   font-size: 1.1em;
   font-weight: 700;
@@ -3792,7 +3813,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   line-height: 1;
 }
 
-.obsiman-stat-card-label {
+.vaultman-stat-card-label {
   display: block;
   font-size: 0.65em;
   text-transform: uppercase;
@@ -3800,52 +3821,54 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   color: var(--text-faint);
 }
 
-.obsiman-stat-meta-island {
+.vaultman-stat-meta-island {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 12px;
   background: color-mix(in srgb, var(--background-secondary) 50%, transparent);
-  border: 1px solid var(--obsiman-border);
+  border: 1px solid var(--vaultman-border);
   border-radius: 16px;
   backdrop-filter: blur(8px);
 }
 
-.obsiman-stat-meta-item {
+.vaultman-stat-meta-item {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: var(--font-ui-small);
 }
 
-.obsiman-meta-icon {
+.vaultman-meta-icon {
   color: var(--text-muted);
 }
 
-.obsiman-meta-icon svg {
+.vaultman-meta-icon svg {
   width: 14px;
   height: 14px;
 }
 
-.obsiman-meta-label {
+.vaultman-meta-label {
   flex: 1;
   color: var(--text-muted);
 }
 
-.obsiman-meta-value {
+.vaultman-meta-value {
   font-weight: 600;
   color: var(--text-accent);
 }
 
 /* ── Unified Tree ────────────────────────────────── */
-.obsiman-tree-row {
+.vaultman-tree-row {
   position: relative;
   display: flex;
   align-items: center;
   gap: 4px;
   padding: 0 8px;
-  height: 26px;   /* Increased from 24px for vertical separation */
-  margin-bottom: 1px; /* Extra gap */
+  height: 26px;
+  /* Increased from 24px for vertical separation */
+  margin-bottom: 1px;
+  /* Extra gap */
   padding-left: calc(8px + var(--depth, 0) * 16px);
   cursor: pointer;
   border-radius: 4px;
@@ -3853,16 +3876,17 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   box-sizing: border-box;
   overflow: hidden;
   color: var(--text-muted);
-  
+
   /* Sharp UI Fixes */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transform: translateZ(0);
 }
 
-.obsiman-tree-toggle {
+.vaultman-tree-toggle {
   color: var(--text-normal);
-  opacity: 0.35; /* Even darker/more subtle */
+  opacity: 0.35;
+  /* Even darker/more subtle */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3871,7 +3895,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* Vertical hierarchy guideline */
-.obsiman-tree-row::before {
+.vaultman-tree-row::before {
   content: '';
   position: absolute;
   left: calc(var(--depth, 0) * 16px);
@@ -3881,62 +3905,64 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   background-color: var(--background-modifier-border);
   opacity: 0.6;
 }
-.obsiman-tree-row[style*="--depth: 0"]::before,
-.obsiman-tree-row:not([style*="--depth"])::before {
+
+.vaultman-tree-row[style*="--depth: 0"]::before,
+.vaultman-tree-row:not([style*="--depth"])::before {
   display: none;
 }
 
-.obsiman-tree-row:hover {
+.vaultman-tree-row:hover {
   background-color: var(--background-modifier-hover);
   color: var(--text-normal);
 }
 
-.obsiman-tree-row.is-active-filter {
+.vaultman-tree-row.is-active-filter {
   background-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
   color: var(--text-normal);
-  box-shadow: inset 2px 0 0 0 var(--color-accent); /* Inset doesn't push */
+  box-shadow: inset 2px 0 0 0 var(--color-accent);
+  /* Inset doesn't push */
 }
 
-.obsiman-tree-row.is-active-filter :is(.obsiman-tree-toggle, .obsiman-tree-icon, .obsiman-tree-label, .obsiman-tree-count, .obsiman-tree-badge, .obsiman-badge-icon) {
+.vaultman-tree-row.is-active-filter :is(.vaultman-tree-toggle, .vaultman-tree-icon, .vaultman-tree-label, .vaultman-tree-count, .vaultman-tree-badge, .vaultman-badge-icon) {
   opacity: 1;
 }
 
-.obsiman-tree-row.is-deleted-prop,
-.obsiman-tree-row.is-deleted-value,
-.obsiman-tree-row.is-deleted-tag {
+.vaultman-tree-row.is-deleted-prop,
+.vaultman-tree-row.is-deleted-value,
+.vaultman-tree-row.is-deleted-tag {
   color: var(--text-faint) !important;
   opacity: 0.5 !important;
 }
 
-.obsiman-tree-row.is-deleted-prop .obsiman-tree-label,
-.obsiman-tree-row.is-deleted-value .obsiman-tree-label,
-.obsiman-tree-row.is-deleted-tag .obsiman-tree-label {
+.vaultman-tree-row.is-deleted-prop .vaultman-tree-label,
+.vaultman-tree-row.is-deleted-value .vaultman-tree-label,
+.vaultman-tree-row.is-deleted-tag .vaultman-tree-label {
   text-decoration: line-through;
 }
 
-.obsiman-tree-row.is-deleted-prop .obsiman-tree-count,
-.obsiman-tree-row.is-deleted-value .obsiman-tree-count,
-.obsiman-tree-row.is-deleted-tag .obsiman-tree-count {
+.vaultman-tree-row.is-deleted-prop .vaultman-tree-count,
+.vaultman-tree-row.is-deleted-value .vaultman-tree-count,
+.vaultman-tree-row.is-deleted-tag .vaultman-tree-count {
   color: var(--text-faint);
 }
 
-.obsiman-tree-row.is-editing {
-	background: var(--background-modifier-hover);
+.vaultman-tree-row.is-editing {
+  background: var(--background-modifier-hover);
 }
 
-.obsiman-tree-row.is-active-filter .obsiman-tree-count {
+.vaultman-tree-row.is-active-filter .vaultman-tree-count {
   font-weight: 600;
 }
 
-.obsiman-tree-row.is-hidden {
+.vaultman-tree-row.is-hidden {
   display: none;
 }
 
-.obsiman-tree-row.obsiman-badge-warning {
+.vaultman-tree-row.vaultman-badge-warning {
   outline: 1px solid var(--color-yellow);
 }
 
-.obsiman-tree-toggle {
+.vaultman-tree-toggle {
   min-width: 16px;
   flex-shrink: 0;
   display: flex;
@@ -3944,7 +3970,7 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   color: inherit;
 }
 
-.obsiman-tree-icon {
+.vaultman-tree-icon {
   min-width: 16px;
   flex-shrink: 0;
   display: flex;
@@ -3952,30 +3978,30 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   color: inherit;
 }
 
-.obsiman-tree-input {
-	flex: 1;
-	background: var(--background-primary);
-	border: 1px solid var(--color-accent);
-	border-radius: 4px;
-	padding: 1px 4px;
-	margin: -2px 0;
-	height: 20px;
-	font-size: inherit;
-	color: var(--text-normal);
-	font-family: inherit;
+.vaultman-tree-input {
+  flex: 1;
+  background: var(--background-primary);
+  border: 1px solid var(--color-accent);
+  border-radius: 4px;
+  padding: 1px 4px;
+  margin: -2px 0;
+  height: 20px;
+  font-size: inherit;
+  color: var(--text-normal);
+  font-family: inherit;
 }
 
-.obsiman-tree-input:focus {
-	outline: none;
-	box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 20%, transparent);
+.vaultman-tree-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 20%, transparent);
 }
 
 /* Shrink empty icons so they don't consume horizontal space */
-.obsiman-tree-icon:empty {
+.vaultman-tree-icon:empty {
   display: none;
 }
 
-.obsiman-tree-label {
+.vaultman-tree-label {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3985,245 +4011,260 @@ input.obsiman-filters-search-input::-webkit-search-results-decoration {
   color: inherit;
 }
 
-.obsiman-tree-count {
+.vaultman-tree-count {
   flex-shrink: 0;
   font-size: var(--font-ui-smaller);
   color: var(--text-normal);
-  opacity: 0.35; /* Matches caret subtlety */
+  opacity: 0.35;
+  /* Matches caret subtlety */
   background: transparent;
   padding: 0;
 }
 
-.obsiman-tree-children {
+.vaultman-tree-children {
   /* Removed expanding animation to prevent flashy redraws */
   transform-origin: top;
 }
 
-.obsiman-search-highlight {
+.vaultman-search-highlight {
   background-color: color-mix(in srgb, var(--color-accent) 12%, transparent) !important;
   color: var(--text-normal) !important;
   /* Simplified animation: opacity only to avoid sub-pixel blur from translateY */
-  animation: obsiman-fade-in-simple 0.2s ease;
+  animation: vaultman-fade-in-simple 0.2s ease;
 }
 
-@keyframes obsiman-fade-in-simple {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes vaultman-fade-in-simple {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* ── Menu Curator Panel ──────────────────────────────────────────────────── */
-.obsiman-curator-wrap {
-	padding: 12px 16px;
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
+.vaultman-curator-wrap {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.obsiman-curator-title {
-	margin: 0;
-	font-size: var(--font-ui-medium);
-	font-weight: var(--font-semibold);
-	color: var(--text-normal);
+
+.vaultman-curator-title {
+  margin: 0;
+  font-size: var(--font-ui-medium);
+  font-weight: var(--font-semibold);
+  color: var(--text-normal);
 }
-.obsiman-curator-desc {
-	margin: 0;
-	font-size: var(--font-ui-small);
-	color: var(--text-muted);
+
+.vaultman-curator-desc {
+  margin: 0;
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
 }
-.obsiman-curator-list {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
+
+.vaultman-curator-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-.obsiman-curator-empty {
-	color: var(--text-faint);
-	font-size: var(--font-ui-small);
+
+.vaultman-curator-empty {
+  color: var(--text-faint);
+  font-size: var(--font-ui-small);
 }
-.obsiman-curator-rule {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	padding: 6px 8px;
-	border-radius: var(--radius-s);
-	background: var(--obsiman-bg-section);
+
+.vaultman-curator-rule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-s);
+  background: var(--vaultman-bg-section);
 }
-.obsiman-curator-rule-text {
-	flex: 1;
-	font-size: var(--font-ui-small);
-	color: var(--text-normal);
+
+.vaultman-curator-rule-text {
+  flex: 1;
+  font-size: var(--font-ui-small);
+  color: var(--text-normal);
 }
-.obsiman-curator-del-btn {
-	background: transparent;
-	border: none;
-	cursor: pointer;
-	color: var(--text-muted);
-	padding: 2px;
+
+.vaultman-curator-del-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 2px;
 }
-.obsiman-curator-form {
-	display: flex;
-	gap: 8px;
-	align-items: center;
-	flex-wrap: wrap;
+
+.vaultman-curator-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
 }
-.obsiman-curator-input {
-	flex: 1;
-	min-width: 120px;
+
+.vaultman-curator-input {
+  flex: 1;
+  min-width: 120px;
 }
-.obsiman-curator-add-btn {
-	white-space: nowrap;
+
+.vaultman-curator-add-btn {
+  white-space: nowrap;
 }
 
 /* === Island System (Queue & Filters) === */
-.obsiman-queue-island-wrap,
-.obsiman-filters-island-wrap {
-	position: absolute;
-	bottom: calc(var(--obsiman-nav-height, 64px) + 8px);
-	left: 0;
-	right: 0;
-	pointer-events: none;
-	z-index: 40;
+.vaultman-queue-island-wrap,
+.vaultman-filters-island-wrap {
+  position: absolute;
+  bottom: calc(var(--vaultman-nav-height, 64px) + 8px);
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 40;
 }
 
-.obsiman-queue-island,
-.obsiman-active-filters-island {
-	pointer-events: auto;
-	margin: 0 12px;
-	background: var(--background-secondary);
-	border: 1px solid var(--background-modifier-border);
-	border-radius: 16px;
-	padding: 12px;
-	padding-top: 36px;
-	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	max-height: 60vh;
-	transform: translateY(20px);
-	opacity: 0;
-	transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+.vaultman-queue-island,
+.vaultman-active-filters-island {
+  pointer-events: auto;
+  margin: 0 12px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 16px;
+  padding: 12px;
+  padding-top: 36px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 60vh;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
 }
 
-.obsiman-queue-island.is-open,
-.obsiman-active-filters-island.is-open {
-	transform: translateY(0);
-	opacity: 1;
+.vaultman-queue-island.is-open,
+.vaultman-active-filters-island.is-open {
+  transform: translateY(0);
+  opacity: 1;
 }
 
-.obsiman-squircle-row {
-	position: absolute;
-	top: -22px;
-	left: 0;
-	right: 0;
-	display: flex;
-	justify-content: center;
-	gap: 12px;
-	z-index: 110;
-	pointer-events: none;
+.vaultman-squircle-row {
+  position: absolute;
+  top: -22px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  z-index: 110;
+  pointer-events: none;
 }
 
-.obsiman-squircle {
-	pointer-events: auto;
-	width: 44px;
-	height: 44px;
-	border-radius: 12px;
-	background: var(--background-secondary);
-	border: 1px solid var(--background-modifier-border);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-	cursor: pointer;
-	color: var(--text-muted);
-	transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s;
+.vaultman-squircle {
+  pointer-events: auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s;
 }
 
-.obsiman-squircle:hover {
-	transform: scale(1.1);
-	background: var(--background-modifier-hover);
-	color: var(--text-normal);
+.vaultman-squircle:hover {
+  transform: scale(1.1);
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
 }
 
-.obsiman-squircle.is-accent {
-	background: var(--color-accent);
-	color: var(--text-on-accent);
-	border-color: transparent;
+.vaultman-squircle.is-accent {
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+  border-color: transparent;
 }
 
 /* Island Content Layouts */
-.obsiman-queue-island-header,
-.obsiman-active-filters-island-header {
-	font-size: var(--font-ui-smaller);
-	font-weight: 700;
-	color: var(--text-faint);
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	margin-bottom: 8px;
-	text-align: center;
-	padding-bottom: 4px;
-	border-bottom: 1px solid var(--background-modifier-border);
+.vaultman-queue-island-header,
+.vaultman-active-filters-island-header {
+  font-size: var(--font-ui-smaller);
+  font-weight: 700;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  text-align: center;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.obsiman-queue-island-list,
-.obsiman-active-filters-island-list {
-	overflow-y: auto;
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-	min-height: 80px;
+.vaultman-queue-island-list,
+.vaultman-active-filters-island-list {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 80px;
 }
 
-.obsiman-queue-island-row,
-.obsiman-active-filter-island-row {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	padding: 6px 10px;
-	border-radius: 6px;
-	font-size: var(--font-ui-smaller);
+.vaultman-queue-island-row,
+.vaultman-active-filter-island-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: var(--font-ui-smaller);
 }
 
-.obsiman-queue-island-row:nth-child(odd),
-.obsiman-active-filters-island-list .obsiman-active-filter-island-row:nth-child(odd) {
-	background: var(--background-modifier-hover);
+.vaultman-queue-island-row:nth-child(odd),
+.vaultman-active-filters-island-list .vaultman-active-filter-island-row:nth-child(odd) {
+  background: var(--background-modifier-hover);
 }
 
-.obsiman-queue-island-row-files {
-	flex-shrink: 0;
-	color: var(--color-accent);
-	font-weight: 500;
+.vaultman-queue-island-row-files {
+  flex-shrink: 0;
+  color: var(--color-accent);
+  font-weight: 500;
 }
 
-.obsiman-queue-island-row-detail,
-.obsiman-active-filter-row-text {
-	flex: 1;
-	color: var(--text-muted);
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+.vaultman-queue-island-row-detail,
+.vaultman-active-filter-row-text {
+  flex: 1;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.obsiman-active-filter-row-actions {
-	display: flex;
-	gap: 4px;
+.vaultman-active-filter-row-actions {
+  display: flex;
+  gap: 4px;
 }
 
-.obsiman-queue-island-empty,
-.obsiman-active-filters-island-empty {
-	color: var(--text-faint);
-	font-size: var(--font-ui-small);
-	text-align: center;
-	padding: 12px 0;
+.vaultman-queue-island-empty,
+.vaultman-active-filters-island-empty {
+  color: var(--text-faint);
+  font-size: var(--font-ui-small);
+  text-align: center;
+  padding: 12px 0;
 }
 
 /* Fix node badges overlapping count */
-.obsiman-tree-badge-zone {
+.vaultman-tree-badge-zone {
   display: flex;
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
 }
 
-.obsiman-tree-count {
+.vaultman-tree-count {
   margin-left: 2px;
 }
-
