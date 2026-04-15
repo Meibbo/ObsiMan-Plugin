@@ -1,4 +1,4 @@
-import type { Language } from '../types/settings';
+import type { Language } from '../types/typeSettings';
 import { en } from './en';
 import { es } from './es';
 

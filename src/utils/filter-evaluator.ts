@@ -1,6 +1,6 @@
 import { getAllTags } from 'obsidian';
 import type { TFile, CachedMetadata } from 'obsidian';
-import type { FilterNode, FilterGroup, FilterRule } from '../types/filter';
+import type { FilterNode, FilterGroup, FilterRule } from '../types/typeFilter';
 
 /**
  * Metadata accessor — wraps how we get frontmatter for a file.
