@@ -80,12 +80,15 @@
   <div class="vaultman-filters-header-wrap">
     {#if headerMode === "header"}
       <div class="vaultman-filters-header">
-        <button
+        <div
           class="vaultman-nav-fab"
+          role="button"
+          tabindex="0"
           aria-label={translate("filter.viewmode_btn")}
           onclick={openViewModePopup}
+          onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') openViewModePopup(); }}
           use:icon={"lucide-layout-list"}
-        ></button>
+        ></div>
         <div class="vaultman-filters-header-search-pill">
           <input
             class="vaultman-filters-search-input"
@@ -107,12 +110,15 @@
             onclick={cycleSearchCategory}
           ></button>
         </div>
-        <button
+        <div
           class="vaultman-nav-fab"
+          role="button"
+          tabindex="0"
           aria-label={translate("filter.sort_btn")}
           onclick={openSortPopup}
+          onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') openSortPopup(); }}
           use:icon={"lucide-arrow-up-down"}
-        ></button>
+        ></div>
       </div>
     {:else if headerMode === "sort"}
       <div class="vaultman-filters-popup-slot"
