@@ -25,6 +25,8 @@ export class TagsExplorerPanel extends Component {
 	private searchTerm = '';
 	private searchMode: 'all' | 'leaf' = 'all';
 	private editingId: string | null = null;
+	private sortBy: string = 'name';
+	private sortDir: 'asc' | 'desc' = 'asc';
 
 	constructor(containerEl: HTMLElement, plugin: PanelPluginCtx) {
 		super();
@@ -103,6 +105,21 @@ export class TagsExplorerPanel extends Component {
 		this._render();
 	}
 
+	setSortBy(sortBy: string, direction: 'asc' | 'desc'): void {
+		this.sortBy = sortBy;
+		this.sortDir = direction;
+		this._render();
+	}
+
+	private _applySort(nodes: TreeNode<TagMeta>[]): TreeNode<TagMeta>[] {
+		const dir = this.sortDir === 'asc' ? 1 : -1;
+		return [...nodes].sort((a, b) => {
+			if (this.sortBy === 'count') return dir * ((a.count ?? 0) - (b.count ?? 0));
+			if (this.sortBy === 'sub')   return dir * ((a.children?.length ?? 0) - (b.children?.length ?? 0));
+			return dir * a.label.localeCompare(b.label);
+		});
+	}
+
 	private _expandAll(nodes: TreeNode<TagMeta>[]): void {
 		for (const n of nodes) {
 			if (n.children && n.children.length > 0) {
@@ -122,6 +139,7 @@ export class TagsExplorerPanel extends Component {
 			tree = this.logic.filterTree(tree, this.searchTerm);
 			this._expandAll(tree);
 		}
+		tree = this._applySort(tree);
 
 		const activeFilterIds = new Set<string>();
 		for (const node of this._flattenTree(tree)) {

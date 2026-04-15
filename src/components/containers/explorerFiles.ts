@@ -21,6 +21,8 @@ export class FilesExplorerPanel extends Component {
 	private viewMode: FilesViewMode = 'grid';
 	private _currentFiles: TFile[] = [];
 	private _totalCount = 0;
+	private sortBy: string = 'name';
+	private sortDir: 'asc' | 'desc' = 'asc';
 
 	private onSelectionChange?: (count: number) => void;
 
@@ -93,6 +95,12 @@ export class FilesExplorerPanel extends Component {
 		this._render();
 	}
 
+	setSortBy(sortBy: string, direction: 'asc' | 'desc'): void {
+		this.sortBy = sortBy;
+		this.sortDir = direction;
+		this._render();
+	}
+
 	render(filteredFiles: TFile[], totalCount: number): void {
 		this._currentFiles = filteredFiles;
 		this._totalCount = totalCount;
@@ -132,11 +140,24 @@ export class FilesExplorerPanel extends Component {
 		}
 	}
 
+	private _sortFiles(files: TFile[]): TFile[] {
+		const dir = this.sortDir === 'asc' ? 1 : -1;
+		return [...files].sort((a, b) => {
+			if (this.sortBy === 'date') return dir * (b.stat.mtime - a.stat.mtime);
+			if (this.sortBy === 'count') {
+				const aC = Object.keys(this.plugin.app.metadataCache.getFileCache(a)?.frontmatter ?? {}).filter(k => k !== 'position').length;
+				const bC = Object.keys(this.plugin.app.metadataCache.getFileCache(b)?.frontmatter ?? {}).filter(k => k !== 'position').length;
+				return dir * (aC - bC);
+			}
+			return dir * a.basename.localeCompare(b.basename);
+		});
+	}
+
 	private _render(): void {
 		if (this.viewMode === 'grid' && this.gridView) {
-			this.gridView.render(this._currentFiles, this._totalCount);
+			this.gridView.render(this._sortFiles(this._currentFiles), this._totalCount);
 		} else if (this.viewMode === 'tree' && this.treeView) {
-			const tree = this.logic.buildFileTree(this._currentFiles);
+			const tree = this.logic.buildFileTree(this._sortFiles(this._currentFiles));
 			this.treeView.render({
 				nodes: tree as TreeNode[],
 				expandedIds: this.expandedIds,
