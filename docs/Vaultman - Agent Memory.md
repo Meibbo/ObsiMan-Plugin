@@ -76,20 +76,17 @@ input: AI-gen
 
 ## Last updated
 - **Date**: 2026-04-15
-- **Agent**: Claude Code (Sonnet 4.6) — Session 35 (Iter 19 — Bug fixes + ADD operation mode, all 9 tasks complete)
+- **Agent**: Antigravity (Gemini 1.5) — Session 36 (Finalizing ADD mode + Badge system)
 
-## Iter 19 summary (2026-04-15)
-All tasks shipped. Key decisions:
-- `'add'` action added to `PropertyAction` union; `modalPropertyManager.buildChange()` has `default: return null` to handle it.
-- ADD mode button lives in `popupView.svelte` row 1; toggle wired via `onAddModeChange` → `navbarFilters` → `setAddMode()` on all 3 explorers.
-- `TagChange` ADD mode uses `action: 'rename' as cast` — fix in Iter 20 by extending `TagChange.action` union.
-- `FilesExplorer.setAddMode()` is a no-op stub — Iter 20 to define behavior.
-- Grid sort: grid owns sorting state; `explorerFiles._render()` passes unsorted files; `setSortBy()` syncs via `gridView.setSortColumn()`.
-- Queue scoping: `explorerProps` now pre-filters to files that actually have the prop/value before staging.
-- See `docs/HANDOFF.md` for full Iter 20 deferred list.
-- **Branch**: `add-functions`
-- **Version**: `1.0.0-beta.13`
-- **Build status**: ✅ Build PASSING (Clean — 0 warnings, 0 errors). Plugin reloaded, no runtime errors.
+## Iter 19.2 summary (2026-04-15)
+All deferred and cleanup tasks for Iteration 19 / 20-start shipped. Key accomplishments:
+- **Tag Operations**: Extended `TagChange.action` union to include `'add'`.
+- **Files Explorer ADD mode**: Implemented behavior for ADD mode in `FilesExplorerPanel`. Clicking a file (or selected files) now opens `PropertyManagerModal` in 'add' mode.
+- **Property Manager**: Added `'add'` action support to `PropertyManagerModal` (UI dropdown + `buildChange()` logic).
+- **Badge System**: Implemented `addOpCount` tracking using `$derived` from `queueService`. Passed the count through `FiltersPage` → `NavbarFilters` → `ViewModePopup` to render a badge on the ADD mode FAB.
+- **Localisation**: Added strings for `'add'` action and `'ADD mode'` in both `en.ts` and `es.ts`.
+- **Cleanup**: Removed legacy `@ts-ignore` from `navbarFilters.svelte` as methods are now fully typed and implemented.
+- **Build status**: ✅ Build PASSING (Clean — 0 warnings, 0 errors).
 
 ---
 

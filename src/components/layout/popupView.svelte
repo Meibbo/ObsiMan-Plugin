@@ -69,6 +69,7 @@
 		onAddModeChange,
 		icon,
 		initialViewMode = "tree" as ViewMode,
+		addOpCount = 0,
 	}: {
 		activeTab: FiltersTab;
 		onClose: () => void;
@@ -76,6 +77,7 @@
 		onAddModeChange?: (active: boolean) => void;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 		initialViewMode?: ViewMode;
+		addOpCount?: number;
 	} = $props();
 
 	let activeView  = $state<ViewMode>(untrack(() => initialViewMode));
@@ -164,11 +166,15 @@
 			class:is-add-active={addMode}
 			role="button"
 			tabindex="0"
-			aria-label="ADD mode"
+			aria-label={translate("viewmode.add_mode")}
 			onclick={toggleAddMode}
 			onkeydown={(e: KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") toggleAddMode(); }}
 			use:icon={"lucide-plus"}
-		></div>
+		>
+			{#if addOpCount && addOpCount > 0}
+				<span class="vaultman-fab-badge">{addOpCount}</span>
+			{/if}
+		</div>
 		<!-- Pills (horizontal scroll, no scrollbar) -->
 		<div class="vaultman-viewmode-pills">
 			{#each currentPillDefs as pill (pill.id)}

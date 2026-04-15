@@ -22,6 +22,7 @@
 		propExplorer = $bindable(),
 		fileList = $bindable(),
 		selectedCount = $bindable(0),
+		addOpCount = 0,
 	}: {
 		plugin: VaultmanPlugin;
 		filtersActiveTab: FiltersTab;
@@ -31,6 +32,7 @@
 		propExplorer: PropsExplorerPanel | undefined;
 		fileList: FilesExplorerPanel | undefined;
 		selectedCount: number;
+		addOpCount?: number;
 	} = $props();
 
 	function switchFiltersTab(tab: FiltersTab) {
@@ -62,6 +64,7 @@
 	{tagsExplorer}
 	{propExplorer}
 	{fileList}
+	{addOpCount}
 	{icon}
 />
 

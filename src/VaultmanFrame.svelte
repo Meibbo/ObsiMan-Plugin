@@ -340,6 +340,9 @@
 	let selectedCount = $state(0);
 	let queuedCount = $state(0);
 	let filterRuleCount = $state(0);
+	const addOpCount = $derived(
+		plugin.queueService.queue.filter((op) => op.action === "add").length,
+	);
 
 	// ─── Queue island ─────────────────────────────────────────────────────────
 	let queueIslandOpen = $state(false);
@@ -789,6 +792,7 @@
 							bind:propExplorer
 							bind:fileList
 							bind:selectedCount
+							{addOpCount}
 						/>
 					{/if}
 				{/key}

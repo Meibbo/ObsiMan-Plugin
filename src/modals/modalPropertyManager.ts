@@ -62,6 +62,7 @@ export class PropertyManagerModal extends Modal {
 						delete: translate('prop.action.delete'),
 						clean_empty: translate('prop.action.clean'),
 						change_type: translate('prop.action.change_type'),
+						add: translate('prop.action.add'),
 					})
 					.setValue(this.action)
 					.onChange((v) => {
@@ -118,6 +119,9 @@ export class PropertyManagerModal extends Modal {
 				break;
 			case 'change_type':
 				this.renderChangeTypeFields(formEl as HTMLElement);
+				break;
+			case 'add':
+				this.renderSetFields(formEl as HTMLElement);
 				break;
 		}
 
@@ -360,6 +364,21 @@ export class PropertyManagerModal extends Modal {
 						if (!(this.property in metadata)) return null;
 						const current = metadata[this.property];
 						return { [this.property]: this.convertType(current, this.propertyType) };
+					},
+					customLogic: false,
+				};
+
+			case 'add':
+				return {
+					type: 'property',
+					property: this.property,
+					action: 'add',
+					details: `add ${this.property} = ${this.value}`,
+					files,
+					logicFunc: (_file, metadata) => {
+						if (this.property in metadata) return null;
+						const parsedValue = this.parseValue(this.value, this.propertyType);
+						return { [this.property]: parsedValue };
 					},
 					customLogic: false,
 				};

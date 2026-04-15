@@ -72,7 +72,7 @@ export interface TemplateChange extends BaseChange {
 export interface TagChange extends BaseChange {
 	type: 'tag';
 	tag: string;
-	action: 'rename' | 'delete';
+	action: 'rename' | 'delete' | 'add';
 }
 
 export type PendingChange = PropertyChange | ContentChange | FileChange | TemplateChange | TagChange;
