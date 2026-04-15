@@ -2,7 +2,7 @@
 import type { App, TFile } from 'obsidian';
 import { translate } from '../../i18n/index';
 
-export type SortColumn = 'name' | 'props' | 'path';
+export type SortColumn = 'name' | 'props' | 'path' | 'date';
 export type SortDirection = 'asc' | 'desc';
 
 export interface GridViewCallbacks {
@@ -146,6 +146,7 @@ export class GridView {
 		sorted.sort((a, b) => {
 			if (this.sortColumn === 'name') return dir * a.basename.localeCompare(b.basename);
 			if (this.sortColumn === 'path') return dir * (a.parent?.path ?? '').localeCompare(b.parent?.path ?? '');
+			if (this.sortColumn === 'date') return dir * (a.stat.mtime - b.stat.mtime);
 			const aFm = this.app.metadataCache.getFileCache(a)?.frontmatter ?? {};
 			const bFm = this.app.metadataCache.getFileCache(b)?.frontmatter ?? {};
 			const aC = Object.keys(aFm).filter(k => k !== 'position').length;

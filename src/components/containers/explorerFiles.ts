@@ -98,6 +98,12 @@ export class FilesExplorerPanel extends Component {
 	setSortBy(sortBy: string, direction: 'asc' | 'desc'): void {
 		this.sortBy = sortBy;
 		this.sortDir = direction;
+		if (this.viewMode === 'grid' && this.gridView) {
+			const COL_MAP: Record<string, import('../layout/viewGrid').SortColumn> = {
+				name: 'name', count: 'props', date: 'date', columns: 'name',
+			};
+			this.gridView.setSortColumn(COL_MAP[sortBy] ?? 'name', direction);
+		}
 		this._render();
 	}
 
@@ -135,6 +141,11 @@ export class FilesExplorerPanel extends Component {
 					void this.plugin.app.workspace.openLinkText(file.path, '', false);
 				},
 			});
+			// Sync current sort state to grid on mount
+			const COL_MAP: Record<string, import('../layout/viewGrid').SortColumn> = {
+				name: 'name', count: 'props', date: 'date', columns: 'name',
+			};
+			this.gridView.setSortColumn(COL_MAP[this.sortBy] ?? 'name', this.sortDir);
 		} else {
 			this.treeView = new UnifiedTreeView(this.containerEl);
 		}
@@ -155,7 +166,8 @@ export class FilesExplorerPanel extends Component {
 
 	private _render(): void {
 		if (this.viewMode === 'grid' && this.gridView) {
-			this.gridView.render(this._sortFiles(this._currentFiles), this._totalCount);
+			// Grid owns sorting — pass unsorted; sort state synced via setSortColumn
+			this.gridView.render(this._currentFiles, this._totalCount);
 		} else if (this.viewMode === 'tree' && this.treeView) {
 			const tree = this.logic.buildFileTree(this._sortFiles(this._currentFiles));
 			const applyFolderIcons = (nodes: TreeNode<FileMeta>[], expanded: Set<string>): void => {
