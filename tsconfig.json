@@ -42,11 +42,12 @@
 		}
 	},
 	"include": [
-		"main.ts",
+		"src/main.tsn.ts",
 		"src/**/*.ts",
 		"src/**/*.svelte",
 		"vitest.config.ts",
 		"esbuild.config.mjs",
-		"test/**/*.ts"
-	]
+		"test/**/*.ts",
+		"main.ts"
+	],
 }

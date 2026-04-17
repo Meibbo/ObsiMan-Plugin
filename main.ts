@@ -4,11 +4,11 @@ import { DEFAULT_SETTINGS } from './src/types/typeSettings';
 import { PropertyIndexService } from './src/services/servicePropertyIndex';
 import { FilterService } from './src/services/serviceFilter';
 import { OperationQueueService } from './src/services/serviceOperationQueue';
-import { VaultmanFrame, VAULTMAN_FRAME_TYPE } from './src/VaultmanFrame';
+import { VaultmanFrame, VAULTMAN_FRAME_TYPE } from './src/components/frameVaultman';
 import { IconicService } from './src/services/serviceIcons';
 import { PropertyTypeService } from './src/services/servicePropertyType';
 import { ContextMenuService } from './src/services/serviceContextMenu';
-import { VaultmanSettingsTab } from './src/VaultmanSettings';
+import { VaultmanSettingsTab } from './src/settingsVaultman';
 import { setLanguage, translate } from './src/i18n/index';
 
 export class VaultmanPlugin extends Plugin {

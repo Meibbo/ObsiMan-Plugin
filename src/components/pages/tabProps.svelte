@@ -1,43 +1,60 @@
 <script lang="ts">
-  import { PropsExplorerPanel } from "../containers/explorerProps";
+  import { onMount } from "svelte";
+  import { explorerProps } from "../containers/explorerProps";
+  import PanelExplorer from "../containers/panelExplorer.svelte";
   import type { VaultmanPlugin } from "../../../main";
+  import { setIcon } from "obsidian";
 
   let {
     plugin,
-    searchTerm = "",
+    searchTerm = $bindable(""),
     searchMode = 0,
-    propExplorer = $bindable<PropsExplorerPanel | undefined>(undefined),
+    sortBy = $bindable("name"),
+    sortDirection = $bindable("asc"),
+    propExplorer = $bindable(),
   }: {
     plugin: VaultmanPlugin;
     searchTerm?: string;
     searchMode?: number;
-    propExplorer?: PropsExplorerPanel | undefined;
+    sortBy?: string;
+    sortDirection?: "asc" | "desc";
+    propExplorer: explorerProps | undefined;
   } = $props();
 
-  $effect(() => {
-    if (propExplorer) {
-      propExplorer.setSearchTerm(searchTerm, searchMode);
-    }
+  onMount(() => {
+    propExplorer = new explorerProps(plugin);
   });
 
-  function initPropsPanel(node: HTMLElement) {
-    propExplorer = new PropsExplorerPanel(node, plugin);
-    propExplorer.load();
+  function icon(el: HTMLElement, name: string) {
+    setIcon(el, name);
     return {
-      destroy() {
-        propExplorer?.unload();
-        propExplorer = undefined;
+      update(n: string) {
+        setIcon(el, n);
       },
     };
   }
 </script>
 
-<div class="vaultman-props-tab-content" use:initPropsPanel></div>
+<div class="vaultman-props-tab-content">
+  {#if propExplorer}
+    <PanelExplorer
+      {plugin}
+      provider={propExplorer}
+      viewMode="tree"
+      bind:searchTerm
+      {searchMode}
+      bind:sortBy
+      bind:sortDirection
+      {icon}
+    />
+  {/if}
+</div>
 
 <style>
   .vaultman-props-tab-content {
     flex: 1;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     min-height: 0;
   }
 </style>

@@ -17,6 +17,19 @@ input: AI-gen
 
 ---
 
+## Convenciones de Código y Preferencias (USER)
+
+### 1. Nomenclatura de Archivos
+- **Formato**: `camelCase` para TODOS los archivos (incluyendo `.svelte` y `.ts`).
+- **Patrón**: `[qué hace / rol] + [qué es / sujeto]`. (Sin sufijos redundantes).
+    - Ejemplos: `explorerFiles`, `panelExplorer`, `viewTree`, `settingsSomething`.
+- **Preferencia**: El usuario prefiere tener el control sobre los nombres para que sean descriptivos de su función primero y mantenerlos cortos.
+
+### 2. Estructura de Componentes
+- **Híbrido Svelte + TS**: Los componentes visuales y el estado reactivo van en `.svelte`. La lógica pesada de datos y transformaciones va en `.ts` (Data Providers).
+
+---
+
 ## Lecciones aprendidas (Testing & Infraestructura)
 
 ### 1. Integración con `obsidian-integration-testing`
@@ -77,8 +90,8 @@ input: AI-gen
 ---
 
 ## Last updated
-- **Date**: 2026-04-15
-- **Agent**: Antigravity (Gemini 1.5) — Session 36 (Finalizing ADD mode + Badge system + beta.15 release)
+- **Date**: 2026-04-17
+- **Agent**: Antigravity (Gemini 1.5) — Session 38 (Explorer Architecture Stabilization)
 
 ## Iter 19.2 summary (2026-04-15)
 All deferred and cleanup tasks for Iteration 19 / 20-start shipped. Released as **1.0.0-beta.15**.
@@ -93,6 +106,13 @@ Key accomplishments:
 - **Branch**: `add-functions`
 - **Version**: `1.0.0-beta.15`
 - **Build status**: ✅ Build PASSING (Clean — 0 warnings, 0 errors).
+- **Refactoring**: Unified Explorer architecture (Reactive Svelte 5 + Logic Providers).
+    - Created `typeExplorer.ts` (Generic interface).
+    - Created `viewTree.svelte` & `viewGrid.svelte` (Reactive views).
+    - Created `panelExplorer.svelte` (Orchestrator).
+    - Replaced legacy panels (`explorerFiles`, `explorerProps`, `explorerTags`) with Data Providers.
+    - Updated all tab components (`tabFiles`, `tabProps`, `tabTags`) to the new pattern.
+    - Cleaned up legacy imperative code (`viewTree.ts`, `viewGrid.ts`).
 
 ---
 
@@ -133,21 +153,13 @@ Plan file: `C:\Users\vic_A\.claude\plans\lucky-humming-backus.md`
 
 ---
 
-## What was completed this session (2026-04-14, Session 32 — Iter 17 Popups & Transitions)
-
-- **Committed Vaultman rename files**: `main.ts`, `VaultmanSettingsTab.ts`, `settings.ts` (iVaultmanPlugin interface to break circular import).
-- **SortPopup.svelte** (new): 2-row layout — scope dropdown + template (no-op) + close btn in row 1; 4 squircles (Name/Count/Date/Sub) with ↑/↓ direction toggle in row 2; vert-col absolute left with top/bot circle buttons and collapsible drawer (prop types for Props tab, All/Nested/Simple for Tags, direct toggle for Files); per-tab squircle sets.
-- **ViewModePopup.svelte** (new): close + template (no-op) + search* buttons in row 1; horizontal-scroll pills (multi-selectable, no scrollbar, default-on/off per tab×view); 4 view-mode squircles (Tree/D&D/Grid/Cards) in row 2; search btn renders only for Files/Grid.
-- **FiltersPage.svelte wired**: `headerMode: 'header' | 'sort' | 'viewmode'` + `headerExitDir: 'left' | 'right'`; clicking view-mode btn → `headerExitDir='left'`, `headerMode='viewmode'`; clicking sort btn → `headerExitDir='right'`, `headerMode='sort'`; `{#key filtersActiveTab}` + `fade({duration:180})` for tab transitions.
-- **CSS added**: `popup-enter-from-left/right` slide animations (280ms `cubic-bezier(0.4,0,0.2,1)`), sort vert-col + drawer, viewmode pills scroll strip, squircle icon/dir helper classes.
-- **i18n**: 40+ new keys for sort/viewmode popup strings.
-
-### What's next
-- [ ] Implement actual **templates** logic in Queue Island and Sort/View popups (buttons present, no-op).
-- [ ] **Interaction**: Multi-select support in tree views (Props/Tags).
-- [ ] **Mobile**: Test island responsiveness on small screens.
-- [ ] **Bugs**: Verify performance on vaults with >10k files during high-frequency filtering.
-- [ ] **Iter 18**: D&D list view implementation or Cards/Masonry frame spec.
+### Iteration 17: Level 4 Popups & Transitions ✅ DONE
+- [x] Sort popup (replaces Filters header) — Bound to shared state
+- [x] View mode popup (replaces Filters header) — Bound to shared state
+- [x] Animations: spring slide-up 300ms, horizontal page slide 280ms
+- [x] Persistence: Sort, View, and Add modes persist across all tabs inside Filters page.
+- [x] Scroll Stability: Resolved conflicting overflows and fixed grid view clipping.
+- [x] DOM Optimization: Replaced {#key} with CSS visibility toggling to maintain component state and performance.
 
 ---
 

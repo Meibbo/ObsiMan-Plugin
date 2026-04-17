@@ -2,9 +2,9 @@
   import { translate } from "../../i18n/index";
   import SortPopup from "./popupSort.svelte";
   import ViewModePopup from "./popupView.svelte";
-  import type { FilesExplorerPanel } from "../containers/explorerFiles";
-  import type { PropsExplorerPanel } from "../containers/explorerProps";
-  import type { TagsExplorerPanel } from "../containers/explorerTags";
+  import { explorerFiles } from "../containers/explorerFiles";
+  import { explorerProps } from "../containers/explorerProps";
+  import { explorerTags } from "../containers/explorerTags";
 
   type FiltersTab = "props" | "files" | "tags";
   type HeaderMode = "header" | "sort" | "viewmode";
@@ -13,6 +13,10 @@
     activeTab,
     filtersSearch = $bindable(""),
     filtersSearchCategory = $bindable({ tags: 0, props: 0, files: 0 }),
+    sortBy = $bindable("name"),
+    sortDirection = $bindable("asc"),
+    viewMode = $bindable("tree"),
+    addMode = $bindable(false),
     tagsExplorer,
     propExplorer,
     fileList,
@@ -22,9 +26,13 @@
     activeTab: FiltersTab;
     filtersSearch: string;
     filtersSearchCategory: Record<FiltersTab, number>;
-    tagsExplorer: TagsExplorerPanel | null | undefined;
-    propExplorer: PropsExplorerPanel | undefined;
-    fileList: FilesExplorerPanel | undefined;
+    sortBy: string;
+    sortDirection: "asc" | "desc";
+    viewMode: any;
+    addMode: boolean;
+    tagsExplorer: explorerTags | null | undefined;
+    propExplorer: explorerProps | undefined;
+    fileList: explorerFiles | undefined;
     icon: (node: HTMLElement, name: string) => { update(n: string): void };
     addOpCount?: number;
   } = $props();
@@ -56,28 +64,6 @@
     const tab = activeTab;
     filtersSearchCategory[tab] = filtersSearchCategory[tab] === 0 ? 1 : 0;
     filtersSearchCategory = { ...filtersSearchCategory };
-  }
-
-  function handleSortChange(sortBy: string, direction: "asc" | "desc") {
-    if (activeTab === "files")  fileList?.setSortBy(sortBy, direction);
-    if (activeTab === "props")  propExplorer?.setSortBy(sortBy, direction);
-    if (activeTab === "tags")   tagsExplorer?.setSortBy(sortBy, direction);
-  }
-
-  function handleViewModeChange(mode: "tree" | "dnd" | "grid" | "cards") {
-    currentViewMode = mode;
-    if (activeTab === "files") {
-      fileList?.setViewMode(mode === "grid" ? "grid" : "tree");
-    } else if (activeTab === "props") {
-      propExplorer?.setViewMode(mode === "grid" ? "grid" : "tree");
-    }
-    // tags: tree-only, no-op
-  }
-
-  function handleAddModeChange(active: boolean) {
-    propExplorer?.setAddMode(active);
-    fileList?.setAddMode(active);
-    tagsExplorer?.setAddMode(active);
   }
 </script>
 
@@ -130,21 +116,28 @@
         class:popup-enter-from-left={headerExitDir === "right"}
         class:popup-enter-from-right={headerExitDir === "left"}
       >
-        <!-- @ts-ignore — onSortChange added to popupSort in Task 7 -->
-        <SortPopup {activeTab} onClose={closeHeaderPopup}
-          onSortChange={handleSortChange} {icon} />
+        <SortPopup 
+          {activeTab} 
+          onClose={closeHeaderPopup}
+          bind:sortBy
+          bind:sortDir={sortDirection}
+          {icon} 
+        />
       </div>
     {:else if headerMode === "viewmode"}
       <div class="vaultman-filters-popup-slot"
         class:popup-enter-from-left={headerExitDir === "right"}
         class:popup-enter-from-right={headerExitDir === "left"}
       >
-        <ViewModePopup {activeTab} onClose={closeHeaderPopup}
-          onViewModeChange={handleViewModeChange}
-          onAddModeChange={handleAddModeChange}
-          initialViewMode={activeTab === "files" ? currentViewMode : "tree"}
+        <ViewModePopup 
+          {activeTab} 
+          onClose={closeHeaderPopup}
+          bind:viewMode
+          bind:addMode
+          initialViewMode={viewMode}
           {addOpCount}
-          {icon} />
+          {icon} 
+        />
       </div>
     {/if}
   </div>

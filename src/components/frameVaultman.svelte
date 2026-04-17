@@ -1,24 +1,24 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { setIcon } from "obsidian";
-	import type { VaultmanPlugin } from "../main";
-	import type { FilesExplorerPanel } from "./components/containers/explorerFiles";
-	import type { PropsExplorerPanel } from "./components/containers/explorerProps";
-	import type { TagsExplorerPanel } from "./components/containers/explorerTags";
-	import StatisticsPage from "./components/pages/pageStatistics.svelte";
-	import FiltersPage from "./components/pages/pageFilters.svelte";
-	import OperationsPage from "./components/pages/pageOps.svelte";
-	import BottomNav from "./components/layout/navbarPillFab.svelte";
-	import PopupOverlay from "./components/layout/PopupOverlay.svelte";
-	import { QueueListComponent } from "./components/componentQueueList";
-	import { QueueIslandComponent } from "./components/layout/islandQueue";
-	import { ActiveFiltersIslandComponent } from "./components/layout/islandActiveFilters";
-	import { QueueDetailsModal } from "./modals/modalQueueDetails";
-	import { FolderSuggest } from "./utils/autocomplete";
-	import { MOVE_FILE } from "./types/typeOps";
-	import type { PendingChange } from "./types/typeOps";
-	import { translate } from "./i18n/index";
-	import type { PopupType, FabDef } from "./types/typeUI";
+	import type { VaultmanPlugin } from "../../main";
+	import { explorerFiles } from "./containers/explorerFiles";
+	import { explorerProps } from "./containers/explorerProps";
+	import { explorerTags } from "./containers/explorerTags";
+	import StatisticsPage from "./pages/pageStatistics.svelte";
+	import FiltersPage from "./pages/pageFilters.svelte";
+	import OperationsPage from "./pages/pageOps.svelte";
+	import BottomNav from "./layout/navbarPillFab.svelte";
+	import PopupOverlay from "./layout/PopupOverlay.svelte";
+	import { QueueListComponent } from "./componentQueueList";
+	import { QueueIslandComponent } from "./layout/islandQueue";
+	import { ActiveFiltersIslandComponent } from "./layout/islandActiveFilters";
+	import { QueueDetailsModal } from "../modals/modalQueueDetails";
+	import { FolderSuggest } from "../utils/autocomplete";
+	import { MOVE_FILE } from "../types/typeOps";
+	import type { PendingChange } from "../types/typeOps";
+	import { translate } from "../i18n/index";
+	import type { PopupType, FabDef } from "../types/typeUI";
 
 	// ─── Props ────────────────────────────────────────────────────────────────
 
@@ -336,7 +336,6 @@
 
 	// ─── Stats ────────────────────────────────────────────────────────────────
 
-	let filteredCount = $state(0);
 	let selectedCount = $state(0);
 	let queuedCount = $state(0);
 	let filterRuleCount = $state(0);
@@ -355,7 +354,7 @@
 	let filtersIslandEl = $state<HTMLElement | null>(null);
 
 	function countFilterLeaves(
-		group: import("./types/typeFilter").FilterGroup,
+		group: import("../types/typeFilter").FilterGroup,
 	): number {
 		let count = 0;
 		for (const child of group.children) {
@@ -366,15 +365,15 @@
 	}
 
 	function updateStats() {
-		filteredCount = plugin.filterService.filteredFiles.length;
 		queuedCount = plugin.queueService.queue.length;
 		filterRuleCount = countFilterLeaves(plugin.filterService.activeFilter);
 	}
 
-	let fileList = $state<FilesExplorerPanel | undefined>(undefined);
+	let fileList = $state<explorerFiles | undefined>(undefined);
 	let queueList: QueueListComponent | undefined;
-	let propExplorer = $state<PropsExplorerPanel | undefined>(undefined);
-	let tagsExplorer = $state<TagsExplorerPanel | null>(null);
+	let propExplorer = $state<explorerProps | undefined>(undefined);
+	let tagsExplorer = $state<explorerTags>();
+	let selectedFilePaths = $state(new Set<string>());
 
 	// ─── Filters page state ──────────────────────────────────────────────────
 	type FiltersTab = "tags" | "props" | "files";
@@ -390,6 +389,10 @@
 		props: 0,
 		files: 0,
 	});
+	let filtersSortBy = $state("name");
+	let filtersSortDir = $state<"asc" | "desc">("asc");
+	let filtersViewMode = $state<any>("tree");
+	let addMode = $state(false);
 
 	$effect(() => {
 		const term = filtersSearch;
@@ -479,17 +482,13 @@
 	// ─── Refresh ─────────────────────────────────────────────────────────────
 
 	function refreshFiles() {
-		fileList?.render(
-			plugin.filterService.filteredFiles,
-			plugin.propertyIndex.fileCount,
-		);
 		updateStats();
 	}
 
 	function refreshActiveFilterHighlights(): void {
 		const props = new Set<string>();
 		const vals = new Map<string, Set<string>>();
-		function walk(node: import("./types/typeFilter").FilterNode): void {
+		function walk(node: import("../types/typeFilter").FilterNode): void {
 			if (node.type === "rule") {
 				if (node.property) {
 					props.add(node.property);
@@ -550,7 +549,7 @@
 
 	// Kept for future use (view mode toggle in Files tab)
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	function setViewMode(mode: "list" | "selected") {
+	function _setViewMode(mode: "list" | "selected") {
 		plugin.settings.viewMode = mode;
 		void plugin.saveSettings();
 		// showSelectedOnly handled by FilesExplorerPanel view mode in future iteration
@@ -574,8 +573,8 @@
 	type ActiveFilterRule = {
 		id: string;
 		description: string;
-		node: import("./types/typeFilter").FilterNode;
-		parent: import("./types/typeFilter").FilterGroup;
+		node: import("../types/typeFilter").FilterNode;
+		parent: import("../types/typeFilter").FilterGroup;
 		enabled: boolean;
 	};
 
@@ -584,7 +583,7 @@
 	function refreshActiveFiltersPopup(): void {
 		const rules: ActiveFilterRule[] = [];
 		let counter = 0;
-		function walk(group: import("./types/typeFilter").FilterGroup): void {
+		function walk(group: import("../types/typeFilter").FilterGroup): void {
 			for (const child of group.children) {
 				if (child.type === "rule") {
 					rules.push({
@@ -604,7 +603,7 @@
 	}
 
 	function describeFilterNode(
-		node: import("./types/typeFilter").FilterNode,
+		node: import("../types/typeFilter").FilterNode,
 	): string {
 		if (node.type !== "rule") return "Group";
 		const prop = (node as any).property ?? "";
@@ -654,8 +653,8 @@
 		}));
 	});
 
-	function openMovePopup() {
-		const selected = fileList?.getSelectedFiles() ?? [];
+	function _openMovePopup() {
+		const selected = Array.from(selectedFilePaths).map(p => plugin.app.vault.getFileByPath(p)).filter(f => f) as import("obsidian").TFile[];
 		moveTargetFiles =
 			selected.length > 0
 				? selected
@@ -773,11 +772,6 @@
 					{#if pageId === "ops"}
 						<OperationsPage
 							{plugin}
-							getSelectedFiles={() =>
-								fileList?.getSelectedFiles() ?? []}
-							{openMovePopup}
-							{filteredCount}
-							{selectedCount}
 							{icon}
 						/>
 					{:else if pageId === "statistics"}
@@ -792,6 +786,11 @@
 							bind:propExplorer
 							bind:fileList
 							bind:selectedCount
+							bind:selectedFilePaths
+							bind:filtersSortBy
+							bind:filtersSortDir
+							bind:filtersViewMode
+							bind:addMode
 							{addOpCount}
 						/>
 					{/if}

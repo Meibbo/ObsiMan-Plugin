@@ -1,39 +1,66 @@
 <script lang="ts">
-  import { FilesExplorerPanel } from "../containers/explorerFiles";
+  import { onMount } from "svelte";
+  import { explorerFiles } from "../containers/explorerFiles";
+  import PanelExplorer from "../containers/panelExplorer.svelte";
   import type { VaultmanPlugin } from "../../../main";
+  import { setIcon } from "obsidian";
 
   let {
     plugin,
-    fileList = $bindable<FilesExplorerPanel | undefined>(undefined),
+    fileList = $bindable(),
+    sortBy = $bindable("name"),
+    sortDirection = $bindable("asc"),
+    viewMode = $bindable("grid"),
+    selectedFilePaths = $bindable(new Set<string>()),
     onSelectionChange,
   }: {
     plugin: VaultmanPlugin;
-    fileList?: FilesExplorerPanel | undefined;
+    fileList: explorerFiles | undefined;
+    sortBy?: string;
+    sortDirection?: "asc" | "desc";
+    viewMode?: any;
+    selectedFilePaths: Set<string>;
     onSelectionChange?: (count: number) => void;
   } = $props();
 
-  function initFilesPanel(el: HTMLElement) {
-    fileList = new FilesExplorerPanel(el, plugin, onSelectionChange);
-    fileList.load();
-    fileList.render(
-      plugin.filterService.filteredFiles,
-      plugin.propertyIndex.fileCount,
-    );
+  $effect(() => {
+    onSelectionChange?.(selectedFilePaths.size);
+  });
+
+  onMount(() => {
+    fileList = new explorerFiles(plugin);
+  });
+
+  function icon(el: HTMLElement, name: string) {
+    setIcon(el, name);
     return {
-      destroy() {
-        fileList?.unload();
-        fileList = undefined;
+      update(n: string) {
+        setIcon(el, n);
       },
     };
   }
 </script>
 
-<div class="vaultman-files-tab-content" use:initFilesPanel></div>
+<div class="vaultman-files-tab-content">
+  {#if fileList}
+    <PanelExplorer
+      {plugin}
+      provider={fileList}
+      bind:viewMode
+      searchTerm=""
+      bind:sortBy
+      bind:sortDirection
+      {icon}
+      bind:selectedFiles={selectedFilePaths}
+    />
+  {/if}
+</div>
 
 <style>
   .vaultman-files-tab-content {
     flex: 1;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     min-height: 0;
   }
 </style>

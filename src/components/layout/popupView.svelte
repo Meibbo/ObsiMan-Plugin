@@ -65,43 +65,40 @@
 	let {
 		activeTab,
 		onClose,
-		onViewModeChange,
-		onAddModeChange,
+		viewMode = $bindable("tree"),
+		addMode = $bindable(false),
 		icon,
 		initialViewMode = "tree" as ViewMode,
 		addOpCount = 0,
 	}: {
 		activeTab: FiltersTab;
 		onClose: () => void;
-		onViewModeChange?: (mode: "tree" | "dnd" | "grid" | "cards") => void;
-		onAddModeChange?: (active: boolean) => void;
+		viewMode: ViewMode;
+		addMode: boolean;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 		initialViewMode?: ViewMode;
 		addOpCount?: number;
 	} = $props();
 
-	let activeView  = $state<ViewMode>(untrack(() => initialViewMode));
 	let activePills = $state<Set<string>>(untrack(() => defaultPills(pillsKey(activeTab, initialViewMode))));
 
-	// Reset when activeTab changes (not on first render — initialViewMode handled above)
+	// Reset per-tab UI state (pills), but NOT the view mode (shared)
 	let _prevTab = $state<FiltersTab>(untrack(() => activeTab));
 	$effect(() => {
 		if (activeTab !== _prevTab) {
 			_prevTab = activeTab;
-			activeView  = "tree";
-			activePills = defaultPills(pillsKey(activeTab, "tree"));
+			activePills = defaultPills(pillsKey(activeTab, viewMode));
 		}
 	});
 
-	const currentPillKey  = $derived(pillsKey(activeTab, activeView));
+	const currentPillKey  = $derived(pillsKey(activeTab, viewMode));
 	const currentPillDefs = $derived(PILLS[currentPillKey] ?? []);
-	const showSearch      = $derived(activeTab === "files" && activeView === "grid");
+	const showSearch      = $derived(activeTab === "files" && viewMode === "grid");
 
 	function selectView(v: ViewMode) {
-		if (activeView === v) return;
-		activeView  = v;
+		if (viewMode === v) return;
+		viewMode  = v;
 		activePills = defaultPills(pillsKey(activeTab, v));
-		onViewModeChange?.(v);
 	}
 
 	function togglePill(id: string) {
@@ -114,11 +111,8 @@
 		activePills = next;
 	}
 
-	let addMode = $state(false);
-
 	function toggleAddMode() {
 		addMode = !addMode;
-		onAddModeChange?.(addMode);
 	}
 </script>
 
@@ -194,7 +188,7 @@
 		{#each VIEW_MODES as vm (vm.id)}
 			<div
 				class="vaultman-squircle"
-				class:is-accent={activeView === vm.id}
+				class:is-accent={viewMode === vm.id}
 				aria-label={translate(vm.labelKey)}
 				onclick={() => selectView(vm.id)}
 				onkeydown={(e: KeyboardEvent) => {

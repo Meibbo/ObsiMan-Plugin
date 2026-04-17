@@ -1,47 +1,60 @@
 <script lang="ts">
-  import { onMount, onDestroy } from "svelte";
-  import { TagsExplorerPanel } from "../containers/explorerTags";
+  import { onMount } from "svelte";
+  import { explorerTags } from "../containers/explorerTags";
+  import PanelExplorer from "../containers/panelExplorer.svelte";
   import type { VaultmanPlugin } from "../../../main";
+  import { setIcon } from "obsidian";
 
   let {
     plugin,
-    searchTerm = "",
+    searchTerm = $bindable(""),
     searchMode = 0,
-    tagsExplorer = $bindable<TagsExplorerPanel | null>(null),
+    sortBy = $bindable("name"),
+    sortDirection = $bindable("asc"),
+    tagsExplorer = $bindable(),
   }: {
     plugin: VaultmanPlugin;
     searchTerm?: string;
     searchMode?: number;
-    tagsExplorer?: TagsExplorerPanel | null;
+    sortBy?: string;
+    sortDirection?: "asc" | "desc";
+    tagsExplorer: explorerTags | undefined;
   } = $props();
 
-  $effect(() => {
-    if (tagsExplorer) {
-      tagsExplorer.setSearchTerm(searchTerm, searchMode === 1 ? "leaf" : "all");
-    }
-  });
-
-  let containerEl: HTMLElement;
-
   onMount(() => {
-    tagsExplorer = new TagsExplorerPanel(containerEl, plugin);
-    plugin.addChild(tagsExplorer);
+    tagsExplorer = new explorerTags(plugin);
   });
 
-  onDestroy(() => {
-    if (tagsExplorer) {
-      plugin.removeChild(tagsExplorer);
-      tagsExplorer = null;
-    }
-  });
+  function icon(el: HTMLElement, name: string) {
+    setIcon(el, name);
+    return {
+      update(n: string) {
+        setIcon(el, n);
+      },
+    };
+  }
 </script>
 
-<div class="vaultman-tags-tab-content" bind:this={containerEl}></div>
+<div class="vaultman-tags-tab-content">
+  {#if tagsExplorer}
+    <PanelExplorer
+      {plugin}
+      provider={tagsExplorer}
+      viewMode="tree"
+      bind:searchTerm
+      {searchMode}
+      bind:sortBy
+      bind:sortDirection
+      {icon}
+    />
+  {/if}
+</div>
 
 <style>
   .vaultman-tags-tab-content {
     flex: 1;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     min-height: 0;
   }
 </style>

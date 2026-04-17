@@ -1,5 +1,6 @@
 <script lang="ts">
   import { setIcon } from "obsidian";
+  import type { VaultmanPlugin } from "../../../main";
   import { translate } from "../../i18n/index";
 
   let { plugin }: { plugin: VaultmanPlugin } = $props();
@@ -35,7 +36,7 @@
         }
       }
       metaStats.links = totalLinks;
-      metaStats.words = 0; // Word count requires reading content, deferred for efficiency
+      metaStats.words = totalWords; // Word count requires reading content, deferred for efficiency
       metaStats.loading = false;
     };
     void compute();

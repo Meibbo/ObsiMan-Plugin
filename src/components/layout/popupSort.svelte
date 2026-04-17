@@ -70,17 +70,17 @@
 	let {
 		activeTab,
 		onClose,
-		onSortChange,
+		sortBy = $bindable("name"),
+		sortDir = $bindable("asc"),
 		icon,
 	}: {
 		activeTab: FiltersTab;
 		onClose: () => void;
-		onSortChange?: (sortBy: string, direction: "asc" | "desc") => void;
+		sortBy: string;
+		sortDir: "asc" | "desc";
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	} = $props();
 
-	let sortBy = $state("name");
-	let sortDir = $state<"asc" | "desc">("asc");
 	let drawerOpen = $state(false);
 	let vertTopActive = $state(false);
 	let activeScope = $state("all");
@@ -93,11 +93,9 @@
 		columns: "asc",
 	};
 
-	// Reset per-tab state when the active tab changes.
+	// Reset per-tab UI state, but NOT the sort state (which is shared/bound)
 	$effect(() => {
 		void activeTab;
-		sortBy = "name";
-		sortDir = DEFAULT_DIR["name"];
 		drawerOpen = false;
 		vertTopActive = false;
 	});
@@ -109,7 +107,6 @@
 			sortBy = id;
 			sortDir = DEFAULT_DIR[id] ?? "asc";
 		}
-		onSortChange?.(sortBy, sortDir);
 	}
 
 	const vertTopIcon = $derived(

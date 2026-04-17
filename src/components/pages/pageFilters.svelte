@@ -1,15 +1,14 @@
 <script lang="ts">
 	import type { VaultmanPlugin } from "../../../main";
 	import { setIcon } from "obsidian";
-	import { fade } from "svelte/transition";
 	import FiltersTagsTab from "./tabTags.svelte";
 	import FiltersPropsTab from "./tabProps.svelte";
 	import FiltersFilesTab from "./tabFiles.svelte";
 	import NavbarTabs from "../layout/navbarTabs.svelte";
 	import NavbarFilters from "../layout/navbarFilters.svelte";
-	import type { FilesExplorerPanel } from "../containers/explorerFiles";
-	import type { PropsExplorerPanel } from "../containers/explorerProps";
-	import type { TagsExplorerPanel } from "../containers/explorerTags";
+	import { explorerFiles } from "../containers/explorerFiles";
+	import { explorerProps } from "../containers/explorerProps";
+	import { explorerTags } from "../containers/explorerTags";
 
 	type FiltersTab = "props" | "files" | "tags";
 
@@ -18,20 +17,30 @@
 		filtersActiveTab = $bindable("props"),
 		filtersSearch = $bindable(""),
 		filtersSearchCategory = $bindable({ tags: 0, props: 0, files: 0 }),
+		filtersSortBy = $bindable("name"),
+		filtersSortDir = $bindable("asc"),
+		filtersViewMode = $bindable("tree"),
+		addMode = $bindable(false),
 		tagsExplorer = $bindable(),
 		propExplorer = $bindable(),
 		fileList = $bindable(),
 		selectedCount = $bindable(0),
+		selectedFilePaths = $bindable(new Set<string>()),
 		addOpCount = 0,
 	}: {
 		plugin: VaultmanPlugin;
 		filtersActiveTab: FiltersTab;
 		filtersSearch: string;
 		filtersSearchCategory: Record<FiltersTab, number>;
-		tagsExplorer: TagsExplorerPanel | null;
-		propExplorer: PropsExplorerPanel | undefined;
-		fileList: FilesExplorerPanel | undefined;
-		selectedCount: number;
+		filtersSortBy?: string;
+		filtersSortDir?: "asc" | "desc";
+		filtersViewMode?: any;
+		addMode?: boolean;
+		tagsExplorer?: explorerTags | undefined;
+		propExplorer?: explorerProps | undefined;
+		fileList?: explorerFiles | undefined;
+		selectedCount?: number;
+		selectedFilePaths?: Set<string>;
 		addOpCount?: number;
 	} = $props();
 
@@ -61,6 +70,10 @@
 	activeTab={filtersActiveTab}
 	bind:filtersSearch
 	bind:filtersSearchCategory
+	bind:sortBy={filtersSortBy}
+	bind:sortDirection={filtersSortDir}
+	bind:viewMode={filtersViewMode}
+	bind:addMode
 	{tagsExplorer}
 	{propExplorer}
 	{fileList}
@@ -68,32 +81,58 @@
 	{icon}
 />
 
-{#key filtersActiveTab}
-	<div
-		class="vaultman-filters-tab-content"
-		in:fade={{ duration: 180 }}
-		out:fade={{ duration: 180 }}
-	>
-		{#if filtersActiveTab === "tags"}
-			<FiltersTagsTab
-				{plugin}
-				searchTerm={filtersSearch}
-				searchMode={filtersSearchCategory.tags}
-				bind:tagsExplorer
-			/>
-		{:else if filtersActiveTab === "props"}
-			<FiltersPropsTab
-				{plugin}
-				searchTerm={filtersSearch}
-				searchMode={filtersSearchCategory.props}
-				bind:propExplorer
-			/>
-		{:else if filtersActiveTab === "files"}
-			<FiltersFilesTab
-				{plugin}
-				bind:fileList
-				onSelectionChange={(c) => (selectedCount = c)}
-			/>
-		{/if}
+<div class="vaultman-filters-tabs-container">
+	<div class="vaultman-tab-wrapper" class:is-hidden={filtersActiveTab !== "tags"}>
+		<FiltersTagsTab
+			{plugin}
+			searchTerm={filtersSearch}
+			searchMode={filtersSearchCategory.tags}
+			bind:sortBy={filtersSortBy}
+			bind:sortDirection={filtersSortDir}
+			bind:tagsExplorer
+		/>
 	</div>
-{/key}
+	<div class="vaultman-tab-wrapper" class:is-hidden={filtersActiveTab !== "props"}>
+		<FiltersPropsTab
+			{plugin}
+			searchTerm={filtersSearch}
+			searchMode={filtersSearchCategory.props}
+			bind:sortBy={filtersSortBy}
+			bind:sortDirection={filtersSortDir}
+			bind:propExplorer
+		/>
+	</div>
+	<div class="vaultman-tab-wrapper" class:is-hidden={filtersActiveTab !== "files"}>
+		<FiltersFilesTab
+			{plugin}
+			bind:sortBy={filtersSortBy}
+			bind:sortDirection={filtersSortDir}
+			bind:viewMode={filtersViewMode}
+			bind:fileList
+			bind:selectedFilePaths
+			onSelectionChange={(c) => (selectedCount = c)}
+		/>
+	</div>
+</div>
+
+<style>
+	.vaultman-filters-tabs-container {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+		position: relative;
+	}
+	.vaultman-tab-wrapper {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		width: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
+	.is-hidden {
+		display: none !important;
+	}
+</style>
