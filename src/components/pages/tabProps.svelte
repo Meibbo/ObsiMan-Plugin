@@ -11,18 +11,20 @@
     searchMode = 0,
     sortBy = $bindable("name"),
     sortDirection = $bindable("asc"),
-    propExplorer = $bindable(),
+    viewMode = $bindable("tree"),
+    explorer = $bindable(),
   }: {
     plugin: VaultmanPlugin;
     searchTerm?: string;
     searchMode?: number;
     sortBy?: string;
     sortDirection?: "asc" | "desc";
-    propExplorer: explorerProps | undefined;
+    viewMode?: any;
+    explorer: explorerProps | undefined;
   } = $props();
 
   onMount(() => {
-    propExplorer = new explorerProps(plugin);
+    explorer = new explorerProps(plugin);
   });
 
   function icon(el: HTMLElement, name: string) {
@@ -36,11 +38,11 @@
 </script>
 
 <div class="vaultman-props-tab-content">
-  {#if propExplorer}
+  {#if explorer}
     <PanelExplorer
       {plugin}
-      provider={propExplorer}
-      viewMode="tree"
+      provider={explorer}
+      bind:viewMode
       bind:searchTerm
       {searchMode}
       bind:sortBy

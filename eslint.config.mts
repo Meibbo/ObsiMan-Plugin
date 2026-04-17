@@ -5,6 +5,21 @@ import { globalIgnores } from "eslint/config";
 
 export default tseslint.config(
 	{
+		ignores: [
+			"node_modules",
+			"dist",
+			"obsidian-sample-plugin",
+			"esbuild.config.mjs",
+			"eslint.config.js",
+			"version-bump.mjs",
+			"versions.json",
+			"main.js",
+			".obsidian",
+			".claude",
+			"scripts",
+		],
+	},
+	{
 		languageOptions: {
 			globals: {
 				...globals.browser,
@@ -22,14 +37,4 @@ export default tseslint.config(
 		},
 	},
 	...(obsidianmd as any).configs.recommended,
-	globalIgnores([
-		"node_modules",
-		"dist",
-		"obsidian-sample-plugin",
-		"esbuild.config.mjs",
-		"eslint.config.js",
-		"version-bump.mjs",
-		"versions.json",
-		"main.js",
-	]),
 );

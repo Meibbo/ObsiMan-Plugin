@@ -95,8 +95,9 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
                 details: `Add tag "#${meta.tagPath}"`,
                 files: this.plugin.filterService.filteredFiles,
                 customLogic: true,
-                logicFunc: (_file, fm) => {
-                    const tags = Array.isArray(fm.tags) ? fm.tags : (fm.tags ? [fm.tags] : []);
+                logicFunc: (_file, fm: Record<string, unknown>) => {
+                    const raw = fm.tags;
+                    const tags = Array.isArray(raw) ? (raw as string[]) : (raw ? [String(raw as string)] : []);
                     if (tags.includes(meta.tagPath)) return null;
                     fm.tags = [...tags, meta.tagPath];
                     return fm;
@@ -157,10 +158,11 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 
     private async _deleteTag(tagPath: string): Promise<void> {
         for (const file of this.plugin.app.vault.getMarkdownFiles()) {
-            await this.plugin.app.fileManager.processFrontMatter(file, (fm) => {
-                if (!fm.tags) return;
-                const tags = Array.isArray(fm.tags) ? fm.tags : [fm.tags];
-                fm.tags = tags.filter((t: any) => String(t) !== tagPath && String(t) !== `#${tagPath}`);
+            await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
+                const raw = fm.tags;
+                if (!raw) return;
+                const tagsRaw = Array.isArray(raw) ? (raw as unknown[]) : [raw];
+                fm.tags = tagsRaw.filter((t) => String(t) !== tagPath && String(t) !== `#${tagPath}`);
             });
         }
         this.logic.invalidate();

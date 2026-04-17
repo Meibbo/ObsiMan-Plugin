@@ -8,6 +8,8 @@
   let {
     plugin,
     fileList = $bindable(),
+    searchTerm = $bindable(""),
+    searchMode = 0,
     sortBy = $bindable("name"),
     sortDirection = $bindable("asc"),
     viewMode = $bindable("grid"),
@@ -16,6 +18,8 @@
   }: {
     plugin: VaultmanPlugin;
     fileList: explorerFiles | undefined;
+    searchTerm?: string;
+    searchMode?: number;
     sortBy?: string;
     sortDirection?: "asc" | "desc";
     viewMode?: any;
@@ -47,7 +51,8 @@
       {plugin}
       provider={fileList}
       bind:viewMode
-      searchTerm=""
+      {searchTerm}
+      {searchMode}
       bind:sortBy
       bind:sortDirection
       {icon}

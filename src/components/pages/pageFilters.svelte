@@ -85,26 +85,30 @@
 	<div class="vaultman-tab-wrapper" class:is-hidden={filtersActiveTab !== "tags"}>
 		<FiltersTagsTab
 			{plugin}
-			searchTerm={filtersSearch}
+			bind:searchTerm={filtersSearch}
 			searchMode={filtersSearchCategory.tags}
 			bind:sortBy={filtersSortBy}
 			bind:sortDirection={filtersSortDir}
-			bind:tagsExplorer
+			bind:viewMode={filtersViewMode}
+			bind:explorer={tagsExplorer}
 		/>
 	</div>
 	<div class="vaultman-tab-wrapper" class:is-hidden={filtersActiveTab !== "props"}>
 		<FiltersPropsTab
 			{plugin}
-			searchTerm={filtersSearch}
+			bind:searchTerm={filtersSearch}
 			searchMode={filtersSearchCategory.props}
 			bind:sortBy={filtersSortBy}
 			bind:sortDirection={filtersSortDir}
-			bind:propExplorer
+			bind:viewMode={filtersViewMode}
+			bind:explorer={propExplorer}
 		/>
 	</div>
 	<div class="vaultman-tab-wrapper" class:is-hidden={filtersActiveTab !== "files"}>
 		<FiltersFilesTab
 			{plugin}
+			bind:searchTerm={filtersSearch}
+			searchMode={filtersSearchCategory.files}
 			bind:sortBy={filtersSortBy}
 			bind:sortDirection={filtersSortDir}
 			bind:viewMode={filtersViewMode}

@@ -1,6 +1,6 @@
 import { ItemView, type WorkspaceLeaf } from 'obsidian';
 import type { VaultmanPlugin } from '../../main';
-import { mount, unmount } from 'svelte';
+import { mount, unmount, type Component } from 'svelte';
 import VaultmanFrameSvelte from './frameVaultman.svelte';
 import { translate } from '../i18n/index';
 export const VAULTMAN_FRAME_TYPE = 'vaultman-frame';
@@ -25,7 +25,7 @@ export class VaultmanFrame extends ItemView {
 		contentEl.empty();
 		contentEl.addClass('vaultman-frame');
 
-		this.svelteApp = mount(VaultmanFrameSvelte, {
+		this.svelteApp = mount(VaultmanFrameSvelte as unknown as Component<{ plugin: VaultmanPlugin }>, {
 			target: contentEl,
 			props: { plugin: this.plugin },
 		});

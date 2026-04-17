@@ -120,7 +120,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
                 if (!currentCls.includes('is-deleted-prop')) currentCls = (currentCls + ' is-deleted-prop').trim();
             } else if (meta.isValueNode) {
                 const isValueDeleted = queue.some(op => 
-                    op.type === 'property' && op.property === meta.propName && op.action === 'delete' && (op as any).oldValue === meta.rawValue
+                    op.type === 'property' && op.property === meta.propName && op.action === 'delete' && op.oldValue === meta.rawValue
                 );
                 if (isValueDeleted) {
                     if (!currentCls.includes('is-deleted-value')) currentCls = (currentCls + ' is-deleted-value').trim();

@@ -1,7 +1,9 @@
 <script lang="ts">
-  import { untrack } from "svelte";
   import type { VaultmanPlugin } from "../../../main";
-  import type { ExplorerProvider, ExplorerViewMode } from "../../types/typeExplorer";
+  import type {
+    ExplorerProvider,
+    ExplorerViewMode,
+  } from "../../types/typeExplorer";
   import ViewTree from "../layout/viewTree.svelte";
   import ViewGrid from "../layout/viewGrid.svelte";
   import type { TreeNode } from "../../types/typeTree";
@@ -35,15 +37,13 @@
   let expandedIds = $state(new Set<string>());
 
   $effect(() => {
-    // We use untrack for provider calls to avoid circular reactivities if providers hit state
-    untrack(() => {
-      const mode = searchMode === 1 ? 'leaf' : 'all';
-      provider.setSearchTerm?.(searchTerm, mode as any);
-      provider.setSortBy?.(sortBy, sortDirection);
-      provider.setViewMode?.(viewMode);
-      provider.setAddMode?.(addMode);
-      refreshData();
-    });
+    // React directly to prop changes
+    const mode = searchMode === 1 ? "leaf" : "all";
+    provider.setSearchTerm?.(searchTerm, mode as any);
+    provider.setSortBy?.(sortBy, sortDirection);
+    provider.setViewMode?.(viewMode);
+    provider.setAddMode?.(addMode);
+    refreshData();
   });
 
   function refreshData() {
@@ -64,7 +64,10 @@
     if (node) provider.handleContextMenu(node, e);
   }
 
-  function findNodeById(nodes: TreeNode<any>[], id: string): TreeNode<any> | undefined {
+  function findNodeById(
+    nodes: TreeNode<any>[],
+    id: string,
+  ): TreeNode<any> | undefined {
     for (const n of nodes) {
       if (n.id === id) return n;
       if (n.children) {
@@ -99,28 +102,40 @@
     </div>
   {:else if viewMode === "grid"}
     <div class="vaultman-grid-container">
-    <ViewGrid
-      files={flatFiles}
-      totalCount={plugin.propertyIndex.fileCount}
-      bind:selectedFiles
-      onSelectionChange={() => {}}
-      onFileClick={(file) => {
-          const node = { id: file.path, label: file.basename, meta: { file }, icon: '', depth: 0 };
+      <ViewGrid
+        files={flatFiles}
+        totalCount={plugin.propertyIndex.fileCount}
+        bind:selectedFiles
+        onSelectionChange={() => {}}
+        onFileClick={(file: any) => {
+          const node = {
+            id: file.path,
+            label: file.basename,
+            meta: { file },
+            icon: "",
+            depth: 0,
+          };
           provider.handleNodeClick(node as any);
-      }}
-      onContextMenu={(file, e) => {
-          const node = { id: file.path, label: file.basename, meta: { file }, icon: '', depth: 0 };
+        }}
+        onContextMenu={(file: any, e: MouseEvent) => {
+          const node = {
+            id: file.path,
+            label: file.basename,
+            meta: { file },
+            icon: "",
+            depth: 0,
+          };
           provider.handleContextMenu(node as any, e);
-      }}
-      sortColumn={sortBy as any}
-      {sortDirection}
-      onSortChange={(col, dir) => {
+        }}
+        sortColumn={sortBy as any}
+        {sortDirection}
+        onSortChange={(col: any, dir: any) => {
           sortBy = col;
           sortDirection = dir;
-      }}
-      app={plugin.app}
-    />
-  </div>
+        }}
+        app={plugin.app}
+      />
+    </div>
   {/if}
 </div>
 
@@ -131,10 +146,14 @@
     height: 100%;
     width: 100%;
     overflow: hidden;
+    flex: 1;
+    min-height: 0;
   }
-  .vaultman-tree-container, .vaultman-grid-container {
-      flex: 1;
-      overflow-y: auto;
-      min-height: 0;
+  .vaultman-tree-container,
+  .vaultman-grid-container {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    height: 100%;
   }
 </style>
