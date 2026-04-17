@@ -149,7 +149,14 @@
     flex: 1;
     min-height: 0;
   }
-  .vaultman-tree-container,
+  .vaultman-tree-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+  }
   .vaultman-grid-container {
     flex: 1;
     overflow-y: auto;
