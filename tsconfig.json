@@ -42,7 +42,6 @@
 		}
 	},
 	"include": [
-		"src/main.tsn.ts",
 		"src/**/*.ts",
 		"src/**/*.svelte",
 		"vitest.config.ts",
