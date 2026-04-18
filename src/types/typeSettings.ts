@@ -5,7 +5,11 @@ import type { MenuHideRule } from './typeCMenu';
 export type Language = 'auto' | 'en' | 'es';
 
 export interface VaultmanSettings {
-	language: Language;
+	/** Glassmorphism blur intensity for bottom bar and popups (0–100, maps to 0–20px) */
+	glassBlurIntensity: number;
+	// after this line these settings are not used
+	// 
+	// -----------------------------------------------------------------
 	defaultPropertyType: string;
 	filterTemplates: FilterTemplate[];
 	/** Path to the active session .md file (empty = no session) */
@@ -38,8 +42,6 @@ export interface VaultmanSettings {
 	openMode: 'sidebar' | 'main' | 'both';
 	/** Order of pages in the sidebar bottom nav (page IDs: 'ops', 'statistics', 'filters') */
 	pageOrder: string[];
-	/** Glassmorphism blur intensity for bottom bar and popups (0–100, maps to 0–20px) */
-	glassBlurIntensity: number;
 	/** When true, each page opens as its own Obsidian sidebar pane */
 	separatePanes: boolean;
 	/** File list view mode in the sidebar Files page */
@@ -76,7 +78,10 @@ export interface iVaultmanPlugin extends Plugin {
 }
 
 export const DEFAULT_SETTINGS: VaultmanSettings = {
-	language: 'auto',
+	glassBlurIntensity: 15,
+	// after this line these settings are not used
+	// 
+	// -----------------------------------------------------------------
 	defaultPropertyType: 'text',
 	filterTemplates: [],
 	sessionFilePath: '',
@@ -98,7 +103,6 @@ export const DEFAULT_SETTINGS: VaultmanSettings = {
 	viewMode: 'list',
 	filtersShowTabLabels: true,
 	filtersTabLabelsMigrated: true,
-	glassBlurIntensity: 60,
 	contextMenuShowInFileMenu: true,
 	contextMenuShowInEditorMenu: true,
 	contextMenuShowInMoreOptions: true,

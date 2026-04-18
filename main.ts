@@ -1,15 +1,15 @@
 import { Plugin, WorkspaceLeaf } from 'obsidian';
 import type { VaultmanSettings } from './src/types/typeSettings';
 import { DEFAULT_SETTINGS } from './src/types/typeSettings';
-import { PropertyIndexService } from './src/services/servicePropertyIndex';
+import { PropertyIndexService } from './src/services/servicePropIndex';
 import { FilterService } from './src/services/serviceFilter';
-import { OperationQueueService } from './src/services/serviceOperationQueue';
-import { VaultmanFrame, VAULTMAN_FRAME_TYPE } from './src/components/frameVaultman';
+import { OperationQueueService } from './src/services/serviceQueue';
+import { VaultmanFrame, TYPE_FRAME_VM } from './src/types/typeFrame';
 import { IconicService } from './src/services/serviceIcons';
-import { PropertyTypeService } from './src/services/servicePropertyType';
-import { ContextMenuService } from './src/services/serviceContextMenu';
+import { PropertyTypeService } from './src/services/servicePropType';
+import { ContextMenuService } from './src/services/serviceCMenu';
 import { VaultmanSettingsTab } from './src/settingsVaultman';
-import { setLanguage, translate } from './src/i18n/index';
+import { translate } from './src/i18n/index';
 
 export class VaultmanPlugin extends Plugin {
 	settings!: VaultmanSettings;
@@ -28,8 +28,6 @@ export class VaultmanPlugin extends Plugin {
 	async onload(): Promise<void> {
 		await this.loadSettings();
 		this.updateGlassBlur();
-
-		setLanguage(this.settings.language);
 
 		this.propertyIndex = new PropertyIndexService(this.app);
 		this.filterService = new FilterService(this.app);
@@ -58,7 +56,7 @@ export class VaultmanPlugin extends Plugin {
 			void this.activateView();
 		});
 
-		this.registerView(VAULTMAN_FRAME_TYPE, (leaf) => new VaultmanFrame(leaf, this));
+		this.registerView(TYPE_FRAME_VM, (leaf) => new VaultmanFrame(leaf, this));
 
 		this.addCommand({
 			id: 'apply-queue',
@@ -81,11 +79,6 @@ export class VaultmanPlugin extends Plugin {
 		});
 
 		this.addSettingTab(new VaultmanSettingsTab(this.app, this));
-	}
-
-	async onExternalSettingsChange(): Promise<void> {
-		await this.loadSettings();
-		setLanguage(this.settings.language);
 	}
 
 	async loadSettings(): Promise<void> {
@@ -130,7 +123,7 @@ export class VaultmanPlugin extends Plugin {
 
 	async openView(mode: 'sidebar' | 'main'): Promise<void> {
 		const { workspace } = this.app;
-		let leaf: WorkspaceLeaf | null = workspace.getLeavesOfType(VAULTMAN_FRAME_TYPE)[0];
+		let leaf: WorkspaceLeaf | null = workspace.getLeavesOfType(TYPE_FRAME_VM)[0];
 
 		if (!leaf) {
 			if (mode === 'sidebar') {
@@ -141,7 +134,7 @@ export class VaultmanPlugin extends Plugin {
 
 			if (leaf) {
 				await leaf.setViewState({
-					type: VAULTMAN_FRAME_TYPE,
+					type: TYPE_FRAME_VM,
 					active: true,
 				});
 			}

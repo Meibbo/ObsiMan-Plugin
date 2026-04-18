@@ -1,7 +1,7 @@
 import { Modal, Setting, type App, type TFile } from 'obsidian';
 import type { PropertyAction, PropertyType, PendingChange } from '../types/typeOps';
 import { DELETE_PROP, NATIVE_RENAME_PROP } from '../types/typeOps';
-import type { PropertyIndexService } from '../services/servicePropertyIndex';
+import type { PropertyIndexService } from '../services/servicePropIndex';
 import { PropertySuggest } from '../utils/autocomplete';
 import { translate } from '../i18n/index';
 

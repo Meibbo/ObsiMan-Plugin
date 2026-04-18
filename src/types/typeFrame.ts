@@ -1,9 +1,9 @@
 import { ItemView, type WorkspaceLeaf } from 'obsidian';
 import type { VaultmanPlugin } from '../../main';
 import { mount, unmount, type Component } from 'svelte';
-import VaultmanFrameSvelte from './frameVaultman.svelte';
+import VaultmanFrameSvelte from '../components/frameVaultman.svelte';
 import { translate } from '../i18n/index';
-export const VAULTMAN_FRAME_TYPE = 'vaultman-frame';
+export const TYPE_FRAME_VM = 'vaultman-frame';
 /**
  * Full-width explorer view shell.
  */
@@ -16,7 +16,7 @@ export class VaultmanFrame extends ItemView {
 		this.plugin = plugin;
 	}
 
-	getViewType(): string { return VAULTMAN_FRAME_TYPE; }
+	getViewType(): string { return TYPE_FRAME_VM; }
 	getDisplayText(): string { return translate('plugin.frame_name'); }
 	getIcon(): string { return 'lucide-dessert'; }
 

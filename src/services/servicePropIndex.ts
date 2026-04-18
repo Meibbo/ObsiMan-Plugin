@@ -2,10 +2,7 @@ import { Component, type App, type TAbstractFile, type CachedMetadata } from 'ob
 
 /**
  * Builds and maintains a live index of all frontmatter property names
- * and their observed values across the vault.
- *
- * Replaces Python's CacheManager + available_properties dictionary.
- * Uses Obsidian's metadataCache instead of a pickle file.
+ * and their observed values across the vault. *
  */
 export class PropertyIndexService extends Component {
 	/** property name → set of observed string values */

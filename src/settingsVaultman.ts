@@ -1,6 +1,6 @@
 import { PluginSettingTab, Setting, type App } from 'obsidian';
-import type { iVaultmanPlugin, Language } from './types/typeSettings';
-import { translate, setLanguage } from './i18n/index';
+import type { iVaultmanPlugin} from './types/typeSettings';
+import { translate} from './i18n/index';
 
 export class VaultmanSettingsTab extends PluginSettingTab {
 	private plugin: iVaultmanPlugin;
@@ -13,23 +13,6 @@ export class VaultmanSettingsTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
-
-		// Language
-		new Setting(containerEl)
-			.setName(translate('settings.language'))
-			.setDesc(translate('settings.language.desc'))
-			.addDropdown((dd) =>
-				dd
-					.addOptions({ auto: 'Auto', en: 'English', es: 'Español' })
-					.setValue(this.plugin.settings.language)
-					.onChange(async (v) => {
-						this.plugin.settings.language = v as Language;
-						setLanguage(v as Language);
-						await this.plugin.saveSettings();
-						this.display(); // Refresh labels
-					})
-			);
-
 		// Default property type
 		new Setting(containerEl)
 			.setName(translate('settings.default_type'))

@@ -1,5 +1,5 @@
 import { setIcon } from 'obsidian';
-import type { OperationQueueService } from '../../services/serviceOperationQueue';
+import type { OperationQueueService } from '../../services/serviceQueue';
 import { translate } from '../../i18n/index';
 
 /**

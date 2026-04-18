@@ -1,5 +1,5 @@
 import { Modal, Notice, Setting, type App } from 'obsidian';
-import type { OperationQueueService } from '../services/serviceOperationQueue';
+import type { OperationQueueService } from '../services/serviceQueue';
 import { FIND_REPLACE_CONTENT } from '../types/typeOps';
 import { translate } from '../i18n/index';
 
