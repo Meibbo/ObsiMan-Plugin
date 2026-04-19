@@ -1,9 +1,12 @@
 import { mount, unmount } from 'svelte';
 import type { Component } from 'svelte';
 import type { OperationQueueService } from '../../services/serviceQueue';
+import type { OperationDiffContext } from '../../services/serviceDiff';
 import { translate } from '../../i18n/index';
 import BtnSelection from '../btnSelection.svelte';
 import type { BtnSelectionItem } from '../../types/typeUI';
+import { QueueListComponent } from '../componentQueueList';
+import ViewDiff from '../views/viewDiff.svelte';
 
 /**
  * In-frame floating island showing the pending operation queue.
@@ -24,8 +27,11 @@ export class QueueIslandComponent {
 	private listEl: HTMLElement | null = null;
 	private headerEl: HTMLElement | null = null;
 	private btnComponent: ReturnType<typeof mount> | null = null;
+	private bodyComponent: ReturnType<typeof mount> | null = null;
+	private queueListComponent: QueueListComponent | null = null;
 
 	private bodyMode: 'list' | 'diff' = 'list';
+	private expandedOpContext: OperationDiffContext | null = null;
 
 	constructor(
 		containerEl: HTMLElement,
@@ -59,7 +65,8 @@ export class QueueIslandComponent {
 				icon: 'lucide-git-compare',
 				label: translate('queue.file_diff'),
 				isToggle: true,
-				isActive: this.bodyMode === 'diff',
+				isActive: this.expandedOpContext !== null || this.bodyMode === 'diff',
+				disabled: this.expandedOpContext !== null,
 				onClick: () => {
 					this.toggleBodyMode();
 				},
@@ -92,7 +99,20 @@ export class QueueIslandComponent {
 	}
 
 	private toggleBodyMode(): void {
+		if (this.expandedOpContext) return;
 		this.bodyMode = this.bodyMode === 'list' ? 'diff' : 'list';
+		this.renderBtnRow();
+		this.renderBody();
+	}
+
+	private setExpandedOpContext(path: string, opId: string): void {
+		this.expandedOpContext = { path, opId };
+		this.renderBtnRow();
+		this.renderBody();
+	}
+
+	private clearExpandedOpContext(): void {
+		this.expandedOpContext = null;
 		this.renderBtnRow();
 		this.renderBody();
 	}
@@ -120,13 +140,54 @@ export class QueueIslandComponent {
 
 	private renderBody(): void {
 		if (!this.listEl) return;
+		this.queueListComponent = null;
+		if (this.bodyComponent) {
+			void unmount(this.bodyComponent);
+			this.bodyComponent = null;
+		}
 		this.listEl.empty();
 
+		if (this.expandedOpContext) {
+			const tx = this.queueService.getTransaction(this.expandedOpContext.path);
+			const hasOp = tx?.ops.some((op) => op.id === this.expandedOpContext?.opId) ?? false;
+			if (!hasOp) {
+				this.expandedOpContext = null;
+			}
+		}
+
+		if (this.expandedOpContext) {
+			this.bodyComponent = mount(
+				ViewDiff as unknown as Component<{
+					queueService: OperationQueueService;
+					expandedOpContext: OperationDiffContext;
+					mode: 'operation-focused';
+				}>,
+				{
+					target: this.listEl,
+					props: {
+						queueService: this.queueService,
+						expandedOpContext: this.expandedOpContext,
+						mode: 'operation-focused',
+					},
+				}
+			);
+			return;
+		}
+
 		if (this.bodyMode === 'diff') {
-			this.listEl.createDiv({
-				cls: 'vm-viewdiff-placeholder',
-				text: translate('queue.file_diff_coming'),
-			});
+			this.bodyComponent = mount(
+				ViewDiff as unknown as Component<{
+					queueService: OperationQueueService;
+					mode: 'file-focused';
+				}>,
+				{
+					target: this.listEl,
+					props: {
+						queueService: this.queueService,
+						mode: 'file-focused',
+					},
+				}
+			);
 			return;
 		}
 
@@ -136,22 +197,35 @@ export class QueueIslandComponent {
 			return;
 		}
 
-		for (const vfs of entries) {
-			const rowEl = this.listEl.createDiv({ cls: 'vaultman-queue-island-row' });
-			rowEl.createSpan({
-				cls: 'vaultman-queue-island-row-files',
-				text: translate('queue.file_row', { ops: vfs.ops.length }),
-			});
-			rowEl.createSpan({
-				cls: 'vaultman-queue-island-row-detail',
-				text: vfs.originalPath.split('/').pop() ?? vfs.originalPath,
-			});
-		}
+		this.queueListComponent = new QueueListComponent(this.listEl, {
+			onRemoveFile: (path) => {
+				this.queueService.removeFile(path);
+			},
+			onRemoveOp: (path, opId) => {
+				if (this.expandedOpContext?.path === path && this.expandedOpContext.opId === opId) {
+					this.expandedOpContext = null;
+				}
+				this.queueService.removeOp(path, opId);
+			},
+			onExpandOp: (path, opId) => {
+				this.setExpandedOpContext(path, opId);
+			},
+			onCollapseOp: () => {
+				this.clearExpandedOpContext();
+			},
+			showHeader: false,
+			expandedPath: null,
+			expandedOpId: null,
+		});
+		this.queueListComponent.render(this.queueService);
 	}
 
 	render(): void {
 		if (!this.listEl || !this.headerEl) return;
-		this.headerEl.setText(`${this.queueService.fileCount} ${translate('queue.island.pending')}`);
+		this.headerEl.setText(translate('queue.summary', {
+			ops: this.queueService.opCount,
+			files: this.queueService.fileCount,
+		}));
 		this.renderBody();
 	}
 
@@ -160,10 +234,16 @@ export class QueueIslandComponent {
 			void unmount(this.btnComponent);
 			this.btnComponent = null;
 		}
+		if (this.bodyComponent) {
+			void unmount(this.bodyComponent);
+			this.bodyComponent = null;
+		}
 		this.islandEl?.remove();
 		this.islandEl = null;
 		this.btnRowEl = null;
 		this.listEl = null;
 		this.headerEl = null;
+		this.queueListComponent = null;
+		this.expandedOpContext = null;
 	}
 }

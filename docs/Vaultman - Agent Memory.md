@@ -85,8 +85,17 @@ input: AI-gen
 ---
 
 ## Last updated
-- **Date**: 2026-04-17
-- **Agent**: Antigravity (Gemini 1.5) — Session 39 (Explorer Reactivity & Memory Cleanup)
+- **Date**: 2026-04-19
+- **Agent**: Antigravity (Gemini 3 Flash) — Session 40 (Branch Handoff)
+
+## Session 40 summary (2026-04-19)
+**Status: Branch Created for Handover.**
+Key accomplishments:
+- **Branch Creation**: Created `file-centric-queue-handoff` from `file-centric-queue` to allow another agent to continue work.
+- **Certification Run**: Ran `npm run build` and `npm run lint`.
+- **Build status**: ✅ PASS (0 warnings, 0 errors).
+- **Lint status**: ❌ FAIL (67 problems). Most errors are `Unsafe member access` or `Unsafe argument` in new file-centric queue logic.
+- **Branch Handover**: Updated `AGENTS.md` and `Agent Memory.md` to point to the new branch.
 
 ## Iter 19.3 summary (2026-04-17)
 **Status: Stabilized & Certified.**
@@ -128,6 +137,17 @@ Key accomplishments:
 - [ ] Context menu injection into Obsidian's native right-click.
 - [ ] Sidebar tab editor for mobile.
 - [ ] Bottom bar as replacement/integration of Obsidian native tab system.
+
+---
+
+## Session 2026-04-19 — Task 14d row expand/collapse
+- Implemented row-level expand/collapse in `componentQueueList.ts`, now rendered per staged op instead of per file summary.
+- Added `src/components/views/viewDiff.svelte` as a Svelte 5 component with lazy mount, operation-focused diff mode, and fallback file-focused mode for the global `File Diff` squircle.
+- Wired `src/components/layout/islandQueue.ts` so expanded rows take precedence over the global diff toggle; the 3rd squircle remains active only when no row is expanded.
+- Added `buildOperationDiff()` in `src/services/serviceDiff.ts` to derive a diff for a single staged op without introducing a second diff engine.
+- Added minimal styles and i18n keys for the new in-island diff UI.
+- Verification: `npm run build` passes.
+- Next likely step: decide whether the future Fase 4 “more options” flow should open per-file drill-in, picker, or shared selection state.
 
 ---
 

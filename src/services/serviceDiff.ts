@@ -32,6 +32,11 @@ export interface FileDiff {
   opSummaries: Array<{ id: string; action: string; details: string }>;
 }
 
+export interface OperationDiffContext {
+  path: string;
+  opId: string;
+}
+
 function cloneFm(fm: Record<string, unknown>): Record<string, unknown> {
   const out = { ...fm };
   delete out["position"]; // metadataCache artifact
@@ -85,6 +90,66 @@ export function buildDiff(txs: Map<string, VirtualFileState>): FileDiff[] {
   return [...txs.values()].map(buildFileDiff);
 }
 
+function cloneState(vfs: VirtualFileState) {
+  return {
+    file: vfs.file,
+    originalPath: vfs.originalPath,
+    newPath: undefined as string | undefined,
+    fm: { ...cloneFm(vfs.fmInitial) },
+    body: vfs.bodyInitial,
+    ops: [],
+    fmInitial: { ...cloneFm(vfs.fmInitial) },
+    bodyInitial: vfs.bodyInitial,
+    bodyLoaded: true,
+  };
+}
+
+export function buildOperationDiff(
+  txs: Map<string, VirtualFileState>,
+  context: OperationDiffContext,
+): FileDiff | null {
+  const vfs = txs.get(context.path);
+  if (!vfs) return null;
+
+  const opIndex = vfs.ops.findIndex((op) => op.id === context.opId);
+  if (opIndex < 0) return null;
+
+  const selectedOp = vfs.ops[opIndex];
+  const before = cloneState(vfs);
+
+  for (let i = 0; i < opIndex; i++) {
+    vfs.ops[i].apply(before);
+  }
+
+  const after = {
+    ...before,
+    fm: { ...before.fm },
+    body: before.body,
+  };
+  selectedOp.apply(after);
+
+  const fmBefore = cloneFm(before.fm);
+  const fmAfter = cloneFm(after.fm);
+
+  return {
+    path: vfs.originalPath,
+    newPath: after.newPath,
+    fmBefore,
+    fmAfter,
+    fmDeltas: diffFm(fmBefore, fmAfter),
+    bodyBefore: before.body,
+    bodyAfter: after.body,
+    bodyChanged: before.body !== after.body,
+    opSummaries: [
+      {
+        id: selectedOp.id,
+        action: selectedOp.action,
+        details: selectedOp.details,
+      },
+    ],
+  };
+}
+
 const BODY_HUNK_SIZE_LIMIT = 200_000;
 
 /**
@@ -120,9 +185,10 @@ type LineOp = {
 function lcsTable(a: string[], b: string[]): number[][] {
   const n = a.length,
     m = b.length;
-  const t: number[][] = Array.from({ length: n + 1 }, () =>
-    new Array(m + 1).fill(0),
-  );
+  const t: number[][] = [];
+  for (let i = 0; i <= n; i++) {
+    t.push(new Array<number>(m + 1).fill(0));
+  }
   for (let i = 1; i <= n; i++) {
     for (let j = 1; j <= m; j++) {
       t[i][j] =

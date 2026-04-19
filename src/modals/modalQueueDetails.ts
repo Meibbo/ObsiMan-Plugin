@@ -89,13 +89,13 @@ export class QueueDetailsModal extends Modal {
 					rowEl.addClass(`vaultman-diff-${delta.kind}`);
 					rowEl.createSpan({ cls: 'vaultman-diff-key', text: delta.key });
 					if (delta.kind === 'changed') {
-						rowEl.createSpan({ cls: 'vaultman-diff-before', text: String(delta.before ?? '') });
+						rowEl.createSpan({ cls: 'vaultman-diff-before', text: this.formatDiffValue(delta.before) });
 						rowEl.createSpan({ cls: 'vaultman-diff-sep', text: ' → ' });
-						rowEl.createSpan({ cls: 'vaultman-diff-after', text: String(delta.after ?? '') });
+						rowEl.createSpan({ cls: 'vaultman-diff-after', text: this.formatDiffValue(delta.after) });
 					} else if (delta.kind === 'added') {
-						rowEl.createSpan({ cls: 'vaultman-diff-after', text: String(delta.after ?? '') });
+						rowEl.createSpan({ cls: 'vaultman-diff-after', text: this.formatDiffValue(delta.after) });
 					} else if (delta.kind === 'removed') {
-						rowEl.createSpan({ cls: 'vaultman-diff-before', text: String(delta.before ?? '') });
+						rowEl.createSpan({ cls: 'vaultman-diff-before', text: this.formatDiffValue(delta.before) });
 					}
 				}
 			}
@@ -130,6 +130,12 @@ export class QueueDetailsModal extends Modal {
 				});
 			}
 		}
+	}
+
+	private formatDiffValue(value: unknown): string {
+		if (value === undefined || value === null) return '';
+		if (typeof value === 'string') return value;
+		return JSON.stringify(value);
 	}
 
 	private async executeWithProgress(): Promise<void> {

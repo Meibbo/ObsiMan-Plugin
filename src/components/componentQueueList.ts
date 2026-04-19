@@ -1,11 +1,16 @@
-import type { VirtualFileState } from "../types/typeOps";
+import type { StagedOp, VirtualFileState } from "../types/typeOps";
 import type { OperationQueueService } from "../services/serviceQueue";
 import { translate } from "../i18n/index";
 
 export interface QueueListCallbacks {
   onRemoveFile: (path: string) => void;
   onRemoveOp?: (path: string, opId: string) => void;
+  onExpandOp?: (path: string, opId: string) => void;
+  onCollapseOp?: () => void;
   selectable?: boolean;
+  showHeader?: boolean;
+  expandedPath?: string | null;
+  expandedOpId?: string | null;
 }
 
 export class QueueListComponent {
@@ -31,20 +36,24 @@ export class QueueListComponent {
       return;
     }
 
-    const headerEl = this.containerEl.createDiv({
-      cls: "vaultman-queue-header",
-    });
-    headerEl.createSpan({
-      text: translate("queue.summary", {
-        files: service.fileCount,
-        ops: service.opCount,
-      }),
-      cls: "vaultman-queue-title",
-    });
+    if (this.callbacks.showHeader !== false) {
+      const headerEl = this.containerEl.createDiv({
+        cls: "vaultman-queue-header",
+      });
+      headerEl.createSpan({
+        text: translate("queue.summary", {
+          files: service.fileCount,
+          ops: service.opCount,
+        }),
+        cls: "vaultman-queue-title",
+      });
+    }
 
     const listEl = this.containerEl.createDiv({ cls: "vaultman-queue-list" });
     for (const vfs of entries) {
-      this.renderFileRow(listEl, vfs);
+      for (const op of vfs.ops) {
+        this.renderOpRow(listEl, vfs, op);
+      }
     }
   }
 
@@ -52,8 +61,16 @@ export class QueueListComponent {
     return [...this.selectedPaths];
   }
 
-  private renderFileRow(parent: HTMLElement, vfs: VirtualFileState): void {
+  private renderOpRow(parent: HTMLElement, vfs: VirtualFileState, op: StagedOp): void {
     const itemEl = parent.createDiv({ cls: "vaultman-queue-item" });
+    const isExpanded =
+      this.callbacks.expandedPath === vfs.originalPath &&
+      this.callbacks.expandedOpId === op.id;
+
+    itemEl.toggleClass("is-expanded", isExpanded);
+    itemEl.setAttribute("role", "button");
+    itemEl.setAttribute("tabindex", "0");
+    itemEl.setAttribute("aria-expanded", isExpanded ? "true" : "false");
 
     if (this.callbacks.selectable) {
       const cb = itemEl.createEl("input", {
@@ -64,25 +81,54 @@ export class QueueListComponent {
         if (cb.checked) this.selectedPaths.add(vfs.originalPath);
         else this.selectedPaths.delete(vfs.originalPath);
       });
+      cb.addEventListener("click", (evt) => {
+        evt.stopPropagation();
+      });
     }
 
     itemEl.createSpan({
+      cls: "vaultman-queue-index",
+      text: isExpanded ? "▼" : "▶",
+    });
+
+    itemEl.createSpan({
       cls: "vaultman-queue-path",
-      text: vfs.originalPath,
+      text: op.details,
     });
 
     itemEl.createSpan({
       cls: "vaultman-queue-file-count",
-      text: translate("queue.file_row", { ops: vfs.ops.length }),
+      text: vfs.originalPath.split("/").pop() ?? vfs.originalPath,
     });
 
     const removeBtn = itemEl.createEl("button", {
       cls: "vaultman-filter-remove-btn clickable-icon",
-      attr: { "aria-label": "Remove all ops on this file" },
+      attr: { "aria-label": "Remove op" },
     });
     removeBtn.setText("\u00d7");
-    removeBtn.addEventListener("click", () =>
-      this.callbacks.onRemoveFile(vfs.originalPath),
-    );
+    removeBtn.addEventListener("click", (evt) => {
+      evt.stopPropagation();
+      if (this.callbacks.onRemoveOp) {
+        this.callbacks.onRemoveOp(vfs.originalPath, op.id);
+        return;
+      }
+      this.callbacks.onRemoveFile(vfs.originalPath);
+    });
+
+    const toggleExpanded = () => {
+      if (isExpanded) {
+        this.callbacks.onCollapseOp?.();
+      } else {
+        this.callbacks.onExpandOp?.(vfs.originalPath, op.id);
+      }
+    };
+
+    itemEl.addEventListener("click", toggleExpanded);
+    itemEl.addEventListener("keydown", (evt: KeyboardEvent) => {
+      if (evt.key === "Enter" || evt.key === " ") {
+        evt.preventDefault();
+        toggleExpanded();
+      }
+    });
   }
 }

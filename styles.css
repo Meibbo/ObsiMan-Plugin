@@ -303,6 +303,23 @@
   padding: 3px 0;
   font-size: 0.8em;
   border-bottom: 1px solid var(--vaultman-border);
+  cursor: pointer;
+}
+
+.vaultman-queue-item:hover {
+  background: var(--vaultman-bg-hover);
+}
+
+.vaultman-queue-item.is-expanded {
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+
+.vaultman-queue-path {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .vaultman-queue-checkbox {
@@ -4338,6 +4355,173 @@ input.vaultman-filters-search-input::-webkit-search-results-decoration {
   flex-direction: column;
   gap: 4px;
   min-height: 80px;
+}
+
+.vaultman-viewdiff {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  height: 100%;
+}
+
+.vaultman-viewdiff-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.vaultman-viewdiff-title {
+  font-size: var(--font-ui-small);
+  font-weight: 600;
+  color: var(--text-normal);
+  word-break: break-word;
+}
+
+.vaultman-viewdiff-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vaultman-viewdiff-toggle,
+.vaultman-viewdiff-more {
+  min-height: 32px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.vaultman-viewdiff-toggle.is-active {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  border-color: var(--color-accent);
+  color: var(--text-normal);
+}
+
+.vaultman-viewdiff-more:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.vaultman-viewdiff-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  overflow: auto;
+}
+
+.vaultman-viewdiff-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vaultman-viewdiff-section-title {
+  font-size: var(--font-ui-smaller);
+  font-weight: 700;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.vaultman-viewdiff-empty,
+.vaultman-viewdiff-empty-row {
+  color: var(--text-faint);
+  font-size: var(--font-ui-small);
+}
+
+.vaultman-viewdiff-delta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--background-modifier-hover);
+}
+
+.vaultman-viewdiff-delta-key {
+  font-size: var(--font-ui-smaller);
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+.vaultman-viewdiff-delta-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-small);
+}
+
+.vaultman-viewdiff-add {
+  background: var(--vaultman-diff-added);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.vaultman-viewdiff-del {
+  background: var(--vaultman-diff-deleted);
+  padding: 1px 4px;
+  border-radius: 4px;
+  text-decoration: line-through;
+}
+
+.vaultman-viewdiff-arrow {
+  color: var(--text-faint);
+}
+
+.vaultman-viewdiff-hunk {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vaultman-viewdiff-hunk-header {
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+}
+
+.vaultman-viewdiff-line {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 8px;
+  padding: 2px 6px;
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-small);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.vaultman-viewdiff-line.is-add {
+  background: var(--vaultman-diff-added);
+}
+
+.vaultman-viewdiff-line.is-del {
+  background: var(--vaultman-diff-deleted);
+}
+
+.vaultman-viewdiff-line-prefix {
+  color: var(--text-faint);
+}
+
+.vaultman-viewdiff-document {
+  margin: 0;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-small);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: auto;
 }
 
 .vaultman-queue-island-row,

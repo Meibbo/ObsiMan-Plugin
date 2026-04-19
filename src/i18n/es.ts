@@ -113,6 +113,12 @@ export const es: Record<string, string> = {
 	'queue.view_diff.full_document': 'Documento completo',
 	'queue.view_diff.file_picker_placeholder': 'Seleccionar archivo…',
 	'queue.view_diff.body_omitted': 'cuerpo modificado ({bytes} bytes) — diff omitido',
+	'queue.view_diff.more_options': 'Más opciones',
+	'queue.view_diff.frontmatter': 'Frontmatter',
+	'queue.view_diff.no_frontmatter_changes': 'Sin cambios en frontmatter',
+	'queue.view_diff.body': 'Cuerpo',
+	'queue.view_diff.no_body_changes': 'Sin cambios en el cuerpo',
+	'queue.view_diff.document': 'Documento',
 
 	// Queue details
 	'queue.title': 'Detalles de Cola',

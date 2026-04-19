@@ -116,6 +116,12 @@ export const en: Record<string, string> = {
 	'queue.view_diff.full_document': 'Full document',
 	'queue.view_diff.file_picker_placeholder': 'Select file…',
 	'queue.view_diff.body_omitted': 'body modified ({bytes} bytes) — diff omitted',
+	'queue.view_diff.more_options': 'More options',
+	'queue.view_diff.frontmatter': 'Frontmatter',
+	'queue.view_diff.no_frontmatter_changes': 'No frontmatter changes',
+	'queue.view_diff.body': 'Body',
+	'queue.view_diff.no_body_changes': 'No body changes',
+	'queue.view_diff.document': 'Document',
 
 	// Queue details
 	'queue.title': 'Queue Details',

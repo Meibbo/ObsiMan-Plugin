@@ -24,7 +24,7 @@
 - **Plugin**: Vaultman — bulk property editor and vault management for Obsidian
 - **Stack**: TypeScript + Obsidian Plugin API + esbuild + ESLint
 - **Repo**: `https://github.com/Meibbo/Vaultman-Plugin`
-- **Current branch**: `add-functions`
+- **Current branch**: `file-centric-queue-handoff`
 - **Version**: `1.0.0-beta.9` (working toward `1.0.0` stable)
 - **Primary author**: Meibbo
 
