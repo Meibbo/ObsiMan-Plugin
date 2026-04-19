@@ -36,3 +36,12 @@ export interface FabDef {
 	action: () => void;
 	isPlaceholder?: boolean;
 }
+
+export interface BtnSelectionItem {
+	icon: string;        // Lucide icon name (e.g. "lucide-trash")
+	label: string;       // i18n-resolved aria-label + tooltip
+	onClick: () => void; // fire-and-forget; async callers wrap with `void`
+	isActive?: boolean;  // visual active state
+	isToggle?: boolean;  // toggleable button
+	disabled?: boolean;  // grayed out, non-clickable
+}

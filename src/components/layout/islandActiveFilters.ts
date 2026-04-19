@@ -1,7 +1,11 @@
-import { setIcon, Menu } from 'obsidian';
+import { Menu, setIcon } from 'obsidian';
+import { mount, unmount } from 'svelte';
+import type { Component } from 'svelte';
 import { translate } from '../../i18n/index';
 import type { VaultmanPlugin } from '../../../main';
 import { SaveTemplateModal } from '../../modals/modalSaveTemplate';
+import BtnSelection from '../btnSelection.svelte';
+import type { BtnSelectionItem } from '../../types/typeUI';
 
 /**
  * In-frame floating island showing active filter rules.
@@ -13,82 +17,89 @@ export class ActiveFiltersIslandComponent {
 	private onClose: () => void;
 
 	private islandEl: HTMLElement | null = null;
+	private btnRowEl: HTMLElement | null = null;
 	private listEl: HTMLElement | null = null;
 	private headerEl: HTMLElement | null = null;
+	private btnComponent: ReturnType<typeof mount> | null = null;
 
-	constructor(
-		containerEl: HTMLElement,
-		plugin: VaultmanPlugin,
-		onClose: () => void
-	) {
+	constructor(containerEl: HTMLElement, plugin: VaultmanPlugin, onClose: () => void) {
 		this.containerEl = containerEl;
 		this.plugin = plugin;
 		this.onClose = onClose;
+	}
+
+	private buildButtons(): BtnSelectionItem[] {
+		return [
+			{
+				icon: 'lucide-trash-2',
+				label: translate('filters.popup.clear_all'),
+				onClick: () => {
+					this.plugin.filterService.clearFilters();
+					this.onClose();
+				},
+			},
+			{
+				icon: 'lucide-list',
+				label: translate('ops.details'),
+				onClick: () => {
+					// Toggle between tree and flat list if needed in future
+				},
+			},
+			{
+				icon: 'lucide-bookmark',
+				label: translate('filters.popup.templates'),
+				onClick: () => {
+					// showAtPosition uses the btn row's bounding rect since no MouseEvent is available
+					const rect = this.btnRowEl?.getBoundingClientRect();
+					const menu = new Menu();
+					this.plugin.settings.filterTemplates.forEach((tpl) => {
+						menu.addItem((item) =>
+							item.setTitle(tpl.name).onClick(() => {
+								this.plugin.filterService.loadTemplate(tpl);
+								this.onClose();
+							}),
+						);
+					});
+					menu.addSeparator();
+					menu.addItem((item) =>
+						item.setTitle(translate('filter.template.save')).onClick(() => {
+							new SaveTemplateModal(
+								this.plugin.app,
+								this.plugin,
+								this.plugin.filterService.activeFilter,
+							).open();
+							this.onClose();
+						}),
+					);
+					menu.showAtPosition({
+						x: rect ? rect.left : 0,
+						y: rect ? rect.bottom : 0,
+					});
+				},
+			},
+			{
+				icon: 'lucide-check',
+				label: translate('filter.template.save'),
+				isActive: true,
+				onClick: () => {
+					this.onClose();
+				},
+			},
+		];
 	}
 
 	mount(): void {
 		this.islandEl = this.containerEl.createDiv({ cls: 'vaultman-active-filters-island' });
 
 		// 1. Squircle action buttons row
-		const btnRow = this.islandEl.createDiv({ cls: 'vaultman-squircle-row vaultman-filters-island-btns' });
-
-		// Left: Clear All
-		const clearAllBtn = btnRow.createDiv({
-			cls: 'vaultman-squircle',
-			attr: { 'aria-label': translate('filters.popup.clear_all'), role: 'button', tabindex: '0' },
-		});
-		setIcon(clearAllBtn, 'lucide-trash-2');
-		clearAllBtn.addEventListener('click', () => {
-			this.plugin.filterService.clearFilters();
-			this.onClose();
-		});
-
-		// Left: List Details (Reserved/Toggle View?)
-		const detailsBtn = btnRow.createDiv({
-			cls: 'vaultman-squircle',
-			attr: { 'aria-label': translate('ops.details'), role: 'button', tabindex: '0' },
-		});
-		setIcon(detailsBtn, 'lucide-list');
-		detailsBtn.addEventListener('click', () => {
-			// Toggle between tree and flat list if needed in future
-		});
-
-		// Right: Templates
-		const templateBtn = btnRow.createDiv({
-			cls: 'vaultman-squircle',
-			attr: { 'aria-label': translate('filters.popup.templates'), role: 'button', tabindex: '0' },
-		});
-		setIcon(templateBtn, 'lucide-bookmark');
-		templateBtn.addEventListener('click', (e) => {
-			const menu = new Menu();
-			this.plugin.settings.filterTemplates.forEach((tpl) => {
-				menu.addItem((item) =>
-					item.setTitle(tpl.name).onClick(() => {
-						this.plugin.filterService.loadTemplate(tpl);
-						this.onClose();
-					}),
-				);
-			});
-			menu.addSeparator();
-			menu.addItem((item) =>
-				item.setTitle(translate("filter.template.save")).onClick(() => {
-					new SaveTemplateModal(this.plugin.app, this.plugin, this.plugin.filterService.activeFilter).open();
-					this.onClose();
-				})
-			);
-			menu.showAtMouseEvent(e);
-		});
-
-		// Right: Apply (reserved for active filters, maybe "Save for later")
-		const saveBtn = btnRow.createDiv({
-			cls: 'vaultman-squircle is-accent',
-			attr: { 'aria-label': 'Save Filter', role: 'button', tabindex: '0' },
-		});
-		setIcon(saveBtn, 'lucide-check');
-		saveBtn.addEventListener('click', () => {
-			// Logic to save as permanent filter if needed
-			this.onClose();
-		});
+		this.btnRowEl = this.islandEl.createDiv({ cls: 'vaultman-filters-island-btns' });
+		this.btnComponent = mount(
+			BtnSelection as unknown as Component<{ buttons: BtnSelectionItem[]; ariaLabel?: string }>,
+			{
+				target: this.btnRowEl,
+				props: { buttons: this.buildButtons() },
+			}
+		);
 
 		// 2. Header
 		this.headerEl = this.islandEl.createDiv({ cls: 'vaultman-active-filters-island-header' });
@@ -125,7 +136,7 @@ export class ActiveFiltersIslandComponent {
 
 			const toggle = actions.createDiv({
 				cls: 'vaultman-active-filter-toggle clickable-icon',
-				attr: { 'aria-label': rule.enabled ? 'Disable' : 'Enable' }
+				attr: { 'aria-label': rule.enabled ? 'Disable' : 'Enable' },
 			});
 			setIcon(toggle, rule.enabled ? 'lucide-eye' : 'lucide-eye-off');
 			toggle.addEventListener('click', (e) => {
@@ -136,7 +147,7 @@ export class ActiveFiltersIslandComponent {
 
 			const del = actions.createDiv({
 				cls: 'vaultman-active-filter-delete clickable-icon',
-				attr: { 'aria-label': 'Delete' }
+				attr: { 'aria-label': 'Delete' },
 			});
 			setIcon(del, 'lucide-trash-2');
 			del.addEventListener('click', (e) => {
@@ -148,8 +159,13 @@ export class ActiveFiltersIslandComponent {
 	}
 
 	destroy(): void {
+		if (this.btnComponent) {
+			void unmount(this.btnComponent);
+			this.btnComponent = null;
+		}
 		this.islandEl?.remove();
 		this.islandEl = null;
+		this.btnRowEl = null;
 		this.listEl = null;
 		this.headerEl = null;
 	}

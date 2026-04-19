@@ -1,6 +1,8 @@
 <script lang="ts">
   import { translate } from "../../i18n/index";
   import { untrack } from "svelte";
+  import BtnSelection from "../btnSelection.svelte";
+  import type { BtnSelectionItem } from "../../types/typeUI";
 
   type FiltersTab = "props" | "files" | "tags";
   type ViewMode = "tree" | "dnd" | "grid" | "cards";
@@ -132,6 +134,15 @@
   function toggleAddMode() {
     addMode = !addMode;
   }
+
+  const viewModeButtons = $derived<BtnSelectionItem[]>(
+    VIEW_MODES.map((vm) => ({
+      icon: vm.iconName,
+      label: translate(vm.labelKey),
+      isActive: viewMode === vm.id,
+      onClick: () => selectView(vm.id),
+    })),
+  );
 </script>
 
 <div class="vaultman-viewmode-popup">
@@ -211,21 +222,8 @@
     </div>
   </div>
 
-  <!-- Row 2: view-mode squircles -->
-  <div class="vaultman-viewmode-row vaultman-squircle-row">
-    {#each VIEW_MODES as vm (vm.id)}
-      <div
-        class="vaultman-squircle"
-        class:is-accent={viewMode === vm.id}
-        aria-label={translate(vm.labelKey)}
-        onclick={() => selectView(vm.id)}
-        onkeydown={(e: KeyboardEvent) => {
-          if (e.key === "Enter" || e.key === " ") selectView(vm.id);
-        }}
-        role="button"
-        tabindex="0"
-        use:icon={vm.iconName}
-      ></div>
-    {/each}
+  <!-- Row 2: view-mode squircles (via btnSelection shared primitive) -->
+  <div class="vaultman-viewmode-row">
+    <BtnSelection buttons={viewModeButtons} />
   </div>
 </div>

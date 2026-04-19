@@ -1,89 +1,113 @@
-import { setIcon } from 'obsidian';
+import { mount, unmount } from 'svelte';
+import type { Component } from 'svelte';
 import type { OperationQueueService } from '../../services/serviceQueue';
 import { translate } from '../../i18n/index';
+import BtnSelection from '../btnSelection.svelte';
+import type { BtnSelectionItem } from '../../types/typeUI';
 
 /**
  * In-frame floating island showing the pending operation queue.
  * Rendered above the bottom nav bar, slides up from below.
  *
  * Structure (top → bottom inside island):
+ *   squircle buttons: Clear · Marks · FileDiff(toggle) · Execute
  *   header ("N pending changes")
- *   squircle buttons: Execute ▶ · Clear ✕ · Details ☰
- *   scrollable item list
- *
- * Height grows with content up to 70vh, then scrolls internally.
+ *   scrollable item list (or diff placeholder)
  */
 export class QueueIslandComponent {
 	private containerEl: HTMLElement;
 	private queueService: OperationQueueService;
 	private onClose: () => void;
-	private onOpenDetails: () => void;
 
 	private islandEl: HTMLElement | null = null;
+	private btnRowEl: HTMLElement | null = null;
 	private listEl: HTMLElement | null = null;
 	private headerEl: HTMLElement | null = null;
+	private btnComponent: ReturnType<typeof mount> | null = null;
+
+	private bodyMode: 'list' | 'diff' = 'list';
 
 	constructor(
 		containerEl: HTMLElement,
 		_app: unknown,
 		queueService: OperationQueueService,
 		onClose: () => void,
-		onOpenDetails: () => void
+		_onOpenDetails: () => void
 	) {
 		this.containerEl = containerEl;
 		this.queueService = queueService;
 		this.onClose = onClose;
-		this.onOpenDetails = onOpenDetails;
+	}
+
+	private buildButtons(): BtnSelectionItem[] {
+		return [
+			{
+				icon: 'lucide-trash-2',
+				label: translate('queue.clear'),
+				onClick: () => {
+					this.queueService.clear();
+				},
+			},
+			{
+				icon: 'lucide-stamp',
+				label: translate('queue.marks'),
+				onClick: () => {
+					// Stub for future marks/templates feature
+				},
+			},
+			{
+				icon: 'lucide-git-compare',
+				label: translate('queue.file_diff'),
+				isToggle: true,
+				isActive: this.bodyMode === 'diff',
+				onClick: () => {
+					this.toggleBodyMode();
+				},
+			},
+			{
+				icon: 'lucide-play',
+				label: translate('queue.execute'),
+				isActive: true,
+				onClick: () => {
+					void this.queueService.execute();
+					this.onClose();
+				},
+			},
+		];
+	}
+
+	private renderBtnRow(): void {
+		if (!this.btnRowEl) return;
+		if (this.btnComponent) {
+			void unmount(this.btnComponent);
+			this.btnComponent = null;
+		}
+		this.btnComponent = mount(
+			BtnSelection as unknown as Component<{ buttons: BtnSelectionItem[]; ariaLabel?: string }>,
+			{
+				target: this.btnRowEl,
+				props: { buttons: this.buildButtons() },
+			}
+		);
+	}
+
+	private toggleBodyMode(): void {
+		this.bodyMode = this.bodyMode === 'list' ? 'diff' : 'list';
+		this.renderBtnRow();
+		this.renderBody();
 	}
 
 	mount(): void {
 		this.islandEl = this.containerEl.createDiv({ cls: 'vaultman-queue-island' });
 
-		// 1. Squircle action buttons (Now first, floating above body via CSS)
-		const btnRow = this.islandEl.createDiv({ cls: 'vaultman-squircle-row vaultman-queue-island-btns' });
+		// 1. Squircle action buttons (D6 order: Clear · Marks · FileDiff · Execute)
+		this.btnRowEl = this.islandEl.createDiv({ cls: 'vaultman-queue-island-btns' });
+		this.renderBtnRow();
 
-		const clearBtn = btnRow.createDiv({
-			cls: 'vaultman-squircle',
-			attr: { 'aria-label': translate('ops.clear'), role: 'button', tabindex: '0' },
-		});
-		setIcon(clearBtn, 'lucide-trash'); // Changed from x to trash for "Clear queue"
-		clearBtn.addEventListener('click', () => {
-			this.queueService.clear();
-			this.onClose();
-		});
-
-		const detailsBtn = btnRow.createDiv({
-			cls: 'vaultman-squircle',
-			attr: { 'aria-label': translate('ops.details'), role: 'button', tabindex: '0' },
-		});
-		setIcon(detailsBtn, 'lucide-list');
-		detailsBtn.addEventListener('click', () => {
-			this.onOpenDetails();
-		});
-
-		const templateBtn = btnRow.createDiv({
-			cls: 'vaultman-squircle',
-			attr: { 'aria-label': 'Templates', role: 'button', tabindex: '0' },
-		});
-		setIcon(templateBtn, 'lucide-library');
-		templateBtn.addEventListener('click', () => {
-			// Stub for future templates feature
-		});
-
-		const executeBtn = btnRow.createDiv({
-			cls: 'vaultman-squircle is-accent',
-			attr: { 'aria-label': translate('ops.apply'), role: 'button', tabindex: '0' },
-		});
-		setIcon(executeBtn, 'lucide-play');
-		executeBtn.addEventListener('click', () => {
-			void this.queueService.execute();
-			this.onClose();
-		});
-
-		// 2. Header — count label (Now below squircles)
+		// 2. Header — count label
 		this.headerEl = this.islandEl.createDiv({ cls: 'vaultman-queue-island-header' });
 
-		// 3. Scrollable item list
+		// 3. Scrollable item list / diff placeholder
 		this.listEl = this.islandEl.createDiv({ cls: 'vaultman-queue-island-list' });
 
 		this.render();
@@ -94,14 +118,19 @@ export class QueueIslandComponent {
 		});
 	}
 
-	render(): void {
-		if (!this.listEl || !this.headerEl) return;
-		const entries = this.queueService.listTransactions();
-
-		const pendingLabel = translate('queue.island.pending');
-		this.headerEl.setText(`${this.queueService.fileCount} ${pendingLabel}`);
-
+	private renderBody(): void {
+		if (!this.listEl) return;
 		this.listEl.empty();
+
+		if (this.bodyMode === 'diff') {
+			this.listEl.createDiv({
+				cls: 'vm-viewdiff-placeholder',
+				text: translate('queue.file_diff_coming'),
+			});
+			return;
+		}
+
+		const entries = this.queueService.listTransactions();
 		if (entries.length === 0) {
 			this.listEl.createDiv({ cls: 'vaultman-queue-island-empty', text: translate('queue.island.empty') });
 			return;
@@ -120,9 +149,20 @@ export class QueueIslandComponent {
 		}
 	}
 
+	render(): void {
+		if (!this.listEl || !this.headerEl) return;
+		this.headerEl.setText(`${this.queueService.fileCount} ${translate('queue.island.pending')}`);
+		this.renderBody();
+	}
+
 	destroy(): void {
+		if (this.btnComponent) {
+			void unmount(this.btnComponent);
+			this.btnComponent = null;
+		}
 		this.islandEl?.remove();
 		this.islandEl = null;
+		this.btnRowEl = null;
 		this.listEl = null;
 		this.headerEl = null;
 	}
