@@ -25,6 +25,39 @@ export type PropertyType =
 	| 'date'
 	| 'wikilink';
 
+export type OpKind =
+	| 'set_prop'
+	| 'delete_prop'
+	| 'rename_prop'
+	| 'reorder_props'
+	| 'rename_file'
+	| 'move_file'
+	| 'find_replace_content'
+	| 'apply_template'
+	| 'set_tag'
+	| 'delete_tag'
+	| 'add_tag';
+
+export interface VirtualFileState {
+	file: TFile;
+	originalPath: string;
+	newPath?: string;
+	fm: Record<string, unknown>;
+	body: string;
+	ops: StagedOp[];
+	readonly fmInitial: Record<string, unknown>;
+	readonly bodyInitial: string;
+	bodyLoaded: boolean;
+}
+
+export interface StagedOp {
+	id: string;
+	kind: OpKind;
+	action: string;
+	details: string;
+	apply: (vfs: VirtualFileState) => void;
+}
+
 /** Common fields for all queued operations */
 export interface BaseChange {
 	files: TFile[];
@@ -66,6 +99,7 @@ export interface FileChange extends BaseChange {
 export interface TemplateChange extends BaseChange {
 	type: 'template';
 	templateFileStr: string;
+	templateContent?: string; // pre-resolved (variables expanded by caller) — required from Task 16
 }
 
 /** Operation on tags (bulk rename/delete) */
