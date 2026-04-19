@@ -334,9 +334,15 @@
   let selectedCount = $state(0);
   let queuedCount = $state(0);
   let filterRuleCount = $state(0);
-  const addOpCount = $derived(
-    plugin.queueService.queue.filter((op) => op.action === "add").length,
-  );
+  const addOpCount = $derived.by(() => {
+    let count = 0;
+    for (const vfs of plugin.queueService.listTransactions()) {
+      for (const op of vfs.ops) {
+        if (op.action === "add") count++;
+      }
+    }
+    return count;
+  });
 
   // ─── Queue island ─────────────────────────────────────────────────────────
   let queueIslandOpen = $state(false);

@@ -87,6 +87,33 @@ export const es: Record<string, string> = {
 	'queue.island.pending': 'cambios pendientes',
 	'queue.island.empty': 'La cola está vacía',
 
+	// Queue counter
+	'queue.summary': '{ops} ops · {files}',
+	'queue.file_row': '{ops} ops',
+
+	// Squircle labels
+	'queue.clear': 'Limpiar cola',
+	'queue.marks': 'Marcas / Plantillas',
+	'queue.file_diff': 'Diff de archivo',
+	'queue.execute': 'Ejecutar cola',
+
+	// Placeholder
+	'queue.file_diff_coming': 'Cargando vista de diff…',
+
+	// Op-type group labels (acrónimos técnicos se mantienen en inglés)
+	'queue.op_type.prop': 'PROP',
+	'queue.op_type.content_replace': 'F&R',
+	'queue.op_type.file_rename': 'RENOMBRAR ARCHIVO',
+	'queue.op_type.file_move': 'MOVER ARCHIVO',
+	'queue.op_type.template': 'TEMPLATE',
+	'queue.op_type.tag': 'TAG',
+
+	// viewDiff toggle labels
+	'queue.view_diff.only_changes': 'Solo cambios',
+	'queue.view_diff.full_document': 'Documento completo',
+	'queue.view_diff.file_picker_placeholder': 'Seleccionar archivo…',
+	'queue.view_diff.body_omitted': 'cuerpo modificado ({bytes} bytes) — diff omitido',
+
 	// Queue details
 	'queue.title': 'Detalles de Cola',
 	'queue.file': 'Archivo',

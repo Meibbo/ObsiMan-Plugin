@@ -90,6 +90,33 @@ export const en: Record<string, string> = {
 	'queue.island.pending': 'pending changes',
 	'queue.island.empty': 'Queue is empty',
 
+	// Queue counter (§12.5 — no verbs, no "files" word)
+	'queue.summary': '{ops} ops · {files}',
+	'queue.file_row': '{ops} ops',
+
+	// Squircle labels for btnSelection (Task 14c)
+	'queue.clear': 'Clear queue',
+	'queue.marks': 'Marks / Templates',
+	'queue.file_diff': 'File diff',
+	'queue.execute': 'Execute queue',
+
+	// Placeholder while viewDiff.svelte is not wired (Task 14c → 14d)
+	'queue.file_diff_coming': 'File diff view loading…',
+
+	// Op-type group labels (§12.1 — 6 canonical)
+	'queue.op_type.prop': 'PROP',
+	'queue.op_type.content_replace': 'F&R',
+	'queue.op_type.file_rename': 'RENAME FILE',
+	'queue.op_type.file_move': 'MOVE FILE',
+	'queue.op_type.template': 'TEMPLATE',
+	'queue.op_type.tag': 'TAG',
+
+	// viewDiff toggle labels (§13.3)
+	'queue.view_diff.only_changes': 'Only changes',
+	'queue.view_diff.full_document': 'Full document',
+	'queue.view_diff.file_picker_placeholder': 'Select file…',
+	'queue.view_diff.body_omitted': 'body modified ({bytes} bytes) — diff omitted',
+
 	// Queue details
 	'queue.title': 'Queue Details',
 	'queue.file': 'File',
