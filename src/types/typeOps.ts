@@ -99,7 +99,7 @@ export interface FileChange extends BaseChange {
 export interface TemplateChange extends BaseChange {
 	type: 'template';
 	templateFileStr: string;
-	templateContent?: string; // pre-resolved (variables expanded by caller) — required from Task 16
+	templateContent: string; // pre-resolved (variables expanded by caller)
 }
 
 /** Operation on tags (bulk rename/delete) */

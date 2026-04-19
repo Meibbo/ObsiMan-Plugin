@@ -255,7 +255,7 @@ export class OperationQueueService extends Component {
 			};
 		}
 		if (key === APPLY_TEMPLATE) {
-			const templateContent = (change as TemplateChange).templateContent ?? '';
+			const templateContent = (change as TemplateChange).templateContent;
 			return {
 				id, kind: 'apply_template', action, details,
 				apply: (v) => { v.body = v.body + '\n\n' + templateContent; },
