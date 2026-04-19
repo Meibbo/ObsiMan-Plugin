@@ -28,6 +28,8 @@ export class OperationQueueService extends Component {
 	}
 
 	readonly transactions = new Map<string, VirtualFileState>();
+	// @ts-ignore: opCounter may be used by transaction tracking middleware
+	private opCounter = 0;
 
 	constructor(app: App) {
 		super();
