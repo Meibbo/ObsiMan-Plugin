@@ -675,7 +675,7 @@
         targetFolder,
       });
     }
-    plugin.queueService.addBatch(changes);
+    void plugin.queueService.addBatch(changes);
     closePopup();
   }
 

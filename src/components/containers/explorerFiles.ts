@@ -40,7 +40,7 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
                     this.plugin.app,
                     this.plugin.propertyIndex,
                     [meta.file],
-                    (change) => this.plugin.queueService.add(change),
+                    (change) => void this.plugin.queueService.add(change),
                 ).open();
             },
         });
@@ -70,7 +70,7 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
                 new FileMoveModal(
                     this.plugin.app,
                     [meta.file],
-                    (change) => this.plugin.queueService.add(change),
+                    (change) => void this.plugin.queueService.add(change),
                 ).open();
             },
         });
@@ -103,7 +103,7 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
                     this.plugin.app,
                     this.plugin.propertyIndex,
                     [meta.file],
-                    (change) => this.plugin.queueService.add(change),
+                    (change) => void this.plugin.queueService.add(change),
                 ).open();
                 return;
             }

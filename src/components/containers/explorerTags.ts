@@ -90,7 +90,7 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
     handleNodeClick(node: TreeNode<TagMeta>): void {
         const meta = node.meta;
         if (this.addMode) {
-             this.plugin.queueService.add({
+             void this.plugin.queueService.add({
                 type: 'tag', tag: meta.tagPath, action: 'add',
                 details: `Add tag "#${meta.tagPath}"`,
                 files: this.plugin.filterService.filteredFiles,
