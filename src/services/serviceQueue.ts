@@ -283,11 +283,54 @@ export class OperationQueueService extends Component {
 	}
 
 	private async expandNativeRename(
-		_change: PendingChange,
-		_oldName: string,
-		_newName: string
+		change: PendingChange,
+		oldName: string,
+		newName: string
 	): Promise<void> {
-		// Implemented in Task 7
+		const allFiles = this.app.vault.getMarkdownFiles();
+		for (const file of allFiles) {
+			const cache = this.app.metadataCache.getFileCache(file);
+			const fm = cache?.frontmatter;
+			if (!fm || !(oldName in fm)) continue;
+
+			const existing = this.transactions.get(file.path);
+			let vfs: VirtualFileState;
+			if (existing) {
+				vfs = existing;
+			} else {
+				// Lazy VFS — fm from metadataCache, body deferred to execute
+				const fmCopy = { ...fm };
+				delete fmCopy['position'];
+				vfs = {
+					file,
+					originalPath: file.path,
+					newPath: undefined,
+					fm: { ...fmCopy },
+					body: '',
+					ops: [],
+					fmInitial: { ...fmCopy },
+					bodyInitial: '',
+					bodyLoaded: false,
+				};
+				this.transactions.set(file.path, vfs);
+			}
+
+			const id = `op-${++this.opCounter}`;
+			const op: StagedOp = {
+				id,
+				kind: 'rename_prop',
+				action: change.action,
+				details: `${oldName} → ${newName}`,
+				apply: (v) => {
+					if (oldName in v.fm) {
+						v.fm[newName] = v.fm[oldName];
+						delete v.fm[oldName];
+					}
+				},
+			};
+			vfs.ops.push(op);
+			op.apply(vfs);
+		}
 	}
 
 	/** Remove an operation by index */
