@@ -28,7 +28,6 @@ export class OperationQueueService extends Component {
 	}
 
 	readonly transactions = new Map<string, VirtualFileState>();
-	private opCounter = 0;
 
 	constructor(app: App) {
 		super();
