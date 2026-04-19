@@ -1,5 +1,9 @@
 import { App, Component, Events, Notice, TFile, FileManager } from 'obsidian';
-import type { PendingChange, OperationResult } from '../types/typeOps';
+import type {
+	PendingChange,
+	OperationResult,
+	VirtualFileState,
+} from '../types/typeOps';
 import { DELETE_PROP, RENAME_FILE, REORDER_ALL, MOVE_FILE, FIND_REPLACE_CONTENT, NATIVE_RENAME_PROP, APPLY_TEMPLATE } from '../types/typeOps';
 import { translate } from '../i18n/index';
 
@@ -23,11 +27,17 @@ export class OperationQueueService extends Component {
 		return this.app as unknown as InternalApp;
 	}
 
-	readonly queue: PendingChange[] = [];
+	readonly transactions = new Map<string, VirtualFileState>();
 
 	constructor(app: App) {
 		super();
 		this.app = app;
+	}
+
+	/** Back-compat shim — some UI code iterates the array. Returns empty for now. */
+	get queue(): PendingChange[] {
+		// Temporary back-compat. Remove after all UI migrates (Task 14–18).
+		return [];
 	}
 
 	/**
@@ -78,8 +88,26 @@ export class OperationQueueService extends Component {
 		this.events.trigger('changed');
 	}
 
+	get fileCount(): number {
+		return this.transactions.size;
+	}
+
+	get opCount(): number {
+		let n = 0;
+		for (const v of this.transactions.values()) n += v.ops.length;
+		return n;
+	}
+
 	get isEmpty(): boolean {
-		return this.queue.length === 0;
+		return this.transactions.size === 0;
+	}
+
+	getTransaction(path: string): VirtualFileState | undefined {
+		return this.transactions.get(path);
+	}
+
+	listTransactions(): VirtualFileState[] {
+		return [...this.transactions.values()];
 	}
 
 	/**
