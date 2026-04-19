@@ -3,6 +3,8 @@ import type {
 	PendingChange,
 	OperationResult,
 	VirtualFileState,
+	StagedOp,
+	TemplateChange,
 } from '../types/typeOps';
 import { DELETE_PROP, RENAME_FILE, REORDER_ALL, MOVE_FILE, FIND_REPLACE_CONTENT, NATIVE_RENAME_PROP, APPLY_TEMPLATE } from '../types/typeOps';
 import { translate } from '../i18n/index';
@@ -60,6 +62,7 @@ export class OperationQueueService extends Component {
 	}
 
 	readonly transactions = new Map<string, VirtualFileState>();
+	private opCounter = 0;
 
 	constructor(app: App) {
 		super();
@@ -94,7 +97,6 @@ export class OperationQueueService extends Component {
 	 * For lazy-body entries (bodyLoaded: false), hydrates them on demand
 	 * when callers request full materialization (requireBody=true).
 	 */
-	// @ts-ignore — will be called by future tasks (Task 6+)
 	private async getOrCreateVFS(file: TFile, requireBody: boolean): Promise<VirtualFileState> {
 		const key = file.path;
 		const existing = this.transactions.get(key);
@@ -133,21 +135,159 @@ export class OperationQueueService extends Component {
 		vfs.bodyLoaded = true;
 	}
 
-	/** Add a single operation to the queue */
-	add(change: PendingChange): void {
-		this.queue.push(change);
+	/** Add a single pending change. Async because VFS may need disk read. */
+	async add(change: PendingChange): Promise<void> {
+		await this.ingest(change, /*silent*/ false);
+	}
+
+	/** Add many changes, firing only ONE 'changed' event at the end. */
+	async addBatch(changes: PendingChange[]): Promise<void> {
+		if (changes.length === 0) return;
+		for (const c of changes) {
+			await this.ingest(c, /*silent*/ true);
+		}
 		this.events.trigger('changed');
 	}
 
+	/** Shared internal ingestion: translate PendingChange to per-file StagedOps. */
+	private async ingest(change: PendingChange, silent: boolean): Promise<void> {
+		// Special case: NATIVE_RENAME_PROP is vault-wide — expand across metadataCache.
+		const probe = this.probeForNativeRename(change);
+		if (probe) {
+			await this.expandNativeRename(change, probe.oldName, probe.newName);
+			if (!silent) this.events.trigger('changed');
+			return;
+		}
+
+		for (const file of change.files) {
+			const needsBody = this.opNeedsBody(change);
+			const vfs = await this.getOrCreateVFS(file, needsBody);
+			const updates = change.logicFunc(file, vfs.fm);
+			if (!updates) continue;
+			this.applyUpdates(vfs, change, updates);
+		}
+		if (!silent) this.events.trigger('changed');
+	}
+
 	/**
-	 * Add multiple operations at once — fires only ONE 'changed' event.
-	 * Use this instead of calling add() in a loop to avoid freezing the UI
-	 * with thousands of re-renders (one per file).
+	 * Probe: does this change carry _NATIVE_RENAME_PROP?
+	 * Safe to call — logicFunc for rename-prop changes ignores file/fm.
 	 */
-	addBatch(changes: PendingChange[]): void {
-		if (changes.length === 0) return;
-		this.queue.push(...changes);
-		this.events.trigger('changed');
+	private probeForNativeRename(change: PendingChange): { oldName: string; newName: string } | null {
+		if (change.files.length === 0) return null;
+		const sample = change.logicFunc(change.files[0], {});
+		if (sample && NATIVE_RENAME_PROP in sample) {
+			return sample[NATIVE_RENAME_PROP] as { oldName: string; newName: string };
+		}
+		return null;
+	}
+
+	/** Returns true if the change will modify body content. */
+	private opNeedsBody(change: PendingChange): boolean {
+		if (change.type === 'content_replace') return true;
+		if (change.type === 'template') return true;
+		return false;
+	}
+
+	/**
+	 * Translate logicFunc's `updates` dict into one or more StagedOps,
+	 * push them onto vfs.ops, and mutate vfs state eagerly.
+	 */
+	private applyUpdates(
+		vfs: VirtualFileState,
+		change: PendingChange,
+		updates: Record<string, unknown>
+	): void {
+		for (const [key, value] of Object.entries(updates)) {
+			const op = this.translateUpdate(vfs, change, key, value);
+			if (!op) continue;
+			vfs.ops.push(op);
+			op.apply(vfs);
+		}
+	}
+
+	/** Build a StagedOp from a single update entry. Null if unknown/ignored. */
+	private translateUpdate(
+		_vfs: VirtualFileState,
+		change: PendingChange,
+		key: string,
+		value: unknown
+	): StagedOp | null {
+		const id = `op-${++this.opCounter}`;
+		const action = change.action;
+		const details = change.details;
+
+		if (key === DELETE_PROP) {
+			const propName = value as string;
+			return {
+				id, kind: 'delete_prop', action, details,
+				apply: (v) => { delete v.fm[propName]; },
+			};
+		}
+		if (key === REORDER_ALL) {
+			const ordered = value as string[];
+			return {
+				id, kind: 'reorder_props', action, details,
+				apply: (v) => {
+					const copy = { ...v.fm };
+					for (const k of Object.keys(v.fm)) delete v.fm[k];
+					for (const k of ordered) if (k in copy) v.fm[k] = copy[k];
+					for (const k of Object.keys(copy)) if (!(k in v.fm)) v.fm[k] = copy[k];
+				},
+			};
+		}
+		if (key === RENAME_FILE) {
+			const newName = value as string;
+			return {
+				id, kind: 'rename_file', action, details,
+				apply: (v) => { v.newPath = v.originalPath.replace(v.file.name, newName); },
+			};
+		}
+		if (key === MOVE_FILE) {
+			const targetFolder = value as string;
+			return {
+				id, kind: 'move_file', action, details,
+				apply: (v) => {
+					v.newPath = targetFolder ? `${targetFolder}/${v.file.name}` : v.file.name;
+				},
+			};
+		}
+		if (key === FIND_REPLACE_CONTENT) {
+			const { pattern, replacement, isRegex, caseSensitive } = value as {
+				pattern: string; replacement: string; isRegex: boolean; caseSensitive: boolean;
+			};
+			const flags = 'g' + (caseSensitive ? '' : 'i');
+			const escaped = isRegex ? pattern : pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+			const rx = new RegExp(escaped, flags);
+			return {
+				id, kind: 'find_replace_content', action, details,
+				apply: (v) => { v.body = v.body.replace(rx, replacement); },
+			};
+		}
+		if (key === APPLY_TEMPLATE) {
+			const templateContent = (change as TemplateChange).templateContent ?? '';
+			return {
+				id, kind: 'apply_template', action, details,
+				apply: (v) => { v.body = v.body + '\n\n' + templateContent; },
+			};
+		}
+		if (key === NATIVE_RENAME_PROP) {
+			// Should have been pre-expanded via probeForNativeRename. Skip defensively.
+			return null;
+		}
+		// Normal frontmatter property set
+		return {
+			id, kind: 'set_prop', action, details,
+			apply: (v) => { v.fm[key] = value; },
+		};
+	}
+
+	private async expandNativeRename(
+		_change: PendingChange,
+		_oldName: string,
+		_newName: string
+	): Promise<void> {
+		// Implemented in Task 7
 	}
 
 	/** Remove an operation by index */
