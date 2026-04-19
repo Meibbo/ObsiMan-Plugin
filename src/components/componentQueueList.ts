@@ -1,97 +1,88 @@
-import type { PendingChange } from '../types/typeOps';
-import { translate } from '../i18n/index';
+import type { VirtualFileState } from "../types/typeOps";
+import type { OperationQueueService } from "../services/serviceQueue";
+import { translate } from "../i18n/index";
 
 export interface QueueListCallbacks {
-	onRemove: (index: number) => void;
-	selectable?: boolean;
+  onRemoveFile: (path: string) => void;
+  onRemoveOp?: (path: string, opId: string) => void;
+  selectable?: boolean;
 }
 
-/**
- * Renders the operation queue as a list.
- * When selectable=true, items get checkboxes for batch operations.
- */
 export class QueueListComponent {
-	private containerEl: HTMLElement;
-	private callbacks: QueueListCallbacks;
-	private selectedIndices = new Set<number>();
+  private containerEl: HTMLElement;
+  private callbacks: QueueListCallbacks;
+  private selectedPaths = new Set<string>();
 
-	constructor(containerEl: HTMLElement, callbacks: QueueListCallbacks) {
-		this.containerEl = containerEl;
-		this.callbacks = callbacks;
-	}
+  constructor(containerEl: HTMLElement, callbacks: QueueListCallbacks) {
+    this.containerEl = containerEl;
+    this.callbacks = callbacks;
+  }
 
-	render(queue: PendingChange[]): void {
-		this.containerEl.empty();
-		this.selectedIndices.clear();
+  render(service: OperationQueueService): void {
+    this.containerEl.empty();
+    this.selectedPaths.clear();
 
-		if (queue.length === 0) {
-			this.containerEl.createDiv({
-				cls: 'vaultman-queue-empty',
-				text: translate('ops.queue.empty'),
-			});
-			return;
-		}
+    const entries = service.listTransactions();
+    if (entries.length === 0) {
+      this.containerEl.createDiv({
+        cls: "vaultman-queue-empty",
+        text: translate("ops.queue.empty"),
+      });
+      return;
+    }
 
-		const headerEl = this.containerEl.createDiv({ cls: 'vaultman-queue-header' });
-		headerEl.createSpan({
-			text: translate('ops.queue', { count: queue.length }),
-			cls: 'vaultman-queue-title',
-		});
+    const headerEl = this.containerEl.createDiv({
+      cls: "vaultman-queue-header",
+    });
+    headerEl.createSpan({
+      text: translate("queue.summary", {
+        files: service.fileCount,
+        ops: service.opCount,
+      }),
+      cls: "vaultman-queue-title",
+    });
 
-		const listEl = this.containerEl.createDiv({ cls: 'vaultman-queue-list' });
-		for (let i = 0; i < queue.length; i++) {
-			this.renderItem(listEl, queue[i], i);
-		}
-	}
+    const listEl = this.containerEl.createDiv({ cls: "vaultman-queue-list" });
+    for (const vfs of entries) {
+      this.renderFileRow(listEl, vfs);
+    }
+  }
 
-	getSelectedIndices(): number[] {
-		return [...this.selectedIndices];
-	}
+  getSelectedPaths(): string[] {
+    return [...this.selectedPaths];
+  }
 
-	private renderItem(parent: HTMLElement, change: PendingChange, index: number): void {
-		const itemEl = parent.createDiv({ cls: 'vaultman-queue-item' });
+  private renderFileRow(parent: HTMLElement, vfs: VirtualFileState): void {
+    const itemEl = parent.createDiv({ cls: "vaultman-queue-item" });
 
-		// Checkbox for selection (when selectable)
-		if (this.callbacks.selectable) {
-			const cb = itemEl.createEl('input', {
-				cls: 'vaultman-queue-checkbox',
-				attr: { type: 'checkbox' },
-			});
-			cb.addEventListener('change', () => {
-				if (cb.checked) {
-					this.selectedIndices.add(index);
-				} else {
-					this.selectedIndices.delete(index);
-				}
-			});
-		}
+    if (this.callbacks.selectable) {
+      const cb = itemEl.createEl("input", {
+        cls: "vaultman-queue-checkbox",
+        attr: { type: "checkbox" },
+      });
+      cb.addEventListener("change", () => {
+        if (cb.checked) this.selectedPaths.add(vfs.originalPath);
+        else this.selectedPaths.delete(vfs.originalPath);
+      });
+    }
 
-		itemEl.createSpan({
-			cls: 'vaultman-queue-index',
-			text: `${index + 1}.`,
-		});
+    itemEl.createSpan({
+      cls: "vaultman-queue-path",
+      text: vfs.originalPath,
+    });
 
-		const descEl = itemEl.createSpan({
-			cls: 'vaultman-queue-desc',
-		});
-		descEl.createSpan({
-			cls: 'vaultman-queue-action',
-			text: change.action,
-		});
-		descEl.createSpan({
-			text: ` ${change.details}`,
-		});
+    itemEl.createSpan({
+      cls: "vaultman-queue-file-count",
+      text: translate("queue.file_row", { ops: vfs.ops.length }),
+    });
 
-		itemEl.createSpan({
-			cls: 'vaultman-queue-file-count',
-			text: `(${change.files.length} files)`,
-		});
-
-		const removeBtn = itemEl.createEl('button', {
-			cls: 'vaultman-filter-remove-btn clickable-icon',
-			attr: { 'aria-label': 'Remove from queue' },
-		});
-		removeBtn.setText('\u00d7');
-		removeBtn.addEventListener('click', () => this.callbacks.onRemove(index));
-	}
+    const removeBtn = itemEl.createEl("button", {
+      cls: "vaultman-filter-remove-btn clickable-icon",
+      attr: { "aria-label": "Remove all ops on this file" },
+    });
+    removeBtn.setText("\u00d7");
+    removeBtn.addEventListener("click", () =>
+      this.callbacks.onRemoveFile(vfs.originalPath),
+    );
+  }
 }

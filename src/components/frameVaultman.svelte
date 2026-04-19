@@ -360,7 +360,7 @@
   }
 
   function updateStats() {
-    queuedCount = plugin.queueService.queue.length;
+    queuedCount = plugin.queueService.fileCount;
     filterRuleCount = countFilterLeaves(plugin.filterService.activeFilter);
   }
 
@@ -500,7 +500,7 @@
   }
 
   function refreshQueue() {
-    queueList?.render(plugin.queueService.queue);
+    queueList?.render(plugin.queueService);
     updateStats();
   }
 

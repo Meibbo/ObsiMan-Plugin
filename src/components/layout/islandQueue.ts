@@ -96,27 +96,26 @@ export class QueueIslandComponent {
 
 	render(): void {
 		if (!this.listEl || !this.headerEl) return;
-		const queue = this.queueService.queue;
+		const entries = this.queueService.listTransactions();
 
 		const pendingLabel = translate('queue.island.pending');
-		this.headerEl.setText(`${queue.length} ${pendingLabel}`);
+		this.headerEl.setText(`${this.queueService.fileCount} ${pendingLabel}`);
 
 		this.listEl.empty();
-		if (queue.length === 0) {
+		if (entries.length === 0) {
 			this.listEl.createDiv({ cls: 'vaultman-queue-island-empty', text: translate('queue.island.empty') });
 			return;
 		}
 
-		for (const change of queue) {
+		for (const vfs of entries) {
 			const rowEl = this.listEl.createDiv({ cls: 'vaultman-queue-island-row' });
-			const fileCount = change.files.length;
 			rowEl.createSpan({
 				cls: 'vaultman-queue-island-row-files',
-				text: `${fileCount} file${fileCount !== 1 ? 's' : ''}`,
+				text: translate('queue.file_row', { ops: vfs.ops.length }),
 			});
 			rowEl.createSpan({
 				cls: 'vaultman-queue-island-row-detail',
-				text: change.details,
+				text: vfs.originalPath.split('/').pop() ?? vfs.originalPath,
 			});
 		}
 	}
