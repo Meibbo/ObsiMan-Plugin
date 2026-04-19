@@ -333,17 +333,35 @@ export class OperationQueueService extends Component {
 		}
 	}
 
-	/** Remove an operation by index */
-	remove(index: number): void {
-		if (index >= 0 && index < this.queue.length) {
-			this.queue.splice(index, 1);
+	/** Clear all pending operations */
+	clear(): void {
+		this.transactions.clear();
+		this.events.trigger('changed');
+	}
+
+	/** Drop the entire VFS entry for a path. */
+	removeFile(path: string): void {
+		if (this.transactions.delete(path)) {
 			this.events.trigger('changed');
 		}
 	}
 
-	/** Clear all pending operations */
-	clear(): void {
-		this.queue.length = 0;
+	/** Surgical: remove a single op from a file's VFS. Re-materializes that VFS from initial state. */
+	removeOp(path: string, opId: string): void {
+		const vfs = this.transactions.get(path);
+		if (!vfs) return;
+		const filtered = vfs.ops.filter(o => o.id !== opId);
+		if (filtered.length === vfs.ops.length) return; // no-op — op not found
+		if (filtered.length === 0) {
+			this.transactions.delete(path);
+		} else {
+			// Reset state to initial + replay remaining ops
+			vfs.fm = { ...vfs.fmInitial };
+			vfs.body = vfs.bodyInitial;
+			vfs.newPath = undefined;
+			vfs.ops = filtered;
+			for (const op of vfs.ops) op.apply(vfs);
+		}
 		this.events.trigger('changed');
 	}
 
