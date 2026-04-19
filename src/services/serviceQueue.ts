@@ -1,4 +1,4 @@
-import { App, Component, Events, Notice, TFile, FileManager } from 'obsidian';
+import { App, Component, Events, Notice, TFile, FileManager, parseYaml, stringifyYaml } from 'obsidian';
 import type {
 	PendingChange,
 	OperationResult,
@@ -6,6 +6,38 @@ import type {
 } from '../types/typeOps';
 import { DELETE_PROP, RENAME_FILE, REORDER_ALL, MOVE_FILE, FIND_REPLACE_CONTENT, NATIVE_RENAME_PROP, APPLY_TEMPLATE } from '../types/typeOps';
 import { translate } from '../i18n/index';
+
+/**
+ * Split a markdown file's raw content into its frontmatter object and body string.
+ * Uses Obsidian's parseYaml for byte-exact compatibility with processFrontMatter.
+ */
+function splitYamlBody(content: string): {
+  fm: Record<string, unknown>;
+  body: string;
+} {
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
+  if (!match) {
+    return { fm: {}, body: content };
+  }
+  const yaml = match[1];
+  const body = content.slice(match[0].length);
+  try {
+    const fm = parseYaml(yaml) as Record<string, unknown> | null;
+    return { fm: fm ?? {}, body };
+  } catch {
+    return { fm: {}, body };
+  }
+}
+
+/**
+ * Inverse of splitYamlBody — produce raw content from fm + body.
+ * Empty fm means no frontmatter block.
+ */
+export function serializeFile(fm: Record<string, unknown>, body: string): string {
+  if (Object.keys(fm).length === 0) return body;
+  const yaml = stringifyYaml(fm);
+  return `---\n${yaml}---\n${body}`;
+}
 
 interface InternalApp extends App {
 	fileManager: FileManager & {
@@ -55,6 +87,50 @@ export class OperationQueueService extends Component {
 
 	off(name: 'changed' | 'executed', callback: (result?: OperationResult) => void): void {
 		this.events.off(name, callback as (...data: unknown[]) => unknown);
+	}
+
+	/**
+	 * Get existing VFS for file.path, or read from disk and create a new one.
+	 * For lazy-body entries (bodyLoaded: false), hydrates them on demand
+	 * when callers request full materialization (requireBody=true).
+	 */
+	// @ts-ignore — will be called by future tasks (Task 6+)
+	private async getOrCreateVFS(file: TFile, requireBody: boolean): Promise<VirtualFileState> {
+		const key = file.path;
+		const existing = this.transactions.get(key);
+
+		if (existing) {
+			if (requireBody && !existing.bodyLoaded) {
+				await this.hydrateBody(existing);
+			}
+			return existing;
+		}
+
+		// Fresh — read full content
+		const content = await this.app.vault.read(file);
+		const { fm, body } = splitYamlBody(content);
+		const vfs: VirtualFileState = {
+			file,
+			originalPath: key,
+			newPath: undefined,
+			fm: { ...fm },
+			body,
+			ops: [],
+			fmInitial: { ...fm },
+			bodyInitial: body,
+			bodyLoaded: true,
+		};
+		this.transactions.set(key, vfs);
+		return vfs;
+	}
+
+	/** Upgrade a lazy VFS: read body from disk and fill bodyInitial/body. */
+	private async hydrateBody(vfs: VirtualFileState): Promise<void> {
+		const content = await this.app.vault.read(vfs.file);
+		const { body } = splitYamlBody(content);
+		(vfs as { bodyInitial: string }).bodyInitial = body;
+		vfs.body = body;
+		vfs.bodyLoaded = true;
 	}
 
 	/** Add a single operation to the queue */
