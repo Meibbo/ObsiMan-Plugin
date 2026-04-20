@@ -1,4 +1,5 @@
 import type { StagedOp, VirtualFileState } from "../types/typeOps";
+import type { OpKind } from "../types/typeOps";
 import type { OperationQueueService } from "../services/serviceQueue";
 import { translate } from "../i18n/index";
 
@@ -13,10 +14,40 @@ export interface QueueListCallbacks {
   expandedOpId?: string | null;
 }
 
+type QueueGroupKey =
+  | "prop"
+  | "content_replace"
+  | "file_rename"
+  | "file_move"
+  | "template"
+  | "tag";
+
+interface QueueOpEntry {
+  vfs: VirtualFileState;
+  op: StagedOp;
+}
+
+interface QueueGroup {
+  key: QueueGroupKey;
+  label: string;
+  entries: QueueOpEntry[];
+  fileCount: number;
+}
+
+const GROUP_ORDER: QueueGroupKey[] = [
+  "prop",
+  "content_replace",
+  "file_rename",
+  "file_move",
+  "template",
+  "tag",
+];
+
 export class QueueListComponent {
   private containerEl: HTMLElement;
   private callbacks: QueueListCallbacks;
   private selectedPaths = new Set<string>();
+  private collapsedGroups = new Set<QueueGroupKey>();
 
   constructor(containerEl: HTMLElement, callbacks: QueueListCallbacks) {
     this.containerEl = containerEl;
@@ -50,10 +81,9 @@ export class QueueListComponent {
     }
 
     const listEl = this.containerEl.createDiv({ cls: "vaultman-queue-list" });
-    for (const vfs of entries) {
-      for (const op of vfs.ops) {
-        this.renderOpRow(listEl, vfs, op);
-      }
+    const groups = this.buildGroups(entries);
+    for (const group of groups) {
+      this.renderGroup(listEl, group, groups);
     }
   }
 
@@ -61,11 +91,134 @@ export class QueueListComponent {
     return [...this.selectedPaths];
   }
 
-  private renderOpRow(parent: HTMLElement, vfs: VirtualFileState, op: StagedOp): void {
+  private buildGroups(entries: VirtualFileState[]): QueueGroup[] {
+    const groupedEntries = new Map<QueueGroupKey, QueueOpEntry[]>();
+
+    for (const vfs of entries) {
+      for (const op of vfs.ops) {
+        const key = this.opKindToGroup(op.kind);
+        const groupEntries = groupedEntries.get(key) ?? [];
+        groupEntries.push({ vfs, op });
+        groupedEntries.set(key, groupEntries);
+      }
+    }
+
+    const groups: QueueGroup[] = [];
+    for (const key of GROUP_ORDER) {
+      const groupEntries = groupedEntries.get(key);
+      if (!groupEntries || groupEntries.length === 0) {
+        continue;
+      }
+
+      groups.push({
+        key,
+        label: translate(`queue.op_type.${key}`),
+        entries: groupEntries,
+        fileCount: new Set(groupEntries.map(({ vfs }) => vfs.originalPath)).size,
+      });
+    }
+
+    return groups;
+  }
+
+  private renderGroup(parent: HTMLElement, group: QueueGroup, groups: QueueGroup[]): void {
+    const sectionEl = parent.createDiv({ cls: "vaultman-queue-group" });
+    const isCollapsed = this.collapsedGroups.has(group.key);
+
+    const headerEl = sectionEl.createDiv({
+      cls: "vaultman-queue-group-header",
+    });
+    headerEl.setAttribute("role", "button");
+    headerEl.setAttribute("tabindex", "0");
+    headerEl.setAttribute("aria-expanded", isCollapsed ? "false" : "true");
+
+    headerEl.createSpan({
+      cls: "vaultman-queue-group-label",
+      text: group.label,
+    });
+
+    const metaEl = headerEl.createDiv({ cls: "vaultman-queue-group-meta" });
+    metaEl.createSpan({
+      cls: "vaultman-queue-group-files",
+      text: `\u03a3 ${group.fileCount}`,
+    });
+    metaEl.createSpan({
+      cls: "vaultman-queue-group-count",
+      text: `${group.entries.length} ops`,
+    });
+
+    headerEl.createSpan({
+      cls: "vaultman-queue-group-chevron",
+      text: isCollapsed ? "\u25b6" : "\u25bc",
+    });
+
+    const toggleGroup = () => {
+      if (this.collapsedGroups.has(group.key)) {
+        this.collapsedGroups.delete(group.key);
+      } else {
+        this.collapsedGroups.add(group.key);
+      }
+      this.renderGroupList(parent, groups);
+    };
+
+    headerEl.addEventListener("click", toggleGroup);
+    headerEl.addEventListener("keydown", (evt: KeyboardEvent) => {
+      if (evt.key === "Enter" || evt.key === " ") {
+        evt.preventDefault();
+        toggleGroup();
+      }
+    });
+
+    if (isCollapsed) {
+      return;
+    }
+
+    const bodyEl = sectionEl.createDiv({ cls: "vaultman-queue-group-body" });
+    for (const entry of group.entries) {
+      this.renderOpRow(bodyEl, entry.vfs, entry.op, group.entries);
+    }
+  }
+
+  private renderGroupList(parent: HTMLElement, groups: QueueGroup[]): void {
+    parent.empty();
+    for (const group of groups) {
+      this.renderGroup(parent, group, groups);
+    }
+  }
+
+  private opKindToGroup(kind: OpKind): QueueGroupKey {
+    switch (kind) {
+      case "set_prop":
+      case "delete_prop":
+      case "rename_prop":
+      case "reorder_props":
+        return "prop";
+      case "find_replace_content":
+        return "content_replace";
+      case "rename_file":
+        return "file_rename";
+      case "move_file":
+        return "file_move";
+      case "apply_template":
+        return "template";
+      case "set_tag":
+      case "delete_tag":
+      case "add_tag":
+        return "tag";
+    }
+  }
+
+  private renderOpRow(
+    parent: HTMLElement,
+    vfs: VirtualFileState,
+    op: StagedOp,
+    entries: QueueOpEntry[]
+  ): void {
     const itemEl = parent.createDiv({ cls: "vaultman-queue-item" });
     const isExpanded =
       this.callbacks.expandedPath === vfs.originalPath &&
       this.callbacks.expandedOpId === op.id;
+    const touchedFileCount = this.countTouchedFiles(op, entries);
 
     itemEl.toggleClass("is-expanded", isExpanded);
     itemEl.setAttribute("role", "button");
@@ -88,7 +241,7 @@ export class QueueListComponent {
 
     itemEl.createSpan({
       cls: "vaultman-queue-index",
-      text: isExpanded ? "▼" : "▶",
+      text: String(touchedFileCount),
     });
 
     itemEl.createSpan({
@@ -96,10 +249,11 @@ export class QueueListComponent {
       text: op.details,
     });
 
-    itemEl.createSpan({
+    const expandIndicatorEl = itemEl.createSpan({
       cls: "vaultman-queue-file-count",
-      text: vfs.originalPath.split("/").pop() ?? vfs.originalPath,
+      text: isExpanded ? "\u25bc" : "\u25b6",
     });
+    expandIndicatorEl.setAttribute("aria-hidden", "true");
 
     const removeBtn = itemEl.createEl("button", {
       cls: "vaultman-filter-remove-btn clickable-icon",
@@ -130,5 +284,21 @@ export class QueueListComponent {
         toggleExpanded();
       }
     });
+  }
+
+  private countTouchedFiles(op: StagedOp, entries: QueueOpEntry[]): number {
+    return new Set(
+      entries
+        .filter((entry) => this.isSameLogicalOp(entry.op, op))
+        .map((entry) => entry.vfs.originalPath)
+    ).size;
+  }
+
+  private isSameLogicalOp(left: StagedOp, right: StagedOp): boolean {
+    return (
+      left.kind === right.kind &&
+      left.action === right.action &&
+      left.details === right.details
+    );
   }
 }

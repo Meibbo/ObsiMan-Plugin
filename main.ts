@@ -1,12 +1,12 @@
 import { Plugin, WorkspaceLeaf } from 'obsidian';
 import type { VaultmanSettings } from './src/types/typeSettings';
 import { DEFAULT_SETTINGS } from './src/types/typeSettings';
-import { PropertyIndexService } from './src/services/servicePropIndex';
+import { PropertyIndexService } from './src/utils/utilPropIndex';
 import { FilterService } from './src/services/serviceFilter';
 import { OperationQueueService } from './src/services/serviceQueue';
 import { VaultmanFrame, TYPE_FRAME_VM } from './src/types/typeFrame';
 import { IconicService } from './src/services/serviceIcons';
-import { PropertyTypeService } from './src/services/servicePropType';
+import { PropertyTypeService } from './src/utils/utilPropType';
 import { ContextMenuService } from './src/services/serviceCMenu';
 import { VaultmanSettingsTab } from './src/settingsVaultman';
 import { translate } from './src/i18n/index';

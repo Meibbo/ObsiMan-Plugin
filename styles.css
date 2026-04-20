@@ -296,14 +296,67 @@
   font-style: italic;
 }
 
+.vaultman-queue-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vaultman-queue-group + .vaultman-queue-group {
+  margin-top: 8px;
+}
+
+.vaultman-queue-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  color: var(--text-normal);
+  cursor: pointer;
+}
+
+.vaultman-queue-group-header:hover {
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+}
+
+.vaultman-queue-group-label {
+  font-size: 0.75em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.vaultman-queue-group-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: var(--vaultman-text-faint);
+  font-size: 0.75em;
+}
+
+.vaultman-queue-group-chevron {
+  color: var(--vaultman-text-muted);
+  font-size: 0.8em;
+  min-width: 14px;
+  text-align: center;
+}
+
+.vaultman-queue-group-body {
+  display: flex;
+  flex-direction: column;
+}
+
 .vaultman-queue-item {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 0;
+  gap: 8px;
+  padding: 5px 8px;
   font-size: 0.8em;
   border-bottom: 1px solid var(--vaultman-border);
   cursor: pointer;
+  border-radius: 8px;
 }
 
 .vaultman-queue-item:hover {
@@ -329,8 +382,9 @@
 }
 
 .vaultman-queue-index {
-  color: var(--vaultman-text-faint);
-  font-size: 0.85em;
+  color: var(--vaultman-accent);
+  font-size: 0.9em;
+  font-weight: 600;
   min-width: 18px;
 }
 
@@ -348,6 +402,8 @@
   color: var(--vaultman-text-faint);
   font-size: 0.85em;
   white-space: nowrap;
+  min-width: 14px;
+  text-align: center;
 }
 
 .vaultman-queue-actions {
@@ -4861,9 +4917,9 @@ input.vaultman-filters-search-input::-webkit-search-results-decoration {
 }
 
 /* btnSelection shared primitive (Task 14b) */
-.vm-btn-selection-row {
-  /* inherits flex layout from .vaultman-squircle-row */
-}
+/* .vm-btn-selection-row {
+  /* inherits flex layout from .vaultman-squircle-row
+} */
 .vaultman-squircle.is-toggle.is-active {
   outline: 2px solid var(--color-accent);
   outline-offset: -2px;

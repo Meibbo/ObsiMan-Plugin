@@ -10,6 +10,7 @@
 		"build:plugin": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
 		"lint": "eslint .",
+		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"test:integrity": "vitest run --config vitest.config.ts",
 		"test:e2e": "wdio run ./wdio.conf.mts",
 		"test:all": "npm run test:integrity && npm run test:e2e"
@@ -34,7 +35,10 @@
 		"obsidian": "latest",
 		"obsidian-integration-testing": "^1.1.2",
 		"obsidian-launcher": "^3.0.2",
+		"sass": "^1.81.0",
 		"svelte": "^5.55.1",
+		"svelte-check": "^4.1.0",
+		"svelte-preprocess": "^6.0.3",
 		"type-fest": "^4.41.0",
 		"typescript": "~5.8.0",
 		"typescript-eslint": "8.35.1",

@@ -1,5 +1,5 @@
 import { Modal, Notice, Setting, type App, type TFile } from 'obsidian';
-import type { PropertyIndexService } from '../services/servicePropIndex';
+import type { PropertyIndexService } from '../utils/utilPropIndex';
 import { PropertySuggest } from '../utils/autocomplete';
 import { translate } from '../i18n/index';
 

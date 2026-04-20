@@ -1,7 +1,7 @@
 import { Modal, Setting, type App, type TFile } from 'obsidian';
 import type { PendingChange } from '../types/typeOps';
 import { RENAME_FILE } from '../types/typeOps';
-import type { PropertyIndexService } from '../services/servicePropIndex';
+import type { PropertyIndexService } from '../utils/utilPropIndex';
 import { PropertySuggest } from '../utils/autocomplete';
 import { translate } from '../i18n/index';
 

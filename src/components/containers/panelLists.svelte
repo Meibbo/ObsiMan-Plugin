@@ -4,8 +4,8 @@
     ExplorerProvider,
     ExplorerViewMode,
   } from "../../types/typeExplorer";
-  import ViewTree from "../layout/viewTree.svelte";
-  import ViewGrid from "../layout/viewGrid.svelte";
+  import ViewTree from "../views/viewTree.svelte";
+  import ViewGrid from "../views/viewGrid.svelte";
   import type { TreeNode } from "../../types/typeTree";
 
   let {

@@ -11,8 +11,8 @@
   import BottomNav from "./layout/navbarPillFab.svelte";
   import PopupOverlay from "./layout/layoutPopup.svelte";
   import { QueueListComponent } from "./componentQueueList";
-  import { QueueIslandComponent } from "./layout/islandQueue";
-  import { ActiveFiltersIslandComponent } from "./layout/islandActiveFilters";
+  import { QueueIslandComponent } from "../logic/logicQueue";
+  import { ActiveFiltersIslandComponent } from "../logic/logicFilters";
   import { QueueDetailsModal } from "../modals/modalQueueDetails";
   import { FolderSuggest } from "../utils/autocomplete";
   import { MOVE_FILE } from "../types/typeOps";

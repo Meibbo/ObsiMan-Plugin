@@ -2,6 +2,7 @@ import esbuild from "esbuild";
 import process from "process";
 import { builtinModules as builtins } from "module";
 import esbuildSvelte from "esbuild-svelte";
+import { sveltePreprocess } from "svelte-preprocess";
 
 const prod = process.argv[2] === "production";
 
@@ -36,6 +37,7 @@ const context = await esbuild.context({
 			compilerOptions: {
 				css: "injected",
 			},
+			preprocess: sveltePreprocess(),
 			// Suppress Svelte a11y warnings — Obsidian plugins are desktop apps,
 			// not public web pages, so strict a11y lint isn't applicable here.
 			filterWarnings: (w) => !w.code.startsWith('a11y_') && w.code !== 'non_reactive_update',

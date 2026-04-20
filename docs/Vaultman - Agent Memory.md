@@ -85,8 +85,8 @@ input: AI-gen
 ---
 
 ## Last updated
-- **Date**: 2026-04-19
-- **Agent**: Antigravity (Gemini 3 Flash) — Session 40 (Branch Handoff)
+- **Date**: 2026-04-20
+- **Agent**: Antigravity (Gemini 3 Flash) — Session 41 (SCSS Support)
 
 ## Session 40 summary (2026-04-19)
 **Status: Branch Created for Handover.**
@@ -140,14 +140,16 @@ Key accomplishments:
 
 ---
 
-## Session 2026-04-19 — Task 14d row expand/collapse
-- Implemented row-level expand/collapse in `componentQueueList.ts`, now rendered per staged op instead of per file summary.
-- Added `src/components/views/viewDiff.svelte` as a Svelte 5 component with lazy mount, operation-focused diff mode, and fallback file-focused mode for the global `File Diff` squircle.
-- Wired `src/components/layout/islandQueue.ts` so expanded rows take precedence over the global diff toggle; the 3rd squircle remains active only when no row is expanded.
-- Added `buildOperationDiff()` in `src/services/serviceDiff.ts` to derive a diff for a single staged op without introducing a second diff engine.
-- Added minimal styles and i18n keys for the new in-island diff UI.
-- Verification: `npm run build` passes.
-- Next likely step: decide whether the future Fase 4 “more options” flow should open per-file drill-in, picker, or shared selection state.
+## Session 2026-04-20 — SCSS and Svelte TypeScript integration
+- Configured project for SCSS support in Svelte components.
+- Installed `svelte-preprocess` and `sass` devDependencies.
+- Created `svelte.config.js` to enable LSP support (SCSS and TS) in IDEs.
+- Updated `esbuild.config.mjs` to include `sveltePreprocess()` in the `esbuild-svelte` plugin.
+- Added `verbatimModuleSyntax: true` to `tsconfig.json` (required for Svelte components with `lang="ts"`).
+- Added `npm run check` script using `svelte-check` for component diagnostics.
+- Verified configuration by successfully building a test component with `<style lang="scss">` and `<script lang="ts">`.
+- **Note**: Faced a minor `tsc` error in `type-fest` during full build, but esbuild production build succeeded with the new SCSS/TS configuration.
+- Next step: Migrate any existing inline styles to SCSS if needed, and start using SCSS for new components.
 
 ---
 

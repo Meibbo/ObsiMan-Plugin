@@ -20,6 +20,7 @@
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
+		"verbatimModuleSyntax": true,
 		"paths": {
 			"@types/*": [
 				"src/types/*"
@@ -46,6 +47,7 @@
 		"src/**/*.svelte",
 		"vitest.config.ts",
 		"esbuild.config.mjs",
+		"svelte.config.js",
 		"test/**/*.ts",
 		"main.ts"
 	],

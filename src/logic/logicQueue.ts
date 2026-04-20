@@ -1,11 +1,11 @@
 import { mount, unmount } from 'svelte';
 import type { Component } from 'svelte';
-import type { OperationQueueService } from '../../services/serviceQueue';
-import type { OperationDiffContext } from '../../services/serviceDiff';
-import { translate } from '../../i18n/index';
+import type { OperationQueueService } from '../services/serviceQueue';
+import type { OperationDiffContext } from '../services/serviceDiff';
+import { translate } from '../i18n/index';
 import BtnSelection from '../btnSelection.svelte';
-import type { BtnSelectionItem } from '../../types/typeUI';
-import { QueueListComponent } from '../componentQueueList';
+import type { BtnSelectionItem } from '../types/typeUI';
+import { QueueListComponent } from '../components/componentQueueList';
 import ViewDiff from '../views/viewDiff.svelte';
 
 /**
@@ -198,16 +198,16 @@ export class QueueIslandComponent {
 		}
 
 		this.queueListComponent = new QueueListComponent(this.listEl, {
-			onRemoveFile: (path) => {
+			onRemoveFile: (path: string) => {
 				this.queueService.removeFile(path);
 			},
-			onRemoveOp: (path, opId) => {
+			onRemoveOp: (path: string, opId: string) => {
 				if (this.expandedOpContext?.path === path && this.expandedOpContext.opId === opId) {
 					this.expandedOpContext = null;
 				}
 				this.queueService.removeOp(path, opId);
 			},
-			onExpandOp: (path, opId) => {
+			onExpandOp: (path: string, opId: string) => {
 				this.setExpandedOpContext(path, opId);
 			},
 			onCollapseOp: () => {
