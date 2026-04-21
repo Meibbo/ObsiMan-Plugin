@@ -89,10 +89,10 @@ export class ActiveFiltersIslandComponent {
 	}
 
 	mount(): void {
-		this.islandEl = this.containerEl.createDiv({ cls: 'vaultman-active-filters-island' });
+		this.islandEl = this.containerEl.createDiv({ cls: 'vm-active-filters-island' });
 
 		// 1. Squircle action buttons row
-		this.btnRowEl = this.islandEl.createDiv({ cls: 'vaultman-filters-island-btns' });
+		this.btnRowEl = this.islandEl.createDiv({ cls: 'vm-filters-island-btns' });
 		this.btnComponent = mount(
 			BtnSelection as unknown as Component<{ buttons: BtnSelectionItem[]; ariaLabel?: string }>,
 			{
@@ -102,10 +102,10 @@ export class ActiveFiltersIslandComponent {
 		);
 
 		// 2. Header
-		this.headerEl = this.islandEl.createDiv({ cls: 'vaultman-active-filters-island-header' });
+		this.headerEl = this.islandEl.createDiv({ cls: 'vm-active-filters-island-header' });
 
 		// 3. Scrollable item list
-		this.listEl = this.islandEl.createDiv({ cls: 'vaultman-active-filters-island-list' });
+		this.listEl = this.islandEl.createDiv({ cls: 'vm-active-filters-island-list' });
 
 		this.render();
 
@@ -122,20 +122,20 @@ export class ActiveFiltersIslandComponent {
 
 		this.listEl.empty();
 		if (rules.length === 0) {
-			this.listEl.createDiv({ cls: 'vaultman-active-filters-empty', text: translate('filters.popup.empty') });
+			this.listEl.createDiv({ cls: 'vm-active-filters-empty', text: translate('filters.popup.empty') });
 			return;
 		}
 
 		for (const rule of rules) {
-			const row = this.listEl.createDiv({ cls: 'vaultman-active-filter-island-row' });
+			const row = this.listEl.createDiv({ cls: 'vm-active-filter-island-row' });
 			row.toggleClass('is-disabled', !rule.enabled);
 
-			row.createSpan({ cls: 'vaultman-active-filter-row-text', text: rule.description });
+			row.createSpan({ cls: 'vm-active-filter-row-text', text: rule.description });
 
-			const actions = row.createDiv({ cls: 'vaultman-active-filter-row-actions' });
+			const actions = row.createDiv({ cls: 'vm-active-filter-row-actions' });
 
 			const toggle = actions.createDiv({
-				cls: 'vaultman-active-filter-toggle clickable-icon',
+				cls: 'vm-active-filter-toggle clickable-icon',
 				attr: { 'aria-label': rule.enabled ? 'Disable' : 'Enable' },
 			});
 			setIcon(toggle, rule.enabled ? 'lucide-eye' : 'lucide-eye-off');
@@ -146,7 +146,7 @@ export class ActiveFiltersIslandComponent {
 			});
 
 			const del = actions.createDiv({
-				cls: 'vaultman-active-filter-delete clickable-icon',
+				cls: 'vm-active-filter-delete clickable-icon',
 				attr: { 'aria-label': 'Delete' },
 			});
 			setIcon(del, 'lucide-trash-2');

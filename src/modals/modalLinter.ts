@@ -29,7 +29,7 @@ export class LinterModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClasses(['vaultman-modal', 'vaultman-linter-modal']);
+		contentEl.addClasses(['vm-modal', 'vm-linter-modal']);
 
 		contentEl.createEl('h3', { text: translate('linter.title') });
 
@@ -37,7 +37,7 @@ export class LinterModal extends Modal {
 		const linterPlugin = this.getLinterPlugin();
 		if (!linterPlugin) {
 			contentEl.createEl('p', {
-				cls: 'vaultman-linter-warning',
+				cls: 'vm-linter-warning',
 				text: translate('linter.not_installed'),
 			});
 			return;
@@ -47,24 +47,24 @@ export class LinterModal extends Modal {
 		this.priorityOrder = this.loadLinterPriorityOrder();
 
 		contentEl.createEl('p', {
-			cls: 'vaultman-modal-subtitle',
+			cls: 'vm-modal-subtitle',
 			text: translate('linter.description'),
 		});
 
 		// Scope info
 		contentEl.createDiv({
-			cls: 'vaultman-linter-scope',
+			cls: 'vm-linter-scope',
 			text: `${translate('linter.scope')}: ${this.targetFiles.length} ${translate('section.files').toLowerCase()}`,
 		});
 
 		// Priority order list
-		this.listEl = contentEl.createDiv({ cls: 'vaultman-linter-list' });
+		this.listEl = contentEl.createDiv({ cls: 'vm-linter-list' });
 		this.renderList();
 
 		// Add property input with autosuggest
-		const addRow = contentEl.createDiv({ cls: 'vaultman-linter-add-row' });
+		const addRow = contentEl.createDiv({ cls: 'vm-linter-add-row' });
 		const addInput = addRow.createEl('input', {
-			cls: 'vaultman-linter-add-input',
+			cls: 'vm-linter-add-input',
 			attr: { type: 'text', placeholder: translate('linter.add_property') },
 		});
 
@@ -126,23 +126,23 @@ export class LinterModal extends Modal {
 
 		for (let i = 0; i < this.priorityOrder.length; i++) {
 			const prop = this.priorityOrder[i];
-			const row = this.listEl.createDiv({ cls: 'vaultman-linter-item' });
+			const row = this.listEl.createDiv({ cls: 'vm-linter-item' });
 
 			// Index
 			row.createSpan({
-				cls: 'vaultman-linter-index',
+				cls: 'vm-linter-index',
 				text: String(i + 1),
 			});
 
 			// Property name
 			row.createSpan({
-				cls: 'vaultman-linter-prop',
+				cls: 'vm-linter-prop',
 				text: prop,
 			});
 
 			// Move up button
 			const upBtn = row.createEl('button', {
-				cls: 'vaultman-btn-small',
+				cls: 'vm-btn-small',
 				text: '↑',
 			});
 			upBtn.disabled = i === 0;
@@ -156,7 +156,7 @@ export class LinterModal extends Modal {
 
 			// Move down button
 			const downBtn = row.createEl('button', {
-				cls: 'vaultman-btn-small',
+				cls: 'vm-btn-small',
 				text: '↓',
 			});
 			downBtn.disabled = i === this.priorityOrder.length - 1;
@@ -170,7 +170,7 @@ export class LinterModal extends Modal {
 
 			// Remove button
 			const removeBtn = row.createEl('button', {
-				cls: 'vaultman-filter-remove-btn',
+				cls: 'vm-filter-remove-btn',
 				text: '×',
 			});
 			removeBtn.addEventListener('click', () => {

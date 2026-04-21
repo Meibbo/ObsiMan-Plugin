@@ -7,6 +7,15 @@
 //*                                                                  *\\
 //*     (づ￣ 3￣)づ    ☆*: .｡. o(≧▽≦)o .｡.:*☆     ╰(*°▽°*)╯      *\\
 //********************************************************************\\
+//     This project is a gift for the community of Obsidian.md,       \\
+//     a note-taking app that has helped me organize my thoughts.     \\
+//                                                                    \\
+//     Specially for those who invest their time and energy           \\
+//     making tools and systems that multiply the extension and       \\
+//     value of the work made in this app. For sharing it with        \\
+//     others. And for those who use it, for letting me experience    \\
+//     the joy of using tools that are made with passion and care.    \\
+//********************************************************************\\
 
 /*------------------————————————————————————————————-------------------/
 /########|||-------|                                |------|||#########/
@@ -22,9 +31,52 @@
 //--------------------------------------------------------------------//
 
 //...----------—————————————(   IMPORTS   )————————————------------...\\
+
+// Foundation
 @use "./styles/tokens" as *;
+@use "./styles/mixins" as *;
 @use "./styles/global";
+@use "./styles/animations";
+
+// Layout & Structure
+@use "./styles/layout";
+@use "./styles/v3-layout";
+@use "./styles/glass";
+
+// Navigation
+@use "./styles/v3-nav";
+@use "./styles/tab-bar";
+@use "./styles/toolbar";
+
+// Explorers & Trees
+@use "./styles/explorer";
+@use "./styles/tree";
+@use "./styles/virtual-list";
+@use "./styles/tags";
+@use "./styles/cards";
+
+// Data Views
+@use "./styles/grid";
 @use "./styles/filters";
+@use "./styles/filters-page";
 @use "./styles/file-list";
+
+// Operations & Panels
+@use "./styles/ops";
 @use "./styles/queue";
-@use "./styles/legacy";
+@use "./styles/content-ops";
+@use "./styles/diff-view";
+
+// Islands & Popups
+@use "./styles/islands";
+@use "./styles/v3-popups";
+@use "./styles/sort-popup";
+@use "./styles/viewmode-popup";
+
+// Components
+@use "./styles/badges";
+@use "./styles/modals";
+@use "./styles/sidebar";
+@use "./styles/curator";
+@use "./styles/statistics";
+@use "./styles/settings";

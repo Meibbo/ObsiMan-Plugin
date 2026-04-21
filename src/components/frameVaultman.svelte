@@ -145,7 +145,7 @@
     const w = viewportEl.offsetWidth;
     if (w === 0) return;
     // Set each page to exact pixel width
-    const pages = containerEl.querySelectorAll<HTMLElement>(".vaultman-page");
+    const pages = containerEl.querySelectorAll<HTMLElement>(".vm-page");
     pages.forEach((p) => {
       p.style.width = `${w}px`;
     });
@@ -227,9 +227,9 @@
     if (!isReordering || reorderSourceIdx < 0 || !pillEl) return;
     // Find which icon the pointer is currently over
     const el = document.elementFromPoint(e.clientX, e.clientY);
-    const iconEl = el?.closest?.(".vaultman-nav-icon") as HTMLElement | null;
+    const iconEl = el?.closest?.(".vm-nav-icon") as HTMLElement | null;
     if (iconEl && pillEl.contains(iconEl)) {
-      const icons = pillEl.querySelectorAll(".vaultman-nav-icon");
+      const icons = pillEl.querySelectorAll(".vm-nav-icon");
       const idx = Array.from(icons).indexOf(iconEl);
       if (idx >= 0 && idx !== reorderSourceIdx) {
         reorderTargetIdx = idx;
@@ -285,10 +285,10 @@
     };
   }
 
-  // ResizeObserver on .vaultman-view updates nav state
+  // ResizeObserver on .vm-view updates nav state
   function bindViewRoot(el: HTMLElement) {
     const target =
-      (el.closest(".vaultman-view") as HTMLElement) ?? el.parentElement ?? el;
+      (el.closest(".vm-view") as HTMLElement) ?? el.parentElement ?? el;
     viewRootEl = target;
     const ro = new ResizeObserver((entries) => {
       const w = entries[0]?.contentRect.width ?? target.offsetWidth;
@@ -762,15 +762,15 @@
 </script>
 
 <!-- ─── Page container (horizontal slide strip) ────────────────────────────── -->
-<!-- vaultman-pages-viewport clips via overflow:hidden; the container slides inside it -->
-<div class="vaultman-pages-viewport" use:bindViewport use:bindViewRoot>
+<!-- vm-pages-viewport clips via overflow:hidden; the container slides inside it -->
+<div class="vm-pages-viewport" use:bindViewport use:bindViewRoot>
   <div
-    class="vaultman-page-container"
+    class="vm-page-container"
     use:bindContainer
     ontransitionend={onContainerTransitionEnd}
   >
     {#each pageOrder as pageId (pageId)}
-      <div class="vaultman-page" data-page={pageId}>
+      <div class="vm-page" data-page={pageId}>
         {#key pageRenderKey}
           {#if pageId === "ops"}
             <OperationsPage {plugin} {icon} />
@@ -801,7 +801,7 @@
 
   <!-- ─── Island Backdrop (Rising Glass) ─────────────────────────────────── -->
   <div
-    class="vaultman-island-backdrop vaultman-glass"
+    class="vm-island-backdrop vm-glass"
     class:is-open={queueIslandOpen || filtersIslandOpen}
     onclick={() => {
       closeQueueIsland();
@@ -819,8 +819,8 @@
   ></div>
 
   <!-- ─── Queue island container — floats above bottom nav ────────────────────── -->
-  <div class="vaultman-queue-island-wrap" bind:this={queueIslandEl}></div>
-  <div class="vaultman-filters-island-wrap" bind:this={filtersIslandEl}></div>
+  <div class="vm-queue-island-wrap" bind:this={queueIslandEl}></div>
+  <div class="vm-filters-island-wrap" bind:this={filtersIslandEl}></div>
 
   <BottomNav
     {pageOrder}

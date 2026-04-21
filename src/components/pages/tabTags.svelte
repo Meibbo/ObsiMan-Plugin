@@ -37,7 +37,7 @@
   }
 </script>
 
-<div class="vaultman-tags-tab-content">
+<div class="vm-tags-tab-content">
   {#if explorer}
     <PanelExplorer
       {plugin}
@@ -53,7 +53,7 @@
 </div>
 
 <style>
-  .vaultman-tags-tab-content {
+  .vm-tags-tab-content {
     flex: 1;
     display: flex;
     flex-direction: column;

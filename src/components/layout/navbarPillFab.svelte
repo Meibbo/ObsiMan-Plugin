@@ -52,7 +52,7 @@
 </script>
 
 <div
-	class="vaultman-bottom-nav vaultman-glass vaultman-glass--bottom"
+	class="vm-bottom-nav vm-glass vm-glass--bottom"
 	class:is-island-open={isIslandOpen}
 	use:bindNav
 	class:is-bar-collapsed={navCollapsed}
@@ -61,7 +61,7 @@
 >
 	{#if navCollapsed}
 		<button
-			class="vaultman-nav-expand-trigger"
+			class="vm-nav-expand-trigger"
 			onclick={onCollapsedNavClick}
 			onkeydown={(e: KeyboardEvent) => {
 				if (e.key === "Enter" || e.key === " ") onCollapsedNavClick();
@@ -72,9 +72,9 @@
 	{/if}
 
 	{#if leftFab}
-		<div class="vaultman-nav-fab-wrap">
+		<div class="vm-nav-fab-wrap">
 			<div
-				class="vaultman-nav-fab"
+				class="vm-nav-fab"
 				aria-label={leftFab.label}
 				use:icon={leftFab.icon}
 				onclick={(e: MouseEvent) => {
@@ -91,16 +91,16 @@
 				tabindex="0"
 			></div>
 			{#if queuedCount > 0}
-				<div class="vaultman-fab-badge">{queuedCount}</div>
+				<div class="vm-fab-badge">{queuedCount}</div>
 			{/if}
 		</div>
 	{:else}
-		<div class="vaultman-nav-fab-placeholder"></div>
+		<div class="vm-nav-fab-placeholder"></div>
 	{/if}
 
 	<!-- Center: frosted glass pill with page icons -->
 	<div
-		class="vaultman-nav-pill"
+		class="vm-nav-pill"
 		class:is-reordering={isReordering}
 		bind:this={pillEl}
 		onpointermove={(e: PointerEvent) => onPillPointerMove(e)}
@@ -111,7 +111,7 @@
 	>
 		{#each pageOrder as pageId, i}
 			<div
-				class="vaultman-nav-icon"
+				class="vm-nav-icon"
 				class:is-active={activePage === pageId && !isReordering}
 				class:is-reorder-target={isReordering && reorderTargetIdx === i}
 				aria-label={pageLabels[pageId] ?? pageId}
@@ -132,16 +132,16 @@
 				tabindex={activePage === pageId ? 0 : -1}
 			>
 				{#if !isReordering && pageId === "statistics" && selectedCount > 0}
-					<div class="vaultman-nav-dot-badge"></div>
+					<div class="vm-nav-dot-badge"></div>
 				{/if}
 			</div>
 		{/each}
 	</div>
 
 	{#if rightFab}
-		<div class="vaultman-nav-fab-wrap">
+		<div class="vm-nav-fab-wrap">
 			<div
-				class="vaultman-nav-fab"
+				class="vm-nav-fab"
 				aria-label={rightFab.label}
 				use:icon={rightFab.icon}
 				onclick={(e: MouseEvent) => {
@@ -158,16 +158,16 @@
 				tabindex="0"
 			></div>
 			{#if filterRuleCount > 0}
-				<div class="vaultman-fab-badge">{filterRuleCount}</div>
+				<div class="vm-fab-badge">{filterRuleCount}</div>
 			{/if}
 		</div>
 	{:else}
-		<div class="vaultman-nav-fab-placeholder"></div>
+		<div class="vm-nav-fab-placeholder"></div>
 	{/if}
 </div>
 
 <style>
-	.vaultman-nav-expand-trigger {
+	.vm-nav-expand-trigger {
 		position: absolute;
 		inset: 0;
 		width: 100%;
@@ -183,7 +183,7 @@
 
 	/* Prevent the button from blocking FABs if they were somehow visible,
 	   though the CSS currently hides them in collapsed state. */
-	.vaultman-nav-expand-trigger:focus-visible {
+	.vm-nav-expand-trigger:focus-visible {
 		outline: 2px solid var(--interactive-accent);
 		outline-offset: -2px;
 		border-radius: var(--radius-m);

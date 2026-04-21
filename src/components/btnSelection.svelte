@@ -21,10 +21,10 @@
   }
 </script>
 
-<div class="vaultman-squircle-row vm-btn-selection-row" aria-label={ariaLabel}>
+<div class="vm-squircle-row vm-btn-selection-row" aria-label={ariaLabel}>
   {#each buttons as item (item.label)}
     <div
-      class="vaultman-squircle"
+      class="vm-squircle"
       class:is-active={item.isActive}
       class:is-toggle={item.isToggle}
       class:is-accent={!item.isToggle && item.isActive}

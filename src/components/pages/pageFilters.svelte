@@ -81,9 +81,9 @@
   {icon}
 />
 
-<div class="vaultman-filters-tabs-container">
+<div class="vm-filters-tabs-container">
   <div
-    class="vaultman-tab-wrapper"
+    class="vm-tab-wrapper"
     class:is-hidden={filtersActiveTab !== "tags"}
   >
     <FiltersTagsTab
@@ -97,7 +97,7 @@
     />
   </div>
   <div
-    class="vaultman-tab-wrapper"
+    class="vm-tab-wrapper"
     class:is-hidden={filtersActiveTab !== "props"}
   >
     <FiltersPropsTab
@@ -111,7 +111,7 @@
     />
   </div>
   <div
-    class="vaultman-tab-wrapper"
+    class="vm-tab-wrapper"
     class:is-hidden={filtersActiveTab !== "files"}
   >
     <FiltersFilesTab
@@ -129,14 +129,14 @@
 </div>
 
 <style>
-  .vaultman-filters-tabs-container {
+  .vm-filters-tabs-container {
     flex: 1;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
   }
-  .vaultman-tab-wrapper {
+  .vm-tab-wrapper {
     display: flex;
     flex-direction: column;
     height: 100%;

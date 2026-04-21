@@ -1,0 +1,263 @@
+//********************************************************************\\
+//*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
+//********************************************************************\\
+@use 'tokens' as *;
+@use 'mixins' as *;
+
+//...----------—————————————(   CARDS    )————————————------------...\\
+
+.vm-explorer {
+  &-cards {
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  &-grid {
+    overflow-y: auto;
+    flex: 1;
+  }
+}
+
+// Property cards grid
+.vm-cards {
+  &-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+    padding: 8px;
+  }
+
+  &-drill-topbar {
+    @include flex-center;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    margin-bottom: 6px;
+  }
+
+  &-back {
+    @include flex-center;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    color: var(--text-muted);
+
+    &:hover {
+      background: var(--background-modifier-hover);
+      color: var(--text-normal);
+    }
+  }
+
+  &-drill-icon {
+    @include flex-center;
+    width: 22px;
+    height: 22px;
+    color: var(--color-accent);
+    flex-shrink: 0;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &-drill-title {
+    font-weight: 600;
+    font-size: var(--font-ui-small);
+    color: var(--text-normal);
+    flex: 1;
+    @include text-ellipsis;
+  }
+}
+
+// Individual card
+.vm-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  padding: 12px 8px 10px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  text-align: center;
+
+  &:hover {
+    border-color: var(--interactive-accent);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+
+  &.is-active-filter {
+    border-color: var(--interactive-accent);
+    background: var(--background-modifier-active-hover);
+  }
+
+  &-icon {
+    @include flex-center;
+    width: 28px;
+    height: 28px;
+    color: var(--color-accent);
+    flex-shrink: 0;
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  &-title {
+    font-weight: 600;
+    font-size: var(--font-ui-small);
+    width: 100%;
+    color: var(--text-normal);
+    @include text-ellipsis;
+  }
+
+  &-stats {
+    @include flex-center;
+    gap: 5px;
+    color: var(--text-muted);
+    font-size: var(--font-ui-smaller);
+    margin-top: 2px;
+  }
+
+  &-stat-count {
+    color: var(--text-muted);
+  }
+
+  &-stat-type {
+    @include flex-center;
+    width: 14px;
+    height: 14px;
+    color: var(--text-faint);
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+}
+
+// Mini prop-card (used in filters view panel)
+.vm-props-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+
+.vm-prop-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px 6px;
+  border-radius: var(--radius-m);
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  cursor: pointer;
+  text-align: center;
+  overflow: hidden;
+  transition: background 0.12s;
+
+  &:hover { background: var(--background-modifier-hover); }
+
+  &-icon {
+    @include flex-center;
+    color: var(--text-muted);
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &-name {
+    font-size: var(--font-ui-smaller);
+    color: var(--text-normal);
+    max-width: 100%;
+    @include text-ellipsis;
+  }
+
+  &-count {
+    font-size: 10px;
+    color: var(--text-faint);
+  }
+}
+
+// Grid value chips
+.vm-grid {
+  &-td {
+    border-bottom: 1px solid var(--background-modifier-border);
+    padding: 5px 8px;
+    vertical-align: middle;
+
+    &-prop {
+      @include flex-center;
+      justify-content: flex-start;
+      gap: 5px;
+      white-space: nowrap;
+      cursor: pointer;
+      min-width: 120px;
+      max-width: 200px;
+      padding-right: 12px;
+    }
+
+    &-values {
+      width: 100%;
+      padding-left: 4px;
+    }
+  }
+
+  &-prop-name {
+    flex: 1;
+    @include text-ellipsis;
+    font-weight: 500;
+  }
+
+  &-value-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--background-modifier-hover);
+    border: 1px solid var(--background-modifier-border);
+    margin: 2px 3px;
+    cursor: pointer;
+    font-size: var(--font-ui-smaller);
+    transition: background 0.1s, border-color 0.1s;
+
+    &:hover {
+      background: var(--interactive-hover);
+      border-color: var(--interactive-accent);
+    }
+
+    &.is-active-filter {
+      background: var(--interactive-accent);
+      color: var(--text-on-accent);
+      border-color: var(--interactive-accent);
+
+      .vm-grid-chip-count {
+        color: var(--text-on-accent);
+        opacity: 0.8;
+      }
+    }
+  }
+
+  &-chip-text {
+    max-width: 160px;
+    @include text-ellipsis;
+  }
+
+  &-chip-count {
+    color: var(--text-muted);
+    font-size: 0.85em;
+  }
+}

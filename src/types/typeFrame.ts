@@ -3,7 +3,7 @@ import type { VaultmanPlugin } from '../main';
 import { mount, unmount, type Component } from 'svelte';
 import VaultmanFrameSvelte from '../components/frameVaultman.svelte';
 import { translate } from '../i18n/index';
-export const TYPE_FRAME_VM = 'vaultman-frame';
+export const TYPE_FRAME_VM = 'vm-frame';
 /**
  * Full-width explorer view shell.
  */
@@ -23,7 +23,7 @@ export class VaultmanFrame extends ItemView {
 	async onOpen(): Promise<void> {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass('vaultman-frame');
+		contentEl.addClass('vm-frame');
 
 		this.svelteApp = mount(VaultmanFrameSvelte as unknown as Component<{ plugin: VaultmanPlugin }>, {
 			target: contentEl,

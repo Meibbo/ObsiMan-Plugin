@@ -23,25 +23,25 @@ export class StatusBarComponent {
 		this.containerEl.empty();
 
 		// Left group: total | filtered | selected | pending
-		const leftEl = this.containerEl.createDiv({ cls: 'vaultman-statusbar-left' });
+		const leftEl = this.containerEl.createDiv({ cls: 'vm-statusbar-left' });
 
 		leftEl.createSpan({
-			cls: 'vaultman-statusbar-item',
+			cls: 'vm-statusbar-item',
 			text: translate('statusbar.files', { count: data.total }),
 		});
 
 		this.addSep(leftEl, '|');
 
 		leftEl.createSpan({
-			cls: 'vaultman-statusbar-item',
+			cls: 'vm-statusbar-item',
 			text: translate('statusbar.filtered_label', { count: data.filtered }),
 		});
 
 		this.addSep(leftEl, '|');
 
 		const selCls = data.selected > 0
-			? 'vaultman-statusbar-item vaultman-statusbar-selected'
-			: 'vaultman-statusbar-item';
+			? 'vm-statusbar-item vm-statusbar-selected'
+			: 'vm-statusbar-item';
 		leftEl.createSpan({
 			cls: selCls,
 			text: translate('statusbar.selected', { count: data.selected }),
@@ -50,32 +50,32 @@ export class StatusBarComponent {
 		this.addSep(leftEl, '|');
 
 		const qCls = data.queued > 0
-			? 'vaultman-statusbar-item vaultman-statusbar-queued'
-			: 'vaultman-statusbar-item';
+			? 'vm-statusbar-item vm-statusbar-queued'
+			: 'vm-statusbar-item';
 		leftEl.createSpan({
 			cls: qCls,
 			text: translate('statusbar.pending', { count: data.queued }),
 		});
 
 		// Right group: props · values
-		const rightEl = this.containerEl.createDiv({ cls: 'vaultman-statusbar-right' });
+		const rightEl = this.containerEl.createDiv({ cls: 'vm-statusbar-right' });
 
 		rightEl.createSpan({
-			cls: 'vaultman-statusbar-item',
+			cls: 'vm-statusbar-item',
 			text: translate('statusbar.props_label', { count: data.propertyCount }),
 		});
 
 		this.addSep(rightEl, '·');
 
 		rightEl.createSpan({
-			cls: 'vaultman-statusbar-item',
+			cls: 'vm-statusbar-item',
 			text: translate('statusbar.values_label', { count: data.valueCount }),
 		});
 	}
 
 	private addSep(parent: HTMLElement, char: string): void {
 		parent.createSpan({
-			cls: 'vaultman-statusbar-separator',
+			cls: 'vm-statusbar-separator',
 			text: ` ${char} `,
 		});
 	}

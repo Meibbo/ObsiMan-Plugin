@@ -2,103 +2,68 @@
 //*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
 //********************************************************************\\
 @use 'tokens' as *;
+@use 'mixins' as *;
 
-  gap: var(--size-4-2, 8px);
-}
+//...----------—————————————(  V3 LAYOUT )————————————------------...\\
 
-.vm-tab {
-  /* Inherits theme base from nav-action-button */
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 9px;
-  cursor: pointer;
-  font-size: var(--font-ui-smaller);
-  color: var(--text-muted);
-  border-bottom: 2px solid transparent;
-  white-space: nowrap;
-  user-select: none;
-  transition: color 0.12s, border-color 0.12s;
-}
+.vm {
+  // View shell
+  &-view {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    padding: 0;
 
-.vm-tab:hover {
-  color: var(--text-normal);
-}
+    &-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px 4px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--background-modifier-border);
 
-.vm-tab.is-active {
-  color: var(--text-normal);
-  border-bottom-color: var(--color-accent);
-  font-weight: 500;
-}
+      & .vm-view-title {
+        font-size: var(--font-ui-small);
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
 
-.vm-tab-icon {
-  display: flex;
-  align-items: center;
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-}
+      & .vm-view-expand {
+        color: var(--text-muted);
+        padding: 2px;
+      }
+    }
+  }
 
-.vm-tab-icon svg {
-  width: 14px;
-  height: 14px;
-}
+  // Viewport for sliding strip
+  &-pages-viewport {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    position: relative;
+  }
 
-@container (max-width: 220px) {
-  .vm-tab-label {
-    display: none;
+  &-page-container {
+    display: flex;
+    height: 100%;
+
+    &.is-animating {
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+
+  &-page {
+    min-width: 0;
+    flex: 0 0 auto;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 4px 4px 0px;
+    box-sizing: border-box;
   }
 }
-
-.vm-tab-area {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-  min-height: 0;
-}
-
-/* ─── Filters page ──────────────────────────────────────────────────────── */
-
-/* Hack to completely remove strict inner padding on vm view, allowing full height sweep */
-.workspace-leaf-content[data-type="vm-view"] .view-content,
-.workspace-leaf-content[data-type="vm-frame"] .view-content {
-  padding: 0 !important;
-}
-
-.vm-pages-viewport {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.vm-page-container {
-  display: flex;
-  height: 100%;
-  width: 300%;
-  /* 3 pages */
-  will-change: transform;
-}
-
-.vm-page {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  /* Each page takes full viewport width */
-  height: 100%;
-  flex-shrink: 0;
-}
-
-
-
-/*-------------------------FILTERS HEADER (ABOVE TABBAR)-----------------------*/
-.vm-filters-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 8px 4px;
-  flex-shrink: 0;
-}
-

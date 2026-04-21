@@ -1,0 +1,43 @@
+//********************************************************************\\
+//*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
+//********************************************************************\\
+
+//...----------—————————————(   MIXINS Y EXTENDS  )————————————------------...\\
+
+// Text Truncation
+@mixin text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Flex centering utility
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Hover Glass effect
+@mixin hover-bg-accent {
+  background: var(--vm-bg-hover);
+  &:hover {
+    background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  }
+}
+
+// Border rules for lists
+@mixin border-separator {
+  border-bottom: 1px solid var(--vm-border);
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+// Base structural component
+%vm-component-base {
+  background: var(--background-primary);
+  border: 1px solid var(--vm-border);
+  border-radius: var(--radius-s);
+  padding: 4px 8px;
+}

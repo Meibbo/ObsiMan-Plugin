@@ -22,8 +22,8 @@
 </script>
 
 <div>
-	<div class="vaultman-popup-header">
-		<span class="vaultman-popup-title"
+	<div class="vm-popup-header">
+		<span class="vm-popup-title"
 			>{translate("move.title")} ({moveTargetFiles.length})</span
 		>
 		<div
@@ -39,7 +39,7 @@
 		></div>
 	</div>
 	<input
-		class="vaultman-search-input"
+		class="vm-search-input"
 		type="text"
 		placeholder={translate("move.target_folder_placeholder")}
 		use:attachFolderSuggest
@@ -48,29 +48,29 @@
 		}}
 	/>
 	<p
-		class="vaultman-text-faint"
+		class="vm-text-faint"
 		style="font-size: var(--font-ui-smaller); margin: 4px 0 8px;"
 	>
 		{translate("move.root_hint")}
 	</p>
-	<div class="vaultman-rename-preview">
+	<div class="vm-rename-preview">
 		{#each movePreviews as row}
-			<div class="vaultman-rename-row">
-				<span class="vaultman-diff-deleted">{row.oldPath}</span>
+			<div class="vm-rename-row">
+				<span class="vm-diff-deleted">{row.oldPath}</span>
 				<span> → </span>
-				<span class="vaultman-diff-added">{row.newPath}</span>
+				<span class="vm-diff-added">{row.newPath}</span>
 			</div>
 		{/each}
 		{#if moveTargetFiles.length > movePreviews.length}
-			<div class="vaultman-text-faint">
+			<div class="vm-text-faint">
 				... and {moveTargetFiles.length - movePreviews.length} more
 			</div>
 		{/if}
 	</div>
-	<div class="vaultman-popup-actions">
-		<button class="vaultman-btn mod-cta" onclick={queueMoves}
+	<div class="vm-popup-actions">
+		<button class="vm-btn mod-cta" onclick={queueMoves}
 			>{translate("prop.add_to_queue")}</button
 		>
-		<button class="vaultman-btn" onclick={closePopup}>Cancel</button>
+		<button class="vm-btn" onclick={closePopup}>Cancel</button>
 	</div>
 </div>

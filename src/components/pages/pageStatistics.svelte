@@ -121,48 +121,48 @@
   }
 </script>
 
-<div class="vaultman-statistics-page">
-  <div class="vaultman-stat-header">
-    <div class="vaultman-stat-scope-pills">
+<div class="vm-statistics-page">
+  <div class="vm-stat-header">
+    <div class="vm-stat-scope-pills">
       {#each scopeOptions as opt}
         <button
-          class="vaultman-stat-scope-pill"
+          class="vm-stat-scope-pill"
           class:is-active={scope === opt.id}
           onclick={() => (scope = opt.id)}
           aria-label={opt.label}
         >
-          <span class="vaultman-pill-icon" use:iconAction={opt.icon}></span>
-          <span class="vaultman-pill-label">{opt.label}</span>
+          <span class="vm-pill-icon" use:iconAction={opt.icon}></span>
+          <span class="vm-pill-label">{opt.label}</span>
         </button>
       {/each}
     </div>
   </div>
 
-  <div class="vaultman-stat-cards-grid">
+  <div class="vm-stat-cards-grid">
     {#each statCards as card}
-      <div class="vaultman-stat-card" style="--card-color: {card.color}">
-        <div class="vaultman-stat-card-icon" use:iconAction={card.icon}></div>
-        <div class="vaultman-stat-card-info">
-          <span class="vaultman-stat-card-value"
+      <div class="vm-stat-card" style="--card-color: {card.color}">
+        <div class="vm-stat-card-icon" use:iconAction={card.icon}></div>
+        <div class="vm-stat-card-info">
+          <span class="vm-stat-card-value"
             >{card.value.toLocaleString()}</span
           >
-          <span class="vaultman-stat-card-label">{card.label}</span>
+          <span class="vm-stat-card-label">{card.label}</span>
         </div>
       </div>
     {/each}
   </div>
 
-  <div class="vaultman-stat-meta-island">
-    <div class="vaultman-stat-meta-item">
-      <span class="vaultman-meta-icon" use:iconAction={"lucide-link"}></span>
-      <span class="vaultman-meta-label">{translate("stats.total_links")}</span>
-      <span class="vaultman-meta-value">{metaStats.links.toLocaleString()}</span
+  <div class="vm-stat-meta-island">
+    <div class="vm-stat-meta-item">
+      <span class="vm-meta-icon" use:iconAction={"lucide-link"}></span>
+      <span class="vm-meta-label">{translate("stats.total_links")}</span>
+      <span class="vm-meta-value">{metaStats.links.toLocaleString()}</span
       >
     </div>
-    <div class="vaultman-stat-meta-item">
-      <span class="vaultman-meta-icon" use:iconAction={"lucide-type"}></span>
-      <span class="vaultman-meta-label">{translate("stats.word_count")}</span>
-      <span class="vaultman-meta-value"
+    <div class="vm-stat-meta-item">
+      <span class="vm-meta-icon" use:iconAction={"lucide-type"}></span>
+      <span class="vm-meta-label">{translate("stats.word_count")}</span>
+      <span class="vm-meta-value"
         >{metaStats.words > 0 ? metaStats.words.toLocaleString() : "—"}</span
       >
     </div>

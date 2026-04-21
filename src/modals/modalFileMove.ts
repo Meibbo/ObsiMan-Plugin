@@ -25,11 +25,11 @@ export class FileMoveModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClasses(['vaultman-modal', 'vaultman-move-modal']);
+		contentEl.addClasses(['vm-modal', 'vm-move-modal']);
 
 		contentEl.createEl('h3', { text: translate('move.title') });
 		contentEl.createEl('p', {
-			cls: 'vaultman-modal-subtitle',
+			cls: 'vm-modal-subtitle',
 			text: `${this.targetFiles.length} ${translate('section.files').toLowerCase()}`,
 		});
 
@@ -39,7 +39,7 @@ export class FileMoveModal extends Modal {
 			.setDesc(translate('move.root_hint'));
 
 		const folderInput = folderSetting.controlEl.createEl('input', {
-			cls: 'vaultman-rename-pattern-input',
+			cls: 'vm-rename-pattern-input',
 			attr: { type: 'text', placeholder: translate('move.target_folder_placeholder') },
 		});
 
@@ -55,7 +55,7 @@ export class FileMoveModal extends Modal {
 		});
 
 		// Preview
-		this.previewEl = contentEl.createDiv({ cls: 'vaultman-rename-preview' });
+		this.previewEl = contentEl.createDiv({ cls: 'vm-rename-preview' });
 		this.renderPreview();
 
 		// Buttons
@@ -85,15 +85,15 @@ export class FileMoveModal extends Modal {
 				? `${this.targetFolder}/${file.name}`
 				: file.name;
 
-			const row = this.previewEl.createDiv({ cls: 'vaultman-rename-row' });
-			row.createSpan({ cls: 'vaultman-diff-deleted', text: file.path });
+			const row = this.previewEl.createDiv({ cls: 'vm-rename-row' });
+			row.createSpan({ cls: 'vm-diff-deleted', text: file.path });
 			row.createSpan({ text: ' → ' });
-			row.createSpan({ cls: 'vaultman-diff-added', text: newPath });
+			row.createSpan({ cls: 'vm-diff-added', text: newPath });
 		}
 
 		if (this.targetFiles.length > limit) {
 			this.previewEl.createDiv({
-				cls: 'vaultman-text-faint',
+				cls: 'vm-text-faint',
 				text: `... and ${this.targetFiles.length - limit} more`,
 			});
 		}

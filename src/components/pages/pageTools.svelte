@@ -53,10 +53,10 @@
 	};
 </script>
 
-<div class="vaultman-tab-bar">
+<div class="vm-tab-bar">
 	{#each Tabs as tab}
 		<div
-			class="vaultman-tab nav-action-button"
+			class="vm-tab nav-action-button"
 			class:is-active={opsTab === tab.id}
 			data-tab={tab.id}
 			onclick={() => {
@@ -72,29 +72,29 @@
 				}
 			}}
 		>
-			<span class="vaultman-tab-icon" use:icon={tab.icon}></span>
-			<span class="vaultman-tab-label">{tab.label}</span>
+			<span class="vm-tab-icon" use:icon={tab.icon}></span>
+			<span class="vm-tab-label">{tab.label}</span>
 		</div>
 	{/each}
 </div>
 
-<div class="vaultman-tab-area">
+<div class="vm-tab-area">
 	<!-- File Ops tab (always in DOM so QueueListComponent persists) -->
 
 	<!-- Linter tab (always in DOM) -->
-	<!-- <div class="vaultman-tab-content" class:is-active={Tabs === "linter"}>
+	<!-- <div class="vm-tab-content" class:is-active={Tabs === "linter"}>
 		<LinterTab {openLinter} />
 	</div> -->
 
 	<!-- Template tab -->
-	<div class="vaultman-tab-content" class:is-active={opsTab === "template"}>
-		<div class="vaultman-coming-soon">
+	<div class="vm-tab-content" class:is-active={opsTab === "template"}>
+		<div class="vm-coming-soon">
 			{translate("ops.coming_soon")}
 		</div>
 	</div>
 
 	<!-- Layout tab -->
-	<div class="vaultman-tab-content" class:is-active={opsTab === "layout"}>
-		<div class="vaultman-layout-curator" use:mountCurator></div>
+	<div class="vm-tab-content" class:is-active={opsTab === "layout"}>
+		<div class="vm-layout-curator" use:mountCurator></div>
 	</div>
 </div>

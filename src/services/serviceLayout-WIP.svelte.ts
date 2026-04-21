@@ -34,11 +34,11 @@ export class ReorderController {
 
     // Find which item the pointer is over
     const elUnder = document.elementFromPoint(e.clientX, e.clientY);
-    const itemEl = elUnder?.closest?.(".nav-action-button, .vaultman-nav-icon") as HTMLElement | null;
+    const itemEl = elUnder?.closest?.(".nav-action-button, .vm-nav-icon") as HTMLElement | null;
 
     if (itemEl && containerEl.contains(itemEl)) {
       // Logic to find target index... this is a bit crude but works for horizontal layouts
-      const items = Array.from(containerEl.querySelectorAll(".nav-action-button, .vaultman-nav-icon"));
+      const items = Array.from(containerEl.querySelectorAll(".nav-action-button, .vm-nav-icon"));
       const idx = items.indexOf(itemEl);
       if (idx >= 0 && idx !== this.#reorderSourceIdx) {
         this.reorderTargetIdx = idx;

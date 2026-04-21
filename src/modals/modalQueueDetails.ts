@@ -27,7 +27,7 @@ export class QueueDetailsModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClasses(['vaultman-modal', 'vaultman-queue-details']);
+		contentEl.addClasses(['vm-modal', 'vm-queue-details']);
 
 		contentEl.createEl('h3', { text: translate('queue.title') });
 
@@ -39,13 +39,13 @@ export class QueueDetailsModal extends Modal {
 		const totalOps = diffs.reduce((s, d) => s + d.opSummaries.length, 0);
 
 		// --- Summary header ---
-		const summaryEl = contentEl.createDiv({ cls: 'vaultman-diff-summary' });
+		const summaryEl = contentEl.createDiv({ cls: 'vm-diff-summary' });
 		summaryEl.createSpan({
 			text: `${diffs.length} ${translate('section.files').toLowerCase()} · ${totalOps} ${translate('section.operations').toLowerCase()}`,
 		});
 
 		// --- File diffs ---
-		const diffContainer = contentEl.createEl('div', { cls: 'vaultman-diff-container' });
+		const diffContainer = contentEl.createEl('div', { cls: 'vm-diff-container' });
 		this.renderDiffs(diffContainer, diffs);
 
 		// --- Apply / Cancel buttons ---
@@ -67,60 +67,60 @@ export class QueueDetailsModal extends Modal {
 	private renderDiffs(container: HTMLElement, diffs: FileDiff[]): void {
 		container.empty();
 		for (const fd of diffs) {
-			const fileEl = container.createDiv({ cls: 'vaultman-diff-file' });
+			const fileEl = container.createDiv({ cls: 'vm-diff-file' });
 
 			// Header: path (or rename path) + op count
-			const headerEl = fileEl.createDiv({ cls: 'vaultman-diff-file-header' });
+			const headerEl = fileEl.createDiv({ cls: 'vm-diff-file-header' });
 			const pathText = fd.newPath && fd.newPath !== fd.path
 				? `${fd.path} → ${fd.newPath}`
 				: fd.path;
-			headerEl.createSpan({ cls: 'vaultman-diff-file-path', text: pathText });
+			headerEl.createSpan({ cls: 'vm-diff-file-path', text: pathText });
 			headerEl.createSpan({
-				cls: 'vaultman-diff-file-ops',
+				cls: 'vm-diff-file-ops',
 				text: ` (${fd.opSummaries.length} ops)`,
 			});
 
 			// FM deltas
 			if (fd.fmDeltas.length > 0) {
-				const fmEl = fileEl.createDiv({ cls: 'vaultman-diff-fm' });
+				const fmEl = fileEl.createDiv({ cls: 'vm-diff-fm' });
 				for (const delta of fd.fmDeltas) {
 					if (delta.kind === 'unchanged') continue;
-					const rowEl = fmEl.createDiv({ cls: 'vaultman-diff-row' });
-					rowEl.addClass(`vaultman-diff-${delta.kind}`);
-					rowEl.createSpan({ cls: 'vaultman-diff-key', text: delta.key });
+					const rowEl = fmEl.createDiv({ cls: 'vm-diff-row' });
+					rowEl.addClass(`vm-diff-${delta.kind}`);
+					rowEl.createSpan({ cls: 'vm-diff-key', text: delta.key });
 					if (delta.kind === 'changed') {
-						rowEl.createSpan({ cls: 'vaultman-diff-before', text: this.formatDiffValue(delta.before) });
-						rowEl.createSpan({ cls: 'vaultman-diff-sep', text: ' → ' });
-						rowEl.createSpan({ cls: 'vaultman-diff-after', text: this.formatDiffValue(delta.after) });
+						rowEl.createSpan({ cls: 'vm-diff-before', text: this.formatDiffValue(delta.before) });
+						rowEl.createSpan({ cls: 'vm-diff-sep', text: ' → ' });
+						rowEl.createSpan({ cls: 'vm-diff-after', text: this.formatDiffValue(delta.after) });
 					} else if (delta.kind === 'added') {
-						rowEl.createSpan({ cls: 'vaultman-diff-after', text: this.formatDiffValue(delta.after) });
+						rowEl.createSpan({ cls: 'vm-diff-after', text: this.formatDiffValue(delta.after) });
 					} else if (delta.kind === 'removed') {
-						rowEl.createSpan({ cls: 'vaultman-diff-before', text: this.formatDiffValue(delta.before) });
+						rowEl.createSpan({ cls: 'vm-diff-before', text: this.formatDiffValue(delta.before) });
 					}
 				}
 			}
 
 			// Body hunks (lazy — compute on first render of this file)
 			if (fd.bodyChanged) {
-				const bodyEl = fileEl.createDiv({ cls: 'vaultman-diff-body' });
+				const bodyEl = fileEl.createDiv({ cls: 'vm-diff-body' });
 				const hunks = computeBodyHunks(fd.bodyBefore, fd.bodyAfter);
 				for (const hunk of hunks) {
-					bodyEl.createDiv({ cls: 'vaultman-diff-hunk-header', text: hunk.header });
+					bodyEl.createDiv({ cls: 'vm-diff-hunk-header', text: hunk.header });
 					for (const line of hunk.lines) {
-						const lineEl = bodyEl.createDiv({ cls: 'vaultman-diff-hunk-line' });
-						lineEl.addClass(`vaultman-diff-line-${line.kind}`);
+						const lineEl = bodyEl.createDiv({ cls: 'vm-diff-hunk-line' });
+						lineEl.addClass(`vm-diff-line-${line.kind}`);
 						lineEl.setText(line.text);
 					}
 				}
 			}
 
 			// Op summaries with × remove buttons
-			const opsEl = fileEl.createDiv({ cls: 'vaultman-diff-ops' });
+			const opsEl = fileEl.createDiv({ cls: 'vm-diff-ops' });
 			for (const op of fd.opSummaries) {
-				const opEl = opsEl.createDiv({ cls: 'vaultman-diff-op' });
-				opEl.createSpan({ cls: 'vaultman-diff-op-detail', text: op.details });
+				const opEl = opsEl.createDiv({ cls: 'vm-diff-op' });
+				opEl.createSpan({ cls: 'vm-diff-op-detail', text: op.details });
 				const removeBtn = opEl.createEl('button', {
-					cls: 'vaultman-filter-remove-btn clickable-icon',
+					cls: 'vm-filter-remove-btn clickable-icon',
 					attr: { 'aria-label': 'Remove op' },
 				});
 				removeBtn.setText('×');

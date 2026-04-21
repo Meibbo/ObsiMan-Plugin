@@ -25,11 +25,11 @@
 	} = $props();
 </script>
 
-<div class="vaultman-active-filters-popup">
+<div class="vm-active-filters-popup">
 	<!-- Squircle action buttons row -->
-	<div class="vaultman-squircle-row">
+	<div class="vm-squircle-row">
 		<div
-			class="vaultman-squircle"
+			class="vm-squircle"
 			aria-label={translate("filters.popup.clear_all")}
 			use:icon={"lucide-x"}
 			onclick={() => {
@@ -50,14 +50,14 @@
 			tabindex="0"
 		></div>
 		<div
-			class="vaultman-squircle vaultman-squircle-reserved"
+			class="vm-squircle vm-squircle-reserved"
 			aria-label="Reserved"
 			use:icon={"lucide-plus"}
 			role="button"
 			tabindex="0"
 		></div>
 		<div
-			class="vaultman-squircle"
+			class="vm-squircle"
 			aria-label={translate("filters.popup.templates")}
 			use:icon={"lucide-bookmark"}
 			onclick={(e: MouseEvent) => {
@@ -124,7 +124,7 @@
 			tabindex="0"
 		></div>
 		<div
-			class="vaultman-squircle vaultman-squircle-reserved"
+			class="vm-squircle vm-squircle-reserved"
 			aria-label="Reserved"
 			use:icon={"lucide-check"}
 			role="button"
@@ -133,22 +133,22 @@
 	</div>
 
 	<!-- Filter rules list -->
-	<div class="vaultman-active-filters-list">
+	<div class="vm-active-filters-list">
 		{#if activeFilterRules.length === 0}
-			<div class="vaultman-active-filters-empty">
+			<div class="vm-active-filters-empty">
 				{translate("filters.popup.empty")}
 			</div>
 		{:else}
 			{#each activeFilterRules as rule (rule.id)}
 				<div
-					class="vaultman-active-filter-rule"
+					class="vm-active-filter-rule"
 					class:is-disabled={!rule.enabled}
 				>
-					<span class="vaultman-active-filter-rule-text"
+					<span class="vm-active-filter-rule-text"
 						>{rule.description}</span
 					>
 					<div
-						class="vaultman-active-filter-toggle clickable-icon"
+						class="vm-active-filter-toggle clickable-icon"
 						aria-label={rule.enabled
 							? translate("filters.popup.rule.disable")
 							: translate("filters.popup.rule.enable")}
@@ -164,7 +164,7 @@
 						tabindex="0"
 					></div>
 					<div
-						class="vaultman-active-filter-delete clickable-icon"
+						class="vm-active-filter-delete clickable-icon"
 						aria-label={translate("filters.popup.rule.delete")}
 						use:icon={"lucide-x"}
 						onclick={() => deleteFilterRule(rule)}

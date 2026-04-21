@@ -55,7 +55,7 @@
   $effect(() => {
     if (!outerEl) return;
     const cs = getComputedStyle(outerEl);
-    const v = parseFloat(cs.getPropertyValue("--vaultman-tree-row-h"));
+    const v = parseFloat(cs.getPropertyValue("--vm-tree-row-h"));
     if (v > 0) rowH = v;
     viewportH = outerEl.clientHeight;
     const ro = new ResizeObserver(() => {
@@ -83,8 +83,8 @@
   }
 </script>
 
-<div bind:this={outerEl} class="vaultman-tree-virtual-outer" onscroll={onScroll}>
-  <div class="vaultman-tree-virtual-inner" style="--vm-tree-total-h: {totalH}px">
+<div bind:this={outerEl} class="vm-tree-virtual-outer" onscroll={onScroll}>
+  <div class="vm-tree-virtual-inner" style="--vm-tree-total-h: {totalH}px">
     {#each visibleSlice as flat, i (flat.node.id)}
       {@const absIdx = win.startIndex + i}
       {@const node = flat.node}
@@ -94,10 +94,10 @@
       {@const isHighlighted = searchHighlightIds?.has(node.id) ?? false}
 
       <div
-        class="vaultman-tree-virtual-row {node.cls ?? ''}"
+        class="vm-tree-virtual-row {node.cls ?? ''}"
         class:is-active-filter={isActive}
-        class:vaultman-badge-warning={isWarning}
-        class:vaultman-search-highlight={isHighlighted}
+        class:vm-badge-warning={isWarning}
+        class:vm-search-highlight={isHighlighted}
         class:is-editing={isEditing}
         style="--vm-tree-y: {absIdx * rowH}px; --depth: {flat.depth}"
         data-id={node.id}
@@ -111,7 +111,7 @@
       >
         <!-- Chevron / Spacer -->
         <div
-          class="vaultman-tree-toggle"
+          class="vm-tree-toggle"
           onclick={(e) => { e.stopPropagation(); if (flat.hasChildren) onToggle(node.id); }}
           onkeydown={() => {}}
           role="button"
@@ -124,13 +124,13 @@
 
         <!-- Icon -->
         {#if node.icon}
-          <span class="vaultman-tree-icon" use:icon={node.icon}></span>
+          <span class="vm-tree-icon" use:icon={node.icon}></span>
         {/if}
 
         <!-- Label / Input -->
         {#if isEditing}
           <input
-            class="vaultman-tree-input"
+            class="vm-tree-input"
             value={node.label}
             onclick={(e) => e.stopPropagation()}
             onkeydown={(e) => handleInputKeydown(e, node.id, e.currentTarget)}
@@ -138,26 +138,26 @@
             use:focus
           />
         {:else}
-          <span class="vaultman-tree-label">{node.label}</span>
+          <span class="vm-tree-label">{node.label}</span>
         {/if}
 
         <!-- Badges / Counts -->
         {#if (node.count != null && node.count > 0) || (node.badges && node.badges.length > 0)}
-          <div class="vaultman-tree-badge-zone">
+          <div class="vm-tree-badge-zone">
             {#if node.badges}
               {#each node.badges as badge}
                 <div
-                  class="vaultman-badge"
+                  class="vm-badge"
                   role="button"
                   tabindex="-1"
                   class:is-solid={badge.solid}
                   class:is-inherited={badge.isInherited}
                   class:is-undoable={badge.queueIndex !== undefined}
-                  class:vaultman-badge--red={badge.solid && badge.color === 'red'}
-                  class:vaultman-badge--blue={badge.solid && badge.color === 'blue'}
-                  class:vaultman-badge--purple={badge.solid && badge.color === 'purple'}
-                  class:vaultman-badge--orange={badge.solid && badge.color === 'orange'}
-                  class:vaultman-badge--green={badge.solid && badge.color === 'green'}
+                  class:vm-badge--red={badge.solid && badge.color === 'red'}
+                  class:vm-badge--blue={badge.solid && badge.color === 'blue'}
+                  class:vm-badge--purple={badge.solid && badge.color === 'purple'}
+                  class:vm-badge--orange={badge.solid && badge.color === 'orange'}
+                  class:vm-badge--green={badge.solid && badge.color === 'green'}
                   title={badge.queueIndex !== undefined ? `${badge.text ?? ''} — double-click to undo` : (badge.text ?? '')}
                   ondblclick={(e) => {
                     if (badge.queueIndex !== undefined) {
@@ -167,14 +167,14 @@
                   }}
                 >
                   {#if badge.icon}
-                    <span class="vaultman-badge-icon" use:icon={badge.icon}></span>
+                    <span class="vm-badge-icon" use:icon={badge.icon}></span>
                   {/if}
                 </div>
               {/each}
             {/if}
 
             {#if node.count != null && node.count > 0}
-              <span class="vaultman-tree-count">{node.count}</span>
+              <span class="vm-tree-count">{node.count}</span>
             {/if}
           </div>
         {/if}

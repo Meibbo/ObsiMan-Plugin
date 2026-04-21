@@ -22,10 +22,10 @@
   } = $props();
 </script>
 
-<div class="vaultman-tab-bar" class:has-labels={showLabels}>
+<div class="vm-tab-bar" class:has-labels={showLabels}>
   {#each (["props", "files", "tags"] as FiltersTab[]) as tab}
     <div
-      class="vaultman-tab nav-action-button"
+      class="vm-tab nav-action-button"
       class:is-active={activeTab === tab}
       onclick={() => onTabChange(tab)}
       onkeydown={(e: KeyboardEvent) => {
@@ -38,9 +38,9 @@
       role="tab"
       tabindex="0"
     >
-      <span class="vaultman-tab-icon" use:icon={TAB_ICONS[tab]}></span>
+      <span class="vm-tab-icon" use:icon={TAB_ICONS[tab]}></span>
       {#if showLabels}
-        <span class="vaultman-tab-label">{translate("filter.tab." + tab)}</span>
+        <span class="vm-tab-label">{translate("filter.tab." + tab)}</span>
       {/if}
     </div>
   {/each}

@@ -88,9 +88,9 @@
   }
 </script>
 
-<div class="vaultman-panel-explorer">
+<div class="vm-panel-explorer">
   {#if viewMode === "tree"}
-    <div class="vaultman-tree-container">
+    <div class="vm-tree-container">
       <ViewTree
         {nodes}
         {expandedIds}
@@ -101,7 +101,7 @@
       />
     </div>
   {:else if viewMode === "grid"}
-    <div class="vaultman-grid-container">
+    <div class="vm-grid-container">
       <ViewGrid
         files={flatFiles}
         totalCount={plugin.propertyIndex.fileCount}
@@ -140,7 +140,7 @@
 </div>
 
 <style>
-  .vaultman-panel-explorer {
+  .vm-panel-explorer {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -149,7 +149,7 @@
     flex: 1;
     min-height: 0;
   }
-  .vaultman-tree-container {
+  .vm-tree-container {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -157,7 +157,7 @@
     height: 100%;
     overflow: hidden;
   }
-  .vaultman-grid-container {
+  .vm-grid-container {
     flex: 1;
     overflow-y: auto;
     min-height: 0;

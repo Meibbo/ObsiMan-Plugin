@@ -43,11 +43,11 @@ export class PropertyManagerModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass('vaultman-modal');
+		contentEl.addClass('vm-modal');
 
 		contentEl.createEl('h3', { text: translate('prop.title') });
 		contentEl.createEl('p', {
-			cls: 'vaultman-modal-subtitle',
+			cls: 'vm-modal-subtitle',
 			text: `${this.targetFiles.length} files`,
 		});
 
@@ -71,12 +71,12 @@ export class PropertyManagerModal extends Modal {
 					})
 			);
 
-		contentEl.createDiv({ cls: 'vaultman-prop-form' });
+		contentEl.createDiv({ cls: 'vm-prop-form' });
 		this.renderForm();
 	}
 
 	private renderForm(): void {
-		const formEl = this.contentEl.querySelector('.vaultman-prop-form');
+		const formEl = this.contentEl.querySelector('.vm-prop-form');
 		if (!formEl) return;
 		formEl.empty();
 

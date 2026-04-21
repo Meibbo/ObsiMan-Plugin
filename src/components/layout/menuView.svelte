@@ -145,11 +145,11 @@
   );
 </script>
 
-<div class="vaultman-viewmode-popup">
+<div class="vm-viewmode-popup">
   <!-- Row 1: close · template · search* · pills (scroll) -->
-  <div class="vaultman-viewmode-row vaultman-viewmode-row-controls">
+  <div class="vm-viewmode-row vm-viewmode-row-controls">
     <div
-      class="vaultman-viewmode-close-btn clickable-icon"
+      class="vm-viewmode-close-btn clickable-icon"
       aria-label={translate("viewmode.close")}
       onclick={onClose}
       onkeydown={(e: KeyboardEvent) => {
@@ -160,7 +160,7 @@
       use:icon={"lucide-chevron-left"}
     ></div>
     <div
-      class="vaultman-viewmode-circle-btn"
+      class="vm-viewmode-circle-btn"
       aria-label={translate("viewmode.template")}
       onclick={() => {
         /* no-op: Iter 17 */
@@ -176,7 +176,7 @@
     ></div>
     {#if showSearch}
       <div
-        class="vaultman-viewmode-circle-btn"
+        class="vm-viewmode-circle-btn"
         aria-label={translate("viewmode.search_cols")}
         onclick={() => {
           /* no-op: Iter 17 */
@@ -193,7 +193,7 @@
     {/if}
     <!-- ADD mode FAB -->
     <div
-      class="vaultman-nav-fab"
+      class="vm-nav-fab"
       class:is-add-active={addMode}
       role="button"
       tabindex="0"
@@ -205,14 +205,14 @@
       use:icon={"lucide-plus"}
     >
       {#if addOpCount && addOpCount > 0}
-        <span class="vaultman-fab-badge">{addOpCount}</span>
+        <span class="vm-fab-badge">{addOpCount}</span>
       {/if}
     </div>
     <!-- Pills (horizontal scroll, no scrollbar) -->
-    <div class="vaultman-viewmode-pills">
+    <div class="vm-viewmode-pills">
       {#each currentPillDefs as pill (pill.id)}
         <button
-          class="vaultman-viewmode-pill"
+          class="vm-viewmode-pill"
           class:is-active={activePills.has(pill.id)}
           onclick={() => togglePill(pill.id)}
         >
@@ -223,7 +223,7 @@
   </div>
 
   <!-- Row 2: view-mode squircles (via btnSelection shared primitive) -->
-  <div class="vaultman-viewmode-row">
+  <div class="vm-viewmode-row">
     <BtnSelection buttons={viewModeButtons} />
   </div>
 </div>

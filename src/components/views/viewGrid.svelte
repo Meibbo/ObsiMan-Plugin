@@ -79,16 +79,16 @@
   }
 </script>
 
-<div class="vaultman-files-header">
-  <span class="vaultman-files-count">
+<div class="vm-files-header">
+  <span class="vm-files-count">
     {translate('files.count', { filtered: files.length, total: totalCount })}
   </span>
 </div>
 
-<div class="vaultman-files-col-header">
+<div class="vm-files-col-header">
   <input
     type="checkbox"
-    class="vaultman-file-checkbox"
+    class="vm-file-checkbox"
     checked={allSelected}
     indeterminate={someSelected}
     onchange={toggleAll}
@@ -96,7 +96,7 @@
   />
   
   <button 
-    class="vaultman-col-header" 
+    class="vm-col-header" 
     class:active={sortColumn === "name"} 
     onclick={() => handleSort("name")}
   >
@@ -105,7 +105,7 @@
   </button>
 
   <button 
-    class="vaultman-col-header" 
+    class="vm-col-header" 
     class:active={sortColumn === "props"} 
     onclick={() => handleSort("props")}
   >
@@ -114,7 +114,7 @@
   </button>
 
   <button 
-    class="vaultman-col-header" 
+    class="vm-col-header" 
     class:active={sortColumn === "path"} 
     onclick={() => handleSort("path")}
   >
@@ -123,10 +123,10 @@
   </button>
 </div>
 
-<div class="vaultman-files-list">
+<div class="vm-files-list">
   {#each files.slice(0, renderLimit) as file (file.path)}
     <div 
-      class="vaultman-file-row" 
+      class="vm-file-row" 
       onclick={() => onFileClick(file)}
       oncontextmenu={(e) => onContextMenu(file, e)}
       onkeydown={() => {}}
@@ -135,21 +135,21 @@
     >
       <input
         type="checkbox"
-        class="vaultman-file-checkbox"
+        class="vm-file-checkbox"
         checked={selectedFiles.has(file.path)}
         onclick={(e) => e.stopPropagation()}
         onchange={() => toggleFile(file.path)}
       />
       
-      <span class="vaultman-file-name">{file.basename}</span>
-      <span class="vaultman-file-props">{getPropCount(file)}</span>
-      <span class="vaultman-file-path">{file.parent?.path ?? ''}</span>
+      <span class="vm-file-name">{file.basename}</span>
+      <span class="vm-file-props">{getPropCount(file)}</span>
+      <span class="vm-file-path">{file.parent?.path ?? ''}</span>
     </div>
   {/each}
 
   {#if files.length > renderLimit}
     <button 
-      class="vaultman-btn-small vaultman-show-more" 
+      class="vm-btn-small vm-show-more" 
       onclick={() => renderLimit = Infinity}
     >
       {translate("common.showAllFiles", { count: files.length })}

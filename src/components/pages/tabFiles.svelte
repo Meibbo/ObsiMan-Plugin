@@ -45,7 +45,7 @@
   }
 </script>
 
-<div class="vaultman-files-tab-content">
+<div class="vm-files-tab-content">
   {#if fileList}
     <PanelExplorer
       {plugin}
@@ -62,7 +62,7 @@
 </div>
 
 <style>
-  .vaultman-files-tab-content {
+  .vm-files-tab-content {
     flex: 1;
     display: flex;
     flex-direction: column;

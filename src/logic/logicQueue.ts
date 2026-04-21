@@ -118,17 +118,17 @@ export class QueueIslandComponent {
 	}
 
 	mount(): void {
-		this.islandEl = this.containerEl.createDiv({ cls: 'vaultman-queue-island' });
+		this.islandEl = this.containerEl.createDiv({ cls: 'vm-queue-island' });
 
 		// 1. Squircle action buttons (D6 order: Clear · Marks · FileDiff · Execute)
-		this.btnRowEl = this.islandEl.createDiv({ cls: 'vaultman-queue-island-btns' });
+		this.btnRowEl = this.islandEl.createDiv({ cls: 'vm-queue-island-btns' });
 		this.renderBtnRow();
 
 		// 2. Header — count label
-		this.headerEl = this.islandEl.createDiv({ cls: 'vaultman-queue-island-header' });
+		this.headerEl = this.islandEl.createDiv({ cls: 'vm-queue-island-header' });
 
 		// 3. Scrollable item list / diff placeholder
-		this.listEl = this.islandEl.createDiv({ cls: 'vaultman-queue-island-list' });
+		this.listEl = this.islandEl.createDiv({ cls: 'vm-queue-island-list' });
 
 		this.render();
 
@@ -193,7 +193,7 @@ export class QueueIslandComponent {
 
 		const entries = this.queueService.listTransactions();
 		if (entries.length === 0) {
-			this.listEl.createDiv({ cls: 'vaultman-queue-island-empty', text: translate('queue.island.empty') });
+			this.listEl.createDiv({ cls: 'vm-queue-island-empty', text: translate('queue.island.empty') });
 			return;
 		}
 

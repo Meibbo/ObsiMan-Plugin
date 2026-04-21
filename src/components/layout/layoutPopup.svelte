@@ -54,7 +54,7 @@
 </script>
 
 <div
-  class="vaultman-popup-overlay"
+  class="vm-popup-overlay"
   class:is-hidden={activePopup === null}
   class:is-open={popupOpen}
   onclick={(e: MouseEvent) => {
@@ -67,7 +67,7 @@
   aria-modal="true"
   tabindex="-1"
 >
-  <div class="vaultman-popup-content">
+  <div class="vm-popup-content">
     {#if activePopup === "active-filters"}
       <ActiveFiltersPopup
         {plugin}

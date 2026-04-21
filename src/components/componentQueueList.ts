@@ -61,7 +61,7 @@ export class QueueListComponent {
     const entries = service.listTransactions();
     if (entries.length === 0) {
       this.containerEl.createDiv({
-        cls: "vaultman-queue-empty",
+        cls: "vm-queue-empty",
         text: translate("ops.queue.empty"),
       });
       return;
@@ -69,18 +69,18 @@ export class QueueListComponent {
 
     if (this.callbacks.showHeader !== false) {
       const headerEl = this.containerEl.createDiv({
-        cls: "vaultman-queue-header",
+        cls: "vm-queue-header",
       });
       headerEl.createSpan({
         text: translate("queue.summary", {
           files: service.fileCount,
           ops: service.opCount,
         }),
-        cls: "vaultman-queue-title",
+        cls: "vm-queue-title",
       });
     }
 
-    const listEl = this.containerEl.createDiv({ cls: "vaultman-queue-list" });
+    const listEl = this.containerEl.createDiv({ cls: "vm-queue-list" });
     const groups = this.buildGroups(entries);
     for (const group of groups) {
       this.renderGroup(listEl, group, groups);
@@ -122,33 +122,33 @@ export class QueueListComponent {
   }
 
   private renderGroup(parent: HTMLElement, group: QueueGroup, groups: QueueGroup[]): void {
-    const sectionEl = parent.createDiv({ cls: "vaultman-queue-group" });
+    const sectionEl = parent.createDiv({ cls: "vm-queue-group" });
     const isCollapsed = this.collapsedGroups.has(group.key);
 
     const headerEl = sectionEl.createDiv({
-      cls: "vaultman-queue-group-header",
+      cls: "vm-queue-group-header",
     });
     headerEl.setAttribute("role", "button");
     headerEl.setAttribute("tabindex", "0");
     headerEl.setAttribute("aria-expanded", isCollapsed ? "false" : "true");
 
     headerEl.createSpan({
-      cls: "vaultman-queue-group-label",
+      cls: "vm-queue-group-label",
       text: group.label,
     });
 
-    const metaEl = headerEl.createDiv({ cls: "vaultman-queue-group-meta" });
+    const metaEl = headerEl.createDiv({ cls: "vm-queue-group-meta" });
     metaEl.createSpan({
-      cls: "vaultman-queue-group-files",
+      cls: "vm-queue-group-files",
       text: `\u03a3 ${group.fileCount}`,
     });
     metaEl.createSpan({
-      cls: "vaultman-queue-group-count",
+      cls: "vm-queue-group-count",
       text: `${group.entries.length} ops`,
     });
 
     headerEl.createSpan({
-      cls: "vaultman-queue-group-chevron",
+      cls: "vm-queue-group-chevron",
       text: isCollapsed ? "\u25b6" : "\u25bc",
     });
 
@@ -173,7 +173,7 @@ export class QueueListComponent {
       return;
     }
 
-    const bodyEl = sectionEl.createDiv({ cls: "vaultman-queue-group-body" });
+    const bodyEl = sectionEl.createDiv({ cls: "vm-queue-group-body" });
     for (const entry of group.entries) {
       this.renderOpRow(bodyEl, entry.vfs, entry.op, group.entries);
     }
@@ -214,7 +214,7 @@ export class QueueListComponent {
     op: StagedOp,
     entries: QueueOpEntry[]
   ): void {
-    const itemEl = parent.createDiv({ cls: "vaultman-queue-item" });
+    const itemEl = parent.createDiv({ cls: "vm-queue-item" });
     const isExpanded =
       this.callbacks.expandedPath === vfs.originalPath &&
       this.callbacks.expandedOpId === op.id;
@@ -227,7 +227,7 @@ export class QueueListComponent {
 
     if (this.callbacks.selectable) {
       const cb = itemEl.createEl("input", {
-        cls: "vaultman-queue-checkbox",
+        cls: "vm-queue-checkbox",
         attr: { type: "checkbox" },
       });
       cb.addEventListener("change", () => {
@@ -240,23 +240,23 @@ export class QueueListComponent {
     }
 
     itemEl.createSpan({
-      cls: "vaultman-queue-index",
+      cls: "vm-queue-index",
       text: String(touchedFileCount),
     });
 
     itemEl.createSpan({
-      cls: "vaultman-queue-path",
+      cls: "vm-queue-path",
       text: op.details,
     });
 
     const expandIndicatorEl = itemEl.createSpan({
-      cls: "vaultman-queue-file-count",
+      cls: "vm-queue-file-count",
       text: isExpanded ? "\u25bc" : "\u25b6",
     });
     expandIndicatorEl.setAttribute("aria-hidden", "true");
 
     const removeBtn = itemEl.createEl("button", {
-      cls: "vaultman-filter-remove-btn clickable-icon",
+      cls: "vm-filter-remove-btn clickable-icon",
       attr: { "aria-label": "Remove op" },
     });
     removeBtn.setText("\u00d7");

@@ -37,7 +37,7 @@
   }
 </script>
 
-<div class="vaultman-props-tab-content">
+<div class="vm-props-tab-content">
   {#if explorer}
     <PanelExplorer
       {plugin}
@@ -53,7 +53,7 @@
 </div>
 
 <style>
-  .vaultman-props-tab-content {
+  .vm-props-tab-content {
     flex: 1;
     display: flex;
     flex-direction: column;

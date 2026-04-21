@@ -21,16 +21,16 @@ export class SaveTemplateModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass('vaultman-modal');
+		contentEl.addClass('vm-modal');
 
 		contentEl.createEl('h3', { text: translate('filter.template.save') });
 
 		// Show existing templates for reference
 		const existing = this.plugin.settings.filterTemplates;
 		if (existing.length > 0) {
-			const listEl = contentEl.createDiv({ cls: 'vaultman-template-list' });
+			const listEl = contentEl.createDiv({ cls: 'vm-template-list' });
 			listEl.createEl('small', {
-				cls: 'vaultman-text-faint',
+				cls: 'vm-text-faint',
 				text: `${translate('settings.templates')}: ${existing.map((t) => t.name).join(', ')}`,
 			});
 		}

@@ -82,12 +82,12 @@
   }
 </script>
 
-<div class="vaultman-navbar-filters vaultman-glass vaultman-glass--top">
-  <div class="vaultman-filters-header-wrap">
+<div class="vm-navbar-filters vm-glass vm-glass--top">
+  <div class="vm-filters-header-wrap">
     {#if headerMode === "header"}
-      <div class="vaultman-filters-header">
+      <div class="vm-filters-header">
         <div
-          class="vaultman-nav-icon is-active"
+          class="vm-nav-icon is-active"
           role="button"
           tabindex="0"
           aria-label={translate("filter.viewmode_btn")}
@@ -97,9 +97,9 @@
           }}
           use:icon={"lucide-layout-list"}
         ></div>
-        <div class="vaultman-filters-header-search-pill">
+        <div class="vm-filters-header-search-pill">
           <input
-            class="vaultman-filters-search-input"
+            class="vm-filters-search-input"
             type="text"
             autocomplete="off"
             autocorrect="off"
@@ -110,7 +110,7 @@
           />
           {#if filtersSearch}
             <button
-              class="vaultman-filters-search-clear"
+              class="vm-filters-search-clear"
               aria-label={translate("filter.search_clear")}
               use:icon={"lucide-x"}
               onclick={() => {
@@ -119,7 +119,7 @@
             ></button>
           {/if}
           <button
-            class="vaultman-filters-search-mode"
+            class="vm-filters-search-mode"
             aria-label={CATEGORY_LABELS[activeTab]?.[
               filtersSearchCategory[activeTab] ?? 0
             ] ?? translate("filter.search_mode")}
@@ -128,7 +128,7 @@
           ></button>
         </div>
         <div
-          class="vaultman-nav-icon is-active"
+          class="vm-nav-icon is-active"
           role="button"
           tabindex="0"
           aria-label={translate("filter.sort_btn")}
@@ -141,7 +141,7 @@
       </div>
     {:else if headerMode === "sort"}
       <div
-        class="vaultman-filters-popup-slot"
+        class="vm-filters-popup-slot"
         class:popup-enter-from-left={headerExitDir === "right"}
         class:popup-enter-from-right={headerExitDir === "left"}
       >
@@ -155,7 +155,7 @@
       </div>
     {:else if headerMode === "viewmode"}
       <div
-        class="vaultman-filters-popup-slot"
+        class="vm-filters-popup-slot"
         class:popup-enter-from-left={headerExitDir === "right"}
         class:popup-enter-from-right={headerExitDir === "left"}
       >

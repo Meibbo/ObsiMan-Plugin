@@ -2,147 +2,151 @@
 //*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
 //********************************************************************\\
 @use 'tokens' as *;
+@use 'mixins' as *;
 
-  overflow-y: auto;
-  padding: 8px;
-  flex-shrink: 0;
+//...----------—————————————(   LAYOUT   )————————————------------...\\
+
+.vm {
+  &-content-area {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  &-explorer-panel {
+    width: 260px;
+    min-width: 200px;
+    max-width: 400px;
+    border-right: 1px solid var(--vm-border);
+    overflow-y: auto;
+    padding: 8px;
+    flex-shrink: 0;
+  }
+
+  &-explorer-hidden {
+    display: none;
+  }
+
+  &-main-view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  &-navbar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4px 0;
+    gap: 2px;
+    border-right: 1px solid var(--vm-border);
+    background: var(--vm-bg-section);
+    width: 36px;
+    flex-shrink: 0;
+
+    &.is-horizontal {
+      flex-direction: row;
+      width: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--vm-border);
+      padding: 4px;
+    }
+
+    .clickable-icon {
+      width: 28px;
+      height: 28px;
+      @include flex-center;
+      position: relative;
+      border-radius: var(--radius-s);
+      color: var(--text-muted);
+      cursor: pointer;
+
+      @include hover-bg-accent;
+
+      &.is-active {
+        color: var(--vm-accent);
+      }
+    }
+
+    &-badge {
+      font-size: 0.65em;
+      font-weight: 600;
+      color: var(--text-on-accent);
+      background: var(--vm-accent);
+      border-radius: 8px;
+      padding: 0 4px;
+      min-width: 14px;
+      text-align: center;
+      line-height: 14px;
+      position: absolute;
+      top: -2px;
+      right: -4px;
+    }
+  }
+
+  &-properties-panel-right {
+    width: 240px;
+    flex-shrink: 0;
+    border-left: 1px solid var(--vm-border);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.2s ease;
+
+    &.is-collapsed {
+      width: 0;
+      border-left: none;
+    }
+  }
+
+  &-props-toggle-strip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4px 0;
+    flex-shrink: 0;
+
+    .clickable-icon {
+      width: 24px;
+      height: 24px;
+      @include flex-center;
+      border-radius: var(--radius-s);
+      color: var(--text-muted);
+      cursor: pointer;
+
+      @include hover-bg-accent;
+    }
+  }
+
+  &-props-toolbar {
+    @include flex-center;
+    justify-content: flex-start;
+    gap: 2px;
+    padding: 4px;
+    border-bottom: 1px solid var(--vm-border);
+    background: var(--vm-bg-section);
+    flex-shrink: 0;
+
+    .clickable-icon {
+      width: 28px;
+      height: 28px;
+      @include flex-center;
+      border-radius: var(--radius-s);
+      color: var(--text-muted);
+      cursor: pointer;
+
+      @include hover-bg-accent;
+    }
+  }
+
+  &-props-explorer-wrap {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+
+  &-popover-anchor {
+    position: relative;
+  }
 }
-
-.vm-explorer-hidden {
-  display: none;
-}
-
-/*------------------------------------------------------------------------------
-###############               MAIN VIEW (Full-screen)            ###############
-------------------------------------------------------------------------------*/
-
-.vm-main-view {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-/*--------------------------NAVBAR (DUAL-ORIENTATION)--------------------------*/
-.vm-navbar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 4px 0;
-  gap: 2px;
-  border-right: 1px solid var(--vm-border);
-  background: var(--vm-bg-section);
-  width: 36px;
-  flex-shrink: 0;
-}
-
-.vm-navbar.is-horizontal {
-  flex-direction: row;
-  width: auto;
-  border-right: none;
-  border-bottom: 1px solid var(--vm-border);
-  padding: 4px;
-}
-
-.vm-navbar .clickable-icon {
-  width: 28px;
-  height: 28px;
-  display: flex;
-
-  border-bottom: 1px solid var(--background-modifier-border);
-  flex-shrink: 0;
-  min-height: 0;
-}
-
-/* Grid section grows to fill remaining space */
-.vm-main-grid {
-  flex: 1;
-  min-height: 0;
-}
-
-/* Section header row */
-.vm-main-section-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  flex-shrink: 0;
-  background: var(--background-secondary);
-  border-bottom: 1px solid var(--background-modifier-border);
-}
-
-.vm-main-section-toggle {
-  color: var(--text-muted);
-  flex-shrink: 0;
-}
-
-.vm-main-section-title {
-  font-size: var(--font-ui-small);
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.vm-main-badge {
-  font-size: var(--font-ui-smaller);
-  font-weight: 600;
-  background: var(--color-accent);
-  color: var(--text-on-accent);
-  border-radius: 8px;
-  padding: 0 5px;
-  min-width: 16px;
-  text-align: center;
-}
-
-.vm-main-stats {
-  flex: 1;
-  font-size: var(--font-ui-smaller);
-  color: var(--text-muted);
-}
-
-.vm-main-section-actions {
-  display: flex;
-  gap: 4px;
-  margin-left: auto;
-}
-
-/* Section body — scrolls if collapsed */
-.vm-main-section-body {
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-  padding: 6px 8px;
-}
-
-/* Grid body — no extra padding, grid manages its own scroll */
-.vm-main-grid-body {
-  flex: 1;
-  overflow: hidden;
-  min-height: 0;
-}
-
-/* Collapsed sections: show only header */
-.vm-main-section.is-collapsed .vm-main-section-body,
-.vm-main-section.is-collapsed .vm-main-ops-body {
-  display: none;
-}
-
-/* Ops body: slightly taller default, component owns layout */
-.vm-main-ops-body {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
-
-/* ─── Content tab — Find & Replace ─────────────────────────────────────── */
-
-.vm-content-find-row {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.vm-content-find-row .vm-search-input {
-

@@ -2,87 +2,56 @@
 //*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
 //********************************************************************\\
 @use 'tokens' as *;
+@use 'mixins' as *;
 
-  bottom: 0;
-  left: 0;
-  right: 0;
-  pointer-events: none;
-}
+//...----------—————————————( GLASS SYSTEM )————————————------------...\\
 
-/* Disable main blur on container so children (Pill/FAB) don't get clipped/masked */
-.vm-glass.vm-glass--bottom {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  background: transparent;
-}
-
-/* Pseudo-element strictly for the fading gradient background */
-.vm-glass.vm-glass--bottom::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
+.vm-glass {
   backdrop-filter: blur(var(--vm-glass-blur, 12px));
   -webkit-backdrop-filter: blur(var(--vm-glass-blur, 12px));
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
-  mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
+
+  // Bottom bar fixed strip
+  &--bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    
+    // Disable main blur on container so children aren't masked
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: transparent;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      backdrop-filter: blur(var(--vm-glass-blur, 12px));
+      -webkit-backdrop-filter: blur(var(--vm-glass-blur, 12px));
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
+      mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
+    }
+  }
+
+  // Top nav sticky strip
+  &--top {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: transparent;
+    
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      backdrop-filter: blur(var(--vm-glass-blur, 12px));
+      -webkit-backdrop-filter: blur(var(--vm-glass-blur, 12px));
+      -webkit-mask-image: linear-gradient(to top, transparent 0%, black 70%);
+      mask-image: linear-gradient(to top, transparent 0%, black 70%);
+    }
+  }
 }
-
-/*---------------------FILTERS TOP NAVBAR: STICKY GLASS------------------------*/
-.vm-navbar-filters {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  flex-shrink: 0;
-  max-width: 520px;
-  width: 100%;
-  margin-inline: auto;
-}
-
-/* Transparent container — blur on ::before pseudo */
-.vm-glass.vm-glass--top {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  background: transparent;
-}
-
-/* Fading blur: opaque at top, fades toward bottom */
-.vm-glass.vm-glass--top::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  backdrop-filter: blur(var(--vm-glass-blur, 12px));
-  -webkit-backdrop-filter: blur(var(--vm-glass-blur, 12px));
-  -webkit-mask-image: linear-gradient(to top, transparent 0%, black 70%);
-  mask-image: linear-gradient(to top, transparent 0%, black 70%);
-}
-
-
-/* Full frame overlay: covers the entire plugin (blocked state) */
-.vm-glass--full {
-  position: absolute;
-  inset: 0;
-  z-index: 100;
-}
-
-/* Content area overlay: covers only the tab content (active filters backdrop) */
-.vm-glass--content {
-  position: absolute;
-  inset: 0;
-  z-index: 10;
-}
-
-/* Frosted glass pill containing page icons */
-.vm-nav-pill {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: var(--background-modifier-hover);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 999px;
-  padding: 0.25em 0.375em;
-  backdrop-filter: blur(22px);
-

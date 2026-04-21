@@ -71,7 +71,7 @@ export class VaultmanPlugin extends Plugin {
 		);
 
 		this.statusBarEl = this.addStatusBarItem();
-		this.statusBarEl.addClass('vaultman-native-statusbar');
+		this.statusBarEl.addClass('vm-native-statusbar');
 
 		this.addRibbonIcon('lucide-dessert', translate('plugin.open'), () => {
 			void this.activateView();

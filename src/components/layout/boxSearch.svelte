@@ -15,8 +15,8 @@
 </script>
 
 <div>
-	<div class="vaultman-popup-header">
-		<span class="vaultman-popup-title">{translate("nav.search_files")}</span
+	<div class="vm-popup-header">
+		<span class="vm-popup-title">{translate("nav.search_files")}</span
 		>
 		<div
 			class="clickable-icon"
@@ -30,15 +30,15 @@
 			tabindex="0"
 		></div>
 	</div>
-	<div class="vaultman-search-fields">
+	<div class="vm-search-fields">
 		<input
-			class="vaultman-search-input"
+			class="vm-search-input"
 			type="text"
 			placeholder={translate("search.name_placeholder")}
 			bind:value={searchName}
 		/>
 		<input
-			class="vaultman-search-input"
+			class="vm-search-input"
 			type="text"
 			placeholder={translate("search.folder_placeholder")}
 			bind:value={searchFolder}

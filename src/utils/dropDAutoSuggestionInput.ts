@@ -46,10 +46,10 @@ class DropDSuggest extends AbstractInputSuggest<DropDSuggestionItem> {
 	}
 
 	renderSuggestion(item: DropDSuggestionItem, el: HTMLElement): void {
-		const row = el.createDiv({ cls: 'vaultman-dropd-suggestion-row' });
-		row.createSpan({ cls: 'vaultman-dropd-suggestion-label', text: item.label });
+		const row = el.createDiv({ cls: 'vm-dropd-suggestion-row' });
+		row.createSpan({ cls: 'vm-dropd-suggestion-label', text: item.label });
 		if (item.hint) {
-			row.createSpan({ cls: 'vaultman-dropd-suggestion-hint', text: item.hint });
+			row.createSpan({ cls: 'vm-dropd-suggestion-hint', text: item.hint });
 		}
 	}
 

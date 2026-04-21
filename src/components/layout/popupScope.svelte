@@ -18,8 +18,8 @@
 </script>
 
 <div>
-	<div class="vaultman-popup-header">
-		<span class="vaultman-popup-title">{translate("scope.title")}</span>
+	<div class="vm-popup-header">
+		<span class="vm-popup-title">{translate("scope.title")}</span>
 		<div
 			class="clickable-icon"
 			aria-label="Close"
@@ -32,10 +32,10 @@
 			tabindex="0"
 		></div>
 	</div>
-	<div class="vaultman-scope-list">
+	<div class="vm-scope-list">
 		{#each scopeOptions as opt}
 			<div
-				class="vaultman-scope-item"
+				class="vm-scope-item"
 				class:is-active={plugin.settings.explorerOperationScope ===
 					opt.value}
 				onclick={() => setScope(opt.value)}
@@ -47,7 +47,7 @@
 					opt.value}
 				tabindex="0"
 			>
-				<div class="vaultman-scope-icon" use:icon={opt.icon}></div>
+				<div class="vm-scope-icon" use:icon={opt.icon}></div>
 				<span>{opt.label}</span>
 			</div>
 		{/each}

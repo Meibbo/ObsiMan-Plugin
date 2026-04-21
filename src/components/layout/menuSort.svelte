@@ -122,12 +122,12 @@
 	);
 </script>
 
-<div class="vaultman-sort-popup">
+<div class="vm-sort-popup">
 	<!-- Vert-col: absolute, floats left over tab content -->
-	<div class="vaultman-sort-vertcol">
+	<div class="vm-sort-vertcol">
 		{#if activeTab !== "files"}
 			<div
-				class="vaultman-sort-vertcol-btn"
+				class="vm-sort-vertcol-btn"
 				class:is-active={vertTopActive}
 				aria-label={activeTab === "props"
 					? translate("sort.vertcol.props_values")
@@ -145,7 +145,7 @@
 			></div>
 		{/if}
 		<div
-			class="vaultman-sort-vertcol-btn"
+			class="vm-sort-vertcol-btn"
 			class:is-active={drawerOpen}
 			aria-label={activeTab === "files"
 				? translate("sort.vertcol.direct_toggle")
@@ -162,20 +162,20 @@
 			use:icon={vertBotIcon}
 		></div>
 		{#if drawerOpen && activeTab !== "files"}
-			<div class="vaultman-sort-vertcol-drawer">
+			<div class="vm-sort-vertcol-drawer">
 				{#each DRAWER_OPTIONS[activeTab] as opt}
-					<div class="vaultman-sort-drawer-item">{opt}</div>
+					<div class="vm-sort-drawer-item">{opt}</div>
 				{/each}
 			</div>
 		{/if}
 	</div>
 
 	<!-- Main content panel: row 1 + row 2 -->
-	<div class="vaultman-sort-main">
+	<div class="vm-sort-main">
 		<!-- Row 1: Scope dropdown · Template btn · Close btn -->
-		<div class="vaultman-sort-row vaultman-sort-row-controls">
+		<div class="vm-sort-row vm-sort-row-controls">
 			<select
-				class="vaultman-sort-scope-select"
+				class="vm-sort-scope-select"
 				bind:value={activeScope}
 				aria-label={translate("sort.scope.label")}
 			>
@@ -188,7 +188,7 @@
 				>
 			</select>
 			<div
-				class="vaultman-sort-circle-btn"
+				class="vm-sort-circle-btn"
 				aria-label={translate("sort.template")}
 				onclick={() => {
 					/* no-op: Iter 17 */
@@ -203,7 +203,7 @@
 				use:icon={"lucide-bookmark"}
 			></div>
 			<div
-				class="vaultman-sort-close-btn clickable-icon"
+				class="vm-sort-close-btn clickable-icon"
 				aria-label={translate("sort.close")}
 				onclick={onClose}
 				onkeydown={(e: KeyboardEvent) => {
@@ -216,10 +216,10 @@
 		</div>
 
 		<!-- Row 2: 4 squircles -->
-		<div class="vaultman-sort-row vaultman-squircle-row">
+		<div class="vm-sort-row vm-squircle-row">
 			{#each SORT_OPTIONS[activeTab] as opt (opt.id)}
 				<div
-					class="vaultman-squircle"
+					class="vm-squircle"
 					class:is-accent={sortBy === opt.id}
 					aria-label={translate(opt.labelKey) +
 						(sortBy === opt.id
@@ -235,11 +235,11 @@
 					role="button"
 					tabindex="0"
 				>
-					<span class="vaultman-squircle-icon" use:icon={opt.iconName}
+					<span class="vm-squircle-icon" use:icon={opt.iconName}
 					></span>
 					{#if sortBy === opt.id}
 						<span
-							class="vaultman-sort-dir"
+							class="vm-sort-dir"
 							use:icon={sortDir === "asc"
 								? "lucide-arrow-up"
 								: "lucide-arrow-down"}

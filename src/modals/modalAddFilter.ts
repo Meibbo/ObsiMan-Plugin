@@ -36,7 +36,7 @@ export class AddFilterModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass('vaultman-modal');
+		contentEl.addClass('vm-modal');
 
 		contentEl.createEl('h3', { text: translate('filter.add_rule') });
 
@@ -54,12 +54,12 @@ export class AddFilterModal extends Modal {
 			);
 
 		// Dynamic form container
-		contentEl.createDiv({ cls: 'vaultman-add-filter-form' });
+		contentEl.createDiv({ cls: 'vm-add-filter-form' });
 		this.renderForm();
 	}
 
 	private renderForm(): void {
-		const formEl = this.contentEl.querySelector('.vaultman-add-filter-form');
+		const formEl = this.contentEl.querySelector('.vm-add-filter-form');
 		if (!formEl) return;
 		formEl.empty();
 

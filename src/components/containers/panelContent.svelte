@@ -29,21 +29,21 @@
 	} = $props();
 </script>
 
-<div class="vaultman-ops-section">
-	<div class="vaultman-section-header">
+<div class="vm-ops-section">
+	<div class="vm-section-header">
 		<h4>{translate("ops.tabs.content")}</h4>
 	</div>
 
 	<!-- Find row: input + Aa + .* toggles -->
-	<div class="vaultman-content-find-row">
+	<div class="vm-content-find-row">
 		<input
-			class="vaultman-search-input"
+			class="vm-search-input"
 			type="text"
 			placeholder={translate("content.find_placeholder")}
 			bind:value={contentFind}
 		/>
 		<button
-			class="vaultman-icon-toggle"
+			class="vm-icon-toggle"
 			class:is-active={contentCaseSensitive}
 			aria-label={translate("content.toggle_case")}
 			title={translate("content.toggle_case")}
@@ -52,7 +52,7 @@
 			}}>Aa</button
 		>
 		<button
-			class="vaultman-icon-toggle"
+			class="vm-icon-toggle"
 			class:is-active={contentIsRegex}
 			aria-label={translate("content.toggle_regex")}
 			title={translate("content.toggle_regex")}
@@ -62,29 +62,29 @@
 		>
 	</div>
 	{#if contentRegexError}
-		<div class="vaultman-content-regex-error">
+		<div class="vm-content-regex-error">
 			{contentRegexError}
 		</div>
 	{/if}
 	<input
-		class="vaultman-search-input"
+		class="vm-search-input"
 		type="text"
 		placeholder={translate("content.replace_placeholder")}
 		bind:value={contentReplace}
 	/>
-	<div class="vaultman-content-scope-hint">
+	<div class="vm-content-scope-hint">
 		{contentScopeHint}
 	</div>
-	<div class="vaultman-content-actions">
+	<div class="vm-content-actions">
 		<button
-			class="vaultman-btn"
+			class="vm-btn"
 			disabled={!contentFind || contentPreviewing}
 			onclick={() => {
 				void previewContentReplace();
 			}}>{contentPreviewing ? "…" : translate("content.preview")}</button
 		>
 		<button
-			class="vaultman-btn mod-cta"
+			class="vm-btn mod-cta"
 			disabled={!contentFind}
 			onclick={queueContentReplace}
 			>{translate("content.queue_replace")}</button
@@ -92,9 +92,9 @@
 	</div>
 
 	{#if contentPreviewResult !== null}
-		<div class="vaultman-content-preview">
+		<div class="vm-content-preview">
 			<div
-				class="vaultman-content-preview-header"
+				class="vm-content-preview-header"
 				onclick={() => {
 					contentPreviewOpen = !contentPreviewOpen;
 				}}
@@ -107,7 +107,7 @@
 				role="button"
 				tabindex="0"
 			>
-				<span class="vaultman-preview-chevron"
+				<span class="vm-preview-chevron"
 					>{contentPreviewOpen ? "▼" : "▶"}</span
 				>
 				{#if contentPreviewResult.totalMatches === 0}
@@ -131,11 +131,11 @@
 			</div>
 			{#if contentPreviewOpen && contentPreviewResult.totalMatches > 0}
 				{#each contentPreviewResult.files as fileResult}
-					<div class="vaultman-content-preview-file">
+					<div class="vm-content-preview-file">
 						{fileResult.file.path} ({fileResult.matchCount})
 					</div>
 					{#each fileResult.snippets as snippet}
-						<div class="vaultman-content-preview-snippet">
+						<div class="vm-content-preview-snippet">
 							<span>{snippet.before}</span><mark
 								>{snippet.match}</mark
 							><span>{snippet.after}</span>
@@ -143,7 +143,7 @@
 					{/each}
 				{/each}
 				{#if contentPreviewResult.moreFiles > 0}
-					<div class="vaultman-text-faint">
+					<div class="vm-text-faint">
 						{translate("content.preview_more").replace(
 							"{count}",
 							String(contentPreviewResult.moreFiles),

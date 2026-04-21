@@ -15,13 +15,13 @@ export function showInputModal(app: App, message: string): Promise<string | null
 
 			onOpen(): void {
 				const { contentEl } = this;
-				contentEl.addClass('vaultman-prompt-modal');
-				contentEl.createEl('p', { cls: 'vaultman-prompt-message', text: message });
+				contentEl.addClass('vm-prompt-modal');
+				contentEl.createEl('p', { cls: 'vm-prompt-message', text: message });
 				this.inputEl = contentEl.createEl('input', {
-					cls: 'vaultman-prompt-input',
+					cls: 'vm-prompt-input',
 					type: 'text',
 				});
-				const btnRow = contentEl.createDiv({ cls: 'vaultman-prompt-buttons' });
+				const btnRow = contentEl.createDiv({ cls: 'vm-prompt-buttons' });
 				const okBtn = btnRow.createEl('button', { cls: 'mod-cta', text: 'OK' });
 				const cancelBtn = btnRow.createEl('button', { text: 'Cancel' });
 

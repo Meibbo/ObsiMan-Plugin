@@ -37,8 +37,8 @@
 	} = $props();
 </script>
 
-<div class="vaultman-ops-files-tab">
-	<div class="vaultman-ops-separator"></div>
+<div class="vm-ops-files-tab">
+	<div class="vm-ops-separator"></div>
 
 	<!-- Content Operations Component -->
 	<ContentOpsComponent
@@ -55,19 +55,19 @@
 		{queueContentReplace}
 	/>
 
-	<div class="vaultman-ops-separator"></div>
+	<div class="vm-ops-separator"></div>
 </div>
 
 <style>
-	.vaultman-ops-files-tab {
+	.vm-ops-files-tab {
 		display: flex;
 		flex-direction: column;
 		gap: 16px;
 	}
 
-	.vaultman-ops-separator {
+	.vm-ops-separator {
 		height: 1px;
-		background: var(--vaultman-border);
+		background: var(--vm-border);
 		margin: 4px 0;
 		opacity: 0.5;
 	}
