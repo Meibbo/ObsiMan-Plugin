@@ -1,3 +1,27 @@
+//********************************************************************\\
+//*      ___|^___^|___        .-~*´¨¯¨`*~-.        ___|^___^|___     *\\
+//*     |  Vaultman  |       |   Meibbo   |       | April 2026 |     *\\
+//*     \___/`*´\___/        `-~*´¨¯¨`*~-´        \___/`*´\___/      *\\
+//*                                                                  *\\
+//*           Made with love for tools that last and help.           *\\
+//*                                                                  *\\
+//*     (づ￣ 3￣)づ    ☆*: .｡. o(≧▽≦)o .｡.:*☆     ╰(*°▽°*)╯      *\\
+//********************************************************************\\
+//     This project is a gift for the community of Obsidian.md,       \\
+//     a note-taking app that has helped me organize my thoughts.     \\
+//                                                                    \\
+//     Specially for those who invest their time and energy           \\
+//     making tools and systems that multiply the extension and       \\
+//     value of the work made in this app. For sharing it with        \\
+//     others. And for those who use it, for letting me experience    \\
+//     the joy of using tools that are made with passion and care.    \\
+//********************************************************************\\
+
+/*-----------------------------------------------------------------------
+#########|||-------(                                 )------|||##########
+#===°°===°°===°°===(      Main TypeScript File       )===°°===°°===°°===#
+#########|||-------(                                 )------|||##########
+-----------------------------------------------------------------------*/
 import { Plugin, WorkspaceLeaf } from 'obsidian';
 import type { VaultmanSettings } from './types/typeSettings';
 import { DEFAULT_SETTINGS } from './types/typeSettings';

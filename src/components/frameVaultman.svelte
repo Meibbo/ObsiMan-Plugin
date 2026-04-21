@@ -1,3 +1,14 @@
+<!--******************************************************************\\
+//*      ___|^___^|___        .-~*´¨¯¨`*~-.        ___|^___^|___     *\\
+//*     |  Vaultman  |       |   Meibbo   |       | April 2026 |     *\\
+//*     \___/`*´\___/        `-~*´¨¯¨`*~-´        \___/`*´\___/      *\\
+//*                                                                  *\\
+//*           Made with love for tools that last and help.           *\\
+//*                                                                  *\\
+//*     (づ￣ 3￣)づ    ☆*: .｡. o(≧▽≦)o .｡.:*☆     ╰(*°▽°*)╯      *\\
+//*******************************************************************-->
+
+<!--------------—————————————(   IMPORTS   )————————————--------------->
 <script lang="ts">
   import { onMount } from "svelte";
   import { setIcon } from "obsidian";
@@ -13,14 +24,13 @@
   import { QueueListComponent } from "./componentQueueList";
   import { QueueIslandComponent } from "../logic/logicQueue";
   import { ActiveFiltersIslandComponent } from "../logic/logicFilters";
-  import { QueueDetailsModal } from "../modals/modalQueueDetails";
   import { FolderSuggest } from "../utils/autocomplete";
   import { MOVE_FILE } from "../types/typeOps";
   import type { PendingChange } from "../types/typeOps";
   import { translate } from "../i18n/index";
   import type { PopupType, FabDef } from "../types/typeUI";
 
-  // ─── Props ────────────────────────────────────────────────────────────────
+  // ─── Props ─────────────------------------...........
 
   let { plugin }: { plugin: VaultmanPlugin } = $props();
 
