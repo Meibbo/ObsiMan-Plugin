@@ -1,0 +1,85 @@
+//********************************************************************\\
+//*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
+//********************************************************************\\
+@use 'tokens' as *;
+
+  /* Reverted to match request */
+  background: transparent;
+  border: none;
+  flex-shrink: 0;
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+.vm-badge.is-undoable {
+  cursor: pointer;
+}
+
+.vm-badge.is-undoable:hover {
+  transform: scale(1.2);
+  filter: brightness(1.2);
+}
+
+.vm-badge.is-undoable:active {
+  transform: scale(0.9);
+}
+
+.vm-badge.is-inherited {
+  opacity: 0.5;
+  /* Subtler for parent-inherited badges */
+}
+
+.vm-badge-icon {
+  display: flex !important;
+  width: 10px !important;
+  height: 10px !important;
+  color: inherit;
+}
+
+.vm-badge-icon svg {
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.vm-badge--blue {
+  color: #007aff;
+}
+
+.vm-badge--red {
+  color: #ff3b30;
+}
+
+.vm-badge--purple {
+  color: #af52de;
+}
+
+.vm-badge--orange {
+  color: #ff9500;
+}
+
+.vm-badge--green {
+  color: #34c759;
+}
+
+
+
+.vm-tree-count {
+  font-size: 9px;
+  color: var(--text-faint);
+  opacity: 0.8;
+}
+
+.vm-tree-icon+.vm-tree-label {
+  margin-left: 2px;
+}
+
+/* FAB Badges — Now glass style instead of accent */
+.vm-nav-fab-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vm-fab-badge {
+  position: absolute;
+

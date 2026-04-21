@@ -1,0 +1,75 @@
+//********************************************************************\\
+//*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
+//********************************************************************\\
+@use 'tokens' as *;
+
+  color: var(--text-normal);
+}
+
+.vm-curator-desc {
+  margin: 0;
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+}
+
+.vm-curator-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vm-curator-empty {
+  color: var(--text-faint);
+  font-size: var(--font-ui-small);
+}
+
+.vm-curator-rule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-s);
+  background: var(--vm-bg-section);
+}
+
+.vm-curator-rule-text {
+  flex: 1;
+  font-size: var(--font-ui-small);
+  color: var(--text-normal);
+}
+
+.vm-curator-del-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 2px;
+}
+
+.vm-curator-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.vm-curator-input {
+  flex: 1;
+  min-width: 120px;
+}
+
+.vm-curator-add-btn {
+  white-space: nowrap;
+}
+
+/*-------------------------------ISLAND SYSTEM---------------------------------*/
+.vm-queue-island-wrap,
+.vm-filters-island-wrap {
+  position: absolute;
+  bottom: calc(var(--vm-nav-height, 64px) + 8px);
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 40;
+}
+

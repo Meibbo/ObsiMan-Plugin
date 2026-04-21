@@ -10,6 +10,7 @@ export default tseslint.config(
 			"dist",
 			"obsidian-sample-plugin",
 			"esbuild.config.mjs",
+			"svelte.config.js",
 			"eslint.config.js",
 			"version-bump.mjs",
 			"versions.json",

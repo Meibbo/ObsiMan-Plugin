@@ -22,4 +22,9 @@
 //--------------------------------------------------------------------//
 
 //...----------—————————————(   IMPORTS   )————————————------------...\\
-@import "./styles/_global";
+@use "./styles/tokens" as *;
+@use "./styles/global";
+@use "./styles/filters";
+@use "./styles/file-list";
+@use "./styles/queue";
+@use "./styles/legacy";
