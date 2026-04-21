@@ -1,0 +1,18 @@
+//********************************************************************\\
+//*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
+//********************************************************************\\
+// same as obsidian accent color, user chosen.
+$accent: var(--interactive-accent);
+// text color, defined by themes.
+$muted: var(--text-muted);
+$faint: var(--text-faint);
+// background, defined by themes.
+$bg-section: var(--background-secondary);
+$bg-hover: var(--background-modifier-hover);
+// border, defined by themes.
+$border: var(--background-modifier-border);
+// badge available colors, differnt by action or following themes.
+$badge-bg: var(--background-modifier-hover);
+// diff highlightning colors, for user visual comparison of an operation.
+$diff-added: #2ea04366;
+$diff-deleted: #f8514966;

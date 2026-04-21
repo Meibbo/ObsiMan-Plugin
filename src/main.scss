@@ -1,7 +1,7 @@
 //********************************************************************\\
-//*      ___|^___^|___        .-~*´¨¯¨`*~-.        ___|^___^|___     *\\
-//*     |  Vaultman  |       |   Meibbo   |       | April 2026 |     *\\
-//*     \___/`*´\___/        `-~*´¨¯¨`*~-´        \___/`*´\___/      *\\
+//*      ___|^___^|___      .-~*´¨¯¨¯¯¨¯¨`*~-.     ___|^___^|___     *\\
+//*     |   Meibbo   |     | Vaultman v1.0.0 |    | April 2026 |     *\\
+//*     \___/`*´\___/      `-~*´¨¯¨¯¯¨¯¨`*~-´     \___/`*´\___/      *\\
 //*                                                                  *\\
 //*           Made with love for tools that last and help.           *\\
 //*                                                                  *\\
@@ -13,5 +13,13 @@
 /#===°°===°°===°°==|    Vaultman — General Style    |==°°===°°===°°===#/
 /########|||-------|                                |------|||#########/
 /-------------------————————————————————————————————------------------*/
+//       This file works like an Index, here will be defined and      \\
+//   connected the different groups of styles that will be used in    \\
+//   the plugin. With some general parameters that will stablish the  \\
+//   visual design of Vaultman, which is mostly based in the use of   \\
+//   glassmorphism and neumorphism over the classic appearance of     \\
+//   the Obsidian app.                                                \\
+//--------------------------------------------------------------------//
 
 //...----------—————————————(   IMPORTS   )————————————------------...\\
+@import "./styles/_global";

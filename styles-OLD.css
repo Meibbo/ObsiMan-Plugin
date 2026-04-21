@@ -1,20 +1,9 @@
 
-
 /*--------------------------CSS VARIABLES (STYLE SETTINGS)--------------------*/
 .vm-view,
 .vm-frame,
 .vm-main-view {
-  --vm-accent: var(--interactive-accent);
-  --vm-bg-section: var(--background-secondary);
-  --vm-bg-hover: var(--background-modifier-hover);
-  --vm-border: var(--background-modifier-border);
-  --vm-text-muted: var(--text-muted);
-  --vm-text-faint: var(--text-faint);
-  --vm-diff-added: #2ea04366;
-  --vm-diff-deleted: #f8514966;
-  --vm-badge-bg: var(--background-modifier-hover);
-}
-
+   
 /* THIS VIEW LAYOUT IS OVERRIDDEN BY SVELTE REDESIGN RULES BELOW */
 
 /*---------------------------------SECTIONS------------------------------------*/

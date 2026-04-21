@@ -1,27 +1,24 @@
 //********************************************************************\\
-//*      ___|^___^|___        .-~*´¨¯¨`*~-.        ___|^___^|___     *\\
-//*     |  Vaultman  |       |   Meibbo   |       | April 2026 |     *\\
-//*     \___/`*´\___/        `-~*´¨¯¨`*~-´        \___/`*´\___/      *\\
+//*      ___|^___^|___      .-~*´¨¯¨¯¯¨¯¨`*~-.     ___|^___^|___     *\\
+//*     |   Meibbo   |     | Vaultman v1.0.0 |    | April 2026 |     *\\
+//*     \___/`*´\___/      `-~*´¨¯¨¯¯¨¯¨`*~-´     \___/`*´\___/      *\\
 //*                                                                  *\\
 //*           Made with love for tools that last and help.           *\\
 //*                                                                  *\\
 //*     (づ￣ 3￣)づ    ☆*: .｡. o(≧▽≦)o .｡.:*☆     ╰(*°▽°*)╯      *\\
 //********************************************************************\\
-//     This project is a gift for the community of Obsidian.md,       \\
-//     a note-taking app that has helped me organize my thoughts.     \\
-//                                                                    \\
-//     Specially for those who invest their time and energy           \\
-//     making tools and systems that multiply the extension and       \\
-//     value of the work made in this app. For sharing it with        \\
-//     others. And for those who use it, for letting me experience    \\
-//     the joy of using tools that are made with passion and care.    \\
-//********************************************************************\\
 
-/*-----------------------------------------------------------------------
-#########|||-------(                                 )------|||##########
-#===°°===°°===°°===(      Main TypeScript File       )===°°===°°===°°===#
-#########|||-------(                                 )------|||##########
------------------------------------------------------------------------*/
+/*------------------————————————————————————————————-------------------/
+/########|||-------|                                |------|||#########/
+/#===°°===°°===°°==|      Main TypeScript File      |==°°===°°===°°===#/
+/########|||-------|                                |------|||#########/
+/-------------------————————————————————————————————------------------*/
+//        Here is defined the connection between the different        \\
+//    services that Obsidian offers to the plugin and the main        \\
+//    classes of the plugin.
+//--------------------------------------------------------------------//
+
+//...----------—————————————(   IMPORTS   )————————————------------...\\
 import { Plugin, WorkspaceLeaf } from 'obsidian';
 import type { VaultmanSettings } from './types/typeSettings';
 import { DEFAULT_SETTINGS } from './types/typeSettings';
@@ -131,7 +128,7 @@ export class VaultmanPlugin extends Plugin {
 	updateGlassBlur(): void {
 		const intensity: number = this.settings.glassBlurIntensity ?? 60;
 		const px = (intensity / 100) * 20;
-		document.body.style.setProperty('--vaultman-glass-blur', `${px}px`);
+		document.body.style.setProperty('--vm-glass-blur', `${px}px`);
 	}
 
 	async activateView(): Promise<void> {
