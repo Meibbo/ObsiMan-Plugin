@@ -153,6 +153,23 @@ Key accomplishments:
 
 ---
 
+## Session 2026-04-21 — CSS Comment Standardization
+- Refactored `styles.css` to follow the user's preferred commenting hierarchy from `Mb-Workspace.css`.
+- Implemented high-level headers with dashes and `###` for major sections:
+    - `Vaultman — Sidebar Plugin Styles`
+    - `MAIN VIEW (Full-screen)`
+    - `Bases attach architecture`
+    - `Vaultman Sidebar — Page navigation`
+    - `Main view — 3-section layout`
+    - `Iter 17 — Filters header replacement + popups`
+- Standardized 50+ subtitles with one-line dash-bordered separators (e.g., `/*-----------------------------BUTTONS------------------------------------*/`).
+- Converted 20+ descriptive comments to ALL CAPS for better visibility.
+- Verified build stability: `npm run build` returned Exit Code 0.
+- **Note**: A pre-existing lint error in `svelte.config.js` persists but is unrelated to the CSS changes.
+- Next step: Continue with Iteration 17 UI refinements (smooth transitions).
+
+---
+
 ## Known placeholders (not bugs)
 
 | Feature | Status |

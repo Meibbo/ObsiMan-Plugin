@@ -2,9 +2,9 @@ import { Menu, setIcon } from 'obsidian';
 import { mount, unmount } from 'svelte';
 import type { Component } from 'svelte';
 import { translate } from '../i18n/index';
-import type { VaultmanPlugin } from '../../main';
+import type { VaultmanPlugin } from '../main';
 import { SaveTemplateModal } from '../modals/modalSaveTemplate';
-import BtnSelection from '../btnSelection.svelte';
+import BtnSelection from '../components/btnSelection.svelte';
 import type { BtnSelectionItem } from '../types/typeUI';
 
 /**

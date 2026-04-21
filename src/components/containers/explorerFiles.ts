@@ -1,5 +1,5 @@
 import type { TFile } from 'obsidian';
-import type { VaultmanPlugin } from '../../../main';
+import type { VaultmanPlugin } from '../../main';
 import { FilesLogic } from '../../logic/logicsFiles';
 import type { TreeNode, FileMeta } from '../../types/typeTree';
 import type { MenuCtx } from '../../types/typeCMenu';

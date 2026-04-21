@@ -3,10 +3,10 @@ import type { Component } from 'svelte';
 import type { OperationQueueService } from '../services/serviceQueue';
 import type { OperationDiffContext } from '../services/serviceDiff';
 import { translate } from '../i18n/index';
-import BtnSelection from '../btnSelection.svelte';
+import BtnSelection from '../components/btnSelection.svelte';
 import type { BtnSelectionItem } from '../types/typeUI';
 import { QueueListComponent } from '../components/componentQueueList';
-import ViewDiff from '../views/viewDiff.svelte';
+import ViewDiff from '../components/views/viewDiff.svelte';
 
 /**
  * In-frame floating island showing the pending operation queue.

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { VaultmanPlugin } from "../../../main";
+  import type { VaultmanPlugin } from "../../main";
   import { setIcon } from "obsidian";
   import FiltersTagsTab from "./tabTags.svelte";
   import FiltersPropsTab from "./tabProps.svelte";

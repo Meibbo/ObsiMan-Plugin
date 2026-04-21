@@ -1,5 +1,5 @@
 import { ItemView, type WorkspaceLeaf } from 'obsidian';
-import type { VaultmanPlugin } from '../../main';
+import type { VaultmanPlugin } from '../main';
 import { mount, unmount, type Component } from 'svelte';
 import VaultmanFrameSvelte from '../components/frameVaultman.svelte';
 import { translate } from '../i18n/index';

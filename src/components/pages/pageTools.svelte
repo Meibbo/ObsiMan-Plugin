@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { VaultmanPlugin } from "../../../main";
+	import type { VaultmanPlugin } from "../../main";
 	import type { defOpsTab } from "../../types/typeUI";
 	import { MenuCuratorPanel } from "../containers/panelCurator";
 	import { translate } from "../../i18n/index";

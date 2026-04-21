@@ -3,7 +3,7 @@ import { PropsLogic } from '../../logic/logicProps';
 import type { TreeNode, PropMeta } from '../../types/typeTree';
 import type { PropertyChange } from '../../types/typeOps';
 import { showInputModal } from '../../utils/inputModal';
-import type { VaultmanPlugin } from '../../../main';
+import type { VaultmanPlugin } from '../../main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
 
 const TYPE_ICON_MAP: Record<string, string> = {

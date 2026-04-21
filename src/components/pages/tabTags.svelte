@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { explorerTags } from "../containers/explorerTags";
   import PanelExplorer from "../containers/panelLists.svelte";
-  import type { VaultmanPlugin } from "../../../main";
+  import type { VaultmanPlugin } from "../../main";
   import { setIcon } from "obsidian";
 
   let {

@@ -1,6 +1,6 @@
 import { TagsLogic } from '../../logic/logicTags';
 import type { TreeNode, TagMeta } from '../../types/typeTree';
-import type { VaultmanPlugin } from '../../../main';
+import type { VaultmanPlugin } from '../../main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
 
 export class explorerTags implements ExplorerProvider<TagMeta> {

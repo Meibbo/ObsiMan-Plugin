@@ -1,15 +1,15 @@
 import { Plugin, WorkspaceLeaf } from 'obsidian';
-import type { VaultmanSettings } from './src/types/typeSettings';
-import { DEFAULT_SETTINGS } from './src/types/typeSettings';
-import { PropertyIndexService } from './src/utils/utilPropIndex';
-import { FilterService } from './src/services/serviceFilter';
-import { OperationQueueService } from './src/services/serviceQueue';
-import { VaultmanFrame, TYPE_FRAME_VM } from './src/types/typeFrame';
-import { IconicService } from './src/services/serviceIcons';
-import { PropertyTypeService } from './src/utils/utilPropType';
-import { ContextMenuService } from './src/services/serviceCMenu';
-import { VaultmanSettingsTab } from './src/settingsVaultman';
-import { translate } from './src/i18n/index';
+import type { VaultmanSettings } from './types/typeSettings';
+import { DEFAULT_SETTINGS } from './types/typeSettings';
+import { PropertyIndexService } from './utils/utilPropIndex';
+import { FilterService } from './services/serviceFilter';
+import { OperationQueueService } from './services/serviceQueue';
+import { VaultmanFrame, TYPE_FRAME_VM } from './types/typeFrame';
+import { IconicService } from './services/serviceIcons';
+import { PropertyTypeService } from './utils/utilPropType';
+import { ContextMenuService } from './services/serviceCMenu';
+import { VaultmanSettingsTab } from './settingsVaultman';
+import { translate } from './i18n/index';
 
 export class VaultmanPlugin extends Plugin {
 	settings!: VaultmanSettings;

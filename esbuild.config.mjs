@@ -3,11 +3,15 @@ import process from "process";
 import { builtinModules as builtins } from "module";
 import esbuildSvelte from "esbuild-svelte";
 import { sveltePreprocess } from "svelte-preprocess";
+import { sassPlugin } from "esbuild-sass-plugin";
 
 const prod = process.argv[2] === "production";
 
 const context = await esbuild.context({
-	entryPoints: ["main.ts"],
+	entryPoints: {
+		main: "src/main.ts",
+		styles: "src/main.scss",
+	},
 	bundle: true,
 	external: [
 		"obsidian",
@@ -31,17 +35,16 @@ const context = await esbuild.context({
 	sourcemap: prod ? false : "inline",
 	treeShaking: true,
 	minify: prod,
-	outfile: "main.js",
+	outdir: "./",
 	plugins: [
 		esbuildSvelte({
 			compilerOptions: {
 				css: "injected",
 			},
 			preprocess: sveltePreprocess(),
-			// Suppress Svelte a11y warnings — Obsidian plugins are desktop apps,
-			// not public web pages, so strict a11y lint isn't applicable here.
 			filterWarnings: (w) => !w.code.startsWith('a11y_') && w.code !== 'non_reactive_update',
 		}),
+		sassPlugin(),
 	],
 });
 

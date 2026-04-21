@@ -1,6 +1,6 @@
 import { Modal, Setting, type App } from 'obsidian';
 import type { FilterGroup, FilterTemplate } from '../types/typeFilter';
-import type { VaultmanPlugin } from '../../main';
+import type { VaultmanPlugin } from '../main';
 import { translate } from '../i18n/index';
 
 /**

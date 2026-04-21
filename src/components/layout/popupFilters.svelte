@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Menu } from "obsidian";
 	import { translate } from "../../i18n/index";
-	import type { VaultmanPlugin } from "../../../main";
+	import type { VaultmanPlugin } from "../../main";
 	import { SaveTemplateModal } from "../../modals/modalSaveTemplate";
 
 	let {

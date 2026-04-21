@@ -1,6 +1,6 @@
 // src/components/containers/MenuCuratorPanel.ts
 import { Component, setIcon } from 'obsidian';
-import type { VaultmanPlugin } from '../../../main';
+import type { VaultmanPlugin } from '../../main';
 import type { MenuHideRule } from '../../types/typeCMenu';
 
 type Surface = MenuHideRule['surface'];
