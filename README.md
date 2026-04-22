@@ -11,7 +11,7 @@ This plugin gives you a **control panel for your vault**. It can filter your fil
 ### Table of Content
 - [Installation](#installation#via--brat)
 - [Main Hub](#main-hub)
-- [Filters](#filters-page)
+- [Filters](#filter-page)
 
 ## Installation
 
