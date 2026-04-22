@@ -9,11 +9,9 @@
 This plugin gives you a **control panel for your vault**. It can filter your files, select what you care about, queue up a batch of operations, preview exactly what they will change and apply everything at once.
 
 ### Table of Content
-- [Installation](#installation#installation--download-and-enable)
+- [Installation](#installation#via--brat)
 - [Main Hub](#main-hub)
-- [Filters](#gallery-cards)
-- [Operations](#support-me)
-- [Context Modals](#multi-column)
+- [Filters](#filters-page)
 
 ## Installation
 
@@ -30,18 +28,16 @@ This plugin gives you a **control panel for your vault**. It can filter your fil
 ### Main Hub
 The main interface is a compact and modular sidebar that lets you choose its content within the available options. With a bottom bar to navigate between pages and a top bar for their subpages, with reorganizing modals and llamative fab buttons for the most important options: Active filters and a Queue list.
 
-### Filter tabs
+### Filter page
 Every page has a header for searching, scopes, sorts and different view that affects individually your contents and lets **filter** out the exact options you wanted to select for different kinds of operations. 
 
 Also, they have with dynamic context menus for quick ops that you would love. Every selected element will apear in the *Active filters popup*, where you can strategically add logical groups (all/any/none), supress filters, **clear all** or even templates of filters for fast deploy.
 
-**Property browser**: a live scrollable list of every property and value in your vault, built from the frontmatter index.
+**Properties tab**: a live scrollable list of every property and value in your vault, built from the frontmatter index.
 
-**Tag wrangler**: a hierarchical tree list 
+**Files tab**: a list of the files and folders of your vault, affecting the amount of elements showed based on your active filters  
 
-**Tag wrangler**: a tree list that gives you power to rearrenge your tags
-
-%%Everything below is just a placeholder, I'm working on it%%
+**Tags tab**: a tree list that gives you power to rearrenge your tags and set them in the frontmatter of your notes
 
 ### Operations
 
