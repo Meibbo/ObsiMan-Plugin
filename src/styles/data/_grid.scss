@@ -1,0 +1,237 @@
+//********************************************************************\\
+//*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
+//********************************************************************\\
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+//...----------—————————————(    GRID    )————————————------------...\\
+
+.vm-grid {
+  &-wrapper {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-header {
+    @include flex-center;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--vm-border);
+    flex-shrink: 0;
+  }
+
+  &-search {
+    flex: 1;
+    max-width: 300px;
+    font-size: 0.85em;
+    padding: 4px 8px;
+    border: 1px solid var(--vm-border);
+    border-radius: var(--radius-s);
+    background: var(--background-primary);
+    color: var(--text-normal);
+  }
+
+  &-filter-toggle {
+    padding: 4px;
+    border-radius: var(--radius-s);
+    color: var(--text-muted);
+    transition: color 0.15s ease, background 0.15s ease;
+
+    &.is-active {
+      color: var(--vm-accent);
+      background: color-mix(in srgb, var(--vm-accent) 12%, transparent);
+    }
+  }
+
+  &-table-wrapper {
+    flex: 1;
+    overflow: auto;
+  }
+
+  &-table {
+    border-collapse: collapse;
+    font-size: 0.85em;
+
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--background-secondary);
+    }
+  }
+
+  &-fixed {
+    table-layout: fixed;
+  }
+
+  &-th {
+    &-check {
+      width: 30px;
+      text-align: center;
+      padding: 6px 4px;
+      border-bottom: 2px solid var(--vm-border);
+      transition: border-color 0.15s ease;
+
+      input[type="checkbox"] {
+        width: 14px;
+        height: 14px;
+      }
+
+      &.is-indeterminate {
+        border-color: var(--vm-accent);
+
+        input[type="checkbox"] {
+          border-color: var(--vm-accent);
+          box-shadow: 0 0 0 1px var(--vm-accent);
+        }
+      }
+    }
+
+    &-sortable {
+      position: relative;
+      padding: 6px 8px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.9em;
+      color: var(--vm-text-muted);
+      white-space: nowrap;
+      border-bottom: 2px solid var(--vm-border);
+      user-select: none;
+      @include text-ellipsis;
+
+      &:hover {
+        color: var(--text-normal);
+        background: var(--vm-bg-hover);
+      }
+    }
+
+    &-label {
+      cursor: pointer;
+    }
+
+    &-active {
+      color: var(--text-normal);
+    }
+  }
+
+  &-resize-handle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 5px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 3;
+
+    &:hover {
+      background: var(--vm-accent);
+      opacity: 0.4;
+    }
+
+    body.vm-resizing & {
+      background: var(--vm-accent);
+      opacity: 0.4;
+    }
+  }
+
+  &-row {
+    border-bottom: 1px solid var(--vm-border);
+    cursor: default;
+    user-select: none;
+
+    &:hover {
+      background: var(--vm-bg-hover);
+    }
+
+    &.is-selected {
+      background: color-mix(in srgb, var(--vm-accent) 12%, transparent);
+
+      &:hover {
+        background: color-mix(in srgb, var(--vm-accent) 18%, transparent);
+      }
+    }
+
+    @media (pointer: coarse) {
+      min-height: 44px;
+    }
+  }
+
+  &-td {
+    &-check {
+      width: 30px;
+      text-align: center;
+      padding: 4px;
+
+      input[type="checkbox"] {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    &-name {
+      padding: 4px 8px;
+      @include text-ellipsis;
+    }
+
+    &-prop {
+      padding: 4px 8px;
+      color: var(--text-normal);
+      cursor: default;
+      @include text-ellipsis;
+
+      &:hover {
+        background: var(--background-modifier-hover);
+      }
+    }
+  }
+
+  &-name-link {
+    cursor: pointer;
+    color: var(--text-normal);
+
+    &:hover {
+      color: var(--vm-accent);
+      text-decoration: underline;
+    }
+  }
+
+  &-editing {
+    padding: 2px 4px !important;
+  }
+
+  &-edit-input {
+    width: 100%;
+    font-size: 1em;
+    padding: 2px 4px;
+    border: 2px solid var(--vm-accent);
+    border-radius: var(--radius-s);
+    background: var(--background-primary);
+    color: var(--text-normal);
+    outline: none;
+  }
+
+  &-live-cell {
+    overflow: hidden;
+
+    p {
+      margin: 0;
+      line-height: inherit;
+    }
+
+    .tag {
+      font-size: 0.85em;
+    }
+
+    .internal-link {
+      cursor: pointer;
+    }
+  }
+}
+
+body.vm-resizing {
+  cursor: col-resize !important;
+  user-select: none !important;
+}

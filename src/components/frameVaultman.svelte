@@ -24,6 +24,7 @@
   import { QueueListComponent } from "./componentQueueList";
   import { QueueIslandComponent } from "../logic/logicQueue";
   import { ActiveFiltersIslandComponent } from "../logic/logicFilters";
+  import { QueueDetailsModal } from "../modals/modalQueueDetails";
   import { FolderSuggest } from "../utils/autocomplete";
   import { MOVE_FILE } from "../types/typeOps";
   import type { PendingChange } from "../types/typeOps";
@@ -763,7 +764,8 @@
 
 <!-- ─── Page container (horizontal slide strip) ────────────────────────────── -->
 <!-- vm-pages-viewport clips via overflow:hidden; the container slides inside it -->
-<div class="vm-pages-viewport" use:bindViewport use:bindViewRoot>
+<div class="vm-view" use:bindViewRoot>
+  <div class="vm-pages-viewport" use:bindViewport>
   <div
     class="vm-page-container"
     use:bindContainer
@@ -846,6 +848,7 @@
     {navigateTo}
     {icon}
   />
+  </div>
 </div>
 
 <PopupOverlay

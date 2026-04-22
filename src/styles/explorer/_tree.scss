@@ -1,0 +1,192 @@
+//********************************************************************\\
+//*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
+//********************************************************************\\
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+//...----------—————————————(    TREE    )————————————------------...\\
+
+// Shared tree-item icon sizing
+@mixin tree-icon-size($w: 16px) {
+  min-width: $w;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: inherit;
+}
+
+.vm-tree {
+  &-row {
+    position: relative;
+    @include flex-center;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 0 8px;
+    height: 26px;
+    margin-bottom: 1px;
+    padding-left: calc(8px + var(--depth, 0) * 16px);
+    cursor: pointer;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    color: var(--text-muted);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transform: translateZ(0);
+
+    // Vertical hierarchy guideline
+    &::before {
+      content: '';
+      position: absolute;
+      left: calc(var(--depth, 0) * 16px);
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background-color: var(--background-modifier-border);
+      opacity: 0.6;
+    }
+
+    &[style*="--depth: 0"]::before,
+    &:not([style*="--depth"])::before {
+      display: none;
+    }
+
+    &:hover {
+      background-color: var(--background-modifier-hover);
+      color: var(--text-normal);
+    }
+
+    &.is-active-filter {
+      background-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
+      color: var(--text-normal);
+      box-shadow: inset 2px 0 0 0 var(--color-accent);
+
+      :is(.vm-tree-toggle, .vm-tree-icon, .vm-tree-label,
+          .vm-tree-count, .vm-tree-badge, .vm-badge-icon) {
+        opacity: 1;
+      }
+
+      .vm-tree-count {
+        font-weight: 600;
+      }
+    }
+
+    &.is-deleted-prop,
+    &.is-deleted-value,
+    &.is-deleted-tag {
+      color: var(--text-faint) !important;
+      opacity: 0.5 !important;
+
+      .vm-tree-label {
+        text-decoration: line-through;
+      }
+
+      .vm-tree-count {
+        color: var(--text-faint);
+      }
+    }
+
+    &.is-editing {
+      background: var(--background-modifier-hover);
+    }
+
+    &.is-hidden {
+      display: none;
+    }
+
+    &.vm-badge-warning {
+      outline: 1px solid var(--color-yellow);
+    }
+  }
+
+  &-toggle {
+    @include tree-icon-size;
+    color: var(--text-normal);
+    opacity: 0.35;
+    width: 20px;
+  }
+
+  &-icon {
+    @include tree-icon-size;
+
+    &:empty {
+      display: none;
+    }
+
+    & + .vm-tree-label {
+      margin-left: 2px;
+    }
+  }
+
+  &-label {
+    flex: 1;
+    @include text-ellipsis;
+    font-size: var(--font-ui-small);
+    font-weight: normal;
+    color: inherit;
+  }
+
+  &-count {
+    flex-shrink: 0;
+    font-size: var(--font-ui-smaller);
+    color: var(--text-normal);
+    opacity: 0.35;
+    background: transparent;
+    padding: 0;
+    margin-left: 2px;
+  }
+
+  &-input {
+    flex: 1;
+    background: var(--background-primary);
+    border: 1px solid var(--color-accent);
+    border-radius: 4px;
+    padding: 1px 4px;
+    margin: -2px 0;
+    height: 20px;
+    font-size: inherit;
+    color: var(--text-normal);
+    font-family: inherit;
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 20%, transparent);
+    }
+  }
+
+  &-children {
+    transform-origin: top;
+  }
+
+  &-badge-zone {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  &-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
+// Modifying native tree elements
+.tree-item-icon.collapse-icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.tree-item-flair {
+  display: flex;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+  }
+}

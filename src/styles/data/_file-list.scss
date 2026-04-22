@@ -1,0 +1,115 @@
+//********************************************************************\\
+//*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
+//********************************************************************\\
+
+@use '../tokens' as *;
+
+/*------------------------------FILE LIST SECTION------------------------------*/
+.vm-files {
+  &-header {
+    margin-bottom: 6px;
+  }
+
+  &-count {
+    font-size: 0.75em;
+    color: $muted;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  &-search {
+    width: 100%;
+    font-size: 0.8em;
+    padding: 4px 8px;
+    border: 1px solid $border;
+    border-radius: var(--radius-s);
+    background: var(--background-primary);
+    color: var(--text-normal);
+    margin-bottom: 4px;
+  }
+
+  &-bulk {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+
+  &-col-header {
+    display: grid;
+    grid-template-columns: 18px 1fr 50px 50px;
+    gap: 4px;
+    border-bottom: 1px solid $border;
+    padding-bottom: 2px;
+    margin-bottom: 2px;
+  }
+}
+
+.vm-col-header {
+  font-size: 0.7em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: $muted;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 2px 0;
+
+  &:hover,
+  &.active {
+    color: var(--text-normal);
+  }
+}
+
+.vm-file {
+  &-row {
+    display: grid;
+    grid-template-columns: 18px 1fr 36px 50px;
+    gap: 4px;
+    align-items: center;
+    padding: 2px 0;
+    font-size: 0.8em;
+    border-radius: var(--radius-s);
+
+    &:hover {
+      background: $bg-hover;
+    }
+  }
+
+  &-checkbox {
+    width: 14px;
+    height: 14px;
+  }
+
+  &-name {
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-normal);
+
+    &:hover {
+      color: $accent;
+      text-decoration: underline;
+    }
+  }
+
+  &-props {
+    text-align: center;
+    color: $muted;
+    font-size: 0.9em;
+  }
+
+  &-path {
+    color: $faint;
+    font-size: 0.85em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.vm-show-more {
+  width: 100%;
+  margin-top: 4px;
+}

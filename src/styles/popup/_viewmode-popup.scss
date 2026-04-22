@@ -1,0 +1,89 @@
+//********************************************************************\\
+//*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
+//********************************************************************\\
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+//...------—————————————( VIEWMODE POPUP )————————————----------...\\
+
+.vm-viewmode {
+  &-popup {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 8px;
+  }
+
+  &-row {
+    @include flex-center;
+    justify-content: flex-start;
+    gap: 6px;
+
+    &-controls {
+      overflow: hidden;
+    }
+  }
+
+  &-close-btn, &-circle-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    @include flex-center;
+    cursor: pointer;
+    background: var(--background-secondary);
+    border: 1px solid var(--background-modifier-border);
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: background 150ms ease, color 150ms ease;
+
+    &:hover {
+      background: var(--background-modifier-hover);
+      color: var(--text-normal);
+    }
+
+    svg {
+      width: 13px;
+      height: 13px;
+    }
+  }
+
+  &-pills {
+    @include flex-center;
+    justify-content: flex-start;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex: 1;
+    min-width: 0;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    white-space: nowrap;
+    cursor: pointer;
+    background: var(--background-secondary);
+    border: 1px solid var(--background-modifier-border);
+    color: var(--text-muted);
+    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+    flex-shrink: 0;
+
+    &.is-active {
+      background: #7b5ea740;
+      border-color: #7b5ea7;
+      color: #c4a0f8;
+    }
+
+    &:hover {
+      background: var(--background-modifier-hover);
+      color: var(--text-normal);
+    }
+  }
+}

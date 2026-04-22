@@ -1,0 +1,145 @@
+//********************************************************************\\
+//*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
+//********************************************************************\\
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+//...--------—————————————( SORT POPUP  )————————————-----------...\\
+
+// Circle button shared style
+@mixin circle-btn($size: 24px) {
+  width: $size;
+  height: $size;
+  border-radius: 50%;
+  @include flex-center;
+  cursor: pointer;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: background 150ms ease, color 150ms ease;
+
+  &:hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-normal);
+  }
+
+  svg {
+    width: 13px;
+    height: 13px;
+  }
+}
+
+.vm-sort {
+  &-popup {
+    @include flex-center;
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 4px 8px;
+    position: relative;
+    overflow: visible;
+  }
+
+  &-vertcol {
+    position: absolute;
+    left: 9px;
+    top: 7px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    z-index: 50;
+    overflow: visible;
+
+    &-btn {
+      @include circle-btn;
+
+      &.is-active {
+        background: var(--color-accent);
+        color: var(--text-on-accent);
+        border-color: var(--color-accent);
+      }
+
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    &-drawer {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      background: #12101a;
+      border: 1px solid #4a3a6a;
+      border-radius: 6px;
+      padding: 4px 6px;
+      min-width: 80px;
+      margin-top: 2px;
+      z-index: 55;
+      position: relative;
+    }
+  }
+
+  &-drawer-item {
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 2px 4px;
+    border-radius: 3px;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+      background: var(--background-modifier-hover);
+      color: var(--text-normal);
+    }
+  }
+
+  &-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    padding-left: 40px;
+  }
+
+  &-row {
+    @include flex-center;
+    justify-content: flex-start;
+    gap: 6px;
+
+    &-controls .vm-sort-close-btn {
+      margin-left: auto;
+    }
+  }
+
+  &-scope-select {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: var(--background-secondary);
+    border: 1px solid var(--background-modifier-border);
+    color: var(--text-normal);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  &-circle-btn, &-close-btn {
+    @include circle-btn;
+  }
+
+  &-dir {
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+
+    svg {
+      width: 10px;
+      height: 10px;
+    }
+  }
+
+  &-squircle-row {
+    justify-content: flex-start;
+  }
+}
