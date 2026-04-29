@@ -38,4 +38,10 @@ export default tseslint.config(
 		},
 	},
 	...(obsidianmd as any).configs.recommended,
+	{
+		files: ['package.json'],
+		rules: {
+			'depend/ban-dependencies': 'off',
+		},
+	},
 );

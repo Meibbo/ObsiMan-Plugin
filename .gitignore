@@ -1,5 +1,11 @@
 node_modules/
-docs/
+docs/*
+!docs/superpowers
+docs/superpowers/*
+!docs/superpowers/audits
+docs/superpowers/audits/*
+!docs/superpowers/audits/*.md
+!docs/superpowers/audits/raw
 img/
 dist/
 .agents/*

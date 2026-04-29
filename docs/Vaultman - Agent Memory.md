@@ -97,8 +97,28 @@ input: AI-gen
 
 ## Last updated
 
-- **Date**: 2026-04-28 (tarde)
-- **Agent**: Claude Code (Opus 4.7) — Triage session (Paso 1 del HANDOFF Vaultman Hardening)
+- **Date**: 2026-04-29
+- **Agent**: Claude Code (Sonnet 4.6) — Sub-B Iter B.2 execution
+
+## Session 2026-04-29 — Sub-B Audit: Iter B.2 cleanup + closure
+
+**Status: Sub-B Audit completo. Iter B.1 + B.2 cerrados. Versión bumped a `1.0.0-beta.18`.**
+
+- **Branch**: `hardening-audit` (creada desde `hardening`, creada desde `file-centric-queue-handoff`).
+- **Versión**: `1.0.0-beta.18` taggeada y committed.
+- **Iter B.2 cleanups aplicados** (commits en orden):
+  - `553cbe3` `chore(audit): disable depend/ban-dependencies for package.json` — ESLint fix for depcheck devDep
+  - `d2410ab` `chore(audit): remove BasesCheckboxInjector references from CONTRIBUTING.md`
+  - `5ccb059` `chore(audit): remove unused exports` — `setLanguage`, `getLanguage`, `resolveLanguage` from `src/i18n/index.ts`
+  - `57c9f94` `chore(audit): remove orphan files` — 4 files: `componentStatusBar.ts`, `panelContent.svelte`, `modalAddFilter.ts`, `modalLinter.ts`
+  - `a1a8db7` `chore(audit): clean transitive dead code` — `_setViewMode`, `_openMovePopup`, `showPopup` from `frameVaultman.svelte`
+  - `05931f5` `chore(release): bump to 1.0.0-beta.18 (Sub-B Audit close)`
+- **Nota lint**: `depend/ban-dependencies` regla del plugin `obsidianmd` banea `depcheck`. Fix: override en `eslint.config.mts` para `package.json`. Añadir a linter gotchas si se repite.
+- **False positives ts-prune confirmados**: `ActiveFiltersIslandComponent`, `QueueIslandComponent`, `QueueDetailsModal`, `defOpsTab` — todos tienen consumers en `.svelte` que ts-prune no escanea. Exports son legítimos.
+- **Deferred items** (no se tocan hasta Sub-A/post-rc.1): `tabContent.svelte`, `tabLinter.svelte`, `dropDAutoSuggestionInput.ts`, `currentViewMode` en navbarExplorer, todos los WIP files.
+- **Verify gate final**: build ✅ lint ✅ check ✅ (1 error deferred — `currentViewMode` item 5.1) test:integrity = sin archivos de test (Sub-C scope).
+- **PR**: `hardening-audit` → `hardening` abierto. NO mergear a `main`.
+- **Próximo**: Sub-C Tests. Escribir plan con `superpowers:writing-plans` (Iter C.1-C.4). Ver HANDOFF Paso 3.
 
 ## Session 2026-04-28 (tarde) — Triage v1.0 scope + Annex A/B
 

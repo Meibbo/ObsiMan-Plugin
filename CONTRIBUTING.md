@@ -49,7 +49,6 @@ src/
     FilterService          # Filter tree state + filteredFiles list
     OperationQueueService  # Stages and executes file/property operations
     SessionFileService     # Session .md file read/write
-    BasesCheckboxInjector  # Injects checkboxes into Obsidian Bases table DOM
   views/                   # Obsidian ItemView subclasses
     VaultmanView.ts         # Thin shell — mounts/unmounts VaultmanView.svelte
     VaultmanView.svelte     # Main sidebar UI (Svelte 5): 3-page nav, all tabs

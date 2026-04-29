@@ -1,4 +1,3 @@
-import type { Language } from '../types/typeSettings';
 import { en } from './en';
 import { es } from './es';
 
@@ -6,45 +5,7 @@ type ResolvedLanguage = 'en' | 'es';
 
 const translations: Record<ResolvedLanguage, Record<string, string>> = { en, es };
 
-let currentLang: ResolvedLanguage = 'en';
-
-/**
- * Resolve 'auto' to a concrete language by checking Obsidian's locale.
- */
-function resolveLanguage(lang: Language): ResolvedLanguage {
-	if (lang === 'en' || lang === 'es') return lang;
-
-	// Obsidian stores the user's language choice in localStorage
-	// eslint-disable-next-line no-restricted-globals
-	const stored = typeof localStorage !== 'undefined'
-		// eslint-disable-next-line no-restricted-globals
-		? localStorage.getItem('language')
-		: null;
-	if (stored === 'es') return 'es';
-	if (stored && stored !== 'es') return 'en';
-
-	// Fallback: moment.js locale (Obsidian includes moment globally)
-	try {
-		const locale = (window as unknown as { moment?: { locale?: () => string } }).moment?.locale?.();
-		if (locale?.startsWith('es')) return 'es';
-	} catch { /* ignore */ }
-
-	// Fallback: browser language
-	if (typeof navigator !== 'undefined') {
-		const nav = navigator.language?.slice(0, 2);
-		if (nav === 'es') return 'es';
-	}
-
-	return 'en';
-}
-
-export function setLanguage(lang: Language): void {
-	currentLang = resolveLanguage(lang);
-}
-
-export function getLanguage(): ResolvedLanguage {
-	return currentLang;
-}
+const currentLang: ResolvedLanguage = 'en';
 
 /**
  * Translate a key, optionally interpolating {placeholder} values.
