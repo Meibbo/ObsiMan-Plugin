@@ -325,14 +325,6 @@
   let activePopup = $state<PopupType | null>(null);
   let popupOpen = $state(false);
 
-  function showPopup(type: PopupType) {
-    activePopup = type;
-    // Next frame so CSS transition fires after is-hidden is removed
-    requestAnimationFrame(() => {
-      popupOpen = true;
-    });
-  }
-
   function closePopup() {
     popupOpen = false;
     // Wait for the 0.3s spring transition before clearing content
@@ -552,17 +544,6 @@
     closePopup();
   }
 
-  // ─── View mode popup ──────────────────────────────────────────────────────
-
-  // Kept for future use (view mode toggle in Files tab)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function _setViewMode(mode: "list" | "selected") {
-    plugin.settings.viewMode = mode;
-    void plugin.saveSettings();
-    // showSelectedOnly handled by FilesExplorerPanel view mode in future iteration
-    closePopup();
-  }
-
   // ─── Search popup ─────────────────────────────────────────────────────────
 
   let searchName = $state("");
@@ -659,16 +640,6 @@
         : file.name,
     }));
   });
-
-  function _openMovePopup() {
-    const selected = Array.from(selectedFilePaths)
-      .map((p) => plugin.app.vault.getFileByPath(p))
-      .filter((f) => f) as import("obsidian").TFile[];
-    moveTargetFiles =
-      selected.length > 0 ? selected : [...plugin.filterService.filteredFiles];
-    moveTargetFolder = "";
-    showPopup("move");
-  }
 
   function queueMoves() {
     const targetFolder = moveTargetFolder;
