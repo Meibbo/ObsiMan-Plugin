@@ -1,0 +1,25 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "src/main.ts",
+    "esbuild.config.mjs",
+    "version-bump.mjs",
+    "svelte.config.js"
+  ],
+  "project": [
+    "src/main.ts",
+    "src/**/*.{ts,svelte}"
+  ],
+  "ignore": [
+    "**/*-WIP*",
+    "**/*_WIP*",
+    "**/*.test.ts",
+    "test/**",
+    "node_modules/**",
+    "docs/**"
+  ],
+  "ignoreDependencies": [
+    "obsidian-integration-testing",
+    "wdio-obsidian-service"
+  ]
+}
