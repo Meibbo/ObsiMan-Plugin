@@ -1,8 +1,8 @@
 # HANDOFF — Vaultman Next Session
 
-> Updated: 2026-04-28 (post-triage) | From: Claude Code (Opus 4.7) triage session → To: next agent
-> Branch: `file-centric-queue-handoff` | Version: `1.0.0-beta.16` (uncommitted changes still pending → bump to beta.17)
-> **Paso 1 (triage + Annex A/B) DONE. Próximo: Paso 2 — writing-plans para Sub-B Audit.**
+> Updated: 2026-04-29 | From: Claude Code (Sonnet 4.6) Sub-B Iter B.1 execution → To: next agent
+> Branch: `hardening-audit` | Version: `1.0.0-beta.17` (taggeado, committed)
+> **Paso 2 (plan Sub-B) DONE. Iter B.1 DONE. Esperando usuario marque dead-code-report → Iter B.2.**
 
 ---
 
@@ -34,9 +34,42 @@ Verificaciones colaterales:
 - `BasesCheckboxInjector.ts` ya borrado del working tree. Sólo queda referencia en `CONTRIBUTING.md` (Sub-B la limpia).
 - Items `already-fixed` corroborados contra fechas del backlog.
 
-### Paso 2 — `/superpowers:write-plan` para Sub-B (Audit)
+### Paso 2 — Plan Sub-B + ejecución Iter B.1 ✅ DONE 2026-04-29
 
-Tras Paso 1, escribir el plan ejecutable del primer sub-proyecto: Audit (no los 3 — Enfoque 3 elegido: spec maestra + planes por sub-proyecto bajo demanda).
+Resultados:
+
+- **Plan**: `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-b.md` (36 tasks).
+- **Branch**: `hardening` (integration) + `hardening-audit` (sub-rama activa). Flat naming — no slash (incompatible con git refs).
+- **Versión**: `1.0.0-beta.17` taggeada y committed (`1db4afc`).
+- **Iter B.1 completo**: Tasks 1-22 ejecutadas.
+- **Outputs**:
+  - `docs/superpowers/audits/2026-04-28-indexing-inventory.md` (8 tipos de nodo).
+  - `docs/superpowers/audits/2026-04-28-dead-code-report.md` (11 secciones, ~47 items pendientes de decisión).
+  - `docs/superpowers/audits/raw/` (ts-prune.txt, knip.txt, knip.json, depcheck.txt, depcheck.json, svelte-check.txt).
+- **CHECKPOINT 1**: usuario marcando items en `dead-code-report.md`.
+- **Commit log** (HEAD→`hardening-audit`): ver `git log --oneline hardening..HEAD`.
+
+### Paso 3 — Iter B.2: limpieza confirmada 🔴 PRÓXIMO
+
+**Pre-condición**: usuario terminó de marcar `dead-code-report.md` con `[x] keep/delete/defer`.
+
+**Acción a tomar** (el agente lee el reporte y ejecuta):
+
+1. **Task 24**: verify gate Iter B.1 (`npm run build ; npm run lint ; npm run check ; npm run test:integrity`).
+2. **Task 25**: auto-fix imports no usados (`eslint-plugin-unused-imports --fix`).
+3. **Task 26**: eliminar referencia a `BasesCheckboxInjector` en `CONTRIBUTING.md` (pre-confirmado).
+4. **Tasks 27-30**: commits de cleanup por categoría según decisiones del reporte.
+5. **CHECKPOINT 2** (Task 31): confirmar WIP files 3.2 (`serviceStats-WIP`) y 3.3 (`serviceLayout-WIP`).
+6. **Task 32**: WIP files reorganizados según decisión del usuario.
+7. **Tasks 33-36**: verify gate final → bump `1.0.0-beta.18` → Agent Memory + HANDOFF → push + PR.
+
+**Reglas críticas Iter B.2**:
+- Borrar SÓLO items marcados `[x] delete` en el reporte. Nunca asumir.
+- Tras cada commit de cleanup: `npm run build ; npm run lint ; npm run check ; npm run test:integrity`. Si rojo → revert + flag.
+- Commits firmados con `chore(audit):` para revert simple.
+- NO mergear a `main` ni a `hardening`. PR lo aprueba el usuario.
+
+**Subagent approach**: usar `superpowers:subagent-driven-development` task-por-task con two-stage review.
 
 **Acción a tomar:**
 
