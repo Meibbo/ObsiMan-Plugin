@@ -1,8 +1,8 @@
 # HANDOFF — Vaultman Next Session
 
-> Updated: 2026-04-29 | From: Claude Code (Sonnet 4.6) Sub-B Iter B.1 execution → To: next agent
-> Branch: `hardening-audit` | Version: `1.0.0-beta.17` (taggeado, committed)
-> **Paso 2 (plan Sub-B) DONE. Iter B.1 DONE. Esperando usuario marque dead-code-report → Iter B.2.**
+> Updated: 2026-04-29 | From: Claude Code (Sonnet 4.6) Sub-B Iter B.2 closure → To: next agent
+> Branch: `hardening-audit` | Version: `1.0.0-beta.18` (taggeado, committed)
+> **Sub-B DONE. PR hardening-audit → hardening abierto. Próximo: Sub-C Tests (escribir plan primero).**
 
 ---
 
@@ -49,84 +49,53 @@ Resultados:
 - **CHECKPOINT 1**: usuario marcando items en `dead-code-report.md`.
 - **Commit log** (HEAD→`hardening-audit`): ver `git log --oneline hardening..HEAD`.
 
-### Paso 3 — Iter B.2: limpieza confirmada 🔴 PRÓXIMO
+### Paso 3 — Iter B.2: limpieza confirmada ✅ DONE 2026-04-29
 
-**Pre-condición**: usuario terminó de marcar `dead-code-report.md` con `[x] keep/delete/defer`.
+Resultados:
 
-**Acción a tomar** (el agente lee el reporte y ejecuta):
+- **Commits aplicados** (rama `hardening-audit`):
+  - `553cbe3` ESLint fix: disable `depend/ban-dependencies` for `package.json` (depcheck devDep ban)
+  - `d2410ab` Remove `BasesCheckboxInjector` ref from `CONTRIBUTING.md`
+  - `5ccb059` Remove unused exports: `setLanguage`, `getLanguage`, `resolveLanguage` (i18n/index.ts)
+  - `57c9f94` Remove orphan files (4): `componentStatusBar.ts`, `panelContent.svelte`, `modalAddFilter.ts`, `modalLinter.ts`
+  - `a1a8db7` Clean transitive dead code: `_setViewMode`, `_openMovePopup`, `showPopup` (frameVaultman.svelte)
+  - `05931f5` Bump to `1.0.0-beta.18` + tag
+- **Verify gate final**: build ✅ lint ✅ check ✅ (1 deferred — `currentViewMode` item 5.1)
+- **False positives ts-prune** (NO borrar): `ActiveFiltersIslandComponent`, `QueueIslandComponent`, `QueueDetailsModal`, `defOpsTab` — consumers en Svelte que ts-prune no escanea.
+- **PR**: `hardening-audit` → `hardening`. URL: ver `gh pr list --base hardening`.
 
-1. **Task 24**: verify gate Iter B.1 (`npm run build ; npm run lint ; npm run check ; npm run test:integrity`).
-2. **Task 25**: auto-fix imports no usados (`eslint-plugin-unused-imports --fix`).
-3. **Task 26**: eliminar referencia a `BasesCheckboxInjector` en `CONTRIBUTING.md` (pre-confirmado).
-4. **Tasks 27-30**: commits de cleanup por categoría según decisiones del reporte.
-5. **CHECKPOINT 2** (Task 31): confirmar WIP files 3.2 (`serviceStats-WIP`) y 3.3 (`serviceLayout-WIP`).
-6. **Task 32**: WIP files reorganizados según decisión del usuario.
-7. **Tasks 33-36**: verify gate final → bump `1.0.0-beta.18` → Agent Memory + HANDOFF → push + PR.
+### Paso 4 — Sub-C Tests 🔴 PRÓXIMO
 
-**Reglas críticas Iter B.2**:
-- Borrar SÓLO items marcados `[x] delete` en el reporte. Nunca asumir.
-- Tras cada commit de cleanup: `npm run build ; npm run lint ; npm run check ; npm run test:integrity`. Si rojo → revert + flag.
-- Commits firmados con `chore(audit):` para revert simple.
-- NO mergear a `main` ni a `hardening`. PR lo aprueba el usuario.
+**Pre-condición**: usuario revisar + mergear PR `hardening-audit` → `hardening`.
 
-**Subagent approach**: usar `superpowers:subagent-driven-development` task-por-task con two-stage review.
+1. Revisars y mergear PR `hardening-audit` → `hardening` (o pedir review).
+2. Invocar skill `superpowers:writing-plans` con scope: **Sub-C Tests (Iter C.1-C.4)**.
+3. Output esperado: `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-c.md`.
+4. El plan debe consultar Annex A.7 del spec maestra para tests obligatorios derivados del v1.0 scope.
 
-**Acción a tomar:**
-
-1. Invocar skill `superpowers:writing-plans` con scope: **Sub-B Audit (Iter B.1 + B.2)**.
-2. Output esperado: `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-b.md`.
-3. El plan debe consultar el triage doc (Paso 1) para identificar items v1.0 que el audit deba surfacear.
-
-Plan B debe:
-- Concretar comandos exactos de `ts-prune`, `knip`, `depcheck` para Iter B.1.
-- Definir formato exacto del reporte `dead-code-report.md` y `indexing-inventory.md`.
-- Listar checkpoints de revisión humana (Dead Code Protocol).
-- Definir scripts exactos de commits por categoría en Iter B.2.
-- Incluir gate de bump a `1.0.0-beta.18` al cierre.
-
-**Nota:** Paso 1 + Paso 2 probablemente NO caben en una sola sesión. Si el contexto se acaba tras Paso 1, actualizar este HANDOFF apuntando a Paso 2 como próximo, y switchear agente.
+Sub-C debe cubrir:
+- **Iter C.1**: Vitest config + mocks Obsidian (`test/helpers/obsidian-mocks.ts`).
+- **Iter C.2**: Tests para `src/utils/` (≥80% coverage).
+- **Iter C.3**: Tests para `src/logic/` (≥80% coverage; `logicQueue` prioridad).
+- **Iter C.4**: Tests para `src/services/` (sin WIP, ≥70%) + CI gate (`.github/workflows/ci.yml`).
 
 ---
 
 ## ESTADO ACTUAL DEL REPO
 
-### Branch `file-centric-queue-handoff`
+### Branch `hardening-audit` (HEAD)
 
-**Working tree con cambios sin commit (pre-existentes, no tocados por brainstorm)**:
-
-```
-M .gitignore
-M src/components/btnSelection.svelte
-M src/components/containers/panelContent.svelte
-M src/components/frameVaultman.svelte
-M src/components/layout/layoutPopup.svelte
-M src/components/layout/menuView.svelte
-M src/components/layout/navbarPages.svelte
-M src/components/layout/navbarPillFab.svelte
-D src/components/pages/pageStatistics.svelte    (reemplazado por pageStats.svelte)
-M src/components/pages/pageTools.svelte
-M src/components/pages/tabContent.svelte
-M src/logic/logicFilters.ts
-M src/logic/logicQueue.ts
-M src/main.ts
-D src/settingsVaultman.ts                       (reemplazado por settingsVM.ts)
-D src/types/typeUI.ts                           (reemplazo `typePrimitives.ts` incompleto)
-?? JavasScript.md
-?? src/components/pages/pageStats.svelte
-?? src/settingsVM.ts
-?? src/types/typePrimitives.ts
-```
-
-Estos cambios pertenecen a Sessions 40-41 previas (SCSS migration + branch creation). El usuario indicó que la versión actual (post-commit de estos cambios) será `1.0.0-beta.17`.
-
-### Commits recientes añadidos por las sesiones 2026-04-28
+**Working tree limpio** post-Iter B.2. Commits HEAD:
 
 ```
-17c89a8 docs(spec): add Vaultman Hardening master spec
-<next>  docs(triage): integrate v1.0 scope with hardening plan
+05931f5 chore(release): bump to 1.0.0-beta.18 (Sub-B Audit close)
+a1a8db7 chore(audit): clean transitive dead code
+57c9f94 chore(audit): remove orphan files
+5ccb059 chore(audit): remove unused exports
+d2410ab chore(audit): remove BasesCheckboxInjector references from CONTRIBUTING.md
 ```
 
-Sólo añaden documentación. No tocan código.
+Working tree limpio. Tag `1.0.0-beta.18` presente. PR abierto contra `hardening`.
 
 ---
 
