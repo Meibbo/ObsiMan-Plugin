@@ -5,7 +5,7 @@ import { translate } from '../i18n/index';
 import type { VaultmanPlugin } from '../main';
 import { SaveTemplateModal } from '../modals/modalSaveTemplate';
 import BtnSelection from '../components/btnSelection.svelte';
-import type { BtnSelectionItem } from '../types/typeUI';
+import type { BtnSelectionItem } from '../types/typePrimitives';
 
 /**
  * In-frame floating island showing active filter rules.

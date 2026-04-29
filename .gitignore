@@ -2,9 +2,10 @@ node_modules/
 docs/
 img/
 dist/
-.agents/
+.agents/*
 .claude/*
-.obsidian
+.obsidian/
+.vscode/
 .superpowers/
 main.js
 data.json
@@ -14,3 +15,4 @@ settings.local.json
 .DS_Store
 .env
 *.mjs
+JavasScript.md

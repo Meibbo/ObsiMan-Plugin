@@ -16,7 +16,7 @@
   import { explorerFiles } from "./containers/explorerFiles";
   import { explorerProps } from "./containers/explorerProps";
   import { explorerTags } from "./containers/explorerTags";
-  import StatisticsPage from "./pages/pageStatistics.svelte";
+  import StatisticsPage from "./pages/pageStats.svelte";
   import FiltersPage from "./pages/pageFilters.svelte";
   import OperationsPage from "./pages/pageTools.svelte";
   import BottomNav from "./layout/navbarPillFab.svelte";
@@ -25,11 +25,12 @@
   import { QueueIslandComponent } from "../logic/logicQueue";
   import { ActiveFiltersIslandComponent } from "../logic/logicFilters";
   import { QueueDetailsModal } from "../modals/modalQueueDetails";
+
   import { FolderSuggest } from "../utils/autocomplete";
   import { MOVE_FILE } from "../types/typeOps";
   import type { PendingChange } from "../types/typeOps";
   import { translate } from "../i18n/index";
-  import type { PopupType, FabDef } from "../types/typeUI";
+  import type { PopupType, FabDef } from "../types/typePrimitives";
 
   // ─── Props ─────────────------------------...........
 
@@ -766,88 +767,88 @@
 <!-- vm-pages-viewport clips via overflow:hidden; the container slides inside it -->
 <div class="vm-view" use:bindViewRoot>
   <div class="vm-pages-viewport" use:bindViewport>
-  <div
-    class="vm-page-container"
-    use:bindContainer
-    ontransitionend={onContainerTransitionEnd}
-  >
-    {#each pageOrder as pageId (pageId)}
-      <div class="vm-page" data-page={pageId}>
-        {#key pageRenderKey}
-          {#if pageId === "ops"}
-            <OperationsPage {plugin} {icon} />
-          {:else if pageId === "statistics"}
-            <StatisticsPage {plugin} />
-          {:else if pageId === "filters"}
-            <FiltersPage
-              {plugin}
-              bind:filtersActiveTab
-              bind:filtersSearch
-              bind:filtersSearchCategory
-              bind:tagsExplorer
-              bind:propExplorer
-              bind:fileList
-              bind:selectedCount
-              bind:selectedFilePaths
-              bind:filtersSortBy
-              bind:filtersSortDir
-              bind:filtersViewMode
-              bind:addMode
-              {addOpCount}
-            />
-          {/if}
-        {/key}
-      </div>
-    {/each}
-  </div>
+    <div
+      class="vm-page-container"
+      use:bindContainer
+      ontransitionend={onContainerTransitionEnd}
+    >
+      {#each pageOrder as pageId (pageId)}
+        <div class="vm-page" data-page={pageId}>
+          {#key pageRenderKey}
+            {#if pageId === "ops"}
+              <OperationsPage {plugin} {icon} />
+            {:else if pageId === "statistics"}
+              <StatisticsPage {plugin} />
+            {:else if pageId === "filters"}
+              <FiltersPage
+                {plugin}
+                bind:filtersActiveTab
+                bind:filtersSearch
+                bind:filtersSearchCategory
+                bind:tagsExplorer
+                bind:propExplorer
+                bind:fileList
+                bind:selectedCount
+                bind:selectedFilePaths
+                bind:filtersSortBy
+                bind:filtersSortDir
+                bind:filtersViewMode
+                bind:addMode
+                {addOpCount}
+              />
+            {/if}
+          {/key}
+        </div>
+      {/each}
+    </div>
 
-  <!-- ─── Island Backdrop (Rising Glass) ─────────────────────────────────── -->
-  <div
-    class="vm-island-backdrop vm-glass"
-    class:is-open={queueIslandOpen || filtersIslandOpen}
-    onclick={() => {
-      closeQueueIsland();
-      closeFiltersIsland();
-    }}
-    onkeydown={(e) => {
-      if (e.key === "Escape" || e.key === "Enter") {
+    <!-- ─── Island Backdrop (Rising Glass) ─────────────────────────────────── -->
+    <div
+      class="vm-island-backdrop vm-glass"
+      class:is-open={queueIslandOpen || filtersIslandOpen}
+      onclick={() => {
         closeQueueIsland();
         closeFiltersIsland();
-      }
-    }}
-    role="button"
-    tabindex="-1"
-    aria-label="Close island"
-  ></div>
+      }}
+      onkeydown={(e) => {
+        if (e.key === "Escape" || e.key === "Enter") {
+          closeQueueIsland();
+          closeFiltersIsland();
+        }
+      }}
+      role="button"
+      tabindex="-1"
+      aria-label="Close island"
+    ></div>
 
-  <!-- ─── Queue island container — floats above bottom nav ────────────────────── -->
-  <div class="vm-queue-island-wrap" bind:this={queueIslandEl}></div>
-  <div class="vm-filters-island-wrap" bind:this={filtersIslandEl}></div>
+    <!-- ─── Queue island container — floats above bottom nav ────────────────────── -->
+    <div class="vm-queue-island-wrap" bind:this={queueIslandEl}></div>
+    <div class="vm-filters-island-wrap" bind:this={filtersIslandEl}></div>
 
-  <BottomNav
-    {pageOrder}
-    {activePage}
-    {pageLabels}
-    {pageIcons}
-    {leftFab}
-    {rightFab}
-    {navCollapsed}
-    isIslandOpen={queueIslandOpen || filtersIslandOpen}
-    bind:isReordering
-    {reorderTargetIdx}
-    bind:pillEl
-    {selectedCount}
-    {filterRuleCount}
-    {queuedCount}
-    {bindNav}
-    {onCollapsedNavClick}
-    {onNavIconPointerDown}
-    {onPillPointerMove}
-    {onPillPointerUp}
-    {exitReorder}
-    {navigateTo}
-    {icon}
-  />
+    <BottomNav
+      {pageOrder}
+      {activePage}
+      {pageLabels}
+      {pageIcons}
+      {leftFab}
+      {rightFab}
+      {navCollapsed}
+      isIslandOpen={queueIslandOpen || filtersIslandOpen}
+      bind:isReordering
+      {reorderTargetIdx}
+      bind:pillEl
+      {selectedCount}
+      {filterRuleCount}
+      {queuedCount}
+      {bindNav}
+      {onCollapsedNavClick}
+      {onNavIconPointerDown}
+      {onPillPointerMove}
+      {onPillPointerUp}
+      {exitReorder}
+      {navigateTo}
+      {icon}
+    />
   </div>
 </div>
 

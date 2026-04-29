@@ -29,7 +29,7 @@ import { VaultmanFrame, TYPE_FRAME_VM } from './types/typeFrame';
 import { IconicService } from './services/serviceIcons';
 import { PropertyTypeService } from './utils/utilPropType';
 import { ContextMenuService } from './services/serviceCMenu';
-import { VaultmanSettingsTab } from './settingsVaultman';
+import { VaultmanSettingsTab } from './settingsVM';
 import { translate } from './i18n/index';
 
 export class VaultmanPlugin extends Plugin {

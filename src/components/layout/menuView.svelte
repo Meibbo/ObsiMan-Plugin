@@ -2,7 +2,7 @@
   import { translate } from "../../i18n/index";
   import { untrack } from "svelte";
   import BtnSelection from "../btnSelection.svelte";
-  import type { BtnSelectionItem } from "../../types/typeUI";
+  import type { BtnSelectionItem } from "../../types/typePrimitives";
 
   type FiltersTab = "props" | "files" | "tags";
   type ViewMode = "tree" | "dnd" | "grid" | "cards";

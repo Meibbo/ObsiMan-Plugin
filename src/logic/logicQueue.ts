@@ -4,7 +4,7 @@ import type { OperationQueueService } from '../services/serviceQueue';
 import type { OperationDiffContext } from '../services/serviceDiff';
 import { translate } from '../i18n/index';
 import BtnSelection from '../components/btnSelection.svelte';
-import type { BtnSelectionItem } from '../types/typeUI';
+import type { BtnSelectionItem } from '../types/typePrimitives';
 import { QueueListComponent } from '../components/componentQueueList';
 import ViewDiff from '../components/views/viewDiff.svelte';
 

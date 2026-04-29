@@ -4,8 +4,8 @@
   type FiltersTab = "props" | "files" | "tags";
 
   const TAB_ICONS: Record<FiltersTab, string> = {
-    tags: "lucide-tag",
-    props: "lucide-tag",
+    tags: "lucide-tags",
+    props: "lucide-book-plus",
     files: "lucide-files",
   };
 
@@ -23,7 +23,7 @@
 </script>
 
 <div class="vm-tab-bar" class:has-labels={showLabels}>
-  {#each (["props", "files", "tags"] as FiltersTab[]) as tab}
+  {#each ["props", "files", "tags"] as FiltersTab[] as tab}
     <div
       class="vm-tab nav-action-button"
       class:is-active={activeTab === tab}

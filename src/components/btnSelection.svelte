@@ -1,12 +1,12 @@
 <script lang="ts">
   import { setIcon } from "obsidian";
-  import type { BtnSelectionItem } from "../types/typeUI";
+  import type { BtnSelectionItem } from "../types/typePrimitives";
 
   export type { BtnSelectionItem };
 
   interface Props {
-    buttons: BtnSelectionItem[];  // 1–4 items
-    ariaLabel?: string;           // overall row aria-label
+    buttons: BtnSelectionItem[]; // 1–4 items
+    ariaLabel?: string; // overall row aria-label
   }
 
   let { buttons, ariaLabel }: Props = $props();
@@ -34,9 +34,12 @@
       role="button"
       tabindex={item.disabled ? -1 : 0}
       use:iconAction={item.icon}
-      onclick={() => { if (!item.disabled) item.onClick(); }}
+      onclick={() => {
+        if (!item.disabled) item.onClick();
+      }}
       onkeydown={(e: KeyboardEvent) => {
-        if ((e.key === "Enter" || e.key === " ") && !item.disabled) item.onClick();
+        if ((e.key === "Enter" || e.key === " ") && !item.disabled)
+          item.onClick();
       }}
     ></div>
   {/each}
