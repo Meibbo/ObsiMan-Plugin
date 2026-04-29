@@ -3,6 +3,9 @@ docs/*
 !docs/superpowers
 docs/superpowers/*
 !docs/superpowers/audits
+docs/superpowers/audits/*
+!docs/superpowers/audits/raw
+docs/superpowers/audits/raw/*
 img/
 dist/
 .agents/*
