@@ -614,3 +614,186 @@ Si un sub-proyecto se bloquea:
 | **Total** | **13** | **14-21** | **16-24** |
 
 El gate verde (build+lint+test+CI) es no-negociable. Si bloquea, el iter no termina.
+
+---
+
+## Annex A — Integración del v1.0 scope
+
+> Tras brainstorm + triage del backlog `docs/2026-04-15-1812 Vaultman v1.0 scope.md`, los items se distribuyen como sigue. **Documento triage detallado**: `docs/superpowers/triage/2026-04-28-v100-scope-triage.md` (referencia obligatoria al planear cada sub-iter).
+>
+> Convenciones: `[in]` = output directo del iter, `[adj]` = fix natural en el área. Items `out-hardening`, `already-fixed`, `cancelled` y `post-rc.1` viven sólo en el triage doc.
+
+### A.1 — Tipos
+
+Sin items adicionales del v1.0 scope (los outputs ya están en sec 5.3).
+
+### A.2.1 — Factory + indices base
+
+Sin items adicionales del v1.0 scope (los outputs ya están en sec 5.4).
+
+### A.2.2 — Indices restantes
+
+- `[in]` 2.5.B.2 — `explorerSnippets` + `explorerTemplates` como **stubs válidos** (`ICSSSnippetsIndex`, `ITemplatesIndex`). Sin consumer en v1.0 pero estructura preservada para v1.0+1.
+
+### A.3 — Primitivos
+
+- `[in]` 2.8.1 — Centralización de botones en `src/components/primitives/`.
+- `[in]` 2.8.A.1 — `BtnSelection` color seleccionado → token `--vaultman-accent-secondary` (transparent accent).
+- `[adj]` 2.2.C.1 — `Toggle` primitivo con wiring inicial de `boxSearch` (continuación en A.4.1).
+- `[adj]` 2.2.D.1 — `OverlayState` no existe aún en A.3, pero el primitivo `Toggle`/`Dropdown` se diseña **anticipando** click-outside dismiss (consumer final en A.4.2).
+
+### A.4.1 — Explorer + Virtualizer + Decoración
+
+- `[in]` 2.2.C.2 — `boxSearch` input filtra nodos (regresión) → `logicExplorer.search` rune.
+- `[in]` 2.3.C.1 — `explorerProps` cambios reactivos → `logicExplorer` reactividad central.
+- `[in]` 2.3.C.2 — Sistema de badges/highlighting → `DecorationManager` output explícito.
+- `[in]` 2.3.E.2 — `viewGrid` nodos sin click event → wiring durante migración a `Virtualizer<T>`.
+- `[in]` 2.3.E.3 — Recuperar `viewGrid` clásico (regresión) → spike de validación de la abstracción.
+- `[in]` 2.6.A.4 — **Diff memory blow-up** (200 ops cargan 80-90 archivos completos) → `DecorationManager` provee snippet preview en lugar de full-file preload. Bug urgente del scope.
+- `[in]` 3.2.1 — Cambios no se actualizan en árbol virtual → reactividad central.
+- `[in]` Ghost `serviceViews.ts` — Absorbido por `Virtualizer<T>` + `IExplorer` + view system genérico.
+- `[adj]` 2.3.5 — Iconos no se actualizan a la par del workspace → `DecorationManager` unifica reactividad iconic.
+- `[adj]` 2.3.E.1 — `explorerProps` no muestra íconos iconic → mismo `DecorationManager`.
+- `[adj]` 2.10.1 — Sort by date cuelga la app (props/tags) → `serviceSorting` revival con tests Sub-C; perf fix obligatorio.
+- `[adj]` 2.2.E.7, 2.2.E.8 — Toggle categoría sort + btnDrawer grupos → mismo `serviceSorting` revival.
+- `[adj]` 2.3.B.5 — `serviceSort` no funciona en `viewTree` → mismo módulo.
+- `[adj]` Ghost `serviceSorting.ts` — Sort logic en services + tests Sub-C.
+
+### A.4.2 — Frame + Navbars + Popups + Tabs
+
+- `[in]` 2.1.1 — Todas las páginas se renderizan al mismo tiempo → frame rewrite con `$derived` offset + lazy mount opt-in vía `IRouter`.
+- `[in]` 2.1.2 — Modales fuera del frame → containers inline vía `OverlayState`.
+- `[in]` 2.2.1 — Glitch blur sólido↔gradiente al abrir popupIsland → `popupIsland.svelte` finalizado con bg coherente.
+- `[in]` 2.2.D.1 — `menuView` cierre con click outside → `OverlayState` stack click-outside dismiss.
+- `[in]` 2.3.D.1 — Tags operan sin pasar por queue → `explorerTags` consume `IOperationQueue` (contrato).
+- `[in]` 2.4.1 — `tabContent` visible en `pageFilters` → consume `IContentIndex`, renderiza con view components compartidos.
+- `[in]` 2.6.A.1 — `explorerQueue` operaciones no agrupadas por tipo → real explorer + grouping vía `DecorationManager`.
+- `[in]` 2.6.A.2 — `explorerQueue` botón borrar individual → real explorer (UX estándar).
+- `[in]` 2.6.A.3 — `viewDiff` no activo → wiring durante `explorerQueue` rewrite.
+- `[in]` 2.6.A.10 — **Queue counter concurrency** (200+4=204) → `IOperationsIndex` separa contadores por op concurrent. Bug urgente del scope; origen de la rama `file-centric-queue`.
+- `[in]` 2.6.A.12 — Operación falta archivos del nodo (205→202) → wiring fix durante `explorerQueue` rewrite.
+- `[in]` 2.6.B.1 — `explorerActiveFilters` subtitle counter (filtros activos + archivos restantes) → real explorer.
+- `[in]` 2.9.1 — `layoutTabs` separar lógica + unificar patrones → `tabContent` migration sienta el patrón; `navbarPages` agnóstico.
+- `[in]` 3.3.1 — `explorerQueue` agrupación mal diseñada (DELETE_PROP) → cubierto por 2.6.A.1.
+- `[in]` 3.3.2 — Desactivar `viewDiff` cierra `explorerQueue` → `OverlayState` corrige stack management.
+- `[in]` Ghost `serviceMarks.ts` (subset) — sólo lo que el rewrite necesite tocar; resto a `post-rc.1`.
+- `[adj]` 2.6.A.9 — Considerar 6 `serviceOps` disponibles en agrupación → wiring durante `explorerQueue` rewrite.
+- `[adj]` 2.6.A.11 — Comunicación `panelLists` ↔ `explorerQueue` (count mismatch) → real explorer fija el wire.
+- `[adj]` Ghost `navbarTabs` — alias mental, ya existe como `navbarPages.svelte`. Mention en commits/comentarios.
+
+### A.5 — Settings
+
+Sin items adicionales del v1.0 scope. Settings nuevos derivados del backlog (default order por explorer, default config marks) caen en `out-hardening` UX Features porque tras A.5 el shape del settings ya es declarativo y agregarlos no requiere arquitectura.
+
+### A.6 — Sub-B Audit (efectos colaterales del triage)
+
+- Limpiar referencia a `BasesCheckboxInjector` en `CONTRIBUTING.md` (única ocurrencia restante; archivo ya borrado del working tree).
+- Reporte `dead-code-report.md` debe surfacear cualquier item del triage marcado `out-hardening` o `post-rc.1` cuyo código asociado sea ya muerto.
+
+### A.7 — Sub-C Tests (nuevos tests obligatorios para `in-hardening` items)
+
+- Tests para `serviceSorting` (cobertura sort by date + categorías sort) — Iter C.3.
+- Tests para `logicExplorer` (search, expansion, selection runes) — Iter C.4 (después de A.4.1 lo crea, según ADR-003 + spec sec 4.5).
+- Tests para `serviceExplorer` (orquestación filterService + index + decoración) — Iter C.4 misma condición.
+- Tests para `Virtualizer<T>` actualizado a genérico — Iter C.4.
+
+> Nota: la mayoría de los tests para archivos creados en Sub-A se escriben dentro de Sub-A junto al código, no antes (ver spec sec 4.5). Sub-C cubre lo existente al cierre de Sub-B.
+
+---
+
+## Annex B — Proyectos sucesores
+
+### B.0 Vision statement
+
+> **Vaultman as supervised bulk-ops harness for AI agents.**
+>
+> Diferenciador vendible para v1.1+. Los agentes IA hoy ejecutan bulk ops (rename, retag, frontmatter rewrite) sin preview ni confirmación. Vaultman ya tiene `OperationQueue` + scope display + await confirm: justo el UX que esos agentes carecen. La rama `Programmable Interface` (sub-bloque B.4) cristaliza esta tesis vía `serviceAPI` + Agent Guardrail Skill.
+>
+> Hardening prepara el terreno (`contracts.ts` como contrato público). Polish lo entrega.
+
+### B.1 v1.0 Polish (proyecto sucesor inmediato de Hardening)
+
+Estructura: 4 sub-bloques. Los 3 primeros son independientes de `serviceAPI`; el 4º depende de `contracts.ts` de hardening.
+
+#### B.1.1 Bases Feature Parity (sin serviceAPI)
+
+Cubre las gaps que Vaultman tiene vs Bases nativo o codeblock equivalente. Internal a Vaultman; no expone API pública.
+
+| Feature | Origen triage |
+|---|---|
+| Range filters (props tipo fechas, "entre {v1} y {v2}") | 2.6.B.5 |
+| `viewTable` excel-like grid (celdas editables, markdown rendering) | 2.3.B.8 |
+| "All files in folder" filter | 2.6.B.8 |
+| Logical filter syntax (all/any/none + manual) | 2.6.B.2, 2.6.B.7 |
+| Toggle row group/auto/manual | 2.6.B.3 |
+
+#### B.1.2 Theming (sin serviceAPI)
+
+Variantes de presentación. No toca lógica.
+
+| Variante | Origen triage |
+|---|---|
+| **Minimal** (sin blur overlays ni botones redondos) | 2.7.A.2 |
+| **Default fancy** (estado actual congelado) | — |
+| Variantes futuras (a definir cuando se entre al sub-bloque) | — |
+
+#### B.1.3 UX Features (sin serviceAPI)
+
+El sub-bloque más grande del Polish. Items que no son arquitectónicos pero sí pulido funcional importante.
+
+| Bloque UX | Items triage |
+|---|---|
+| `navKeyboard` (flechas + multi-select Ctrl/Shift/CMD) | 2.3.A.1, 2.3.A.2 |
+| `layoutNav.svelte` (common file con setting "swap navbar positions / FAB visibility / tab order") | 2.7.1, 2.7.2, 2.7.B.3 |
+| `serviceDnD` (filtros, navbarPages, listFilters, navbarPages a Workspace) | 2.6.B.6, 2.7.B.2 |
+| Multi-select modifiers | 2.3.A.2 |
+| Auto-scroll / auto-reveal current file | 2.2.E.4, 2.3.B.4 |
+| Inline rename (input encima del nodo) | 2.3.F.2 |
+| `explorerOutline` (replacement de native outline + DnD smart move) | 2.11.1, 2.11.2 |
+| `viewDiff` snippet vs full (full = integration con Git/File Diff plugins) | 3.3.3 |
+| Empty states ("No se encontraron archivos") | 2.3.4 |
+| "Coming Soon" overlays para módulos placeholder | 2.5.B.1 |
+| `menuView` redesign completo (filas + columnas + toggles) | 2.2.D.2 a 2.2.D.10 |
+| `menuSort` redesign (dropDy → pillsY, default order, position) | 2.2.E.3 a 2.2.E.6 |
+| `navbarExplorer` design + layout pulido | 2.2.A.3, 2.2.A.4, 2.2.B.1 a 2.2.B.3 |
+| `panelLists` CSS detalles (último/primer nodo bajo navbar) | 2.3.6, 2.3.7 |
+| `navbarPillFab` icon swap a X + responsive | 2.7.A.1, 2.7.A.3 |
+| `navbarPages` icon-only fallback | 2.7.B.1 |
+| `popupIsland` max-width + UX queue (verbos, mobile) | 2.6.1, 2.6.A.5 a 2.6.A.8 |
+| `listFilters` UX (apply→edit, range UI) | 2.6.B.4 |
+| `tabContent` UX (boxInput grande, responsivo) | 2.4.2, 2.4.3 |
+| `viewTree` jerarquía folders dentro de folders | 2.3.F.1 |
+| `explorerFiles` features (no-notes, broken links, default view, modeExplorer behaviors) | 2.3.B.1 a 2.3.B.7 |
+| Settings: orden por defecto por explorer | 2.13.3 |
+
+#### B.1.4 Programmable Interface (DEPENDE de `contracts.ts`)
+
+El sub-bloque vendible. Sólo se puede empezar después de cerrar Hardening.
+
+| Componente | Tipo | Origen triage |
+|---|---|---|
+| **`serviceAPI`** (foundation) | Expone interfaces de hardening (`INodeIndex`, `IFilterService`, `IOperationQueue`, etc.) como API público. | 2.12.1 |
+| **Bases I/O text** (consumer) | Parse/emit `.base` files vía texto, ya que API pública de Bases no existe. Usa skill `obsidian-bases` + docs oficiales como referencia. | 2.5.A.2 |
+| **Agent Guardrail Skill** (consumer) | Skill via obsidian-cli que usa `serviceFilter`/`serviceQueue`/Ops como guardrail para AI agents. Ej: "tag todos files en drafts/" → Vaultman muestra changes + scope → user confirma → ejecuta cola. | (vision statement) |
+
+### B.2 Post-rc.1 (más allá de Polish)
+
+Items diferidos a v1.0+1 o más adelante. No se trabajan en Polish.
+
+| Feature | Origen triage |
+|---|---|
+| `serviceMarks.ts` (Templates module) | ghost |
+| `tabLinter` (replacement "this file properties") | 2.5.B.3 |
+| `tabMarks` panel control + default config | 2.5.A.1, 2.5.A.3 |
+| Manual sort via marks | 2.10.2 |
+| Templates default config en settings | 2.13.4 |
+| `explorerSnippets` / `explorerTemplates` con consumer real (tras setup de Templater) | (sólo stubs en v1.0) |
+
+### B.3 Cancelled (referencia)
+
+| Item | Fecha cancel | Razón |
+|---|---|---|
+| `dropDy` desplazamiento al activar drawer | 2026-04-18 | Usuario decidió no perseguir. |
+| `btnToggle/btnDrawer` exageradamente pequeños | 2026-04-18 | Usuario decidió no perseguir. |
+
+---

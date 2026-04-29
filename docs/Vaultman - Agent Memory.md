@@ -97,23 +97,32 @@ input: AI-gen
 
 ## Last updated
 
-- **Date**: 2026-04-28
-- **Agent**: Claude Code (Opus 4.7) — Brainstorm session (Vaultman Hardening project)
+- **Date**: 2026-04-28 (tarde)
+- **Agent**: Claude Code (Opus 4.7) — Triage session (Paso 1 del HANDOFF Vaultman Hardening)
 
-## Session 2026-04-28 — Vaultman Hardening master spec
+## Session 2026-04-28 (tarde) — Triage v1.0 scope + Annex A/B
 
-**Status: Spec aprobada y committeada. Plan B pendiente.**
+**Status: Triage completo. Annex A + B integrados al spec maestra. Commit listo. Plan B pendiente.**
+
+- **Triage doc creado**: `docs/superpowers/triage/2026-04-28-v100-scope-triage.md` con clasificación por item del backlog `docs/2026-04-15-1812 Vaultman v1.0 scope.md`. Categorías usadas: `in-hardening`, `adjacent`, `out-hardening`, `already-fixed`, `cancelled`, `post-rc.1`. ~98 items mapeados.
+- **Annex A** (v1.0 scope integration por iter) y **Annex B** (v1.0 Polish con vision statement + 4 sub-bloques + post-rc.1 + cancelled) appended al final del spec maestra.
+- **Bugs urgentes confirmados** (decisión usuario): Diff memory blow-up → A.4.1; Queue counter concurrency → A.4.2. NO pre-fix iter.
+- **Verificación colateral**: `BasesCheckboxInjector.ts` ya borrado del working tree (Glob+Grep 2026-04-28). Única ocurrencia restante en `CONTRIBUTING.md` — Sub-B la limpia.
+- **HANDOFF.md actualizado**: Paso 1 marcado DONE. Lista de archivos a leer ahora apunta a Paso 2.
+- **Memory file** `project_hardening_master.md` actualizado con triage done.
+
+## Session 2026-04-28 (mañana) — Vaultman Hardening master spec
+
+**Status: Spec aprobada y committeada (`17c89a8`).**
 
 - **Brainstorm completo** del proyecto Vaultman Hardening: refactor + tests + audit + lock contra regresión.
-- **Spec maestra**: `docs/superpowers/specs/2026-04-28-vaultman-hardening-master.md` (commit `17c89a8`).
+- **Spec maestra**: `docs/superpowers/specs/2026-04-28-vaultman-hardening-master.md`.
 - **Estructura**: 3 sub-proyectos secuenciales B (Audit) → C (Tests) → A (Refactor) sobre rama `hardening` (no creada aún). Ningún merge a `main` durante el proyecto.
 - **Versionado**: cambios sin commit del working tree → `1.0.0-beta.17`. Bumps progresivos por hito hasta `1.0.0-rc.1`.
 - **BRAT**: sólo release beta.17 ahora; resto el usuario decide.
 - **Specs antiguas**: Code Refactor Part 1-8 + CSS Refactor Part 1-5 → archivar a `docs/archive/` durante Sub-A.
 - **Pre-confirmado para borrar en Sub-B**: `BasesCheckboxInjector.ts` y todas sus referencias.
 - **Nuevo concepto introducido**: abstracción `INodeIndex<T>` con factory + 8 indices concretos (Files, Tags, Props, Content, Operations, ActiveFilters reales; CSSSnippets, Templates como stubs v1.0+1).
-- **Próximo paso**: nueva sesión invoca `superpowers:writing-plans` para plan ejecutable de Sub-B (Audit). Output esperado en `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-b.md`.
-- **HANDOFF.md actualizado** con instrucciones para próxima sesión.
 
 ## Session 40 summary (2026-04-19)
 

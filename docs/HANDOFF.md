@@ -1,46 +1,38 @@
 # HANDOFF — Vaultman Next Session
 
-> Generated: 2026-04-28 | From: Claude Code (Opus 4.7) brainstorming session → To: next agent
+> Updated: 2026-04-28 (post-triage) | From: Claude Code (Opus 4.7) triage session → To: next agent
 > Branch: `file-centric-queue-handoff` | Version: `1.0.0-beta.16` (uncommitted changes still pending → bump to beta.17)
-> **Brainstorm Vaultman Hardening complete. Next task: writing-plans for Sub-B Audit.**
+> **Paso 1 (triage + Annex A/B) DONE. Próximo: Paso 2 — writing-plans para Sub-B Audit.**
 
 ---
 
 ## CONTEXTO INMEDIATO
 
-Sesión de brainstorm produjo spec maestra para proyecto **Vaultman Hardening**: refactor + tests + audit + lock contra regresión, en 3 sub-proyectos secuenciales (B → C → A) sobre rama `hardening`. Sin merges a `main` durante el proyecto.
+Sesión 2026-04-28 (mañana): brainstorm produjo spec maestra del proyecto **Vaultman Hardening**: refactor + tests + audit + lock contra regresión, en 3 sub-proyectos secuenciales (B → C → A) sobre rama `hardening`. Sin merges a `main` durante el proyecto.
 
-**Spec maestra**: [`docs/superpowers/specs/2026-04-28-vaultman-hardening-master.md`](superpowers/specs/2026-04-28-vaultman-hardening-master.md)
-**Commit**: `17c89a8`
+Sesión 2026-04-28 (tarde, ESTA): triage del v1.0 scope + Annex A (in-hardening por iter) + Annex B (v1.0 Polish + post-rc.1 + cancelled) appended al spec.
+
+**Spec maestra**: [`docs/superpowers/specs/2026-04-28-vaultman-hardening-master.md`](superpowers/specs/2026-04-28-vaultman-hardening-master.md) (con Annex A + B)
+**Triage**: [`docs/superpowers/triage/2026-04-28-v100-scope-triage.md`](superpowers/triage/2026-04-28-v100-scope-triage.md)
+**Commits**: `17c89a8` (spec), siguiente commit (triage + adendum).
 
 ---
 
 ## PRÓXIMOS PASOS (en orden)
 
-### Paso 1 — Triage del v1.0 scope + adendum a spec maestra
+### Paso 1 — Triage del v1.0 scope + adendum a spec maestra ✅ DONE 2026-04-28
 
-Después del brainstorm, el usuario pidió triagear el backlog `docs/2026-04-15-1812 Vaultman v1.0 scope.md` para asegurar que ningún bug architectural existente "se arrastre" tras el cierre de hardening.
+Resultados:
 
-**Acción a tomar:**
+- **Triage doc**: `docs/superpowers/triage/2026-04-28-v100-scope-triage.md` con clasificación por item (`in-hardening`, `adjacent`, `out-hardening`, `already-fixed`, `cancelled`, `post-rc.1`).
+- **Annex A** (v1.0 scope integration por iter) y **Annex B** (proyectos sucesores con vision statement + 4 sub-bloques) appended al spec maestra.
+- Bugs urgentes confirmados (Diff memory blow-up → A.4.1; Queue counter concurrency → A.4.2). NO pre-fix.
+- Commit: `docs(triage): integrate v1.0 scope with hardening plan`.
 
-1. Crear `docs/superpowers/triage/2026-04-28-v100-scope-triage.md` mapeando CADA item del v1.0 scope a una de:
-   - `in-hardening` + iter específico (ej: A.4.2)
-   - `adjacent` + iter específico (fix pequeño naturalmente en el mismo área)
-   - `out-hardening` (movido a proyecto sucesor v1.0 Polish con sub-bloque)
-   - `already-fixed` (verificar antes contra código actual)
-2. Añadir a spec maestra `docs/superpowers/specs/2026-04-28-vaultman-hardening-master.md`:
-   - **Annex A — v1.0 scope integration**: lista in-hardening por iter + adjacent fixes acordados
-   - **Annex B — Successor projects**: declara `v1.0 Polish` como sucesor de hardening, con **4 sub-bloques** (revisado tras conversación):
-     - **Bases Feature Parity** (interno, NO depende de serviceAPI): range filters, viewTable (excel-like grid), "all files in folder" filter, logical filter syntax (all/any/none + manual)
-     - **Theming** (NO depende de serviceAPI): minimal (sin blur overlays ni botones redondos), default fancy, posibles otras variantes
-     - **UX Features** (NO depende de serviceAPI): navKeyboard (incluye `layoutNav.svelte` para swap navbar positions/FAB visibility/tab order), serviceDnD, multi-select modifiers, auto-scroll/reveal, inline rename, explorerOutline, viewDiff snippet vs full, empty states, "coming soon" overlay
-     - **Programmable Interface** (DEPENDE de `contracts.ts` from hardening): serviceAPI (foundation: expone interfaces de hardening como API público), Bases I/O text (consumer: parse/emit `.base` files vía texto, ya que API pública de Bases no existe — usa skill `obsidian-bases` + docs oficiales como referencia), Agent Guardrail Skill (consumer: skill que vía obsidian-cli usa serviceFilter/serviceQueue/Ops como guardrail para AI agents — ej. "tag todos files en drafts/" → Vaultman muestra changes + scope → user confirma → ejecuta cola)
-   - **Vision statement (Annex B header)**: "Vaultman as supervised bulk-ops harness for AI agents" — vendible diferenciador de v1.1+. Agentes hoy hacen bulk ops sin preview; Vaultman ya tiene queue + scope display + await confirm = el UX que carecen.
-3. Commit triage + adendum como `docs(triage): integrate v1.0 scope with hardening plan`.
+Verificaciones colaterales:
 
-**Bugs urgentes del scope (decisión usuario):** Diff memory blow-up + queue counter concurrency → quedan en sus iters naturales (A.4.1 y A.4.2 respectivamente). NO se hace pre-hardening fix iter.
-
-**Tiempo estimado:** 45-60 min de la sesión.
+- `BasesCheckboxInjector.ts` ya borrado del working tree. Sólo queda referencia en `CONTRIBUTING.md` (Sub-B la limpia).
+- Items `already-fixed` corroborados contra fechas del backlog.
 
 ### Paso 2 — `/superpowers:write-plan` para Sub-B (Audit)
 
@@ -94,13 +86,14 @@ D src/types/typeUI.ts                           (reemplazo `typePrimitives.ts` i
 
 Estos cambios pertenecen a Sessions 40-41 previas (SCSS migration + branch creation). El usuario indicó que la versión actual (post-commit de estos cambios) será `1.0.0-beta.17`.
 
-### Commit reciente añadido por esta sesión
+### Commits recientes añadidos por las sesiones 2026-04-28
 
 ```
 17c89a8 docs(spec): add Vaultman Hardening master spec
+<next>  docs(triage): integrate v1.0 scope with hardening plan
 ```
 
-Sólo añade la spec. No toca código.
+Sólo añaden documentación. No tocan código.
 
 ---
 
@@ -157,17 +150,13 @@ Sólo añade la spec. No toca código.
 
 ## ARCHIVOS A LEER ANTES DE EMPEZAR
 
-**Para Paso 1 (triage + adendum):**
+**Para Paso 2 (plan B Audit):**
 
 1. **`AGENTS.md`** — sección 0 checklist + sección 11 integration APIs.
 2. **`docs/Vaultman - Agent Memory.md`** — convenciones del proyecto, lecciones aprendidas.
-3. **`docs/superpowers/specs/2026-04-28-vaultman-hardening-master.md`** — spec maestra completa.
-4. **`docs/2026-04-15-1812 Vaultman v1.0 scope.md`** — backlog del usuario a triagear.
-
-**Para Paso 2 (plan B):**
-
-5. Triage doc generado en Paso 1.
-6. **`docs/Vaultman - Linter Gotchas.md`** — soluciones recurrentes de tipado.
+3. **`docs/superpowers/specs/2026-04-28-vaultman-hardening-master.md`** — spec maestra (incluye Annex A + B).
+4. **`docs/superpowers/triage/2026-04-28-v100-scope-triage.md`** — input para identificar items v1.0 que el audit debe surfacear.
+5. **`docs/Vaultman - Linter Gotchas.md`** — soluciones recurrentes de tipado.
 
 ---
 
@@ -180,23 +169,17 @@ Sólo añade la spec. No toca código.
 - **Dead Code Protocol**: AGENTS.md y Agent Memory exigen consultar al usuario antes de borrar nada que parezca muerto. Plan B debe respetar esto en cada gate.
 - **Pre-confirmado**: `BasesCheckboxInjector.ts` + `IBasesCheckboxInjector` references → delete sin pedir confirmación adicional. Plan B puede asumirlo.
 
-### Notas específicas para el triage (Paso 1)
+### Notas específicas para Paso 2 (plan B Audit)
 
-- **Verificar antes de marcar `already-fixed`**: leer el archivo actual del codebase para confirmar.
-- **Archivos ghost — clasificación final del usuario** (NO empezar de cero, usar esta tabla):
-
-  | Archivo ghost | Clasificación | Destino |
-  |---|---|---|
-  | `layoutNav.svelte` | out-hardening | Polish UX Features (common file para navbars sup/inf con setting de "swap positions / FAB visibility / tab order" — advanced layout customization) |
-  | `navbarTabs` | already-fixed (alias) | Es el actual `navbarPages.svelte` — solo rename mental |
-  | `serviceMarks.ts` | out-hardening | post-rc.1 (módulo del servicio de templates, v1.0+1) |
-  | `serviceViews.ts` | in-hardening | A.4.1 (absorbido por Virtualizer<T> + IExplorer + view system genérico) |
-  | `serviceSorting.ts` | in-hardening | A.4.x (sort logic en services + tests) |
-
-- **Pre-categorización conocida** (parte ya hecha en brainstorm — ver tabla con ~16 items in-hardening + adjacent fixes en spec sec 5 + Annex A planeado). Reutilizar como base.
+- **Inputs del triage que Plan B debe absorber**:
+  - Items `in-hardening` mapeados a Sub-B/C/A: ver Annex A del spec.
+  - `BasesCheckboxInjector.ts` ya borrado; sólo queda limpieza de `CONTRIBUTING.md` (incluir como commit en Sub-B).
+  - Items `out-hardening` cuyo código sea ya muerto: el reporte `dead-code-report.md` debe surfacearlos para confirmar borrado.
+- **Pre-confirmado para borrar** (Sub-B asume sin confirmación adicional): referencia a `BasesCheckboxInjector` en CONTRIBUTING.md.
+- **WIP files** (decisión sugerida en spec sec 3.2; usuario confirma en Iter B.2): `serviceNavigation-WIP`, `serviceDecorate_WIP`, `popupIsland_WIP` → keep. `serviceStats-WIP`, `serviceLayout-WIP` → consultar.
 
 ---
 
 ## PUNTO DE INTERRUPCIÓN
 
-Brainstorming completo, spec aprobado, commit hecho. La sesión actual termina aquí esperando que el usuario reinicie con tokens fresh para `writing-plans`. Sub-B no ha empezado — sólo está diseñado.
+Triage completo, Annex A + B integrados al spec, commit listo. La sesión actual termina aquí esperando que el usuario reinicie con tokens frescos para `superpowers:writing-plans` (Sub-B Audit). Sub-B no ha empezado — sólo está diseñado y triageado contra el v1.0 backlog.
