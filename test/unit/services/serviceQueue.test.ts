@@ -1,0 +1,319 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { OperationQueueService, serializeFile } from '../../../src/services/serviceQueue';
+import {
+	DELETE_PROP,
+	NATIVE_RENAME_PROP,
+	RENAME_FILE,
+	MOVE_FILE,
+	FIND_REPLACE_CONTENT,
+	APPLY_TEMPLATE,
+	type PendingChange,
+	type PropertyChange,
+	type ContentChange,
+	type FileChange,
+	type TemplateChange,
+} from '../../../src/types/typeOps';
+import { mockApp, mockTFile, type CachedMetadata, type TFile } from 'obsidian';
+
+function buildPropChange(file: TFile, prop: string, value: string): PropertyChange {
+	return {
+		type: 'property',
+		files: [file],
+		action: 'set',
+		details: `${prop}=${value}`,
+		logicFunc: () => ({ [prop]: value }),
+		customLogic: false,
+		property: prop,
+		value,
+	};
+}
+
+function buildDeleteChange(file: TFile, prop: string): PendingChange {
+	return {
+		type: 'property',
+		files: [file],
+		action: 'delete',
+		details: `delete ${prop}`,
+		logicFunc: () => ({ [DELETE_PROP]: prop }),
+		customLogic: false,
+		property: prop,
+	};
+}
+
+function buildRenameChange(file: TFile, newName: string): FileChange {
+	return {
+		type: 'file_rename',
+		files: [file],
+		action: 'rename',
+		details: newName,
+		newName,
+		logicFunc: () => ({ [RENAME_FILE]: newName }),
+	};
+}
+
+function buildMoveChange(file: TFile, folder: string): FileChange {
+	return {
+		type: 'file_move',
+		files: [file],
+		action: 'move',
+		details: folder,
+		targetFolder: folder,
+		logicFunc: () => ({ [MOVE_FILE]: folder }),
+	};
+}
+
+function buildContentReplaceChange(file: TFile): ContentChange {
+	return {
+		type: 'content_replace',
+		files: [file],
+		action: 'replace',
+		details: 'foo→bar',
+		find: 'foo',
+		replace: 'bar',
+		isRegex: false,
+		caseSensitive: false,
+		logicFunc: () => ({
+			[FIND_REPLACE_CONTENT]: { pattern: 'foo', replacement: 'bar', isRegex: false, caseSensitive: false },
+		}),
+	};
+}
+
+function buildTemplateChange(file: TFile, content: string): TemplateChange {
+	return {
+		type: 'template',
+		files: [file],
+		action: 'apply_template',
+		details: 'tpl',
+		templateFileStr: 't.md',
+		templateContent: content,
+		logicFunc: () => ({ [APPLY_TEMPLATE]: content }),
+	};
+}
+
+function buildNativeRenamePropChange(file: TFile, oldName: string, newName: string): PropertyChange {
+	return {
+		type: 'property',
+		files: [file],
+		action: 'rename',
+		details: `${oldName}→${newName}`,
+		logicFunc: () => ({ [NATIVE_RENAME_PROP]: { oldName, newName } }),
+		customLogic: true,
+		property: oldName,
+	};
+}
+
+function setupAppWithFile(content = '---\nstatus: draft\n---\nbody-line\n') {
+	const file = mockTFile('a.md', { frontmatter: { status: 'draft' } });
+	const adapterFiles = new Map([[file.path, content]]);
+	const meta = new Map<string, CachedMetadata>([
+		[file.path, { frontmatter: { status: 'draft' } }],
+	]);
+	const app = mockApp({ files: [file], metadata: meta, adapterFiles });
+	const svc = new OperationQueueService(app);
+	return { app, svc, file, adapterFiles };
+}
+
+beforeEach(() => {
+	vi.useFakeTimers();
+});
+
+describe('serializeFile', () => {
+	it('returns body alone when fm is empty', () => {
+		expect(serializeFile({}, 'plain body')).toBe('plain body');
+	});
+
+	it('emits a YAML block for non-empty fm', () => {
+		const out = serializeFile({ a: 1 }, 'body');
+		expect(out.startsWith('---\n')).toBe(true);
+		expect(out).toContain('a: 1');
+		expect(out.endsWith('body')).toBe(true);
+	});
+});
+
+describe('OperationQueueService.add (property set)', () => {
+	it('collapses 2 set ops on the same file into one VFS with opCount=2', async () => {
+		const { svc, file } = setupAppWithFile();
+		await svc.add(buildPropChange(file, 'author', 'Alice'));
+		await svc.add(buildPropChange(file, 'version', '1.0'));
+		expect(svc.fileCount).toBe(1);
+		expect(svc.opCount).toBe(2);
+		const tx = svc.getTransaction(file.path);
+		expect(tx?.fm.author).toBe('Alice');
+		expect(tx?.fm.version).toBe('1.0');
+	});
+
+	it('emits "changed" once per add (not silenced)', async () => {
+		const { svc, file } = setupAppWithFile();
+		const cb = vi.fn();
+		svc.on('changed', cb);
+		await svc.add(buildPropChange(file, 'a', '1'));
+		await svc.add(buildPropChange(file, 'b', '2'));
+		expect(cb).toHaveBeenCalledTimes(2);
+	});
+});
+
+describe('OperationQueueService.addBatch', () => {
+	it('emits "changed" exactly once for the whole batch', async () => {
+		const { svc, file } = setupAppWithFile();
+		const cb = vi.fn();
+		svc.on('changed', cb);
+		await svc.addBatch([
+			buildPropChange(file, 'a', '1'),
+			buildPropChange(file, 'b', '2'),
+			buildPropChange(file, 'c', '3'),
+		]);
+		expect(cb).toHaveBeenCalledTimes(1);
+		expect(svc.opCount).toBe(3);
+	});
+
+	it('returns early without emitting on empty batch', async () => {
+		const { svc } = setupAppWithFile();
+		const cb = vi.fn();
+		svc.on('changed', cb);
+		await svc.addBatch([]);
+		expect(cb).not.toHaveBeenCalled();
+	});
+});
+
+describe('OperationQueueService op kinds', () => {
+	it('DELETE_PROP removes a key from fm', async () => {
+		const { svc, file } = setupAppWithFile();
+		await svc.add(buildDeleteChange(file, 'status'));
+		expect(svc.getTransaction(file.path)?.fm.status).toBeUndefined();
+	});
+
+	it('RENAME_FILE sets newPath replacing the basename', async () => {
+		const { svc, file } = setupAppWithFile();
+		await svc.add(buildRenameChange(file, 'renamed.md'));
+		expect(svc.getTransaction(file.path)?.newPath).toBe('renamed.md');
+	});
+
+	it('MOVE_FILE rewrites newPath under the target folder', async () => {
+		const { svc, file } = setupAppWithFile();
+		await svc.add(buildMoveChange(file, 'Archive'));
+		expect(svc.getTransaction(file.path)?.newPath).toBe('Archive/a.md');
+	});
+
+	it('FIND_REPLACE_CONTENT mutates body', async () => {
+		const { svc, file } = setupAppWithFile('---\nstatus: draft\n---\nfoo bar foo\n');
+		await svc.add(buildContentReplaceChange(file));
+		expect(svc.getTransaction(file.path)?.body).toContain('bar bar bar');
+	});
+
+	it('APPLY_TEMPLATE appends to body', async () => {
+		const { svc, file } = setupAppWithFile();
+		await svc.add(buildTemplateChange(file, '## Appended'));
+		expect(svc.getTransaction(file.path)?.body).toContain('## Appended');
+	});
+
+	it('NATIVE_RENAME_PROP expands across vault for matching files', async () => {
+		const fileA = mockTFile('a.md', { frontmatter: { status: 'draft' } });
+		const fileB = mockTFile('b.md', { frontmatter: { status: 'done' } });
+		const fileC = mockTFile('c.md', { frontmatter: { other: 'x' } });
+		const adapterFiles = new Map<string, string>([
+			[fileA.path, '---\nstatus: draft\n---\n'],
+			[fileB.path, '---\nstatus: done\n---\n'],
+			[fileC.path, '---\nother: x\n---\n'],
+		]);
+		const meta = new Map<string, CachedMetadata>([
+			[fileA.path, { frontmatter: { status: 'draft' } }],
+			[fileB.path, { frontmatter: { status: 'done' } }],
+			[fileC.path, { frontmatter: { other: 'x' } }],
+		]);
+		const app = mockApp({ files: [fileA, fileB, fileC], metadata: meta, adapterFiles });
+		const svc = new OperationQueueService(app);
+
+		await svc.add(buildNativeRenamePropChange(fileA, 'status', 'state'));
+
+		const aTx = svc.getTransaction(fileA.path);
+		const bTx = svc.getTransaction(fileB.path);
+		const cTx = svc.getTransaction(fileC.path);
+		expect(aTx?.fm.state).toBe('draft');
+		expect(aTx?.fm.status).toBeUndefined();
+		expect(bTx?.fm.state).toBe('done');
+		expect(bTx?.fm.status).toBeUndefined();
+		expect(cTx).toBeUndefined();
+	});
+});
+
+describe('OperationQueueService.removeOp', () => {
+	it('rebuilds VFS state from initial when an op is removed', async () => {
+		const { svc, file } = setupAppWithFile();
+		await svc.add(buildPropChange(file, 'x', '1'));
+		await svc.add(buildPropChange(file, 'y', '2'));
+		const tx = svc.getTransaction(file.path)!;
+		const firstOpId = tx.ops[0].id;
+		svc.removeOp(file.path, firstOpId);
+
+		const after = svc.getTransaction(file.path)!;
+		expect('x' in after.fm).toBe(false);
+		expect('y' in after.fm).toBe(true);
+		expect(svc.opCount).toBe(1);
+	});
+
+	it('drops the entire VFS when the last op is removed', async () => {
+		const { svc, file } = setupAppWithFile();
+		await svc.add(buildPropChange(file, 'only', 'v'));
+		const id = svc.getTransaction(file.path)!.ops[0].id;
+		svc.removeOp(file.path, id);
+		expect(svc.getTransaction(file.path)).toBeUndefined();
+		expect(svc.fileCount).toBe(0);
+	});
+
+	it('is a no-op when opId is unknown', async () => {
+		const { svc, file } = setupAppWithFile();
+		await svc.add(buildPropChange(file, 'x', '1'));
+		const before = svc.opCount;
+		svc.removeOp(file.path, 'op-9999');
+		expect(svc.opCount).toBe(before);
+	});
+});
+
+describe('OperationQueueService.removeFile + clear + counters', () => {
+	it('removeFile drops the file and emits changed', async () => {
+		const { svc, file } = setupAppWithFile();
+		await svc.add(buildPropChange(file, 'x', '1'));
+		const cb = vi.fn();
+		svc.on('changed', cb);
+		svc.removeFile(file.path);
+		expect(svc.fileCount).toBe(0);
+		expect(cb).toHaveBeenCalledTimes(1);
+	});
+
+	it('clear empties everything', async () => {
+		const { svc, file } = setupAppWithFile();
+		await svc.add(buildPropChange(file, 'x', '1'));
+		svc.clear();
+		expect(svc.isEmpty).toBe(true);
+		expect(svc.fileCount).toBe(0);
+		expect(svc.opCount).toBe(0);
+	});
+});
+
+describe('OperationQueueService.simulateChanges', () => {
+	it('returns a before/after snapshot for each pending file', async () => {
+		const { svc, file } = setupAppWithFile();
+		await svc.add(buildPropChange(file, 'newProp', 'v'));
+		const diff = svc.simulateChanges();
+		const entry = diff.get(file.path);
+		expect(entry?.before.status).toBe('draft');
+		expect(entry?.after.newProp).toBe('v');
+	});
+});
+
+describe('OperationQueueService.execute', () => {
+	it('writes serialized fm + body via vault.process and clears the queue', async () => {
+		const { svc, file, adapterFiles } = setupAppWithFile();
+		await svc.add(buildPropChange(file, 'reviewer', 'Bob'));
+		const promise = svc.execute();
+		await vi.runAllTimersAsync();
+		const result = await promise;
+
+		expect(result.success).toBe(1);
+		expect(result.errors).toBe(0);
+		expect(svc.isEmpty).toBe(true);
+		const written = adapterFiles.get(file.path) ?? '';
+		expect(written).toContain('reviewer: Bob');
+		expect(written).toContain('body-line');
+	});
+});
