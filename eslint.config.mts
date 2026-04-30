@@ -18,6 +18,10 @@ export default tseslint.config(
 			".obsidian",
 			".claude",
 			"scripts",
+			"test",
+			"coverage",
+			"vitest.config.ts",
+			"wdio.conf.mts",
 		],
 	},
 	{
