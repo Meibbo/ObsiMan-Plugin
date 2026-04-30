@@ -61,7 +61,6 @@
 
   let headerMode = $state<HeaderMode>("header");
   let headerExitDir = $state<"left" | "right">("right");
-  let currentViewMode = $state<"tree" | "dnd" | "grid" | "cards">("grid"); // Files default is grid
 
   function openSortPopup() {
     headerExitDir = "right";

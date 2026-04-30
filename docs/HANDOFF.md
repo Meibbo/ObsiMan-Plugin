@@ -64,20 +64,42 @@ Resultados:
 - **False positives ts-prune** (NO borrar): `ActiveFiltersIslandComponent`, `QueueIslandComponent`, `QueueDetailsModal`, `defOpsTab` — consumers en Svelte que ts-prune no escanea.
 - **PR**: `hardening-audit` → `hardening`. URL: ver `gh pr list --base hardening`.
 
-### Paso 4 — Sub-C Tests 🔴 PRÓXIMO
+### Paso 4 — Sub-C Tests ✅ DONE 2026-04-30
 
-**Pre-condición**: usuario revisar + mergear PR `hardening-audit` → `hardening`.
+Resultados:
 
-1. Revisars y mergear PR `hardening-audit` → `hardening` (o pedir review).
-2. Invocar skill `superpowers:writing-plans` con scope: **Sub-C Tests (Iter C.1-C.4)**.
-3. Output esperado: `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-c.md`.
-4. El plan debe consultar Annex A.7 del spec maestra para tests obligatorios derivados del v1.0 scope.
+- **Plan**: `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-c.md` (27 tasks).
+- **Branch**: `hardening-tests` (creada desde `hardening` post-merge de Sub-B).
+- **Versión**: `1.0.0-beta.19` taggeada y committed.
+- **Stack instalado**: `@vitest/coverage-v8` 4.1.5, `js-yaml` 4.1.1, `@types/js-yaml` 4.0.9.
+- **Outputs**:
+  - `vitest.config.ts` con dual projects (unit + integration).
+  - `test/helpers/obsidian-mocks.ts` + `test/helpers/yaml.ts`.
+  - 15 archivos test (6 utils, 3 logic, 6 services) + 1 sanity → **107 tests passing**.
+  - `.github/workflows/ci.yml` con verify gate.
+  - Scripts `test:unit`, `test:cover`, `verify`.
+  - ADR-009 (mislabeled `logicQueue.ts`/`logicFilters.ts`).
+  - `.gitignore` whitelist para `docs/superpowers/{plans,specs,triage,adr}`.
+- **Coverage**:
+  - `src/logic/` (3 files): 96.8% lines, 89.65% functions ✅.
+  - `src/services/` (no WIP): 72.28% lines, 74.79% functions ✅.
+  - `src/utils/`: 71.92% lines, 62.68% functions ⚠️ (gap vs 80% target; backfill diferido a Sub-A).
+- **Gaps identificados** (low-priority, fix en Sub-A):
+  - `serviceCMenu.ts` (5.31% lines) — workspace event handlers requieren mock más profundo.
+  - `dropDAutoSuggestionInput.ts` (37.5%) — clase interna `DropDSuggest` no expuesta.
+  - `inputModal.ts` (57.14%) — DOM-bound, ADR-003 dirige E2E.
+  - `utilPropIndex.ts` (59.67%) — debounce timers + lifecycle events sin cubrir.
+- **PR**: `hardening-tests` → `hardening`. URL: ver `gh pr list --base hardening`.
 
-Sub-C debe cubrir:
-- **Iter C.1**: Vitest config + mocks Obsidian (`test/helpers/obsidian-mocks.ts`).
-- **Iter C.2**: Tests para `src/utils/` (≥80% coverage).
-- **Iter C.3**: Tests para `src/logic/` (≥80% coverage; `logicQueue` prioridad).
-- **Iter C.4**: Tests para `src/services/` (sin WIP, ≥70%) + CI gate (`.github/workflows/ci.yml`).
+### Paso 5 — Sub-A Refactor 🔴 PRÓXIMO
+
+**Pre-condición**: usuario revisar + mergear PR `hardening-tests` → `hardening`.
+
+1. Revisar y mergear PR `hardening-tests` → `hardening` (o pedir review).
+2. Invocar skill `superpowers:writing-plans` con scope: **Sub-A Refactor (Iter A.1-A.5)**.
+3. Output esperado: `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-a.md`.
+4. El plan debe consultar Annex A.1-A.5 del spec maestra para items v1.0 scope a integrar.
+5. Plan debe incluir backfill de coverage gaps de Sub-C (cuatro archivos listados arriba).
 
 ---
 
