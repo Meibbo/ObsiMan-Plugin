@@ -97,8 +97,28 @@ input: AI-gen
 
 ## Last updated
 
-- **Date**: 2026-04-29
-- **Agent**: Claude Code (Sonnet 4.6) — Sub-B Iter B.2 execution
+- **Date**: 2026-04-30
+- **Agent**: Claude Code (Sonnet 4.6) — Sub-C Tests execution
+
+## Session 2026-04-30 — Sub-C Tests closure
+
+**Status: Sub-C Tests completo. Iter C.1 + C.2 + C.3 + C.4 cerrados. Versión bumped a `1.0.0-beta.19`.**
+
+- **Branch**: `hardening-tests` (creada desde `hardening` post-merge de Sub-B).
+- **Versión**: `1.0.0-beta.19` taggeada y committed.
+- **Iter C.1**: Vitest dual project (unit + integration) + obsidian alias + mocks. `test/helpers/yaml.ts`, `test/helpers/obsidian-mocks.ts`, scripts `test:unit`/`test:cover`/`verify`. Sanity test 4/4.
+- **Iter C.2**: 6 archivos test en `test/unit/utils/` (30 tests). Coverage `src/utils/` ~72% lines (gap vs target 80%; backfill diferido a Sub-A).
+- **Iter C.3**: 3 archivos test en `test/unit/logic/` (15 tests). Coverage `src/logic/` 96.8% lines ✅. ADR-009 documenta exclusión de `logicQueue.ts`/`logicFilters.ts` (UI mislabeled).
+- **Iter C.4**: 6 archivos test en `test/unit/services/` (58 tests). Coverage `src/services/` 72.28% lines ✅ (target 70%). CI gate `.github/workflows/ci.yml` con lint+check+build+test:cover.
+- **Total**: 107 tests passing en 16 archivos. Vitest 4.1.5, @vitest/coverage-v8 4.1.5, js-yaml 4.1.1.
+- **Coverage gaps notados** (post-rc.1 / Sub-A):
+  - `serviceCMenu.ts` 5.31% lines (handlers de eventos workspace no cubiertos).
+  - `dropDAutoSuggestionInput.ts` 37.5% lines (clase interna no testeada).
+  - `inputModal.ts` 57.14% lines (DOM-bound, ADR-003 dirige E2E).
+  - `utilPropIndex.ts` 59.67% lines (debounce + onload eventos).
+- **Gitignore fix**: añadidas exceptions `!docs/superpowers/{plans,specs,triage,adr}` para que estos docs sean tracked.
+- **PR**: `hardening-tests` → `hardening` abierto. NO mergear a `main`.
+- **Próximo**: Sub-A Refactor. Escribir plan con `superpowers:writing-plans` (Iter A.1-A.5). Ver HANDOFF Paso 5.
 
 ## Session 2026-04-29 — Sub-B Audit: Iter B.2 cleanup + closure
 

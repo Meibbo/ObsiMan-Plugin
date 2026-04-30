@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main, hardening, hardening-tests, hardening-audit, hardening-refactor]
+  pull_request:
+    branches: [main, hardening]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run check
+      - run: npm run build
+      - name: Run unit tests with coverage
+        run: npm run test:cover
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
