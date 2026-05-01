@@ -40,7 +40,6 @@ export default defineConfig({
 							'**/*_WIP*',
 							'**/*.svelte',
 							'src/services/serviceLayout-WIP.svelte.ts',
-							'src/services/serviceNavigation-WIP.svelte.ts',
 							'src/services/serviceStats-WIP.svelte.ts',
 							'src/services/serviceDecorate_WIP.ts',
 							'src/logic/logicQueue.ts',
