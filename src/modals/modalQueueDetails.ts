@@ -45,7 +45,7 @@ export class QueueDetailsModal extends Modal {
 		});
 
 		// --- File diffs ---
-		const diffContainer = contentEl.createEl('div', { cls: 'vm-diff-container' });
+		const diffContainer = contentEl.createDiv({ cls: 'vm-diff-container' });
 		this.renderDiffs(diffContainer, diffs);
 
 		// --- Apply / Cancel buttons ---

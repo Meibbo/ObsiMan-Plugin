@@ -418,7 +418,7 @@ export class OperationQueueService extends Component {
 			}
 
 			if ((i + 1) % CHUNK === 0) {
-				await new Promise<void>(r => setTimeout(r, 0));
+				await new Promise<void>(r => activeWindow.setTimeout(r, 0));
 			}
 		}
 

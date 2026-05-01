@@ -197,7 +197,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
     handleContextMenu(node: TreeNode<PropMeta>, e: MouseEvent): void {
         const nodeType: 'prop' | 'value' = node.meta.isValueNode ? 'value' : 'prop';
         this.plugin.contextMenuService.openPanelMenu(
-            { nodeType, node: node as TreeNode<unknown>, surface: 'panel' },
+            { nodeType, node: node, surface: 'panel' },
             e,
         );
     }

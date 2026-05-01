@@ -97,7 +97,9 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
                 customLogic: true,
                 logicFunc: (_file, fm: Record<string, unknown>) => {
                     const raw = fm.tags;
-                    const tags = Array.isArray(raw) ? (raw as string[]) : (raw ? [String(raw as string)] : []);
+                    const coerce = (v: unknown): string =>
+                        typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v);
+                    const tags = Array.isArray(raw) ? (raw as string[]) : (raw ? [coerce(raw)] : []);
                     if (tags.includes(meta.tagPath)) return null;
                     fm.tags = [...tags, meta.tagPath];
                     return fm;
@@ -118,7 +120,7 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 
     handleContextMenu(node: TreeNode<TagMeta>, e: MouseEvent): void {
         this.plugin.contextMenuService.openPanelMenu(
-            { nodeType: 'tag', node: node as TreeNode<unknown>, surface: 'panel' },
+            { nodeType: 'tag', node: node, surface: 'panel' },
             e,
         );
     }

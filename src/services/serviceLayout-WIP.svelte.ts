@@ -9,7 +9,7 @@ export class ReorderController {
   reorderTargetIdx = $state<number | null>(null);
 
   #reorderSourceIdx = -1;
-  #longPressTimer: ReturnType<typeof setTimeout> | null = null;
+  #longPressTimer: number | null = null;
   #onCommit: (from: number, to: number) => void;
   #delay: number;
   #pendingPointerId = -1;
@@ -21,7 +21,7 @@ export class ReorderController {
 
   handlePointerDown(idx: number, e: PointerEvent, el: HTMLElement) {
     this.#pendingPointerId = e.pointerId;
-    this.#longPressTimer = setTimeout(() => {
+    this.#longPressTimer = activeWindow.setTimeout(() => {
       this.isReordering = true;
       this.#reorderSourceIdx = idx;
       // Capture pointer so we can track movement even outside the element
@@ -33,7 +33,7 @@ export class ReorderController {
     if (!this.isReordering || this.#reorderSourceIdx < 0) return;
 
     // Find which item the pointer is over
-    const elUnder = document.elementFromPoint(e.clientX, e.clientY);
+    const elUnder = activeDocument.elementFromPoint(e.clientX, e.clientY);
     const itemEl = elUnder?.closest?.(".nav-action-button, .vm-nav-icon") as HTMLElement | null;
 
     if (itemEl && containerEl.contains(itemEl)) {
@@ -63,7 +63,7 @@ export class ReorderController {
 
   cancel() {
     if (this.#longPressTimer) {
-      clearTimeout(this.#longPressTimer);
+      activeWindow.clearTimeout(this.#longPressTimer);
       this.#longPressTimer = null;
     }
     this.#pendingPointerId = -1;
