@@ -31,6 +31,7 @@
   import type { PendingChange } from "../types/typeOps";
   import { translate } from "../i18n/index";
   import type { PopupType, FabDef } from "../types/typePrimitives";
+  import { openPluginSettings } from "../types/obsidian-extended";
 
   // ─── Props ─────────────------------------...........
 
@@ -88,8 +89,7 @@
         label: translate("nav.statistics") ?? "Settings",
         action: () => {
           // Stub settings open hook
-          (plugin.app as any).setting?.open?.();
-          (plugin.app as any).setting?.openTabById?.("vaultman");
+          openPluginSettings(plugin.app, "vaultman");
         },
       },
     },
