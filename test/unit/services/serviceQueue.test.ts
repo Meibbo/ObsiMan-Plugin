@@ -133,8 +133,8 @@ describe('serializeFile', () => {
 describe('OperationQueueService.add (property set)', () => {
 	it('collapses 2 set ops on the same file into one VFS with opCount=2', async () => {
 		const { svc, file } = setupAppWithFile();
-		await svc.add(buildPropChange(file, 'author', 'Alice'));
-		await svc.add(buildPropChange(file, 'version', '1.0'));
+		await svc.addAsync(buildPropChange(file, 'author', 'Alice'));
+		await svc.addAsync(buildPropChange(file, 'version', '1.0'));
 		expect(svc.fileCount).toBe(1);
 		expect(svc.opCount).toBe(2);
 		const tx = svc.getTransaction(file.path);
@@ -146,8 +146,8 @@ describe('OperationQueueService.add (property set)', () => {
 		const { svc, file } = setupAppWithFile();
 		const cb = vi.fn();
 		svc.on('changed', cb);
-		await svc.add(buildPropChange(file, 'a', '1'));
-		await svc.add(buildPropChange(file, 'b', '2'));
+		await svc.addAsync(buildPropChange(file, 'a', '1'));
+		await svc.addAsync(buildPropChange(file, 'b', '2'));
 		expect(cb).toHaveBeenCalledTimes(2);
 	});
 });
@@ -178,31 +178,31 @@ describe('OperationQueueService.addBatch', () => {
 describe('OperationQueueService op kinds', () => {
 	it('DELETE_PROP removes a key from fm', async () => {
 		const { svc, file } = setupAppWithFile();
-		await svc.add(buildDeleteChange(file, 'status'));
+		await svc.addAsync(buildDeleteChange(file, 'status'));
 		expect(svc.getTransaction(file.path)?.fm.status).toBeUndefined();
 	});
 
 	it('RENAME_FILE sets newPath replacing the basename', async () => {
 		const { svc, file } = setupAppWithFile();
-		await svc.add(buildRenameChange(file, 'renamed.md'));
+		await svc.addAsync(buildRenameChange(file, 'renamed.md'));
 		expect(svc.getTransaction(file.path)?.newPath).toBe('renamed.md');
 	});
 
 	it('MOVE_FILE rewrites newPath under the target folder', async () => {
 		const { svc, file } = setupAppWithFile();
-		await svc.add(buildMoveChange(file, 'Archive'));
+		await svc.addAsync(buildMoveChange(file, 'Archive'));
 		expect(svc.getTransaction(file.path)?.newPath).toBe('Archive/a.md');
 	});
 
 	it('FIND_REPLACE_CONTENT mutates body', async () => {
 		const { svc, file } = setupAppWithFile('---\nstatus: draft\n---\nfoo bar foo\n');
-		await svc.add(buildContentReplaceChange(file));
+		await svc.addAsync(buildContentReplaceChange(file));
 		expect(svc.getTransaction(file.path)?.body).toContain('bar bar bar');
 	});
 
 	it('APPLY_TEMPLATE appends to body', async () => {
 		const { svc, file } = setupAppWithFile();
-		await svc.add(buildTemplateChange(file, '## Appended'));
+		await svc.addAsync(buildTemplateChange(file, '## Appended'));
 		expect(svc.getTransaction(file.path)?.body).toContain('## Appended');
 	});
 
@@ -223,7 +223,7 @@ describe('OperationQueueService op kinds', () => {
 		const app = mockApp({ files: [fileA, fileB, fileC], metadata: meta, adapterFiles });
 		const svc = new OperationQueueService(app);
 
-		await svc.add(buildNativeRenamePropChange(fileA, 'status', 'state'));
+		await svc.addAsync(buildNativeRenamePropChange(fileA, 'status', 'state'));
 
 		const aTx = svc.getTransaction(fileA.path);
 		const bTx = svc.getTransaction(fileB.path);
@@ -239,8 +239,8 @@ describe('OperationQueueService op kinds', () => {
 describe('OperationQueueService.removeOp', () => {
 	it('rebuilds VFS state from initial when an op is removed', async () => {
 		const { svc, file } = setupAppWithFile();
-		await svc.add(buildPropChange(file, 'x', '1'));
-		await svc.add(buildPropChange(file, 'y', '2'));
+		await svc.addAsync(buildPropChange(file, 'x', '1'));
+		await svc.addAsync(buildPropChange(file, 'y', '2'));
 		const tx = svc.getTransaction(file.path)!;
 		const firstOpId = tx.ops[0].id;
 		svc.removeOp(file.path, firstOpId);
@@ -253,7 +253,7 @@ describe('OperationQueueService.removeOp', () => {
 
 	it('drops the entire VFS when the last op is removed', async () => {
 		const { svc, file } = setupAppWithFile();
-		await svc.add(buildPropChange(file, 'only', 'v'));
+		await svc.addAsync(buildPropChange(file, 'only', 'v'));
 		const id = svc.getTransaction(file.path)!.ops[0].id;
 		svc.removeOp(file.path, id);
 		expect(svc.getTransaction(file.path)).toBeUndefined();
@@ -262,7 +262,7 @@ describe('OperationQueueService.removeOp', () => {
 
 	it('is a no-op when opId is unknown', async () => {
 		const { svc, file } = setupAppWithFile();
-		await svc.add(buildPropChange(file, 'x', '1'));
+		await svc.addAsync(buildPropChange(file, 'x', '1'));
 		const before = svc.opCount;
 		svc.removeOp(file.path, 'op-9999');
 		expect(svc.opCount).toBe(before);
@@ -272,7 +272,7 @@ describe('OperationQueueService.removeOp', () => {
 describe('OperationQueueService.removeFile + clear + counters', () => {
 	it('removeFile drops the file and emits changed', async () => {
 		const { svc, file } = setupAppWithFile();
-		await svc.add(buildPropChange(file, 'x', '1'));
+		await svc.addAsync(buildPropChange(file, 'x', '1'));
 		const cb = vi.fn();
 		svc.on('changed', cb);
 		svc.removeFile(file.path);
@@ -282,7 +282,7 @@ describe('OperationQueueService.removeFile + clear + counters', () => {
 
 	it('clear empties everything', async () => {
 		const { svc, file } = setupAppWithFile();
-		await svc.add(buildPropChange(file, 'x', '1'));
+		await svc.addAsync(buildPropChange(file, 'x', '1'));
 		svc.clear();
 		expect(svc.isEmpty).toBe(true);
 		expect(svc.fileCount).toBe(0);
@@ -293,7 +293,7 @@ describe('OperationQueueService.removeFile + clear + counters', () => {
 describe('OperationQueueService.simulateChanges', () => {
 	it('returns a before/after snapshot for each pending file', async () => {
 		const { svc, file } = setupAppWithFile();
-		await svc.add(buildPropChange(file, 'newProp', 'v'));
+		await svc.addAsync(buildPropChange(file, 'newProp', 'v'));
 		const diff = svc.simulateChanges();
 		const entry = diff.get(file.path);
 		expect(entry?.before.status).toBe('draft');
@@ -304,7 +304,7 @@ describe('OperationQueueService.simulateChanges', () => {
 describe('OperationQueueService.execute', () => {
 	it('writes serialized fm + body via vault.process and clears the queue', async () => {
 		const { svc, file, adapterFiles } = setupAppWithFile();
-		await svc.add(buildPropChange(file, 'reviewer', 'Bob'));
+		await svc.addAsync(buildPropChange(file, 'reviewer', 'Bob'));
 		const promise = svc.execute();
 		await vi.runAllTimersAsync();
 		const result = await promise;

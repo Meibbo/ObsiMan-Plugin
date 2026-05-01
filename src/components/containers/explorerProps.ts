@@ -218,7 +218,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
     private async _renameProp(propName: string): Promise<void> {
         const newName = await showInputModal(this.plugin.app, `Rename "${propName}" to:`);
         if (!newName) return;
-        await this.plugin.queueService.add({
+        this.plugin.queueService.add({
             type: 'property',
             property: propName,
             action: 'rename',
@@ -234,8 +234,8 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
         });
     }
 
-    private async _deleteProp(propName: string): Promise<void> {
-        await this.plugin.queueService.add({
+    private _deleteProp(propName: string): void {
+        this.plugin.queueService.add({
             type: 'property',
             property: propName,
             action: 'delete',
@@ -250,8 +250,8 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
         });
     }
 
-    private async _changePropType(propName: string, newType: string): Promise<void> {
-        await this.plugin.queueService.add({
+    private _changePropType(propName: string, newType: string): void {
+        this.plugin.queueService.add({
             type: 'property', property: propName, action: 'change_type',
             details: `Change type of "${propName}" to ${newType}`,
             files: this.plugin.app.vault.getMarkdownFiles().filter(f => propName in (this.plugin.app.metadataCache.getFileCache(f)?.frontmatter ?? {})),
@@ -263,7 +263,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
     private async _renameValue(propName: string, oldValue: string): Promise<void> {
         const newVal = await showInputModal(this.plugin.app, `Rename value "${oldValue}" to:`);
         if (!newVal) return;
-        await this.plugin.queueService.add({
+        this.plugin.queueService.add({
             type: 'property', property: propName, action: 'set',
             details: `Rename value "${oldValue}" → "${newVal}"`,
             files: this.plugin.app.vault.getMarkdownFiles().filter(f => {
@@ -280,8 +280,8 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
         });
     }
 
-    private async _deleteValue(propName: string, oldValue: string): Promise<void> {
-        await this.plugin.queueService.add({
+    private _deleteValue(propName: string, oldValue: string): void {
+        this.plugin.queueService.add({
             type: 'property', property: propName, action: 'delete',
             details: `Delete value "${oldValue}" from "${propName}"`,
             files: this.plugin.app.vault.getMarkdownFiles().filter(f => {

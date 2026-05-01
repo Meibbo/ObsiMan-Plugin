@@ -165,8 +165,15 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		vfs.bodyLoaded = true;
 	}
 
-	/** Add a single pending change. Async because VFS may need disk read. */
-	async add(change: PendingChange): Promise<void> {
+	/** Add a single pending change. Fires async ingestion in background. */
+	add(change: PendingChange): void {
+		this.ingest(change, /*silent*/ false).catch((err) => {
+			console.error('Failed to add change:', err);
+		});
+	}
+
+	/** Internal: add with explicit await (for tests). */
+	async addAsync(change: PendingChange): Promise<void> {
 		await this.ingest(change, /*silent*/ false);
 	}
 

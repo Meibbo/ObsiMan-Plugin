@@ -28,6 +28,13 @@ export default tseslint.config(
 		languageOptions: {
 			globals: {
 				...globals.browser,
+				$state: 'readonly',
+				$derived: 'readonly',
+				$effect: 'readonly',
+				$inspect: 'readonly',
+				$props: 'readonly',
+				$bindable: 'readonly',
+				$host: 'readonly',
 			},
 			parserOptions: {
 				projectService: {
