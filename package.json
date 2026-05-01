@@ -1,7 +1,7 @@
 {
 	"name": "vaultman",
 	"version": "1.0.0-beta.19",
-	"description": "Bulk property & file editor for vault management in Obsidian",
+	"description": "Bulk data & metadata editor for vault management in Obsidian",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {
@@ -26,7 +26,7 @@
 	"author": "Meibbo",
 	"license": "MIT",
 	"devDependencies": {
-		"@eslint/js": "9.30.1",
+		"@eslint/js": "^9.39.4",
 		"@types/js-yaml": "^4.0.9",
 		"@types/node": "^22.0.0",
 		"@vitest/coverage-v8": "^4.1.5",
@@ -39,7 +39,8 @@
 		"esbuild": "^0.28.0",
 		"esbuild-sass-plugin": "^3.7.0",
 		"esbuild-svelte": "^0.9.4",
-		"eslint-plugin-obsidianmd": "0.1.9",
+		"eslint": "^9.39.4",
+		"eslint-plugin-obsidianmd": "^0.2.9",
 		"eslint-plugin-unused-imports": "^4.4.1",
 		"globals": "14.0.0",
 		"jiti": "2.6.1",
@@ -47,7 +48,7 @@
 		"knip": "^6.8.0",
 		"mocha": "^10.8.2",
 		"obsidian": "latest",
-		"obsidian-integration-testing": "^1.1.2",
+		"obsidian-integration-testing": "^2.3.5",
 		"obsidian-launcher": "^3.0.2",
 		"sass": "^1.81.0",
 		"svelte": "^5.55.1",
@@ -56,7 +57,7 @@
 		"ts-prune": "^0.10.3",
 		"type-fest": "^4.41.0",
 		"typescript": "~5.8.0",
-		"typescript-eslint": "8.35.1",
+		"typescript-eslint": "^8.59.1",
 		"vitest": "^4.1.0",
 		"wdio-obsidian-reporter": "^3.0.2",
 		"wdio-obsidian-service": "^3.0.2"
