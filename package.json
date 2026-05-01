@@ -1,6 +1,6 @@
 {
 	"name": "vaultman",
-	"version": "1.0.0-beta.20",
+	"version": "1.0.0-beta.21",
 	"description": "Bulk data & metadata editor for vault management in Obsidian",
 	"main": "main.js",
 	"type": "module",

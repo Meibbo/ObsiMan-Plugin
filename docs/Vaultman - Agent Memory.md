@@ -303,3 +303,15 @@ Key accomplishments:
 - explorerProps: removed `await` on `add()` calls (now fire-and-forget).
 - Spike validated: abstraction ergonomic for all 3 base indices.
 - Next: Sub-A.2.2 — Content/Operations/ActiveFilters real + CSSSnippets/Templates stubs.
+
+### 2026-05-01 — Sub-A.2.2 closed (Remaining indices)
+- `serviceContentIndex` + 9 tests ✓ (was already present from handoff).
+- `serviceOperationsIndex` + 5 tests ✓ (read-only view over `IOperationQueue.pending`).
+- `serviceActiveFiltersIndex` + 6 tests ✓ (flattens `FilterGroup` tree into `ActiveFilterEntry[]`).
+- `serviceCSSSnippetsIndex` stub ✓ (returns empty nodes, v1.0+1 consumer).
+- `serviceTemplatesIndex` stub ✓ (returns empty nodes, v1.0+1 consumer).
+- All 8 indices wired in `main.ts` with initial `refresh()` on load.
+- `BaseChange.id?: string` added to `typeOps.ts` (needed by `QueueChange.id` in contracts).
+- Total: 140 tests passing (24 test files). Build ✅ lint ✅.
+- Version: 1.0.0-beta.21.
+- Next: Sub-A.3 — Primitives (BtnSquircle, Badge, Toggle, Dropdown, TextInput, HighlightText).
