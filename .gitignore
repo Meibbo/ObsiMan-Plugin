@@ -10,6 +10,10 @@ docs/superpowers/audits/*
 !docs/superpowers/specs
 !docs/superpowers/triage
 !docs/superpowers/adr
+!docs/archive
+!docs/archive/superpowers
+!docs/archive/superpowers/specs
+!docs/archive/superpowers/specs/*.md
 node_modules/
 coverage/
 img/
