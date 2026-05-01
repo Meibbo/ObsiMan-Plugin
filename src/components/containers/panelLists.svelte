@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { TFile } from "obsidian";
   import type { VaultmanPlugin } from "../../main";
   import type {
     ExplorerProvider,
@@ -38,8 +39,8 @@
 
   $effect(() => {
     // React directly to prop changes
-    const mode = searchMode === 1 ? "leaf" : "all";
-    provider.setSearchTerm?.(searchTerm, mode as any);
+    const mode: "leaf" | "all" = searchMode === 1 ? "leaf" : "all";
+    provider.setSearchTerm?.(searchTerm, mode);
     provider.setSortBy?.(sortBy, sortDirection);
     provider.setViewMode?.(viewMode);
     provider.setAddMode?.(addMode);
@@ -107,29 +108,29 @@
         totalCount={plugin.propertyIndex.fileCount}
         bind:selectedFiles
         onSelectionChange={() => {}}
-        onFileClick={(file: any) => {
-          const node = {
+        onFileClick={(file: TFile) => {
+          const node: TreeNode<{ file: TFile }> = {
             id: file.path,
             label: file.basename,
             meta: { file },
             icon: "",
             depth: 0,
           };
-          provider.handleNodeClick(node as any);
+          provider.handleNodeClick(node);
         }}
-        onContextMenu={(file: any, e: MouseEvent) => {
-          const node = {
+        onContextMenu={(file: TFile, e: MouseEvent) => {
+          const node: TreeNode<{ file: TFile }> = {
             id: file.path,
             label: file.basename,
             meta: { file },
             icon: "",
             depth: 0,
           };
-          provider.handleContextMenu(node as any, e);
+          provider.handleContextMenu(node, e);
         }}
-        sortColumn={sortBy as any}
+        sortColumn={sortBy as "name" | "props" | "path" | "date"}
         {sortDirection}
-        onSortChange={(col: any, dir: any) => {
+        onSortChange={(col: "name" | "props" | "path" | "date", dir: "asc" | "desc") => {
           sortBy = col;
           sortDirection = dir;
         }}

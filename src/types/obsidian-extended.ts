@@ -25,7 +25,9 @@ export interface ExtendedApp extends App {
 }
 
 export function extApp(app: App): ExtendedApp {
-  return app as ExtendedApp;
+  // App is structurally compatible with ExtendedApp (which only adds optional fields),
+  // but we need an explicit cast to expose the internal API surface.
+  return app;
 }
 
 /** Open the Obsidian Settings modal at a specific tab. */

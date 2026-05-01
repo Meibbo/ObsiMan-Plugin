@@ -579,7 +579,7 @@
             description: describeFilterNode(child),
             node: child,
             parent: group,
-            enabled: !(child as any).disabled,
+            enabled: child.enabled !== false,
           });
         } else if (child.type === "group") {
           walk(child);
@@ -594,9 +594,9 @@
     node: import("../types/typeFilter").FilterNode,
   ): string {
     if (node.type !== "rule") return "Group";
-    const prop = (node as any).property ?? "";
-    const vals = (node as any).values ?? [];
-    switch ((node as any).filterType) {
+    const prop = node.property ?? "";
+    const vals = node.values ?? [];
+    switch (node.filterType) {
       case "has_property":
         return `has: ${prop}`;
       case "specific_value":
@@ -613,7 +613,9 @@
   }
 
   function toggleFilterRule(rule: ActiveFilterRule): void {
-    (rule.node as any).disabled = !(rule.node as any).disabled;
+    if (rule.node.type === "rule") {
+      rule.node.enabled = rule.node.enabled === false ? true : false;
+    }
     plugin.filterService.applyFilters();
     refreshActiveFiltersPopup();
   }
