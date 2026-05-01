@@ -31,6 +31,10 @@ import { PropertyTypeService } from './utils/utilPropType';
 import { ContextMenuService } from './services/serviceCMenu';
 import { VaultmanSettingsTab } from './settingsVM';
 import { translate } from './i18n/index';
+import { createFilesIndex } from './services/serviceFilesIndex';
+import { createTagsIndex } from './services/serviceTagsIndex';
+import { createPropsIndex } from './services/servicePropsIndex';
+import type { IFilesIndex, ITagsIndex, IPropsIndex } from './types/contracts';
 
 export class VaultmanPlugin extends Plugin {
 	settings!: VaultmanSettings;
@@ -43,12 +47,30 @@ export class VaultmanPlugin extends Plugin {
 	propertyTypeService!: PropertyTypeService;
 	contextMenuService!: ContextMenuService;
 
+	// New index interfaces (Sub-A hardening)
+	filesIndex!: IFilesIndex;
+	tagsIndex!: ITagsIndex;
+	propsIndex!: IPropsIndex;
+
 	// Native status bar element
 	private statusBarEl!: HTMLElement;
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
 		this.updateGlassBlur();
+
+		this.filesIndex = createFilesIndex(this.app);
+		this.tagsIndex = createTagsIndex(this.app);
+		this.propsIndex = createPropsIndex(this.app);
+		await Promise.all([this.filesIndex.refresh(), this.tagsIndex.refresh(), this.propsIndex.refresh()]);
+
+		this.registerEvent(this.app.metadataCache.on('changed', () => {
+			void this.propsIndex.refresh();
+			void this.tagsIndex.refresh();
+		}));
+		this.registerEvent(this.app.vault.on('create', () => void this.filesIndex.refresh()));
+		this.registerEvent(this.app.vault.on('delete', () => void this.filesIndex.refresh()));
+		this.registerEvent(this.app.vault.on('rename', () => void this.filesIndex.refresh()));
 
 		this.propertyIndex = new PropertyIndexService(this.app);
 		this.filterService = new FilterService(this.app);
