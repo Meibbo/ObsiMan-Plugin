@@ -17,8 +17,8 @@ function flatten(group: FilterGroup): FilterRule[] {
 export function createActiveFiltersIndex(filter: IFilterService): IActiveFiltersIndex {
 	const base = createNodeIndex<ActiveFilterEntry>({
 		build: () =>
-			flatten(filter.activeFilter).map((rule) => ({
-				id: rule.id ?? Math.random().toString(36).slice(2, 11),
+			flatten(filter.activeFilter).map((rule, i) => ({
+				id: rule.id ?? `rule-${i}`,
 				rule,
 			})),
 	});

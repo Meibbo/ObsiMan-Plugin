@@ -105,6 +105,17 @@ describe('serviceContentIndex', () => {
     expect(idx.nodes[0].after.length).toBeLessThanOrEqual(30);
   });
 
+  it('finds multiple matches on same line', async () => {
+    const f = mockTFile('a.md');
+    const app = mockApp({ files: [f], adapterFiles: new Map([['a.md', 'foo bar foo']]) });
+    const idx = createContentIndex(app);
+    idx.setQuery('foo');
+    await idx.refresh();
+    expect(idx.nodes.length).toBe(2);
+    expect(idx.nodes[0].id).toBe('a.md:0:0');
+    expect(idx.nodes[1].id).toBe('a.md:0:8');
+  });
+
   it('notifies subscribers on refresh', async () => {
     const f = mockTFile('a.md');
     const app = mockApp({ files: [f], adapterFiles: new Map([['a.md', 'foobar']]) });

@@ -13,16 +13,21 @@ export function createContentIndex(app: App): IContentIndex {
         const lines = content.split('\n');
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
-          const idx = line.indexOf(query);
-          if (idx === -1) continue;
-          out.push({
-            id: `${file.path}:${i}:${idx}`,
-            filePath: file.path,
-            line: i,
-            before: line.slice(Math.max(0, idx - 30), idx),
-            match: query,
-            after: line.slice(idx + query.length, Math.min(line.length, idx + query.length + 30)),
-          });
+          let start = 0;
+          while (true) {
+            const idx = line.indexOf(query, start);
+            if (idx === -1) break;
+            out.push({
+              id: `${file.path}:${i}:${idx}`,
+              filePath: file.path,
+              line: i,
+              before: line.slice(Math.max(0, idx - 30), idx),
+              match: query,
+              after: line.slice(idx + query.length, idx + query.length + 30),
+            });
+            start = idx + query.length;
+            if (start >= line.length) break;
+          }
         }
       }
       return out;
