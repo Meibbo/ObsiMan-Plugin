@@ -283,3 +283,12 @@ Key accomplishments:
 ## Context budget notes
 
 - **Agent Rule**: If context < 20%, update this file and switch agents BEFORE starting a new iteration.
+
+### 2026-04-30 — Sub-A.1 closed (Tipos)
+- `src/types/contracts.ts` populated (16 interfaces).
+- `src/types/obsidian-extended.ts` replaces `(app as any)`.
+- ADRs 001-008 written.
+- Lint blocks `(app as any)` repo-wide.
+- Old Part 1-8 specs archived.
+- Version: 1.0.0-beta.20.
+- Next: Sub-A.2.1 — factory + Files/Tags/Props indices.
