@@ -17,9 +17,9 @@
     size?: 'sm' | 'md' | 'lg';
   } = $props();
 
-  function attachIcon(node: HTMLElement): { update(name: string): void } {
-    setIcon(node, icon);
-    return { update(name: string) { setIcon(node, name); } };
+  function attachIcon(node: HTMLElement, name: string): { update(name: string): void } {
+    setIcon(node, name);
+    return { update(n: string) { setIcon(node, n); } };
   }
 
   let classes = $derived(
