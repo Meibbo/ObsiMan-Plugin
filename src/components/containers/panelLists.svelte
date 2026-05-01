@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="ts" generics="TMeta = unknown">
   import type { TFile } from "obsidian";
   import type { VaultmanPlugin } from "../../main";
   import type {
@@ -22,7 +22,7 @@
     icon,
   }: {
     plugin: VaultmanPlugin;
-    provider: ExplorerProvider<any>;
+    provider: ExplorerProvider<TMeta>;
     viewMode?: ExplorerViewMode;
     searchTerm?: string;
     searchMode?: number;
@@ -30,11 +30,12 @@
     sortDirection?: "asc" | "desc";
     addMode?: boolean;
     selectedFiles?: Set<string>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-unused-vars
     icon: (node: HTMLElement, name: string) => any;
   } = $props();
 
-  let nodes = $state<TreeNode<any>[]>([]);
-  let flatFiles = $state<any[]>([]);
+  let nodes = $state<TreeNode<TMeta>[]>([]);
+  let flatFiles = $state<TFile[]>([]);
   let expandedIds = $state(new Set<string>());
 
   $effect(() => {
@@ -66,9 +67,9 @@
   }
 
   function findNodeById(
-    nodes: TreeNode<any>[],
+    nodes: TreeNode<TMeta>[],
     id: string,
-  ): TreeNode<any> | undefined {
+  ): TreeNode<TMeta> | undefined {
     for (const n of nodes) {
       if (n.id === id) return n;
       if (n.children) {
@@ -109,23 +110,23 @@
         bind:selectedFiles
         onSelectionChange={() => {}}
         onFileClick={(file: TFile) => {
-          const node: TreeNode<{ file: TFile }> = {
+          const node = {
             id: file.path,
             label: file.basename,
-            meta: { file },
+            meta: { file } as TMeta,
             icon: "",
             depth: 0,
-          };
+          } as TreeNode<TMeta>;
           provider.handleNodeClick(node);
         }}
         onContextMenu={(file: TFile, e: MouseEvent) => {
-          const node: TreeNode<{ file: TFile }> = {
+          const node = {
             id: file.path,
             label: file.basename,
-            meta: { file },
+            meta: { file } as TMeta,
             icon: "",
             depth: 0,
-          };
+          } as TreeNode<TMeta>;
           provider.handleContextMenu(node, e);
         }}
         sortColumn={sortBy as "name" | "props" | "path" | "date"}
