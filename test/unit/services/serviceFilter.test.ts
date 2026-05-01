@@ -1,7 +1,22 @@
 import { describe, it, expect } from 'vitest';
-import { FilterService } from '../../../src/services/serviceFilter';
+import { FilterService } from '../../../src/services/serviceFilter.svelte';
 import type { FilterRule, FilterTemplate } from '../../../src/types/typeFilter';
+import type { IFilesIndex } from '../../../src/types/contracts';
 import { mockApp, mockTFile, type CachedMetadata } from 'obsidian';
+
+function makeIdx(files: ReturnType<typeof mockTFile>[]): IFilesIndex {
+	return {
+		get nodes() {
+			return files.map((f) => ({ id: f.path, path: f.path, basename: f.basename, file: f }));
+		},
+		refresh: async () => {},
+		subscribe: () => () => {},
+		byId: (id) => {
+			const f = files.find((x) => x.path === id);
+			return f ? { id: f.path, path: f.path, basename: f.basename, file: f } : undefined;
+		},
+	};
+}
 
 function setup() {
 	const a = mockTFile('Notes/a.md', { frontmatter: { status: 'draft', tags: ['idea'] } });
@@ -13,8 +28,7 @@ function setup() {
 		[c.path, { frontmatter: {} }],
 	]);
 	const app = mockApp({ files: [a, b, c], metadata: meta });
-	const svc = new FilterService(app);
-	svc.onload();
+	const svc = new FilterService(app, makeIdx([a, b, c]));
 	return { app, svc, a, b, c };
 }
 

@@ -1,65 +1,87 @@
-import { Component, Events, type App, type TFile } from 'obsidian';
+import type { App, TFile } from 'obsidian';
 import type { FilterGroup, FilterNode, FilterTemplate } from '../types/typeFilter';
+import type { IFilterService, IFilesIndex } from '../types/contracts';
 import { evalNode } from '../utils/filter-evaluator';
 
 /**
  * Manages the active filter tree and computes the filtered file set.
- *
- * Emits 'changed' when filtered results update.
+ * Uses Svelte 5 runes for reactive state; implements IFilterService.
+ * Also retains the full legacy API for backward compatibility.
  */
-export class FilterService extends Component {
+export class FilterService implements IFilterService {
+	activeFilter = $state<FilterGroup>({ type: 'group', logic: 'all', children: [], id: 'root', enabled: true });
+	selectedFiles = $state<TFile[]>([]);
+	filteredFiles = $derived.by(() => this.computeFiltered());
+
 	private app: App;
-	private events = new Events();
-
-	/** The root of the active filter tree */
-	activeFilter: FilterGroup = { type: 'group', logic: 'all', children: [], id: 'root', enabled: true };
-
-	/** Files passing the active filter */
-	filteredFiles: TFile[] = [];
-	/** Files currently selected by the user in the file list (updated by FileListComponent) */
-	selectedFiles: TFile[] = [];
+	private filesIndex: IFilesIndex;
+	private subs = new Set<() => void>();
+	private indexUnsub: () => void;
 
 	/** File name search applied alongside the filter tree */
 	private _searchName = '';
 	/** Folder path search applied alongside the filter tree */
 	private _searchFolder = '';
 
-	constructor(app: App) {
-		super();
+	constructor(app: App, filesIndex: IFilesIndex) {
 		this.app = app;
+		this.filesIndex = filesIndex;
+		this.indexUnsub = this.filesIndex.subscribe(() => this.fire());
 	}
 
-	onload(): void {
-		this.applyFilters();
+	private fire(): void {
+		for (const cb of this.subs) cb();
 	}
 
-	on(name: 'changed', callback: () => void): void {
-		this.events.on(name, callback);
-	}
+	private computeFiltered(): TFile[] {
+		const allFiles = this.filesIndex.nodes.map((n) => n.file);
+		const getMeta = (file: TFile) => this.app.metadataCache.getFileCache(file);
 
-	off(name: 'changed', callback: () => void): void {
-		this.events.off(name, callback);
+		let base: TFile[];
+		if (this.activeFilter.children.length === 0) {
+			base = [...allFiles];
+		} else {
+			const matchingPaths = evalNode(this.activeFilter, allFiles, getMeta);
+			base = allFiles.filter((f) => matchingPaths.has(f.path));
+		}
+
+		// Apply search filters (AND with filter tree result)
+		if (this._searchName) {
+			const term = this._searchName.toLowerCase();
+			base = base.filter((f) => f.basename.toLowerCase().includes(term));
+		}
+		if (this._searchFolder) {
+			const term = this._searchFolder.toLowerCase();
+			base = base.filter((f) =>
+				(f.parent?.path ?? '').toLowerCase().includes(term)
+			);
+		}
+
+		return base.sort((a, b) =>
+			a.basename.localeCompare(b.basename, undefined, { sensitivity: 'base' })
+		);
 	}
 
 	/** Set a new filter tree and recompute */
 	setFilter(filter: FilterGroup): void {
 		this.activeFilter = filter;
-		this.applyFilters();
+		this.fire();
 	}
 
 	/** Clear all filters (show all files) */
 	clearFilters(): void {
 		this.activeFilter = { type: 'group', logic: 'all', children: [], id: 'root', enabled: true };
-		this.applyFilters();
+		this.fire();
 	}
 
-	/** Add a child node to the root group */
+	/** Add a child node to the root group (or a given parent) */
 	addNode(node: FilterNode, parent?: FilterGroup): void {
 		const target = parent ?? this.activeFilter;
 		node.id = node.id ?? Math.random().toString(36).substring(2, 11);
 		node.enabled = node.enabled ?? true;
 		target.children.push(node);
-		this.applyFilters();
+		this.activeFilter = { ...this.activeFilter };
+		this.fire();
 	}
 
 	/** Remove a node from its parent */
@@ -68,7 +90,8 @@ export class FilterService extends Component {
 		const idx = target.children.indexOf(node);
 		if (idx !== -1) {
 			target.children.splice(idx, 1);
-			this.applyFilters();
+			this.activeFilter = { ...this.activeFilter };
+			this.fire();
 		}
 	}
 
@@ -98,7 +121,8 @@ export class FilterService extends Component {
 		};
 
 		if (walkAndRemove(this.activeFilter)) {
-			this.applyFilters();
+			this.activeFilter = { ...this.activeFilter };
+			this.fire();
 		}
 	}
 
@@ -121,7 +145,8 @@ export class FilterService extends Component {
 		};
 
 		if (walkAndRemove(this.activeFilter)) {
-			this.applyFilters();
+			this.activeFilter = { ...this.activeFilter };
+			this.fire();
 		}
 	}
 
@@ -129,7 +154,7 @@ export class FilterService extends Component {
 	setSearchFilter(name: string, folder: string): void {
 		this._searchName = name;
 		this._searchFolder = folder;
-		this.applyFilters();
+		this.fire();
 	}
 
 	/** Load a saved filter template */
@@ -142,7 +167,7 @@ export class FilterService extends Component {
 			if (node.type === 'group') node.children.forEach(ensureMeta);
 		};
 		ensureMeta(this.activeFilter);
-		this.applyFilters();
+		this.fire();
 	}
 
 	/** Returns a flat list of rules (with descriptions) for the Island view */
@@ -170,7 +195,7 @@ export class FilterService extends Component {
 	}
 
 	toggleFilterRule(id: string): void {
-		const walk = (node: FilterNode) => {
+		const walk = (node: FilterNode): boolean => {
 			if (node.id === id) {
 				node.enabled = !node.enabled;
 				return true;
@@ -182,7 +207,10 @@ export class FilterService extends Component {
 			}
 			return false;
 		};
-		if (walk(this.activeFilter)) this.applyFilters();
+		if (walk(this.activeFilter)) {
+			this.activeFilter = { ...this.activeFilter };
+			this.fire();
+		}
 	}
 
 	deleteFilterRule(id: string): void {
@@ -197,7 +225,10 @@ export class FilterService extends Component {
 			}
 			return false;
 		};
-		if (walk(this.activeFilter)) this.applyFilters();
+		if (walk(this.activeFilter)) {
+			this.activeFilter = { ...this.activeFilter };
+			this.fire();
+		}
 	}
 
 	/** Returns true if the tag is already in the active filter tree */
@@ -242,36 +273,19 @@ export class FilterService extends Component {
 		return walk(this.activeFilter);
 	}
 
-	/** Recompute filtered files from the active filter tree + search fields */
-	applyFilters(): void {
-		const allFiles = this.app.vault.getMarkdownFiles();
+	setSelectedFiles(files: TFile[]): void {
+		this.selectedFiles = files;
+		this.fire();
+	}
 
-		let base: TFile[];
-		if (this.activeFilter.children.length === 0) {
-			base = [...allFiles];
-		} else {
-			const getMeta = (file: TFile) =>
-				this.app.metadataCache.getFileCache(file);
-			const matchingPaths = evalNode(this.activeFilter, allFiles, getMeta);
-			base = allFiles.filter((f) => matchingPaths.has(f.path));
-		}
+	subscribe(cb: () => void): () => void {
+		this.subs.add(cb);
+		return () => this.subs.delete(cb);
+	}
 
-		// Apply search filters (AND with filter tree result)
-		if (this._searchName) {
-			const term = this._searchName.toLowerCase();
-			base = base.filter((f) => f.basename.toLowerCase().includes(term));
-		}
-		if (this._searchFolder) {
-			const term = this._searchFolder.toLowerCase();
-			base = base.filter((f) =>
-				(f.parent?.path ?? '').toLowerCase().includes(term)
-			);
-		}
-
-		this.filteredFiles = base.sort((a, b) =>
-			a.basename.localeCompare(b.basename, undefined, { sensitivity: 'base' })
-		);
-
-		this.events.trigger('changed');
+	/** Cleanup: unsubscribe from filesIndex and clear all subscribers */
+	destroy(): void {
+		this.indexUnsub();
+		this.subs.clear();
 	}
 }

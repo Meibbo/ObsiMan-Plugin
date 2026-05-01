@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import { fileURLToPath } from 'node:url';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 const obsidianMockPath = fileURLToPath(
 	new URL('./test/helpers/obsidian-mocks.ts', import.meta.url),
@@ -22,6 +23,7 @@ export default defineConfig({
 			},
 			{
 				extends: true,
+				plugins: [svelte()],
 				test: {
 					name: 'unit',
 					environment: 'node',

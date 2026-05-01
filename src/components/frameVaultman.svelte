@@ -613,10 +613,9 @@
   }
 
   function toggleFilterRule(rule: ActiveFilterRule): void {
-    if (rule.node.type === "rule") {
-      rule.node.enabled = rule.node.enabled === false ? true : false;
+    if (rule.node.id) {
+      plugin.filterService.toggleFilterRule(rule.node.id);
     }
-    plugin.filterService.applyFilters();
     refreshActiveFiltersPopup();
   }
 
@@ -719,7 +718,7 @@
       queueIsland?.render();
     };
 
-    plugin.filterService.on("changed", onFilterChanged);
+    const unsubFilter = plugin.filterService.subscribe(onFilterChanged);
     plugin.queueService.on("changed", onQueueChanged);
 
     refreshFiles();
@@ -729,7 +728,7 @@
     plugin.app.metadataCache.on("resolved", onVaultResolved);
 
     return () => {
-      plugin.filterService.off("changed", onFilterChanged);
+      unsubFilter();
       plugin.queueService.off("changed", onQueueChanged);
       plugin.app.metadataCache.off("resolved", onVaultResolved);
     };

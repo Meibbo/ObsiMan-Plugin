@@ -23,7 +23,7 @@ import { Plugin, WorkspaceLeaf } from 'obsidian';
 import type { VaultmanSettings } from './types/typeSettings';
 import { DEFAULT_SETTINGS } from './types/typeSettings';
 import { PropertyIndexService } from './utils/utilPropIndex';
-import { FilterService } from './services/serviceFilter';
+import { FilterService } from './services/serviceFilter.svelte';
 import { OperationQueueService } from './services/serviceQueue';
 import { VaultmanFrame, TYPE_FRAME_VM } from './types/typeFrame';
 import { IconicService } from './services/serviceIcons';
@@ -73,14 +73,13 @@ export class VaultmanPlugin extends Plugin {
 		this.registerEvent(this.app.vault.on('rename', () => void this.filesIndex.refresh()));
 
 		this.propertyIndex = new PropertyIndexService(this.app);
-		this.filterService = new FilterService(this.app);
+		this.filterService = new FilterService(this.app, this.filesIndex);
 		this.queueService = new OperationQueueService(this.app);
 		this.iconicService = new IconicService(this.app);
 		this.propertyTypeService = new PropertyTypeService(this.app);
 		this.contextMenuService = new ContextMenuService(this);
 
 		this.addChild(this.propertyIndex);
-		this.addChild(this.filterService);
 		this.addChild(this.queueService);
 		this.addChild(this.iconicService);
 		this.addChild(this.propertyTypeService);
@@ -88,7 +87,7 @@ export class VaultmanPlugin extends Plugin {
 
 		this.registerEvent(
 			this.app.metadataCache.on('resolved', () => {
-				this.filterService.applyFilters();
+				void this.filesIndex.refresh();
 			})
 		);
 
@@ -122,6 +121,10 @@ export class VaultmanPlugin extends Plugin {
 		});
 
 		this.addSettingTab(new VaultmanSettingsTab(this.app, this));
+	}
+
+	onunload(): void {
+		this.filterService.destroy();
 	}
 
 	async loadSettings(): Promise<void> {
