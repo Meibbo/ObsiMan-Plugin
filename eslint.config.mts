@@ -1,7 +1,5 @@
 import tseslint from 'typescript-eslint';
 import obsidianmd from "eslint-plugin-obsidianmd";
-import sveltePlugin from "eslint-plugin-svelte";
-import svelteParser from "svelte-eslint-parser";
 import globals from "globals";
 import { globalIgnores } from "eslint/config";
 
@@ -44,27 +42,8 @@ export default tseslint.config(
 		},
 	},
 	...(obsidianmd as any).configs.recommended,
-	// Block A: Svelte files — parse with svelte-eslint-parser
-	{
-		files: ['src/**/*.svelte'],
-		languageOptions: {
-			parser: svelteParser,
-			parserOptions: {
-				parser: tseslint.parser,
-				ecmaVersion: 'latest',
-				sourceType: 'module',
-				extraFileExtensions: ['.svelte'],
-			},
-		},
-		plugins: {
-			svelte: sveltePlugin,
-			'@typescript-eslint': tseslint.plugin,
-		},
-		rules: {
-			'@typescript-eslint/no-explicit-any': 'error',
-		},
-	},
-	// Block B: TypeScript files — type-aware rules
+	// T5: block (app as any) + explicit-any + type-unsafe rules — ts only
+	// (.svelte files excluded: no Svelte parser configured, obsidianmd handles svelte via its own pipeline)
 	{
 		files: ['src/**/*.ts'],
 		plugins: {
