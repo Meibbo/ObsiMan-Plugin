@@ -1,209 +1,175 @@
 # HANDOFF — Vaultman Next Session
 
-> Updated: 2026-04-29 | From: Claude Code (Sonnet 4.6) Sub-B Iter B.2 closure → To: next agent
-> Branch: `hardening-audit` | Version: `1.0.0-beta.18` (taggeado, committed)
-> **Sub-B DONE. PR hardening-audit → hardening abierto. Próximo: Sub-C Tests (escribir plan primero).**
+> Updated: 2026-04-30 | From: Claude Code (Opus 4.7) Sub-A T0 pre-flight → To: next agent
+> Branch: `hardening-refactor` | Version: `1.0.0-beta.19` (no bump yet — A.1 will tag beta.20)
+> **Sub-A pre-flight HALTED at T0.4. Verify gate broken (pre-existing upstream bug). Sub-A NOT started.**
 
 ---
 
 ## CONTEXTO INMEDIATO
 
-Sesión 2026-04-28 (mañana): brainstorm produjo spec maestra del proyecto **Vaultman Hardening**: refactor + tests + audit + lock contra regresión, en 3 sub-proyectos secuenciales (B → C → A) sobre rama `hardening`. Sin merges a `main` durante el proyecto.
+Sesión 2026-04-30: usuario invocó `/caveman:caveman proceed with the plan sub.a with subagent-driven option` para ejecutar Sub-A vía superpowers:subagent-driven-development.
 
-Sesión 2026-04-28 (tarde, ESTA): triage del v1.0 scope + Annex A (in-hardening por iter) + Annex B (v1.0 Polish + post-rc.1 + cancelled) appended al spec.
+Logré T0.1–T0.3 (sync `hardening`, crear `hardening-refactor`, mover plan refinements de `hardening-tests`). T0.4 (`npm run verify` baseline) reveló bug upstream que rompe el gate.
 
-**Spec maestra**: [`docs/superpowers/specs/2026-04-28-vaultman-hardening-master.md`](superpowers/specs/2026-04-28-vaultman-hardening-master.md) (con Annex A + B)
-**Triage**: [`docs/superpowers/triage/2026-04-28-v100-scope-triage.md`](superpowers/triage/2026-04-28-v100-scope-triage.md)
-**Commits**: `17c89a8` (spec), siguiente commit (triage + adendum).
+Spawned subagent para reparar deps + upgrade ESLint stack — agente hit org usage limit (~21 min, 79 tool uses) sin reportar resultado. Agent ID: `a18d5586aef4683eb`.
 
----
-
-## PRÓXIMOS PASOS (en orden)
-
-### Paso 1 — Triage del v1.0 scope + adendum a spec maestra ✅ DONE 2026-04-28
-
-Resultados:
-
-- **Triage doc**: `docs/superpowers/triage/2026-04-28-v100-scope-triage.md` con clasificación por item (`in-hardening`, `adjacent`, `out-hardening`, `already-fixed`, `cancelled`, `post-rc.1`).
-- **Annex A** (v1.0 scope integration por iter) y **Annex B** (proyectos sucesores con vision statement + 4 sub-bloques) appended al spec maestra.
-- Bugs urgentes confirmados (Diff memory blow-up → A.4.1; Queue counter concurrency → A.4.2). NO pre-fix.
-- Commit: `docs(triage): integrate v1.0 scope with hardening plan`.
-
-Verificaciones colaterales:
-
-- `BasesCheckboxInjector.ts` ya borrado del working tree. Sólo queda referencia en `CONTRIBUTING.md` (Sub-B la limpia).
-- Items `already-fixed` corroborados contra fechas del backlog.
-
-### Paso 2 — Plan Sub-B + ejecución Iter B.1 ✅ DONE 2026-04-29
-
-Resultados:
-
-- **Plan**: `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-b.md` (36 tasks).
-- **Branch**: `hardening` (integration) + `hardening-audit` (sub-rama activa). Flat naming — no slash (incompatible con git refs).
-- **Versión**: `1.0.0-beta.17` taggeada y committed (`1db4afc`).
-- **Iter B.1 completo**: Tasks 1-22 ejecutadas.
-- **Outputs**:
-  - `docs/superpowers/audits/2026-04-28-indexing-inventory.md` (8 tipos de nodo).
-  - `docs/superpowers/audits/2026-04-28-dead-code-report.md` (11 secciones, ~47 items pendientes de decisión).
-  - `docs/superpowers/audits/raw/` (ts-prune.txt, knip.txt, knip.json, depcheck.txt, depcheck.json, svelte-check.txt).
-- **CHECKPOINT 1**: usuario marcando items en `dead-code-report.md`.
-- **Commit log** (HEAD→`hardening-audit`): ver `git log --oneline hardening..HEAD`.
-
-### Paso 3 — Iter B.2: limpieza confirmada ✅ DONE 2026-04-29
-
-Resultados:
-
-- **Commits aplicados** (rama `hardening-audit`):
-  - `553cbe3` ESLint fix: disable `depend/ban-dependencies` for `package.json` (depcheck devDep ban)
-  - `d2410ab` Remove `BasesCheckboxInjector` ref from `CONTRIBUTING.md`
-  - `5ccb059` Remove unused exports: `setLanguage`, `getLanguage`, `resolveLanguage` (i18n/index.ts)
-  - `57c9f94` Remove orphan files (4): `componentStatusBar.ts`, `panelContent.svelte`, `modalAddFilter.ts`, `modalLinter.ts`
-  - `a1a8db7` Clean transitive dead code: `_setViewMode`, `_openMovePopup`, `showPopup` (frameVaultman.svelte)
-  - `05931f5` Bump to `1.0.0-beta.18` + tag
-- **Verify gate final**: build ✅ lint ✅ check ✅ (1 deferred — `currentViewMode` item 5.1)
-- **False positives ts-prune** (NO borrar): `ActiveFiltersIslandComponent`, `QueueIslandComponent`, `QueueDetailsModal`, `defOpsTab` — consumers en Svelte que ts-prune no escanea.
-- **PR**: `hardening-audit` → `hardening`. URL: ver `gh pr list --base hardening`.
-
-### Paso 4 — Sub-C Tests ✅ DONE 2026-04-30
-
-Resultados:
-
-- **Plan**: `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-c.md` (27 tasks).
-- **Branch**: `hardening-tests` (creada desde `hardening` post-merge de Sub-B).
-- **Versión**: `1.0.0-beta.19` taggeada y committed.
-- **Stack instalado**: `@vitest/coverage-v8` 4.1.5, `js-yaml` 4.1.1, `@types/js-yaml` 4.0.9.
-- **Outputs**:
-  - `vitest.config.ts` con dual projects (unit + integration).
-  - `test/helpers/obsidian-mocks.ts` + `test/helpers/yaml.ts`.
-  - 15 archivos test (6 utils, 3 logic, 6 services) + 1 sanity → **107 tests passing**.
-  - `.github/workflows/ci.yml` con verify gate.
-  - Scripts `test:unit`, `test:cover`, `verify`.
-  - ADR-009 (mislabeled `logicQueue.ts`/`logicFilters.ts`).
-  - `.gitignore` whitelist para `docs/superpowers/{plans,specs,triage,adr}`.
-- **Coverage**:
-  - `src/logic/` (3 files): 96.8% lines, 89.65% functions ✅.
-  - `src/services/` (no WIP): 72.28% lines, 74.79% functions ✅.
-  - `src/utils/`: 71.92% lines, 62.68% functions ⚠️ (gap vs 80% target; backfill diferido a Sub-A).
-- **Gaps identificados** (low-priority, fix en Sub-A):
-  - `serviceCMenu.ts` (5.31% lines) — workspace event handlers requieren mock más profundo.
-  - `dropDAutoSuggestionInput.ts` (37.5%) — clase interna `DropDSuggest` no expuesta.
-  - `inputModal.ts` (57.14%) — DOM-bound, ADR-003 dirige E2E.
-  - `utilPropIndex.ts` (59.67%) — debounce timers + lifecycle events sin cubrir.
-- **PR**: `hardening-tests` → `hardening`. URL: ver `gh pr list --base hardening`.
-
-### Paso 5 — Sub-A Refactor 🔴 PRÓXIMO
-
-**Pre-condición**: usuario revisar + mergear PR `hardening-tests` → `hardening`.
-
-1. Revisar y mergear PR `hardening-tests` → `hardening` (o pedir review).
-2. Invocar skill `superpowers:writing-plans` con scope: **Sub-A Refactor (Iter A.1-A.5)**.
-3. Output esperado: `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-a.md`.
-4. El plan debe consultar Annex A.1-A.5 del spec maestra para items v1.0 scope a integrar.
-5. Plan debe incluir backfill de coverage gaps de Sub-C (cuatro archivos listados arriba).
+Usuario pidió dejar el trabajo de reparación para el siguiente agente.
 
 ---
 
 ## ESTADO ACTUAL DEL REPO
 
-### Branch `hardening-audit` (HEAD)
+### Branch `hardening-refactor` (HEAD)
 
-**Working tree limpio** post-Iter B.2. Commits HEAD:
+Commit nuevo: `7b80d10 docs(plan): import Sub-A refactor plan with refinements`
 
+Working tree status: limpio. **El subagent abandonado SÍ dejó modificaciones (16 archivos, incluyendo `package.json`, `package-lock.json`, `vitest.config.ts`, `src/main.ts`, varios `src/services/`, `src/modals/`, `src/components/containers/`, `src/utils/utilPropIndex.ts`, `src/settingsVM.ts`, `.gitignore`).** Las stashié para preservarlas:
+
+```bash
+git stash list
+# stash@{0}: On hardening-refactor: subagent a18d5586aef4683eb abandoned mid-repair...
+git stash show -p stash@{0}   # inspeccionar
+git stash apply stash@{0}     # aplicar si parecen razonables
+git stash drop stash@{0}      # descartar si están rotas
 ```
-05931f5 chore(release): bump to 1.0.0-beta.18 (Sub-B Audit close)
-a1a8db7 chore(audit): clean transitive dead code
-57c9f94 chore(audit): remove orphan files
-5ccb059 chore(audit): remove unused exports
-d2410ab chore(audit): remove BasesCheckboxInjector references from CONTRIBUTING.md
-```
 
-Working tree limpio. Tag `1.0.0-beta.18` presente. PR abierto contra `hardening`.
+**El siguiente agente decide**:
+- Si parecen un upgrade coherente y `npm run verify` queda verde tras `git stash apply` → commitear
+- Si están a medio hacer / rotas → `git stash drop` y empezar reparación desde cero
+- Si modificaron `node_modules`: `npm ci` para sync limpio antes de cualquier otra cosa
+
+**Nota**: el alcance de la modificación a `src/` (no sólo deps) sugiere que el subagent intentó ajustar callsites para nuevas APIs — riesgo alto de cambios incoherentes. Inspeccionar con cuidado.
+
+### Branch `hardening-tests`
+
+Pushed commit `a6188dc feat(docs): upload temporaly the agent working prd's for backup` a origin. PR #3 (`hardening-tests` → `hardening`) ya estaba MERGED antes de esta sesión.
+
+### Branch `hardening`
+
+Sin cambios desde la sesión actual.
 
 ---
 
-## RESUMEN DEL DISEÑO APROBADO
+## BLOCKER PRINCIPAL — VERIFY GATE ROTO
 
-### Estrategia
-- **Secuencia B → C → A** (no ramificable).
-- **Branch `hardening`** desde `file-centric-queue-handoff`. Sub-ramas `hardening/audit`, `hardening/tests`, `hardening/refactor`. **Ninguna mergea a `main`**.
-- **Versionado progresivo**: beta.17 (start) → beta.18 (B) → beta.19 (C) → beta.20-23 (A.x) → rc.1 (cierre).
-- **BRAT release sólo para beta.17** ahora; el resto el usuario decide.
+`npm run verify` ejecuta `lint && check && build && test:integrity && test:unit`.
 
-### Sub-B (Audit) — 2 iteraciones
-- **Iter B.1**: Recolección con `ts-prune`/`knip`/`depcheck` + reconnaissance de indexing actual (8 tipos de nodos: files, tags, props, content, css-snippets, operations, templates, active-filters).
-- **Iter B.2**: Confirmación humana + limpieza en commits separados.
-- **Pre-confirmado para borrar**: `BasesCheckboxInjector.ts` y referencias.
-- **WIP files**: cada uno requiere confirmación antes de borrar (Dead Code Protocol).
+**Falla en `test:integrity`** por bug en `obsidian-integration-testing@1.3.2`:
 
-### Sub-C (Tests) — 4 iteraciones
-- **Iter C.1**: Vitest config + mocks Obsidian (`test/helpers/obsidian-mocks.ts`).
-- **Iter C.2**: Tests para `src/utils/` (≥80% coverage).
-- **Iter C.3**: Tests para `src/logic/` (≥80% coverage; `logicQueue` prioridad).
-- **Iter C.4**: Tests para `src/services/` (sin WIP, ≥70%) + CI gate (`.github/workflows/ci.yml`).
-- **Stack ya disponible**: vitest 4.1.0, svelte-check 4.1.0, obsidian-integration-testing.
+```
+Cannot find module '...node_modules/obsidian-integration-testing/dist/lib/esm/vitest.ts'
+imported from '...node_modules/obsidian-integration-testing/dist/lib/esm/index.mjs'
+```
 
-### Sub-A (Refactor) — 7 iteraciones (5 lógicas)
-- **Iter A.1**: Tipos. `src/types/contracts.ts` con interfaces `INodeIndex<T>`, `IExplorer<T>`, `IFilterService`, `IOperationQueue`, `ISessionFile`, `IDecorationManager`, `IRouter`, `IOverlayState`. + `src/types/obsidian-extended.ts` reemplaza `(app as any)`. + ADRs 001-008 escritos.
-- **Iter A.2.1**: Factory `createNodeIndex<T>` + 3 indices base (Files, Tags, Props). Spike de validación.
-- **Iter A.2.2**: Indices restantes (Content, Operations, ActiveFilters reales; CSSSnippets, Templates como stubs válidos).
-- **Iter A.3**: Primitivos Svelte 5 (`BtnSquircle`, `Badge`, `Toggle`, `Dropdown`, `TextInput`, `HighlightText`).
-- **Iter A.4.1**: `Virtualizer<T>` genérico, `viewTree` adelgazado con snippets, nuevos `logicExplorer` + `serviceExplorer`. `viewGrid` migrado para validar abstracción.
-- **Iter A.4.2**: Frame reescrito, `navbarPages` agnóstico, `tabContent` migrado, `OverlayState` reemplaza `layoutPopup`. **`explorerQueue` y `explorerActiveFilters` como explorers reales** (heredan tree/grid/cards/masonry, decoración, search, sort).
-- **Iter A.5**: Settings declarativo (Spec 8 antigua aplicada).
+`index.mjs` línea 1: `import "./vitest.ts";` — referencia source TS que NO se incluyó en el bundle. Sólo existen `vitest.mjs` y `vitest.d.mts` en `dist/lib/esm/`.
 
-### Lock contra regresión (4 capas)
-1. Interfaces TS estrictas en `contracts.ts`.
-2. Lint reforzado (no `as any`, no `(app as any)`).
-3. ADRs 001-008 cortos y verificables.
-4. CI gate GitHub Actions (build+lint+check+test:integrity) + branch protection en `main` y `hardening`.
+**Vitest 4.1.5 reporta `Test Files 2 failed (2)` pero exit code 0** — el gate también es deshonesto (no propaga falla).
+
+### Versiones disponibles (verificadas 2026-04-30)
+
+| Paquete | Instalado | Latest | Notas |
+|---|---|---|---|
+| `obsidian-integration-testing` | 1.3.2 (`^1.1.2`) | **2.3.5** | Major bump probable fix del bundle roto |
+| `eslint` (direct) | NO INSTALADO | **10.2.1** | Usuario quiere agregarlo al latest |
+| `@eslint/js` | 9.30.1 | latest | Bumpear junto con eslint 10 |
+| `eslint-plugin-obsidianmd` | 0.1.9 | **0.2.9** | Usuario referenció https://github.com/obsidianmd/eslint-plugin |
+| `typescript-eslint` | 8.35.1 | latest | Peer-dep con eslint 10 |
+
+### Direccion del usuario
+
+> "let's better try to repair with this repo on mind. https://github.com/obsidianmd/eslint-plugin and the latest version of eslint."
+
+Reparación implica:
+1. Bump `obsidian-integration-testing` 1.3.2 → 2.3.5 (arregla bundle roto). Verificar si API cambió para los 2 archivos de `test/integration/`.
+2. Agregar `eslint` 10.x como direct dep + bump `@eslint/js`, `typescript-eslint`, `eslint-plugin-obsidianmd@0.2.9` consistentemente.
+3. Sync `eslint.config.mts` con la nueva config de `obsidianmd/eslint-plugin` (consultar README upstream).
+4. Asegurar que `npm run verify` tenga exit code real (vitest silencioso es deshonesto — si no se arregla con upgrade, agregar guard shell).
 
 ---
 
-## OPEN QUESTIONS YA RESUELTAS POR EL USUARIO
+## DECISIONES DEL USUARIO YA RESUELTAS
 
 | # | Pregunta | Resolución |
 |---|---|---|
-| OQ-1 | Versionado | beta.17 ahora (cambios pendientes); bump progresivo por hito |
-| OQ-2 | BRAT release | Sólo beta.17 ahora; resto decide usuario por hito |
-| OQ-3 | Specs CSS Part 1-5 | Terminadas, archivar en `docs/archive/` durante Sub-A |
-| OQ-4 | Svelte 5 runes en services | Seguro, proceder |
-| OQ-5 | Permisos GitHub | Usuario tiene admin en `Meibbo/Vaultman-Plugin` |
-| OQ-6 | Templates/Snippets | Placeholders v1.0+1; indices como stubs por modularidad futura |
+| D-1 | Plan refinements en working tree de `hardening-tests` | Mover a `hardening-refactor` (HECHO en commit `7b80d10`) |
+| D-2 | Push de `a6188dc` a `hardening-tests`/origin | HECHO |
+| D-3 | T1 WIP files `serviceStats-WIP.svelte.ts` + `serviceLayout-WIP.svelte.ts` | **Renombrar a non-WIP stubs** (option b) — pendiente para T1 |
+| D-4 | Repair verify gate strategy | Upgrade `obsidian-integration-testing` + ESLint stack al latest, ref `obsidianmd/eslint-plugin` |
 
 ---
 
-## ARCHIVOS A LEER ANTES DE EMPEZAR
+## PRÓXIMOS PASOS (en orden estricto)
 
-**Para Paso 2 (plan B Audit):**
+### Paso 0 — Limpiar estado del subagent abandonado
 
-1. **`AGENTS.md`** — sección 0 checklist + sección 11 integration APIs.
-2. **`docs/Vaultman - Agent Memory.md`** — convenciones del proyecto, lecciones aprendidas.
-3. **`docs/superpowers/specs/2026-04-28-vaultman-hardening-master.md`** — spec maestra (incluye Annex A + B).
-4. **`docs/superpowers/triage/2026-04-28-v100-scope-triage.md`** — input para identificar items v1.0 que el audit debe surfacear.
-5. **`docs/Vaultman - Linter Gotchas.md`** — soluciones recurrentes de tipado.
+```bash
+git status
+git diff --stat
+```
+
+- Si hay cambios sin commit del subagent abandonado: evaluar y commitear o descartar (ver "ESTADO ACTUAL DEL REPO" arriba).
+- Si tocó `package-lock.json` y/o `node_modules`: `npm ci` para sync limpio.
+
+### Paso 1 — Reparar verify gate (BLOQUEA TODO LO DEMÁS)
+
+1. Lee `eslint.config.mts`, `vitest.config.ts`, `test/integration/plugin.test.ts`, `test/integration/fileCentricQueue.test.ts`.
+2. `npm install --save-dev obsidian-integration-testing@latest` (probable 2.3.5).
+3. Inspecciona el nuevo `node_modules/obsidian-integration-testing/dist/lib/esm/index.mjs` y exports — si la API cambió, ajustar imports en los 2 test files.
+4. `npm install --save-dev eslint@latest @eslint/js@latest typescript-eslint@latest eslint-plugin-obsidianmd@latest` (single install para resolver peers).
+5. Sync `eslint.config.mts` con la config oficial de `obsidianmd/eslint-plugin` (https://github.com/obsidianmd/eslint-plugin README).
+6. `npm run verify ; echo "EXIT=$?"` — debe ser EXIT=0 honesto.
+7. Si vitest 4.x sigue silencioso en falla: agregar guard shell en `test:integrity` script (grep "FAIL" → exit 1) o pin a vitest 3.x.
+8. Commit en `hardening-refactor`:
+    - `chore(deps): upgrade obsidian-integration-testing 1.3.2 → 2.3.5 (fix broken esm bundle)`
+    - `chore(deps): upgrade eslint stack to latest (eslint 10.x, eslint-plugin-obsidianmd 0.2.9)`
+9. `git push`.
+
+### Paso 2 — Reanudar Sub-A subagent-driven execution
+
+Plan: `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-a.md` (3596 líneas, 46 tasks).
+
+Skill: `superpowers:subagent-driven-development` (un implementer subagent + dos review subagents — spec compliance, luego code quality — por task).
+
+Pendiente desde T1:
+
+- **T1**: Verify baseline `(app as any)` count + WIP file inventory. **Decisión D-3 ya tomada: renombrar `serviceStats-WIP.svelte.ts` y `serviceLayout-WIP.svelte.ts` a non-WIP stubs** (no borrar). Plan dice "rename to non-WIP stubs if any iter needs them" — el siguiente agente decide los nombres finales (sugerencia: `serviceStats.svelte.ts` stub, `serviceLayout.svelte.ts` stub con TODO interno).
+- **T2-T8**: Iter A.1 (tipos + lint + ADRs + cierre).
+- **T9-T17**: Iter A.2.1 (factory + Files/Tags/Props indices + service rewrites).
+- **T18-T21**: Iter A.2.2 (Content/Operations/ActiveFilters indices + stubs).
+- **T22-T27**: Iter A.3 (Svelte 5 primitives).
+- **T28-T34**: Iter A.4.1 (Explorer + Virtualizer + Decoration + Sorting).
+- **T35-T40**: Iter A.4.2 (Frame + Navbars + Popups + Tabs + ExplorerQueue).
+- **T41-T43**: Iter A.5 (Settings declarativo).
+- **T44-T45**: Closure (backfill + HANDOFF + PR).
+
+Versionado por iter close: beta.20 (A.1), beta.21 (A.2), beta.22 (A.3), beta.23 (A.4.1+A.4.2), rc.1 (A.5).
 
 ---
 
 ## NOTAS PARA EL AGENTE QUE TOME LOS SIGUIENTES PASOS
 
-- **Caveman mode**: si está activo en la nueva sesión, mantenerlo. El spec/triage/adendum se escriben en formato normal.
-- **Idioma de los docs**: español (consistente con specs antiguas y conversación del usuario).
-- **No iniciar ejecución de Sub-B** hasta que el plan B esté escrito y aprobado por el usuario.
-- **Branch**: NO crear `hardening` aún. Plan B debe incluir el step de creación al inicio (no antes).
-- **Dead Code Protocol**: AGENTS.md y Agent Memory exigen consultar al usuario antes de borrar nada que parezca muerto. Plan B debe respetar esto en cada gate.
-- **Pre-confirmado**: `BasesCheckboxInjector.ts` + `IBasesCheckboxInjector` references → delete sin pedir confirmación adicional. Plan B puede asumirlo.
+- **Caveman mode** estaba activo en mi sesión. Si está activo en la nueva, mantener para output del usuario; código/commits/PRs en formato normal.
+- **Idioma docs**: español.
+- **Context budget**: el plan es enorme (3596 líneas, 46 tasks). El skill `subagent-driven-development` recomienda extraer todas las tasks upfront, pero con este plan eso quemaría el context window del controller. Estrategia recomendada: leer cada task en su rango exacto (tengo el mapa de líneas en mi todo list) justo antes de despachar el implementer subagent.
+- **Mapa task → líneas en plan**: ya está en mi todo list final commit, pero un agent fresh puede regenerarlo con `Grep "^### Task \d+:" -n docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-a.md`.
+- **Branch protection**: NO mergear `hardening-refactor` ni `hardening` a `main` durante el proyecto (master spec §1.2).
+- **ADR-005 path-check**: durante T5/T6 se establecerá una regla CI que bloquea `*-WIP*` y `*_WIP*` en `hardening`/`main`. Por eso T1 renombra los dos WIP huérfanos. Confirmar que los renames son semánticamente seguros antes de avanzar.
+- **AGENTS.md sección 4** lista lint errors pre-existentes que NO se deben fix (a menos que la tarea actual los toque). Bumpear ESLint puede agregar nuevos — fix los nuevos, deja los listed.
 
-### Notas específicas para Paso 2 (plan B Audit)
+---
 
-- **Inputs del triage que Plan B debe absorber**:
-  - Items `in-hardening` mapeados a Sub-B/C/A: ver Annex A del spec.
-  - `BasesCheckboxInjector.ts` ya borrado; sólo queda limpieza de `CONTRIBUTING.md` (incluir como commit en Sub-B).
-  - Items `out-hardening` cuyo código sea ya muerto: el reporte `dead-code-report.md` debe surfacearlos para confirmar borrado.
-- **Pre-confirmado para borrar** (Sub-B asume sin confirmación adicional): referencia a `BasesCheckboxInjector` en CONTRIBUTING.md.
-- **WIP files** (decisión sugerida en spec sec 3.2; usuario confirma en Iter B.2): `serviceNavigation-WIP`, `serviceDecorate_WIP`, `popupIsland_WIP` → keep. `serviceStats-WIP`, `serviceLayout-WIP` → consultar.
+## ARCHIVOS A LEER ANTES DE EMPEZAR
+
+1. **`AGENTS.md`** — checklist start-of-session + lint errors pre-existentes + APIs verificadas.
+2. **`docs/Vaultman - Agent Memory.md`** — convenciones del proyecto.
+3. **`docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-a.md`** — plan completo (3596 líneas).
+4. **`docs/superpowers/specs/2026-04-28-vaultman-hardening-master.md`** — spec maestra (Annex A.1–A.5).
+5. **`docs/superpowers/triage/2026-04-28-v100-scope-triage.md`** — items v1.0 a integrar por iter.
+6. Esta `HANDOFF.md`.
 
 ---
 
 ## PUNTO DE INTERRUPCIÓN
 
-Triage completo, Annex A + B integrados al spec, commit listo. La sesión actual termina aquí esperando que el usuario reinicie con tokens frescos para `superpowers:writing-plans` (Sub-B Audit). Sub-B no ha empezado — sólo está diseñado y triageado contra el v1.0 backlog.
+Sub-A pre-flight T0 incompleto. Verify gate roto por upstream bug. Branch `hardening-refactor` listo en estructura pero sin código nuevo. Próximo agente: Paso 0 → Paso 1 → Paso 2.
