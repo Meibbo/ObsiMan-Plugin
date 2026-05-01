@@ -292,3 +292,14 @@ Key accomplishments:
 - Old Part 1-8 specs archived.
 - Version: 1.0.0-beta.20.
 - Next: Sub-A.2.1 — factory + Files/Tags/Props indices.
+
+### 2026-04-30 — Sub-A.2.1 closed (Factory + base indices)
+- `createNodeIndex<T>` factory + tests ✓ (3/3 base indices validated).
+- Files/Tags/Props indices implementing `INodeIndex<T>` without widening.
+- `serviceFilter` rewritten with Svelte 5 runes (`$state`, `$derived`); implements `IFilterService`.
+- `serviceQueue` updated: `add()` now synchronous (fires async in background); `addAsync()` for test awaits.
+- `serviceNavigation` promoted from WIP, implements `IRouter`.
+- ESLint config fixed: added Svelte rune globals ($state, $derived, $effect, etc.).
+- explorerProps: removed `await` on `add()` calls (now fire-and-forget).
+- Spike validated: abstraction ergonomic for all 3 base indices.
+- Next: Sub-A.2.2 — Content/Operations/ActiveFilters real + CSSSnippets/Templates stubs.
