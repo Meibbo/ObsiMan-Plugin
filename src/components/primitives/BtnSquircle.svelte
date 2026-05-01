@@ -1,0 +1,38 @@
+<script lang="ts">
+  import { setIcon } from 'obsidian';
+
+  let {
+    icon,
+    label,
+    onClick,
+    isActive = false,
+    disabled = false,
+    size = 'md',
+  }: {
+    icon: string;
+    label: string;
+    onClick: () => void;
+    isActive?: boolean;
+    disabled?: boolean;
+    size?: 'sm' | 'md' | 'lg';
+  } = $props();
+
+  function attachIcon(node: HTMLElement): { update(name: string): void } {
+    setIcon(node, icon);
+    return { update(name: string) { setIcon(node, name); } };
+  }
+
+  let classes = $derived(
+    `vm-btn-squircle vm-btn-squircle-${size}${isActive ? ' is-active' : ''}${disabled ? ' is-disabled' : ''}`
+  );
+</script>
+
+<button
+  class={classes}
+  aria-label={label}
+  title={label}
+  disabled={disabled}
+  onclick={() => { if (!disabled) onClick(); }}
+>
+  <span use:attachIcon={icon} class="vm-btn-squircle-icon"></span>
+</button>
