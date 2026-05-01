@@ -340,3 +340,17 @@ Access via `app.plugins.plugins['<id>']` — only if installed and enabled. Alwa
 - Multi-Properties GitHub: https://github.com/technohiker/obsidian-multi-properties
 - Forum — search API: https://forum.obsidian.md/t/is-it-possible-when-will-it-be-possible-to-access-search-programmatically/24916
 - Forum — Bases API request: https://forum.obsidian.md/t/bases-api-for-plugins-to-add-custom-functions/109612
+
+---
+
+## 12. ADR review (mandatory before touching `src/services/` or `src/types/`)
+
+Before modifying any file under `src/services/`, `src/types/contracts.ts`, or `src/types/obsidian-extended.ts`, read the relevant ADRs in `docs/superpowers/adr/`:
+
+- ADR-001 — reactive state in `*.svelte.ts`
+- ADR-002 — consumers depend on interfaces
+- ADR-004 — Obsidian internal API only via `obsidian-extended.ts`
+- ADR-006 — `contracts.ts` changes require new ADR
+- ADR-008 — indexing uses `createNodeIndex<T>`
+
+Skipping this is the most common cause of regression. New ADRs supersede old ones — check the `Status:` line.
