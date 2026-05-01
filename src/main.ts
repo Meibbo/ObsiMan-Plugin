@@ -34,7 +34,21 @@ import { translate } from './i18n/index';
 import { createFilesIndex } from './services/serviceFilesIndex';
 import { createTagsIndex } from './services/serviceTagsIndex';
 import { createPropsIndex } from './services/servicePropsIndex';
-import type { IFilesIndex, ITagsIndex, IPropsIndex } from './types/contracts';
+import { createContentIndex } from './services/serviceContentIndex';
+import { createOperationsIndex } from './services/serviceOperationsIndex';
+import { createActiveFiltersIndex } from './services/serviceActiveFiltersIndex';
+import { createCSSSnippetsIndex } from './services/serviceCSSSnippetsIndex';
+import { createTemplatesIndex } from './services/serviceTemplatesIndex';
+import type {
+	IFilesIndex,
+	ITagsIndex,
+	IPropsIndex,
+	IContentIndex,
+	IOperationsIndex,
+	IActiveFiltersIndex,
+	ICSSSnippetsIndex,
+	ITemplatesIndex,
+} from './types/contracts';
 
 export class VaultmanPlugin extends Plugin {
 	settings!: VaultmanSettings;
@@ -51,6 +65,11 @@ export class VaultmanPlugin extends Plugin {
 	filesIndex!: IFilesIndex;
 	tagsIndex!: ITagsIndex;
 	propsIndex!: IPropsIndex;
+	contentIndex!: IContentIndex;
+	operationsIndex!: IOperationsIndex;
+	activeFiltersIndex!: IActiveFiltersIndex;
+	cssSnippetsIndex!: ICSSSnippetsIndex;
+	templatesIndex!: ITemplatesIndex;
 
 	// Native status bar element
 	private statusBarEl!: HTMLElement;
@@ -75,6 +94,19 @@ export class VaultmanPlugin extends Plugin {
 		this.propertyIndex = new PropertyIndexService(this.app);
 		this.filterService = new FilterService(this.app, this.filesIndex);
 		this.queueService = new OperationQueueService(this.app);
+
+		this.contentIndex = createContentIndex(this.app);
+		this.operationsIndex = createOperationsIndex(this.queueService);
+		this.activeFiltersIndex = createActiveFiltersIndex(this.filterService);
+		this.cssSnippetsIndex = createCSSSnippetsIndex();
+		this.templatesIndex = createTemplatesIndex();
+		await Promise.all([
+			this.contentIndex.refresh(),
+			this.operationsIndex.refresh(),
+			this.activeFiltersIndex.refresh(),
+			this.cssSnippetsIndex.refresh(),
+			this.templatesIndex.refresh(),
+		]);
 		this.iconicService = new IconicService(this.app);
 		this.propertyTypeService = new PropertyTypeService(this.app);
 		this.contextMenuService = new ContextMenuService(this);
