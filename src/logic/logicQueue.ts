@@ -1,6 +1,6 @@
 import { mount, unmount } from 'svelte';
 import type { Component } from 'svelte';
-import type { OperationQueueService } from '../services/serviceQueue';
+import type { OperationQueueService } from '../services/serviceQueue.svelte';
 import type { OperationDiffContext } from '../services/serviceDiff';
 import { translate } from '../i18n/index';
 import BtnSelection from '../components/btnSelection.svelte';

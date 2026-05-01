@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { OperationQueueService, serializeFile } from '../../../src/services/serviceQueue';
+import { OperationQueueService, serializeFile } from '../../../src/services/serviceQueue.svelte';
 import {
 	DELETE_PROP,
 	NATIVE_RENAME_PROP,

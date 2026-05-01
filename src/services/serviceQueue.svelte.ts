@@ -7,6 +7,7 @@ import type {
 	TemplateChange,
 } from '../types/typeOps';
 import { DELETE_PROP, RENAME_FILE, REORDER_ALL, MOVE_FILE, FIND_REPLACE_CONTENT, NATIVE_RENAME_PROP, APPLY_TEMPLATE } from '../types/typeOps';
+import type { IOperationQueue } from '../types/contracts';
 import { translate } from '../i18n/index';
 
 /**
@@ -47,12 +48,25 @@ export function serializeFile(fm: Record<string, unknown>, body: string): string
  *
  * Port of Python's pending_changes list + _execute_queue_internal().
  */
-export class OperationQueueService extends Component {
+export class OperationQueueService extends Component implements IOperationQueue {
 	private app: App;
 	private events = new Events();
+	private subs = new Set<() => void>();
 
 	readonly transactions = new Map<string, VirtualFileState>();
 	private opCounter = 0;
+
+	/**
+	 * Reactive list of pending changes (rune-backed).
+	 * Kept as an empty array for now — the service stores operations as
+	 * VirtualFileState internally. UI components should use `transactions`
+	 * for richer data, or subscribe via `subscribe()` / `onUpdate()`.
+	 * Will be populated in a future migration (Sub-A.4.x).
+	 */
+	pending = $state<PendingChange[]>([]);
+
+	/** Derived count — reactive when pending changes. */
+	size = $derived(this.pending.length);
 
 	constructor(app: App) {
 		super();
@@ -80,6 +94,32 @@ export class OperationQueueService extends Component {
 
 	off(name: 'changed' | 'executed', callback: (result?: OperationResult) => void): void {
 		this.events.off(name, callback as (...data: unknown[]) => unknown);
+	}
+
+	/**
+	 * Subscribe to queue changes; returns an unsubscribe function.
+	 * Implements IOperationQueue.subscribe.
+	 */
+	subscribe(cb: () => void): () => void {
+		this.subs.add(cb);
+		return () => this.subs.delete(cb);
+	}
+
+	/** Remove a staged op by its op ID across all file transactions. */
+	remove(id: string): void {
+		for (const [path] of this.transactions) {
+			const vfs = this.transactions.get(path)!;
+			if (vfs.ops.some(o => o.id === id)) {
+				this.removeOp(path, id);
+				return;
+			}
+		}
+	}
+
+	/** Fire both the legacy Events emitter and all IOperationQueue subscribers. */
+	private fireChanged(): void {
+		this.events.trigger('changed');
+		for (const cb of this.subs) cb();
 	}
 
 	/**
@@ -136,7 +176,7 @@ export class OperationQueueService extends Component {
 		for (const c of changes) {
 			await this.ingest(c, /*silent*/ true);
 		}
-		this.events.trigger('changed');
+		this.fireChanged();
 	}
 
 	/** Shared internal ingestion: translate PendingChange to per-file StagedOps. */
@@ -145,7 +185,7 @@ export class OperationQueueService extends Component {
 		const probe = this.probeForNativeRename(change);
 		if (probe) {
 			await this.expandNativeRename(change, probe.oldName, probe.newName);
-			if (!silent) this.events.trigger('changed');
+			if (!silent) this.fireChanged();
 			return;
 		}
 
@@ -156,7 +196,7 @@ export class OperationQueueService extends Component {
 			if (!updates) continue;
 			this.applyUpdates(vfs, change, updates);
 		}
-		if (!silent) this.events.trigger('changed');
+		if (!silent) this.fireChanged();
 	}
 
 	/**
@@ -326,13 +366,13 @@ export class OperationQueueService extends Component {
 	/** Clear all pending operations */
 	clear(): void {
 		this.transactions.clear();
-		this.events.trigger('changed');
+		this.fireChanged();
 	}
 
 	/** Drop the entire VFS entry for a path. */
 	removeFile(path: string): void {
 		if (this.transactions.delete(path)) {
-			this.events.trigger('changed');
+			this.fireChanged();
 		}
 	}
 
@@ -352,7 +392,7 @@ export class OperationQueueService extends Component {
 			vfs.ops = filtered;
 			for (const op of vfs.ops) op.apply(vfs);
 		}
-		this.events.trigger('changed');
+		this.fireChanged();
 	}
 
 	get fileCount(): number {
@@ -432,7 +472,7 @@ export class OperationQueueService extends Component {
 		);
 
 		this.events.trigger('executed', result);
-		this.events.trigger('changed');
+		this.fireChanged();
 		return result;
 	}
 

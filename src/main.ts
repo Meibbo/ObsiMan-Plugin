@@ -24,7 +24,7 @@ import type { VaultmanSettings } from './types/typeSettings';
 import { DEFAULT_SETTINGS } from './types/typeSettings';
 import { PropertyIndexService } from './utils/utilPropIndex';
 import { FilterService } from './services/serviceFilter.svelte';
-import { OperationQueueService } from './services/serviceQueue';
+import { OperationQueueService } from './services/serviceQueue.svelte';
 import { VaultmanFrame, TYPE_FRAME_VM } from './types/typeFrame';
 import { IconicService } from './services/serviceIcons';
 import { PropertyTypeService } from './utils/utilPropType';
