@@ -13,8 +13,8 @@
 //     Specially for those who invest their time and energy           \\
 //     making tools and systems that multiply the extension and       \\
 //     value of the work made in this app. For sharing it with        \\
-//     others. And for those who use it, for letting me experience    \\
-//     the joy of using tools that are made with passion and care.    \\
+//     others, and letting me experience the joy of tools that        \\
+//     are made with passion and care.                                \\
 //********************************************************************\\
 
 /*------------------————————————————————————————————-------------------/
@@ -75,6 +75,7 @@
 
 // Components
 @use "./styles/components/badges";
+@use "./styles/components/primitives";
 @use "./styles/components/modals";
 @use "./styles/components/sidebar";
 @use "./styles/components/curator";
