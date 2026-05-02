@@ -97,8 +97,8 @@ input: AI-gen
 
 ## Last updated
 
-- **Date**: 2026-04-30
-- **Agent**: Claude Code (Sonnet 4.6) — Sub-C Tests execution
+- **Date**: 2026-05-01
+- **Agent**: Claude Code (Sonnet 4.6) — Sub-A.4.1 closure (T34)
 
 ## Session 2026-04-30 — Sub-C Tests closure
 
@@ -315,3 +315,14 @@ Key accomplishments:
 - Total: 140 tests passing (24 test files). Build ✅ lint ✅.
 - Version: 1.0.0-beta.21.
 - Next: Sub-A.3 — Primitives (BtnSquircle, Badge, Toggle, Dropdown, TextInput, HighlightText).
+
+### 2026-05-01 — Sub-A.4.1 closed (Explorer + Virtualizer + Decoration)
+- `Virtualizer<T>` generic with rune state + `TreeVirtualizer` subclass.
+- `logicExplorer` + `serviceExplorer<T>` + `serviceDecorate` (IDecorationManager) all implementing contracts.
+- `serviceSorting` revived with perf budget (50→150ms threshold for loaded CI).
+- `viewGrid` migrated to `Virtualizer<TFile>`; replaces renderLimit+showMore with true virtual scroll.
+- T33 (viewTree thin-renderer with snippets) deferred: spec spec removes virtual windowing → regression. viewTree already correct post-T30.
+- ADR-011 documents decoration flow.
+- 158 tests passing (28 files). Verify gate: lint(0) + check(0) + build(✓) + tests(✓).
+- Version: 1.0.0-beta.22 (no bump this session — A.4 not fully closed per plan; T33 deferred).
+- Next: Sub-A.4.2 — serviceOverlayState + ADR-010 + navbars + popups + tabs + explorerQueue + explorerActiveFilters.

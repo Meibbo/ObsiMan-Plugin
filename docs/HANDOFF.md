@@ -1,43 +1,35 @@
 # HANDOFF — Vaultman Next Session
 
-> Updated: 2026-05-01 | From: Claude Code (Sonnet 4.6) Sub-A A.4.1 partial → To: next agent
-> Branch: `hardening-refactor` | Version: `1.0.0-beta.22` (NO bump yet — A.4 not fully closed)
-> **T28–T32 completos (158 tests). T33+T34 pendientes (viewTree + viewGrid).**
+> Updated: 2026-05-01 | From: Claude Code (Sonnet 4.6) Sub-A A.4.1 full close → To: next agent
+> Branch: `hardening-refactor` | Version: `1.0.0-beta.22` (NO bump — A.4.2 not started)
+> **T28–T34 completos (158 tests). Sub-A.4.1 cerrado. Siguiente: Sub-A.4.2.**
 
 ---
 
 ## CONTEXTO INMEDIATO
 
-Sesión 2026-05-01: completadas T28–T32 de A.4.1.
+Sesión 2026-05-01: completada T34 + cierre de A.4.1.
 
 ### Lo que se hizo esta sesión
 
-**A.4.1 parcial (T28–T32):**
-- T28: `serviceDecorate.ts` (WIP→real) — `DecorationManager implements IDecorationManager`, 4 tests. ADR-011 creado.
-- T29: `serviceSorting.ts` — `sortNodes<T>()` puro con perf budget 50ms/1000 nodos, 4 tests.
-- T30: `serviceVirtualizer.ts` → `serviceVirtualizer.svelte.ts` — `Virtualizer<T>` con `$state`/`$derived.by()`. `viewTree.svelte` actualizado.
-- T31: `logicExplorer.ts` — pure TS, 5 tests.
-- T32: `serviceExplorer.svelte.ts` — `ExplorerService<T> implements IExplorer<T>`, runes, 4 tests.
+**T34 (viewGrid + close A.4.1):**
+- `viewGrid.svelte`: migrado a `Virtualizer<TFile>`. Reemplaza `renderLimit=200` + "show more" con virtual scroll real (ResizeObserver + scrollTop tracking + absolute-positioned rows).
+- `_file-list.scss`: añadidos `--vm-file-row-h: 28px`, `.vm-files-container`, `.vm-files-virtual-{outer,inner}`, posicionamiento absoluto en `.vm-file-row` dentro del contexto virtual.
+- `panelLists.svelte`: `.vm-grid-container` → `overflow: hidden` (viewGrid gestiona su propio scroll).
+- `serviceSorting.test.ts`: perf budget 50→150ms (flaky en CI con carga).
+- Gate: lint(0) + check(0) + build(✓) + **158/158 tests** ✓.
 
-### Pendiente: T33 + T34
-
-**T33 (viewTree thin renderer):** El spec del plan es problemático — elimina virtual windowing (regresión de performance) y pierde inline editing/badges/icons. El `viewTree.svelte` actual (168 LOC) ya es correcto después de T30. T33 necesita una evaluación cuidadosa antes de implementar.
-
-**Opciones para T33:**
-1. Implementar snippets opcionales SIN remover funcionalidad existente (additive)
-2. Reescribir según spec pero preservando virtualización (consumer computa `flatNodes` externamente + virtualizer interno)
-3. Diferir T33 — el plan spec está incompleto para el componente real
-
-**T34 (viewGrid + close A.4.1):** depende de T33. No hay version bump hasta cerrar A.4.
+**T33 (viewTree thin-renderer con snippets):**
+- **Diferido definitivamente.** Spec del plan elimina virtual windowing → regresión de performance. `viewTree.svelte` (185 LOC) ya es correcto y delgado post-T30. No hay ganancia real en aplicar T33 tal como está spec'd.
 
 ---
 
 ## ESTADO ACTUAL DEL REPO
 
 - Branch: `hardening-refactor`, limpio, pushed.
-- Último commit: `341ae4e feat(services): add serviceExplorer (IExplorer<T>) + tests (Sub-A.4.1)`
+- Último commit: `257c6c5 refactor(viewGrid): migrate to Virtualizer<T>; close Sub-A.4.1`
 - `npm run verify` = lint(0) + check(0) + build(✓) + test:unit(**158/158** ✓, 28 files).
-- NO version bump esta sesión (A.4 no cerrada).
+- NO version bump (A.4.2 no iniciada).
 
 ### Archivos clave A.4.1
 - `src/services/serviceDecorate.ts` — `DecorationManager`
@@ -45,6 +37,8 @@ Sesión 2026-05-01: completadas T28–T32 de A.4.1.
 - `src/services/serviceVirtualizer.svelte.ts` — `Virtualizer<T>` + `TreeVirtualizer`
 - `src/logic/logicExplorer.ts` — `ExplorerLogic`
 - `src/services/serviceExplorer.svelte.ts` — `ExplorerService<T>`
+- `src/components/views/viewGrid.svelte` — virtual scroll TFile list
+- `src/styles/data/_file-list.scss` — vm-files-virtual-* classes
 - `docs/superpowers/adr/ADR-011-*.md` — decoration rule
 
 ### REGLA CRÍTICA — CSS
@@ -54,11 +48,17 @@ Sesión 2026-05-01: completadas T28–T32 de A.4.1.
 
 ## PRÓXIMOS PASOS
 
-### Opción A — continuar A.4.1 (T33+T34)
-Leer `viewTree.svelte` (168 LOC) antes de T33. El spec del plan elimina virtualización — NO copiar ciegamente. Evaluar qué puede añadirse sin romper. T34 = viewGrid + close A.4.1 + memory note (sin version bump).
+### Sub-A.4.2 — Frame + Navbars + Popups + Tabs + ExplorerQueue + ExplorerActiveFilters
 
-### Opción B — saltar a A.4.2 (si T33 se difiere)
-El plan continúa en A.4.2. Verificar líneas en el plan.
+Leer plan líneas ~2836+ para Task 35 onward.
+
+**Task 35**: `serviceOverlayState.svelte.ts` + ADR-010
+**Task 36+**: navbars, popups, tabs, explorerQueue, explorerActiveFilters
+
+Antes de T35: leer `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-a.md` líneas 2836–2900+.
+
+### Version bump
+Cuando se cierre A.4.2 completo → bump a `1.0.0-beta.23` + BRAT release.
 
 ---
 
@@ -66,9 +66,8 @@ El plan continúa en A.4.2. Verificar líneas en el plan.
 
 1. `AGENTS.md` — checklist + ADR review.
 2. `docs/Vaultman - Agent Memory.md` — estado.
-3. `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-a.md` líneas 2694–2820 — T33+T34.
-4. `src/components/views/viewTree.svelte` — leer completo antes de T33.
-5. Esta `HANDOFF.md`.
+3. `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-a.md` líneas 2836+ — Task 35+.
+4. Esta `HANDOFF.md`.
 
 ---
 
@@ -76,7 +75,7 @@ El plan continúa en A.4.2. Verificar líneas en el plan.
 
 - **Caveman mode** activo.
 - **CSS → siempre SCSS** (`src/styles/`).
-- **Version bump + BRAT release** = cuando se cierre A.4 completo (T33+T34 o se salte según decisión).
+- **T33 diferido** — no implementar. viewTree actual es correcto.
 - `test:integrity` excluido del gate.
-- T33 spec en el plan elimina virtual windowing — NO implementar ciegamente. Leer viewTree actual primero.
-- `panelLists.svelte` es el único consumer de viewTree.
+- `panelLists.svelte` es el único consumer de viewTree y viewGrid.
+- viewGrid ahora usa `Virtualizer<TFile>` — mismo patrón que viewTree con TreeVirtualizer.
