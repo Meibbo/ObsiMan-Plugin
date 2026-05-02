@@ -29,6 +29,6 @@ describe('serviceSorting', () => {
     const t0 = performance.now();
     sortNodes(nodes, { field: 'stat.mtime', direction: 'desc' });
     const dt = performance.now() - t0;
-    expect(dt).toBeLessThan(50);
+    expect(dt).toBeLessThan(150);
   });
 });

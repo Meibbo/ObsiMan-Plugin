@@ -161,7 +161,7 @@
   }
   .vm-grid-container {
     flex: 1;
-    overflow-y: auto;
+    overflow: hidden;
     min-height: 0;
     height: 100%;
   }
