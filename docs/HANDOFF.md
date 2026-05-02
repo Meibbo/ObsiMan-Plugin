@@ -1,8 +1,8 @@
 # HANDOFF — Vaultman Next Session
 
-> Updated: 2026-05-02 | From: Claude Code (Sonnet 4.6 → Opus 4.7) Sub-A.4.2 close → To: next agent
-> Branch: `hardening-refactor` | Version: `1.0.0-beta.23` (tagged, NOT pushed yet)
-> **T35–T40 completos. Sub-A.4 cerrado. Siguiente: Sub-A.5 (Settings declarative).**
+> Updated: 2026-05-02 | From: Claude Code (Sonnet 4.6) Sub-A.5 close → To: next agent
+> Branch: `hardening-refactor` | Version: `1.0.0-rc.1` (tagged, NOT pushed yet)
+> **Sub-A.5 completo. Hardening project DONE. Siguiente: smoke-test → push → GitHub Release → PR.**
 
 ---
 
@@ -77,15 +77,16 @@ Sesión 2026-05-02: cerrada A.4.2 completa. Ejecutado en orden no-plan: T35→T3
 
 ## PRÓXIMOS PASOS
 
-### Antes de pushear / BRAT release
-1. **Smoke test obligatorio**: reload plugin (`obsidian plugin:reload id=vaultman`), abrir Vaultman, click en queue island + active-filters islands, verificar que rendering + dismiss funcionan.
+### Inmediatos (este agente o el siguiente)
+1. **Smoke test obligatorio**: reload plugin (`obsidian plugin:reload id=vaultman`), abrir Vaultman, abrir Settings → verificar que SettingsUI carga y los campos se muestran. Click en queue island + active-filters islands.
 2. Si OK: `git push && git push --tags`.
-3. Crear GitHub Release manualmente (assets: `main.js`, `manifest.json`, `styles.css`).
+3. Crear GitHub Release manualmente para `1.0.0-rc.1` (assets: `main.js`, `manifest.json`, `styles.css`).
+4. PRs: `hardening-refactor` → `hardening` → `main`.
 
-### Sub-A.5 — Settings declarative
-- Plan: `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-a.md` línea ~3314+
-- Task 41: Reduce `settingsVM.ts` (284 LOC → ≤80) a un mount/unmount bridge.
-- Task 42+: SettingsUI.svelte declarativo.
+### Sub-A.5 — CERRADO ✅
+- `settingsVM.ts`: 28 LOC mount/unmount bridge.
+- `SettingsUI.svelte`: declarativo con primitives, cubre todos los campos de `typeSettings.ts`.
+- Integration test: idempotency + required fields. Svelte mount round-trip → E2E pendiente.
 
 ### Pendientes diferidos para próximo plan
 - **T33** (viewTree thin-renderer con snippets): necesita design discussion. Spec actual elimina virtualizer → regresión.
