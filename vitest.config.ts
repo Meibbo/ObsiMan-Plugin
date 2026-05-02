@@ -42,8 +42,6 @@ export default defineConfig({
 							'src/services/serviceLayout-WIP.svelte.ts',
 							'src/services/serviceStats-WIP.svelte.ts',
 							'src/services/serviceDecorate_WIP.ts',
-							'src/logic/logicQueue.ts',
-							'src/logic/logicFilters.ts',
 						],
 						thresholds: {
 							lines: 60,

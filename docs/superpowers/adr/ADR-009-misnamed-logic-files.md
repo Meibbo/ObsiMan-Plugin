@@ -1,7 +1,7 @@
 # ADR-009: `src/logic/logicQueue.ts` and `src/logic/logicFilters.ts` are UI components, not pure logic
 
 - Date: 2026-04-29
-- Status: Accepted
+- Status: Superseded by Sub-A.4.2 (2026-05-02) — files deleted; queue/filter behavior owned by `explorerQueue.svelte` + `explorerActiveFilters.svelte` consuming `IOperationsIndex` / `IActiveFiltersIndex` (ADR-010)
 
 ## Context
 

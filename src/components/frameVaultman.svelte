@@ -21,10 +21,9 @@
   import OperationsPage from "./pages/pageTools.svelte";
   import BottomNav from "./layout/navbarPillFab.svelte";
   import PopupOverlay from "./layout/layoutPopup.svelte";
-  import { QueueListComponent } from "./componentQueueList";
-  import { QueueIslandComponent } from "../logic/logicQueue";
-  import { ActiveFiltersIslandComponent } from "../logic/logicFilters";
-  import { QueueDetailsModal } from "../modals/modalQueueDetails";
+  import PopupIsland from "./layout/popupIsland.svelte";
+  import ExplorerQueueComp from "./explorers/explorerQueue.svelte";
+  import ExplorerActiveFiltersComp from "./explorers/explorerActiveFilters.svelte";
 
   import { FolderSuggest } from "../utils/autocomplete";
   import { MOVE_FILE } from "../types/typeOps";
@@ -348,15 +347,10 @@
     return count;
   });
 
-  // ─── Queue island ─────────────────────────────────────────────────────────
-  let queueIslandOpen = $state(false);
-  let queueIsland: QueueIslandComponent | undefined;
-  let queueIslandEl = $state<HTMLElement | null>(null);
-
-  // ─── Filters island ───────────────────────────────────────────────────────
-  let filtersIslandOpen = $state(false);
-  let filtersIsland: ActiveFiltersIslandComponent | undefined;
-  let filtersIslandEl = $state<HTMLElement | null>(null);
+  // ─── Island open state (derived from overlayState) ───────────────────────
+  const isIslandOpen = $derived(
+    plugin.overlayState.isOpen("queue") || plugin.overlayState.isOpen("active-filters"),
+  );
 
   function countFilterLeaves(
     group: import("../types/typeFilter").FilterGroup,
@@ -375,7 +369,6 @@
   }
 
   let fileList = $state<explorerFiles | undefined>(undefined);
-  let queueList: QueueListComponent | undefined;
   let propExplorer = $state<explorerProps | undefined>(undefined);
   let tagsExplorer = $state<explorerTags>();
   let selectedFilePaths = $state(new Set<string>());
@@ -427,7 +420,7 @@
   function toggleQueueIsland() {
     closeFiltersIsland();
     if (activePopup === "active-filters") closePopup();
-    if (queueIslandOpen) {
+    if (plugin.overlayState.isOpen("queue")) {
       closeQueueIsland();
     } else {
       openQueueIsland();
@@ -435,29 +428,23 @@
   }
 
   function openQueueIsland() {
-    if (!queueIslandEl) return;
-    queueIslandOpen = true;
-    queueIsland = new QueueIslandComponent(
-      queueIslandEl,
-      plugin.app,
-      plugin.queueService,
-      () => closeQueueIsland(),
-      () => {
-        new QueueDetailsModal(plugin.app, plugin.queueService).open();
+    plugin.overlayState.push({
+      id: "queue",
+      component: ExplorerQueueComp,
+      props: {
+        plugin,
+        onClose: () => plugin.overlayState.popById("queue"),
       },
-    );
-    queueIsland.mount();
+    });
   }
 
   function closeQueueIsland() {
-    queueIsland?.destroy();
-    queueIsland = undefined;
-    queueIslandOpen = false;
+    plugin.overlayState.popById("queue");
   }
 
   function toggleFiltersIsland() {
     closeQueueIsland();
-    if (filtersIslandOpen) {
+    if (plugin.overlayState.isOpen("active-filters")) {
       closeFiltersIsland();
     } else {
       openFiltersIsland();
@@ -465,20 +452,18 @@
   }
 
   function openFiltersIsland() {
-    if (!filtersIslandEl) return;
-    filtersIslandOpen = true;
-    filtersIsland = new ActiveFiltersIslandComponent(
-      filtersIslandEl,
-      plugin,
-      () => closeFiltersIsland(),
-    );
-    filtersIsland.mount();
+    plugin.overlayState.push({
+      id: "active-filters",
+      component: ExplorerActiveFiltersComp,
+      props: {
+        plugin,
+        onClose: () => plugin.overlayState.popById("active-filters"),
+      },
+    });
   }
 
   function closeFiltersIsland() {
-    filtersIsland?.destroy();
-    filtersIsland = undefined;
-    filtersIslandOpen = false;
+    plugin.overlayState.popById("active-filters");
   }
 
   // ─── Refresh ─────────────────────────────────────────────────────────────
@@ -510,7 +495,6 @@
   }
 
   function refreshQueue() {
-    queueList?.render(plugin.queueService);
     updateStats();
   }
 
@@ -705,17 +689,15 @@
       refreshFiles();
       refreshActiveFilterHighlights();
       updateStats();
-      filtersIsland?.render();
     };
     const onVaultResolved = () => {
       refreshFiles();
     };
     const onQueueChanged = () => {
       refreshQueue();
-      if (plugin.queueService.isEmpty && queueIslandOpen) {
+      if (plugin.queueService.isEmpty && plugin.overlayState.isOpen("queue")) {
         closeQueueIsland();
       }
-      queueIsland?.render();
     };
 
     const unsubFilter = plugin.filterService.subscribe(onFilterChanged);
@@ -777,7 +759,7 @@
     <!-- ─── Island Backdrop (Rising Glass) ─────────────────────────────────── -->
     <div
       class="vm-island-backdrop vm-glass"
-      class:is-open={queueIslandOpen || filtersIslandOpen}
+      class:is-open={isIslandOpen}
       onclick={() => {
         closeQueueIsland();
         closeFiltersIsland();
@@ -793,10 +775,6 @@
       aria-label="Close island"
     ></div>
 
-    <!-- ─── Queue island container — floats above bottom nav ────────────────────── -->
-    <div class="vm-queue-island-wrap" bind:this={queueIslandEl}></div>
-    <div class="vm-filters-island-wrap" bind:this={filtersIslandEl}></div>
-
     <BottomNav
       {pageOrder}
       {activePage}
@@ -805,7 +783,7 @@
       {leftFab}
       {rightFab}
       {navCollapsed}
-      isIslandOpen={queueIslandOpen || filtersIslandOpen}
+      {isIslandOpen}
       bind:isReordering
       {reorderTargetIdx}
       bind:pillEl
@@ -823,6 +801,8 @@
     />
   </div>
 </div>
+
+<PopupIsland overlayState={plugin.overlayState} />
 
 <PopupOverlay
   {plugin}
