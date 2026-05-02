@@ -39,6 +39,7 @@ import { createOperationsIndex } from './services/serviceOperationsIndex';
 import { createActiveFiltersIndex } from './services/serviceActiveFiltersIndex';
 import { createCSSSnippetsIndex } from './services/serviceCSSSnippetsIndex';
 import { createTemplatesIndex } from './services/serviceTemplatesIndex';
+import { OverlayStateService } from './services/serviceOverlayState.svelte';
 import type {
 	IFilesIndex,
 	ITagsIndex,
@@ -48,6 +49,7 @@ import type {
 	IActiveFiltersIndex,
 	ICSSSnippetsIndex,
 	ITemplatesIndex,
+	IOverlayState,
 } from './types/contracts';
 
 export class VaultmanPlugin extends Plugin {
@@ -70,6 +72,7 @@ export class VaultmanPlugin extends Plugin {
 	activeFiltersIndex!: IActiveFiltersIndex;
 	cssSnippetsIndex!: ICSSSnippetsIndex;
 	templatesIndex!: ITemplatesIndex;
+	overlayState!: IOverlayState;
 
 	// Native status bar element
 	private statusBarEl!: HTMLElement;
@@ -107,6 +110,7 @@ export class VaultmanPlugin extends Plugin {
 			this.cssSnippetsIndex.refresh(),
 			this.templatesIndex.refresh(),
 		]);
+		this.overlayState = new OverlayStateService();
 		this.iconicService = new IconicService(this.app);
 		this.propertyTypeService = new PropertyTypeService(this.app);
 		this.contextMenuService = new ContextMenuService(this);
