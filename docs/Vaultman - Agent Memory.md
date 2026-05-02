@@ -98,7 +98,28 @@ input: AI-gen
 ## Last updated
 
 - **Date**: 2026-05-02
-- **Agent**: ChatGPT Codex — Vite+ production migration + Svelte loop smoke fix
+- **Agent**: ChatGPT Codex — Sub-A island runtime closure
+
+## Session 2026-05-02 (Codex) — Sub-A island runtime closure
+
+**Status: Sub-A hardening smoke unblocked. Queue island opens in live Obsidian. Hardening ready for publish/PR step.**
+
+- Fixed `frameVaultman.svelte` tab-change effect: `closeQueueIsland()` / `closeFiltersIsland()` are now wrapped in `untrack()` so `overlayState.stack` is not captured as an effect dependency.
+- Root cause: every `overlayState.push()` caused the filters-tab cleanup effect to rerun and immediately `popById()` the island, leaving `stack=0`.
+- Added component regression coverage:
+  - `test/component/PopupIslandChild.svelte`
+  - `test/component/popupIsland.test.ts`
+- Verification:
+  - `pnpm run verify` ✅ lint 0 errors / 4 pre-existing warnings, svelte-check 0/0, build OK, unit 167/167, component 4/4.
+  - Obsidian reload ✅
+  - Settings tab mount ✅ `{"settingsUI":true}`
+  - Queue FAB smoke ✅ `{"queueStack":1,"queueIsland":true,"queueChild":true}`
+  - `obsidian dev:errors` clean after clearing transient ResizeObserver loop notifications ✅
+
+Next:
+- Commit this closure, push `hardening-refactor` and rc.1 tag if desired.
+- Create PR `hardening-refactor` → `hardening`, then merge hardening into `main` when accepted.
+- Start Polish plan after hardening branch is published/merged.
 
 ## Session 2026-05-02 (Codex) — Vite+ production build + smoke green
 

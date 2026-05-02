@@ -1,12 +1,42 @@
 # HANDOFF — Vaultman Next Session
 
-> Updated: 2026-05-02 | From: Claude Code (Opus 4.7) → Next agent
+> Updated: 2026-05-02 | From: ChatGPT Codex → Next agent
 > Branch: `hardening-refactor` | Version: `1.0.0-rc.1`
-> `pnpm run verify` green; Obsidian reload clean (`No errors captured`).
+> `pnpm run verify` green; Obsidian reload/settings/queue island smoke green.
 
 ---
 
-## Most recent session (Opus 4.7, 2026-05-02 PM #2 — partial fix, blocker remains)
+## Most recent session (Codex, 2026-05-02 — Sub-A island runtime closure)
+
+### ✅ Fixed in this turn
+
+1. **Queue island opens again** — `frameVaultman.svelte` had a tab-change `$effect` that called `closeQueueIsland()` / `closeFiltersIsland()`. Those methods read `overlayState.stack` through `popById()`, so every `overlayState.push()` was captured as a dependency and immediately closed the island. The close calls now run inside `untrack()`.
+2. **PopupIsland regression test added** — `test/component/popupIsland.test.ts` mounts `PopupIsland` with a real Svelte child component (`PopupIslandChild.svelte`) and asserts both `.vm-popup-island` and child content render.
+
+### Verify status
+
+- `pnpm run verify` → green:
+  - lint 0 errors / 4 pre-existing warnings
+  - svelte-check 0 errors / 0 warnings
+  - build OK
+  - unit 167/167
+  - component 4/4
+- Obsidian smoke:
+  - plugin reload OK
+  - settings tab mounts: `{"settingsUI":true}`
+  - queue FAB opens: `{"queueStack":1,"queueIsland":true,"queueChild":true}`
+  - `dev:errors` clean after clearing transient ResizeObserver loop notifications
+
+### Next
+
+1. Commit closure.
+2. Push `hardening-refactor` + rc.1 tag if release flow is desired.
+3. Open PR `hardening-refactor` → `hardening`, then proceed to `main` after review.
+4. Start Polish plan after hardening is published/merged.
+
+---
+
+## Previous session (Opus 4.7, 2026-05-02 PM #2 — partial fix, blocker resolved by Codex)
 
 ### ✅ Fixed in this turn
 1. **Pill blur restored** — Vite+'s esbuild CSS minifier was dropping the unprefixed `backdrop-filter` declaration when both prefixed and unprefixed appeared. Set `build.cssTarget: ['chrome120']` and `build.cssMinify: 'esbuild'` in `vite.config.ts`. Compiled `styles.css` now keeps `backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);` for `.vm-nav-pill`. Verified live: `getComputedStyle(.vm-nav-pill).backdropFilter === 'blur(22px)'`.
@@ -418,6 +448,5 @@ Expected:
 - Do not reintroduce blanket `$effect` autosave.
 - Any service method called from a `$effect` must be idempotent for no-op calls.
 - If context <20%, stop and update this handoff before continuing.
-
 
 

@@ -10,7 +10,7 @@
 
 <!--...---------—————————————(   IMPORTS   )————————————----------...-->
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, untrack } from "svelte";
   import { setIcon } from "obsidian";
   import type { VaultmanPlugin } from "../main";
   import { explorerFiles } from "./containers/explorerFiles";
@@ -378,8 +378,10 @@
   let filtersActiveTab = $state<FiltersTab>("props");
   $effect(() => {
     void filtersActiveTab;
-    closeQueueIsland();
-    closeFiltersIsland();
+    untrack(() => {
+      closeQueueIsland();
+      closeFiltersIsland();
+    });
   });
   let filtersSearch = $state("");
   let filtersSearchCategory = $state<Record<"tags" | "props" | "files", number>>({
