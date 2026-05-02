@@ -327,6 +327,14 @@ Key accomplishments:
 - Version: 1.0.0-beta.22 (no bump this session — A.4 not fully closed per plan; T33 deferred).
 - Next: Sub-A.4.2 — serviceOverlayState + ADR-010 + navbars + popups + tabs + explorerQueue + explorerActiveFilters.
 
+### 2026-05-02 — Sub-A.5 closed (Settings declarative)
+- `settingsVM.ts` reduced to mount/unmount bridge (28 LOC).
+- `SettingsUI.svelte` declarative with primitives + autosave `$effect`. Covers all fields from `typeSettings.ts`: glassBlurIntensity (slider), defaultPropertyType, sessionFilePath, all explorer/bases/grid/contextMenu toggles+dropdowns, pageOrder (3 native selects), filterTemplates (delete list).
+- `initState()` pattern avoids `state_referenced_locally` Svelte 5 warning.
+- Integration test: `test/integration/settingsMigration.test.ts` — saveSettings() idempotency + required fields. Full Svelte mount round-trip deferred to E2E (harness can't easily mount Svelte components headless).
+- Version: **1.0.0-rc.1**. Hardening project complete.
+- Next session: smoke-test settings UI in Obsidian, push branch + tags, create GitHub Release, then PR `hardening-refactor` → `hardening` → `main`.
+
 ### 2026-05-02 — Sub-A.4.2 closed (Frame + Navbars + Popups + Tabs + ExplorerQueue + ExplorerActiveFilters)
 - T35: `OverlayStateService` (IOverlayState, ADR-010) + 5 tests. Wired in `main.ts`.
 - T37: `navbarPages.svelte` agnostic — consumes `TabConfig[]` + `bind:active`; pageFilters wires `FILTERS_TABS_CONFIG`.
