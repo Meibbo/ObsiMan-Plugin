@@ -97,8 +97,8 @@ input: AI-gen
 
 ## Last updated
 
-- **Date**: 2026-05-01
-- **Agent**: Claude Code (Sonnet 4.6) — Sub-A.4.1 closure (T34)
+- **Date**: 2026-05-02
+- **Agent**: Claude Code (Sonnet 4.6 → Opus 4.7) — Sub-A.4.2 closure (T35–T40)
 
 ## Session 2026-04-30 — Sub-C Tests closure
 
@@ -326,3 +326,16 @@ Key accomplishments:
 - 158 tests passing (28 files). Verify gate: lint(0) + check(0) + build(✓) + tests(✓).
 - Version: 1.0.0-beta.22 (no bump this session — A.4 not fully closed per plan; T33 deferred).
 - Next: Sub-A.4.2 — serviceOverlayState + ADR-010 + navbars + popups + tabs + explorerQueue + explorerActiveFilters.
+
+### 2026-05-02 — Sub-A.4.2 closed (Frame + Navbars + Popups + Tabs + ExplorerQueue + ExplorerActiveFilters)
+- T35: `OverlayStateService` (IOverlayState, ADR-010) + 5 tests. Wired in `main.ts`.
+- T37: `navbarPages.svelte` agnostic — consumes `TabConfig[]` + `bind:active`; pageFilters wires `FILTERS_TABS_CONFIG`.
+- T38: `tabContent.svelte` rewritten — consumes `IContentIndex` via Virtualizer + TextInput + HighlightText. Wired into pageFilters as 4th tab.
+- T39: `popupIsland.svelte` built from scratch (WIP was empty). Renders `IOverlayState.stack` with dynamic component mounting (Svelte 5 `{@const}` + `<Comp>`).
+- T40: `explorerQueue.svelte` + `explorerActiveFilters.svelte` — virtual lists over `operationsIndex.nodes` / `activeFiltersIndex.nodes` with delete actions. Skipped ExplorerService dep (decorationManager not wired).
+- T36: Frame rewrite — replaces `QueueIslandComponent` + `ActiveFiltersIslandComponent` with `overlayState.push(ExplorerQueue/ExplorerActiveFilters)`. Keeps pixel-based page transitions, DnD reorder, layoutPopup for legacy scope/search/move.
+- Deleted `src/logic/logicQueue.ts` + `logicFilters.ts` (478 LOC). Updated vitest.config exclusions. ADR-009 → Superseded.
+- T33 (viewTree thin-renderer with snippets) **deferred to next plan** — needs design discussion.
+- 163 tests passing (29 files). Verify gate green.
+- Version: **1.0.0-beta.23** tagged.
+- Next: Sub-A.5 — Settings declarative (T41+).
