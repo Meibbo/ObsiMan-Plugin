@@ -24,6 +24,21 @@ export default defineConfig({
 			{
 				extends: true,
 				plugins: [svelte()],
+				resolve: {
+					conditions: ['browser'],
+				},
+				test: {
+					name: 'component',
+					environment: 'jsdom',
+					include: ['test/component/**/*.test.ts'],
+					alias: {
+						obsidian: obsidianMockPath,
+					},
+				},
+			},
+			{
+				extends: true,
+				plugins: [svelte()],
 				test: {
 					name: 'unit',
 					environment: 'node',

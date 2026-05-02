@@ -8,14 +8,17 @@ export class OverlayStateService implements IOverlayState {
   }
 
   pop(): void {
+    if (this.stack.length === 0) return;
     this.stack = this.stack.slice(0, -1);
   }
 
   popById(id: string): void {
+    if (!this.stack.some((e) => e.id === id)) return;
     this.stack = this.stack.filter((e) => e.id !== id);
   }
 
   clear(): void {
+    if (this.stack.length === 0) return;
     this.stack = [];
   }
 

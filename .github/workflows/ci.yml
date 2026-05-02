@@ -11,16 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: voidzero-dev/setup-vp@v1
         with:
           node-version: '22'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run check
-      - run: npm run build
+          cache: true
+      - run: vp install
+      - run: vp run lint
+      - run: vp run check
+      - run: vp run build
       - name: Run unit tests with coverage
-        run: npm run test:cover
+        run: vp run test:cover
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v4

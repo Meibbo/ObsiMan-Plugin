@@ -38,4 +38,38 @@ describe('OverlayStateService', () => {
     const o = new OverlayStateService();
     expect(o.isOpen('x')).toBe(false);
   });
+
+  it('pop on empty stack is a no-op', () => {
+    const o = new OverlayStateService();
+    const before = o.stack;
+    o.pop();
+    expect(o.stack).toBe(before);
+    expect(o.stack.length).toBe(0);
+  });
+
+  it('popById on missing id is a no-op (preserves array identity)', () => {
+    const o = new OverlayStateService();
+    o.push({ id: 'a', component: {} as never });
+    const before = o.stack;
+    o.popById('missing');
+    expect(o.stack).toBe(before);
+    expect(o.stack.map((e) => e.id)).toEqual(['a']);
+  });
+
+  it('clear on empty stack is a no-op (preserves array identity)', () => {
+    const o = new OverlayStateService();
+    const before = o.stack;
+    o.clear();
+    expect(o.stack).toBe(before);
+    expect(o.stack.length).toBe(0);
+  });
+
+  it('popById("queue") removes queue when present', () => {
+    const o = new OverlayStateService();
+    o.push({ id: 'queue', component: {} as never });
+    o.push({ id: 'active-filters', component: {} as never });
+    o.popById('queue');
+    expect(o.isOpen('queue')).toBe(false);
+    expect(o.stack.map((e) => e.id)).toEqual(['active-filters']);
+  });
 });

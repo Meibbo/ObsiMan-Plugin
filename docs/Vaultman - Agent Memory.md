@@ -98,7 +98,35 @@ input: AI-gen
 ## Last updated
 
 - **Date**: 2026-05-02
-- **Agent**: Claude Code (Sonnet 4.6) — Sub-A.5 código + tests verde, BUG smoke-test pendiente
+- **Agent**: ChatGPT Codex — Vite+ production migration + Svelte loop smoke fix
+
+## Session 2026-05-02 (Codex) — Vite+ production build + smoke green
+
+**Status: Hard production-build migration to Vite+ complete. Verify gate green. Obsidian smoke green.**
+
+- Installed requested skills: `caveman` and `grill-me` into `$CODEX_HOME/skills` (restart Codex to auto-discover them).
+- Added local `vite-plus@0.1.20` and `packageManager: npm@11.9.0`.
+- Replaced production build path with `vp build`; `npm run dev` now uses `vp build --watch`.
+- Added `vite.config.ts` in library/CJS mode with Obsidian externals and output to `dist/vite`.
+- Added `src/pluginEntry.ts` to import `src/main.scss` and export the Obsidian plugin default.
+- Updated `scripts/sync-test-build.mjs` to copy Vite+ artifacts from `dist/vite` to plugin root and `dist/build`.
+- Updated CI to use `voidzero-dev/setup-vp@v1`, `vp install`, and `vp run ...`.
+- Fixed Svelte `effect_update_depth_exceeded`:
+  - `SettingsUI.svelte` no longer autosaves through a blanket `$effect`; settings persist from change handlers.
+  - `Dropdown.svelte` and `Toggle.svelte` now expose reliable `onChange` callbacks.
+  - `OverlayStateService.pop/popById/clear` now no-op when the stack would not change, preventing frame effects from reading and writing the same rune state forever.
+- Removed untracked resurrected legacy file `src/logic/logicQueue.ts`; handoff documented it as intentionally deleted and it blocked `tsc`/`svelte-check`.
+- Verification:
+  - `npm run verify` ✅ lint 0, svelte-check 0, Vite+ build OK, unit tests 163/163.
+  - `obsidian vault=plugin-dev plugin:reload id=vaultman` ✅
+  - `obsidian vault=plugin-dev eval code="app.commands.executeCommandById('vaultman:open')"` ✅
+  - Settings tab mounts: `.vm-settings` true ✅
+  - `obsidian vault=plugin-dev dev:errors` → `No errors captured` ✅
+
+Next:
+- Add component-test lane for Svelte UI (`jsdom` or Vitest browser mode) so frame/settings/navigation regressions are caught before Obsidian smoke.
+- Decide whether to migrate Vitest imports/config fully to `vite-plus/test` or keep current Vitest config behind `vp test`.
+- Consider deleting old `esbuild.config.mjs` after one more smoke cycle if no fallback is needed.
 
 ## Session 2026-05-02 (tarde) — Sub-A.5 smoke-test BLOQUEADO
 
@@ -343,6 +371,22 @@ Key accomplishments:
 - Integration test: `test/integration/settingsMigration.test.ts` — saveSettings() idempotency + required fields. Full Svelte mount round-trip deferred to E2E (harness can't easily mount Svelte components headless).
 - Version: **1.0.0-rc.1**. Hardening project complete.
 - Next session: smoke-test settings UI in Obsidian, push branch + tags, create GitHub Release, then PR `hardening-refactor` → `hardening` → `main`.
+
+### 2026-05-02 PM #2 — Pill blur restored, islands still blocked (Opus 4.7)
+- **Pill blur fixed**: vp build esbuild minifier was dropping unprefixed `backdrop-filter` declarations. Set `build.cssTarget: ['chrome120']` + `cssMinify: 'esbuild'` in `vite.config.ts`. Compiled CSS now keeps both prefixed and unprefixed → live `getComputedStyle(.vm-nav-pill).backdropFilter === 'blur(22px)'`.
+- **Backdrop design fix**: removed my earlier `.vm-island-backdrop` rule from `_islands.scss` that was overriding the original rising-glass design in `_v3-nav.scss:61`. `_islands.scss` now keeps only `.vm-popup-island` + `.vm-popup-island-entry` (unique classes from `popupIsland.svelte`).
+- **Islands STILL DO NOT OPEN**: every push to `overlayState.stack` triggers `Uncaught TypeError: t is not a function` from Svelte 5 each-block runtime in `popupIsland.svelte:23` (compiled `plugin:vaultman:7:41103`). The `{#if overlayState.stack.length > 0}` never flushes because the effect aborts. Suspect dynamic-component spread pattern `<Comp {...(entry.props ?? {})} />`. Next agent should rewrite popupIsland to use either `<svelte:component>`-equivalent or imperative `mount()`. See HANDOFF.md for repro and full hypothesis.
+- Other reported regressions (`tabContent` zero-height, `serviceDecorate` not acting) NOT investigated; documented as pending in HANDOFF.md.
+
+### 2026-05-02 PM — Islands visual fix + jsdom regression lane (Opus 4.7)
+- Cause islands "no abren": `popupIsland.svelte` rendered with classes `.vm-popup-island` / `.vm-popup-island-entry` and the `.vm-island-backdrop` toggle had **no SCSS rules**. Popups mounted invisible.
+- Fix: added selectors in `src/styles/popup/_islands.scss` (absolute wrapper above nav, spring entry animation, backdrop fade). Moved `<PopupIsland>` inside `.vm-pages-viewport` so absolute positioning attaches correctly.
+- Added Vitest `component` project (jsdom + `resolve.conditions: ['browser']`) with `obsidian` mock alias. New `pnpm run test:component` script; `verify` extended to include it.
+- New `test/helpers/dom-obsidian-polyfill.ts` polyfills Obsidian's `addClass / removeClass / toggleClass / empty / createEl / createDiv / createSpan / setText` on `Element.prototype` for jsdom.
+- New `test/component/settingsUI.test.ts` mounts `SettingsUI.svelte` with a fake plugin (DEFAULT_SETTINGS, `vi.fn()` for saveSettings/updateGlassBlur). Asserts `.vm-settings` renders, no save calls during mount, settings not mutated. If a blanket `$effect` autosave is reintroduced, Svelte will throw `effect_update_depth_exceeded` inside `flushSync()` and the suite fails naturally.
+- Strengthened `serviceOverlayState.test.ts` with no-op assertions (pop empty / popById missing / clear empty preserve identity; popById('queue') removes only queue).
+- `pnpm run verify` green: lint 4 warn / 0 err (pre-existing), check 0/0, build 16s, test:unit 167/167, test:component 3/3. `obsidian plugin:reload` clean (`No errors captured`).
+- Frame smoke (`frameVaultman.svelte`) NOT landed — needs deep mocks for queueService/filterService/all node indexes/ResizeObserver. Documented in HANDOFF.md.
 
 ### 2026-05-02 — Sub-A.4.2 closed (Frame + Navbars + Popups + Tabs + ExplorerQueue + ExplorerActiveFilters)
 - T35: `OverlayStateService` (IOverlayState, ADR-010) + 5 tests. Wired in `main.ts`.

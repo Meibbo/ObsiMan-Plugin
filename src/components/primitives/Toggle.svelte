@@ -10,10 +10,15 @@
     disabled?: boolean;
     onChange?: (next: boolean) => void;
   } = $props();
+
+  function handleChange(event: Event): void {
+    checked = (event.currentTarget as HTMLInputElement).checked;
+    onChange?.(checked);
+  }
 </script>
 
 <label class="vm-toggle" class:is-disabled={disabled}>
-  <input type="checkbox" bind:checked={checked} {disabled} onchange={() => onChange?.(checked)} />
+  <input type="checkbox" bind:checked={checked} {disabled} onchange={handleChange} />
   <span class="vm-toggle-knob"></span>
   <span class="vm-toggle-label">{label}</span>
 </label>

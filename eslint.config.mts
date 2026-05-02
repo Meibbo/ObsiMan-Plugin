@@ -1,7 +1,7 @@
 import tseslint from 'typescript-eslint';
 import obsidianmd from "eslint-plugin-obsidianmd";
 import globals from "globals";
-import { globalIgnores } from "eslint/config";
+import oxlint from 'eslint-plugin-oxlint';
 
 export default tseslint.config(
 	{
@@ -10,6 +10,7 @@ export default tseslint.config(
 			"dist",
 			"obsidian-sample-plugin",
 			"esbuild.config.mjs",
+			"vite.config.ts",
 			"svelte.config.js",
 			"eslint.config.js",
 			"version-bump.mjs",
@@ -80,4 +81,6 @@ export default tseslint.config(
 			'depend/ban-dependencies': 'off',
 		},
 	},
+	// Disable ESLint rules already covered by Oxlint (avoids duplicate warnings)
+	oxlint.configs['flat/recommended'],
 );

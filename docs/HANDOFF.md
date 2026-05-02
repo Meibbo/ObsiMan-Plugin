@@ -1,188 +1,423 @@
 # HANDOFF — Vaultman Next Session
 
-> Updated: 2026-05-02 | From: Claude Code (Sonnet 4.6) → To: Opus 4.7
-> Branch: `hardening-refactor` | Version: `1.0.0-rc.1` (tagged, NOT pushed yet)
-> **Sub-A.5 código commiteado, build/test verde. PERO smoke-test BLOQUEADO por bug Svelte 5 `effect_update_depth_exceeded`. NO PUSHEAR hasta arreglarlo.**
+> Updated: 2026-05-02 | From: Claude Code (Opus 4.7) → Next agent
+> Branch: `hardening-refactor` | Version: `1.0.0-rc.1`
+> `pnpm run verify` green; Obsidian reload clean (`No errors captured`).
 
 ---
 
-## ⚠️ BUG ACTIVO — Sub-A.5 SettingsUI infinite effect loop
+## Most recent session (Opus 4.7, 2026-05-02 PM #2 — partial fix, blocker remains)
 
-### Síntoma
-Al abrir Settings → Vaultman, Svelte 5 lanza:
-```
-Uncaught Error: https://svelte.dev/e/effect_update_depth_exceeded
-at Sa (plugin:vaultman:17:94)
-at Xc (plugin:vaultman:54:5573)
-at #m (plugin:vaultman:54:1248)
-at #m (plugin:vaultman:54:1999)  ← repetido 100+ veces
-```
+### ✅ Fixed in this turn
+1. **Pill blur restored** — Vite+'s esbuild CSS minifier was dropping the unprefixed `backdrop-filter` declaration when both prefixed and unprefixed appeared. Set `build.cssTarget: ['chrome120']` and `build.cssMinify: 'esbuild'` in `vite.config.ts`. Compiled `styles.css` now keeps `backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);` for `.vm-nav-pill`. Verified live: `getComputedStyle(.vm-nav-pill).backdropFilter === 'blur(22px)'`.
+2. **`.vm-island-backdrop` rising-glass design restored** — my earlier turn redefined `.vm-island-backdrop` in `_islands.scss` (opaque rectangle, `z-index: 35`), which overrode the original masked `::before` blur in `_v3-nav.scss:61`. Reverted: `_islands.scss` now contains a comment pointing to `_v3-nav.scss` and only keeps `.vm-popup-island` / `.vm-popup-island-entry` rules (those classes are unique to `popupIsland.svelte`).
 
-### Setup crítico antes de testear (NO obvio)
-- `plugin-dev/.obsidian/plugins/vaultman` es **symlink** a `Start of The Road/Production/Code/vaultman`
-- Nuestro dev/build está en `obsiman/`, pero Obsidian carga desde `vaultman` (symlink)
-- Ambos repos están en branch `hardening-refactor` (production behind nuestros commits)
-- **Para smoke-test**: copiar `obsiman/{main.js,styles.css,manifest.json}` → symlink path, luego `obsidian plugin:reload id=vaultman`
+### ❌ Still blocking — islands DO NOT open
 
-### Lo que se intentó (NO funcionó)
-1. **Versión inicial**: `Object.assign(plugin.settings, s)` directo → loop
-2. **Fix con `$state.snapshot`**:
-```ts
-$effect(() => {
-  Object.assign(plugin.settings, $state.snapshot(s));
-  void plugin.saveSettings();
-  plugin.updateGlassBlur();
-});
-```
-También loop. Mismo error en línea 54 (confirmando que código se actualizó).
-
-### Hipótesis pendientes (no testeadas)
-- Algún `bind:value` en `<select>` corrige el valor en mount → escribe a `s` → effect re-corre
-- `plugin.updateGlassBlur()` lee `plugin.settings.glassBlurIntensity` que ahora es proxy reactivo → triggers reactivity
-- Algún campo array (`filterTemplates`, `contextMenuHideRules`) compartido por referencia con `plugin.settings` causa cycle vía Svelte deep proxy
-- Bug en `$state.snapshot` con types complejos del `MenuHideRule[]`
-
-### Próximo agente: estrategias a probar (en orden)
-1. **Patrón explícito sin `$effect` blanket**: usar `onChange` callback en cada Toggle/Dropdown que llame función `save()`. Eliminar el `$effect` global. Más verboso pero garantizado sin loop.
-2. **Usar `untrack`** de svelte para envolver `Object.assign + saveSettings`:
-```ts
-import { untrack } from 'svelte';
-$effect(() => {
-  const snap = $state.snapshot(s);
-  untrack(() => {
-    Object.assign(plugin.settings, snap);
-    void plugin.saveSettings();
-    plugin.updateGlassBlur();
-  });
-});
-```
-3. **Consultar Svelte MCP** (`mcp__svelte__get-documentation` con `section` correcto): leer `svelte/$effect` + `svelte/runtime-errors` para ver cómo se sincroniza state reactivo con external store sin loop. Skill svelte estaba activa al final de la sesión.
-4. **Aislar el campo culpable**: comentar todos los bindings excepto uno y agregar uno por uno hasta reproducir el loop. Probable culprit: arrays (`filterTemplates`, `contextMenuHideRules`).
-
-### Archivo a editar
-- `src/components/settings/SettingsUI.svelte` — solo el `$effect` y posiblemente bindings.
-
-### Validación al arreglar
+Repro:
 ```powershell
-cd "C:/Users/vic_A/My Drive (vic_alejandronavas@outlook.com)/plugin-dev/.obsidian/plugins/obsiman"
-npm run check ; npm run build
-# Copiar a symlink target:
-Copy-Item main.js,styles.css "C:/Users/vic_A/My Drive (vic_alejandronavas@outlook.com)/Start of The Road/Production/Code/vaultman/" -Force
 obsidian vault=plugin-dev plugin:reload id=vaultman
-obsidian vault=plugin-dev dev:errors  # debe ser "No errors captured"
-obsidian vault=plugin-dev eval code="JSON.stringify({vmSettings: !!app.setting.activeTab?.containerEl?.querySelector('.vm-settings')})"
-# vmSettings debe ser true → confirma que SettingsUI montó OK
+obsidian vault=plugin-dev eval code="(async()=>{const ws=app.workspace;let l=ws.getLeavesOfType('vm-frame')[0]||ws.getRightLeaf(true);await l.setViewState({type:'vm-frame',active:true});ws.revealLeaf(l);await new Promise(r=>setTimeout(r,1000));l.view.contentEl.querySelector('.vm-nav-fab').click();})()"
+obsidian vault=plugin-dev dev:errors
 ```
 
----
+`dev:errors` shows on every push:
+```
+Uncaught TypeError: t is not a function
+    at eval (plugin:vaultman:7:41103)
+    ...stack inside Svelte runtime (xn/jn/ei/...) — looks like the each-block of popupIsland.svelte blowing up while mounting <Comp {...props} />.
+```
+
+DOM probe after `plugin.overlayState.push({id:'queue', component: ExplorerQueueComp, props})` (or even a fake `function noop(){return {}}` component) shows that the `{#if overlayState.stack.length > 0} <div class="vm-popup-island">` never appears in `.vm-pages-viewport` — only `.vm-page-container`, `.vm-island-backdrop`, `.vm-bottom-nav` are rendered. Stack length goes to 1 in JS, but Svelte 5 does not flush the conditional render — the runtime error aborts the effect graph.
+
+**Hypothesis** for the next agent: Svelte 5's compiled output for the dynamic-component-with-spread pattern in [popupIsland.svelte:23](src/components/layout/popupIsland.svelte:23):
+```svelte
+{#each overlayState.stack as entry (entry.id)}
+  {@const Comp = entry.component as Component<Record<string, unknown>>}
+  <div ...>
+    <Comp {...(entry.props ?? {})} />
+  </div>
+{/each}
+```
+emits `(e, t) => { t(e, props_fn) }` where `t` ends up being the entry's component reference. If the component is somehow reaching the runtime as a plain object (not a function), `t(e, ...)` throws. But CLI test pushed `function noop(){return {}}` and it ALSO failed — so the caller-shape might not be the issue.
+
+Recommended next steps:
+1. Open `src/components/layout/popupIsland.svelte` and try replacing the `{@const Comp = entry.component} <Comp {...props} />` pattern with a plain `<svelte:component this={entry.component} />`-equivalent or imperative `mount()` inside an effect. Svelte 5 doc: see `mcp__svelte__svelte-autofixer` on the file first.
+2. Look up the Svelte 5 changelog around v5.55 (current dep) for any regression in dynamic-component spread.
+3. Confirm `entry.component` arrives as a function via `console.log(typeof entry.component, entry.component)` inside the each block.
+
+### ❌ Other regressions reported by user (not investigated this turn)
+- **`tabContent` empty / `NavbarExplorer` hidden** — DOM probe shows `.vm-tab-content` exists with `childCount: 2` and `innerHTML.length: 5145` but `offsetHeight: 0, offsetWidth: 0`. CSS layout collapse, not missing markup. May be related to `flex: 1` not propagating from a parent with `display` not flex or zero size. Needs git-bisect against last known good commit (suggest `0dd241c` Sub-A.4.2 close).
+- **`NavbarExplorer` not visible** — only on filters page; if active page is `'ops'` (default), it's correctly absent. User should confirm by switching to filters tab.
+- **`serviceDecorate` not acting on nodes** — pre-existing deferred work from Sub-A.4.2 ("decorationManager NOT wired in main.ts"). Not a regression from recent sessions; resolve by wiring `IDecorationManager` in main.ts and into `ExplorerService`.
+
+### Verify status
+- `pnpm run lint` → 4 warnings / 0 errors (pre-existing).
+- `pnpm run check` → 0 errors / 0 warnings.
+- `pnpm run build` → OK.
+- `pnpm run test:unit` → 167/167.
+- `pnpm run test:component` → 3/3 (component lane added in earlier turn).
+
+### Open question for next agent
+Should `<PopupIsland>` be moved back outside `.vm-pages-viewport` to its original location (a sibling of `.vm-view`)? My move was speculative for absolute positioning. The runtime error happens regardless of placement.
 
 ---
 
-## CONTEXTO INMEDIATO
+## Earlier same-day session (Opus 4.7, 2026-05-02 PM #1)
 
-Sesión 2026-05-02: cerrada A.4.2 completa. Ejecutado en orden no-plan: T35→T37→T38→T39→T40→T36 (T36 al final por deps).
+### Fix — islands not opening (Sub-A.4.2 visual regression)
 
-### Lo que se hizo esta sesión
+`popupIsland.svelte` rendered with classes `.vm-popup-island` / `.vm-popup-island-entry` and the `.vm-island-backdrop` toggle had **no SCSS rules** at all. Result: `overlayState.push()` mounted the popup, but it was invisible (no positioning, no z-index, no transition).
 
-**T35: `OverlayStateService` + ADR-010**
-- `src/services/serviceOverlayState.svelte.ts` (`IOverlayState` + 5 tests).
-- Wire en `main.ts`: `plugin.overlayState`.
+Fixes in this session:
 
-**T37: `navbarPages` agnostic**
-- Genérico: `tabs: TabConfig[]` + `bind:active`. `pageFilters` wires `FILTERS_TABS_CONFIG` (4 tabs).
+- `src/styles/popup/_islands.scss`: added rules for `.vm-island-backdrop` (absolute fill, opacity transition, `is-open` activates pointer events), `.vm-popup-island` (absolute wrapper above bottom nav, z-index 40, `pointer-events: none`), `.vm-popup-island-entry` (centered, max-width 420px, spring entry animation, `pointer-events: auto`).
+- `src/components/frameVaultman.svelte`: moved `<PopupIsland>` inside `.vm-pages-viewport` (sibling of `.vm-island-backdrop`) so the absolute positioning attaches to the positioned ancestor.
 
-**T38: `tabContent` rewrite**
-- Consume `IContentIndex.setQuery()` via `Virtualizer<ContentMatch>` + `TextInput` + `HighlightText`.
-- Wired como 4ta tab en pageFilters. NavbarExplorer oculto cuando tab=content.
-- Tipo `FiltersTab` expandido a `tags|props|files|content`.
-- i18n: añadidos `filter.tab.content`, `content.search.placeholder`, `content.search.hint`.
+### Regression test lane (jsdom component project)
 
-**T39: `popupIsland.svelte`**
-- Built from scratch (WIP era 1 línea vacía).
-- Renderiza `IOverlayState.stack` con dynamic component (`{@const Comp = entry.component}` + `<Comp>`).
-- Dismiss en outside click + Escape.
+Added a Vitest project named `component` so future Svelte runtime loops surface in CI rather than only in manual Obsidian smoke.
 
-**T40: `explorerQueue` + `explorerActiveFilters`**
-- Virtual lists sobre `operationsIndex.nodes` / `activeFiltersIndex.nodes`.
-- Delete actions individuales + execute all (queue).
-- **Skipped `ExplorerService` dep** porque `decorationManager` NO está wired en main.ts.
-- Plan spec usaba `ViewTree` con T33 interface — usé simple `{#each v.visible}` (T33 diferido).
+- `vitest.config.ts`: new project with `environment: 'jsdom'`, `resolve.conditions: ['browser']`, `obsidian` aliased to the existing mock.
+- `package.json`: new `test:component` script; `verify` now runs `lint → check → build → test:unit → test:component`.
+- `test/helpers/dom-obsidian-polyfill.ts`: polyfills Obsidian's element helpers (`addClass / removeClass / toggleClass / empty / createEl / createDiv / createSpan / setText`) on `Element.prototype` so jsdom mounts work.
+- `test/component/settingsUI.test.ts`: mounts `SettingsUI.svelte` with a fake plugin (DEFAULT_SETTINGS, `vi.fn()` for `saveSettings` and `updateGlassBlur`) and asserts:
+  - `.vm-settings` root renders.
+  - `saveSettings` and `updateGlassBlur` are NOT called during mount.
+  - `plugin.settings` is not mutated during mount.
+  - If a blanket `$effect` autosave is reintroduced, Svelte throws `effect_update_depth_exceeded` inside `flushSync()` and the suite fails naturally.
+- `test/unit/services/serviceOverlayState.test.ts`: added no-op assertions (`pop` on empty, `popById('missing')`, `clear` on empty preserve array identity; `popById('queue')` removes only the queue entry).
 
-**T36 (adaptado): Frame rewrite**
-- Replaces `QueueIslandComponent` + `ActiveFiltersIslandComponent` con `overlayState.push(ExplorerQueue/ExplorerActiveFilters, {plugin, onClose})`.
-- Removed: `queueIslandEl/filtersIslandEl/queueIsland/filtersIsland/queueIslandOpen/filtersIslandOpen` state.
-- Removed: dead `queueList: QueueListComponent` (nunca inicializado).
-- `isIslandOpen = $derived(overlayState.isOpen('queue') || overlayState.isOpen('active-filters'))`.
-- Added `<PopupIsland overlayState={plugin.overlayState} />` + kept `<PopupOverlay>` for legacy scope/search/move.
-- **NO migrated**: scope/search/move popups (still on layoutPopup) → quedan para next plan.
-- **NO usado**: `plugin.router` (no wired) → kept pixel-based page transitions (px fix preservado).
-- **NO migrated**: DnD reorder, responsive nav, page state (todo intacto).
+Frame smoke (`frameVaultman.svelte`) NOT landed — frame requires deep mocks for `queueService`, `filterService`, every node index, and ResizeObserver. SettingsUI + OverlayState cover the recently broken surface; revisit if the frame regresses again.
 
-**Limpieza:**
-- Deleted `src/logic/logicQueue.ts` + `logicFilters.ts` (478 LOC).
-- `vitest.config.ts`: removed exclusions.
-- `ADR-009`: Superseded by Sub-A.4.2.
+### Verify
+- `pnpm run verify` → lint 4 warn / 0 err (pre-existing), svelte-check 0/0, vp build 16s, test:unit 167/167, test:component 3/3.
+- `obsidian plugin:reload id=vaultman` → reloaded; `dev:errors` → `No errors captured`.
 
 ---
 
-## ESTADO ACTUAL DEL REPO
+## Previous session — ChatGPT Codex
 
-- Branch: `hardening-refactor`, limpio, **NO pushed** (tag tampoco).
-- Último commit: `0dd241c refactor(frame): wire overlayState; replace queue/filters islands; close Sub-A.4 (Sub-A.4.2)`
-- `npm run verify` = lint(0) + check(0) + build(✓) + test:unit(**163/163** ✓, 29 files).
-- Version: `1.0.0-beta.23` (tagged local, NO pushed, NO BRAT release todavía).
-
-### Archivos clave A.4.2
-- `src/services/serviceOverlayState.svelte.ts` — `OverlayStateService`
-- `src/components/layout/popupIsland.svelte` — stack renderer
-- `src/components/explorers/explorerQueue.svelte` — queue popup
-- `src/components/explorers/explorerActiveFilters.svelte` — active-filters popup
-- `src/components/pages/tabContent.svelte` — content search tab
-- `src/components/layout/navbarPages.svelte` — agnostic tab bar
-- `src/components/frameVaultman.svelte` — wires overlayState
-- `docs/superpowers/adr/ADR-010-*.md` — popup state design
-
-### REGLA CRÍTICA — CSS
-`styles.css` es output compilado. Editar SIEMPRE en `src/styles/**/*.scss`. Primitives → `_primitives.scss`.
+> Context warning: previous session ended with ~8% context. Start fresh: read `AGENTS.md`, this file, and `docs/Vaultman - Agent Memory.md`.
 
 ---
 
-## PRÓXIMOS PASOS
+## Current Status
 
-### Inmediatos (este agente o el siguiente)
-1. **Smoke test obligatorio**: reload plugin (`obsidian plugin:reload id=vaultman`), abrir Vaultman, abrir Settings → verificar que SettingsUI carga y los campos se muestran. Click en queue island + active-filters islands.
-2. Si OK: `git push && git push --tags`.
-3. Crear GitHub Release manualmente para `1.0.0-rc.1` (assets: `main.js`, `manifest.json`, `styles.css`).
-4. PRs: `hardening-refactor` → `hardening` → `main`.
+Hard production-build migration to **Vite+** is complete and smoke-tested.
 
-### Sub-A.5 — CERRADO ✅
-- `settingsVM.ts`: 28 LOC mount/unmount bridge.
-- `SettingsUI.svelte`: declarativo con primitives, cubre todos los campos de `typeSettings.ts`.
-- Integration test: idempotency + required fields. Svelte mount round-trip → E2E pendiente.
+Toolchain architecture now:
 
-### Pendientes diferidos para próximo plan
-- **T33** (viewTree thin-renderer con snippets): necesita design discussion. Spec actual elimina virtualizer → regresión.
-- **decorationManager wiring**: `ExplorerService` espera `IDecorationManager` pero no está wired en `main.ts`. Las explorers actuales (T40) lo evitan accediendo `index.nodes` directo.
-- **Migrate scope/search/move popups a overlayState**: layoutPopup todavía maneja estos. Sería un T36-bis.
-- **plugin.router wiring**: `serviceNavigation.svelte.ts` existe pero `plugin.router` no se usa. La navegación de páginas sigue siendo local en frameVaultman.
+- Package manager: `pnpm@10.29.2` (`pnpm-lock.yaml`, `pnpm-workspace.yaml`).
+- Build/test runner: `vp` from local `vite-plus@0.1.20`.
+- Vite/Rolldown through Vite+:
+  - `vite v8.0.10`
+  - `rolldown v1.0.0-rc.17`
+  - `vitest v4.1.5`
+  - `oxlint v1.61.0`
+- Lint architecture:
+  - `pnpm run lint` = `vp lint && eslint .`
+  - `vp lint` covers fast Oxlint checks.
+  - `eslint .` still required for Obsidian-specific rules and type-aware TypeScript rules.
+
+Verification already passed:
+
+```powershell
+pnpm run verify
+obsidian vault=plugin-dev plugin:reload id=vaultman
+obsidian vault=plugin-dev eval code="app.commands.executeCommandById('vaultman:open'); 'opened'"
+obsidian vault=plugin-dev eval code="app.setting.open(); app.setting.openTabById('vaultman'); JSON.stringify({settingsUI: !!app.setting.activeTab?.containerEl?.querySelector('.vm-settings')})"
+obsidian vault=plugin-dev dev:errors
+```
+
+Last `dev:errors` result: `No errors captured`.
+
+Do **not** assume old notes about the Sub-A.5 settings loop are still current. That bug was fixed.
 
 ---
 
-## ARCHIVOS A LEER ANTES DE EMPEZAR
+## What Changed In Last Session
 
-1. `AGENTS.md` — checklist + ADR review.
-2. `docs/Vaultman - Agent Memory.md` — estado.
-3. `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-a.md` líneas 3314+ — Task 41+.
-4. Esta `HANDOFF.md`.
+### Vite+ Production Migration
+
+- Installed local `vite-plus@0.1.20`.
+- Added `packageManager: pnpm@10.29.2`.
+- Added `vite.config.ts`.
+- Added `src/pluginEntry.ts`.
+- Production build now runs:
+
+```powershell
+pnpm run build
+# tsc -noEmit -skipLibCheck && vp build && node scripts/sync-test-build.mjs
+```
+
+- `vp build` outputs:
+  - `dist/vite/main.js`
+  - `dist/vite/styles.css`
+- `scripts/sync-test-build.mjs` copies:
+  - `dist/vite/main.js` → plugin root `main.js`
+  - `dist/vite/styles.css` → plugin root `styles.css`
+  - root `manifest.json`, `main.js`, `styles.css` → `dist/build`
+- CI now uses `voidzero-dev/setup-vp@v1`, `vp install`, and `vp run ...`.
+
+Important: `styles.css` is still generated output. Edit SCSS under `src/styles/**/*.scss`, not `styles.css`.
+
+### Svelte Runtime Loop Fixes
+
+Fixed `effect_update_depth_exceeded` from two causes:
+
+1. `SettingsUI.svelte`
+   - Removed blanket `$effect` autosave.
+   - Settings now persist from explicit `onChange` / `onInput` handlers.
+   - `saveSettings()` is no longer called during initial mount.
+
+2. `OverlayStateService`
+   - `pop()`, `popById()`, and `clear()` now no-op when the stack would not change.
+   - Root cause: `frameVaultman.svelte` has an effect that calls `closeQueueIsland()` / `closeFiltersIsland()`. Previously `popById("queue")` always assigned a new array even when `"queue"` was absent, causing the effect to read and write the same rune-backed state forever.
+
+Also updated:
+
+- `src/components/primitives/Dropdown.svelte`
+- `src/components/primitives/Toggle.svelte`
+
+Both now have reliable `onChange` callbacks.
 
 ---
 
-## NOTAS PARA EL SIGUIENTE AGENTE
+## Why Tests Missed The Runtime Bug
 
-- **Caveman mode** activo.
-- **CSS → siempre SCSS** (`src/styles/`).
-- **T33 diferido** — plan spec rompe virtualización; necesita design check con user.
-- `test:integrity` excluido del gate.
-- **No version bump cuando T36 se hizo "adaptado"**: la versión bump está bien porque T36 SÍ cumplió el objetivo principal (overlayState wired, logicQueue/Filters borrados).
-- viewGrid (T34 sesión anterior) **el user planea reemplazar entero** — no invertir más esfuerzo allí.
-- `plugin.router` no existe — frame mantiene navegación local. Si Sub-A.5 lo necesita, hay que wirear `serviceNavigation` primero.
+Current automated tests are mostly logic/service tests. They did not mount the real Svelte frame/settings components in a DOM lifecycle.
+
+Gaps:
+
+- `test:unit` runs in Node environment.
+- `vitest.config.ts` explicitly excludes `**/*.svelte` from coverage.
+- No `jsdom` or Vitest browser-mode component project exists.
+- `SettingsUI.svelte` was not mounted in a test.
+- `frameVaultman.svelte` was not mounted in a test.
+- `serviceOverlayState.test.ts` did not assert no-op mutation identity / no-op behavior.
+- `svelte-check` cannot catch reactive runtime loops. The code was type-correct.
+
+Obsidian CLI caught it because it exercised the real plugin lifecycle.
+
+---
+
+## Next Agent Task: Add Regression Tests For Svelte Runtime Loops
+
+Goal: catch `effect_update_depth_exceeded` before manual Obsidian smoke.
+
+Use skills:
+
+- `svelte-code-writer`
+- `svelte-core-bestpractices`
+- `obsidian-cli` if doing smoke
+
+Run Svelte autofixer for any touched `.svelte` file:
+
+```powershell
+npx @sveltejs/mcp svelte-autofixer .\path\to\Component.svelte --svelte-version 5
+```
+
+### Step 1 — Strengthen Overlay Service Tests
+
+File:
+
+- `test/unit/services/serviceOverlayState.test.ts`
+
+Add tests:
+
+- `pop()` on empty stack keeps stack empty and does not create a new stack value.
+- `popById("missing")` does not change stack when id is absent.
+- `clear()` on empty stack does not create a new stack value.
+- `popById("queue")` removes the queue entry when present.
+- Optional: use `flushSync` from `svelte` if the existing tests use rune flush semantics.
+
+Reason: this would have caught the frame loop root cause.
+
+### Step 2 — Add Component Test Lane
+
+Preferred first pass: `jsdom`, not browser mode. Lower setup cost.
+
+Install:
+
+```powershell
+pnpm add -D jsdom
+```
+
+Update `vitest.config.ts`:
+
+- Add a third project named `component`.
+- Use `plugins: [svelte()]`.
+- Use `environment: 'jsdom'`.
+- Include `test/component/**/*.test.ts`.
+- Alias `obsidian` to `test/helpers/obsidian-mocks.ts`.
+- For Vitest/Svelte docs, use `resolve.conditions = ['browser']` if needed.
+
+Update `package.json`:
+
+```json
+"test:component": "vp test run --project component --config vitest.config.ts",
+"verify": "pnpm run lint && pnpm run check && pnpm run build && pnpm run test:unit && pnpm run test:component"
+```
+
+### Step 3 — Add SettingsUI Mount Test
+
+New file suggestion:
+
+- `test/component/settingsUI.test.ts`
+
+Test shape:
+
+```ts
+import { flushSync, mount, unmount } from 'svelte';
+import { describe, expect, test, vi } from 'vitest';
+import SettingsUI from '../../src/components/settings/SettingsUI.svelte';
+import { DEFAULT_SETTINGS } from '../../src/types/typeSettings';
+
+function makePlugin() {
+  return {
+    settings: structuredClone(DEFAULT_SETTINGS),
+    saveSettings: vi.fn().mockResolvedValue(undefined),
+    updateGlassBlur: vi.fn(),
+  };
+}
+
+test('mounts without autosave loop', () => {
+  const target = document.createElement('div');
+  document.body.append(target);
+  const plugin = makePlugin();
+
+  const component = mount(SettingsUI, { target, props: { plugin } });
+  flushSync();
+
+  expect(target.querySelector('.vm-settings')).not.toBeNull();
+  expect(plugin.saveSettings).not.toHaveBeenCalled();
+
+  unmount(component);
+  target.remove();
+});
+```
+
+If `activeDocument` is missing in jsdom, set it in test setup:
+
+```ts
+vi.stubGlobal('activeDocument', document);
+```
+
+### Step 4 — Add Frame Mount Smoke Test
+
+New helper:
+
+- `test/helpers/mockVaultmanPlugin.ts`
+
+The frame needs a broad plugin surface. Keep the mock minimal, but realistic.
+
+Minimum fields likely needed:
+
+- `app`
+  - from `mockApp()`
+  - add `metadataCache.off` if absent
+  - add `workspace.getLeavesOfType`, `workspace.getLeftLeaf`, `workspace.getRightLeaf`, `workspace.getLeaf`, `workspace.revealLeaf` if frame calls them
+- `settings`
+- `queueService`
+- `filterService`
+- `overlayState`
+- `filesIndex`, `tagsIndex`, `propsIndex`, `contentIndex`, `operationsIndex`, `activeFiltersIndex`
+- `propertyIndex`
+- `iconicService` if rendered paths use it
+
+New file suggestion:
+
+- `test/component/frameVaultman.test.ts`
+
+Test:
+
+- mount `frameVaultman.svelte`
+- `flushSync()`
+- assert `.vm-view` exists
+- fail naturally if Svelte throws `effect_update_depth_exceeded`
+
+This test would have caught the `closeQueueIsland()` + `popById()` loop.
+
+### Step 5 — Optional Obsidian CLI Smoke Script
+
+After component tests exist, keep manual smoke but make it scriptable.
+
+Potential script:
+
+- `scripts/smoke-obsidian.mjs`
+
+Commands:
+
+```powershell
+obsidian vault=plugin-dev dev:errors clear
+obsidian vault=plugin-dev plugin:reload id=vaultman
+obsidian vault=plugin-dev eval code="app.commands.executeCommandById('vaultman:open'); 'opened'"
+obsidian vault=plugin-dev eval code="app.setting.open(); app.setting.openTabById('vaultman'); JSON.stringify({settingsUI: !!app.setting.activeTab?.containerEl?.querySelector('.vm-settings')})"
+obsidian vault=plugin-dev dev:errors
+```
+
+Expected final output: `No errors captured`.
+
+Do not add this to CI unless CI has Obsidian available. Keep it local/manual or as `pnpm run smoke:obsidian`.
+
+---
+
+## Important Current Working Tree Notes
+
+Expected modified/new files from last session include:
+
+- `.github/workflows/ci.yml`
+- `eslint.config.mts`
+- `package-lock.json`
+- `package.json`
+- `scripts/sync-test-build.mjs`
+- `src/pluginEntry.ts`
+- `vite.config.ts`
+- `src/components/primitives/Dropdown.svelte`
+- `src/components/primitives/Toggle.svelte`
+- `src/components/settings/SettingsUI.svelte`
+- `src/services/serviceOverlayState.svelte.ts`
+- `styles.css` generated by build
+- `tsconfig.json`
+- `docs/HANDOFF.md`
+- `docs/Vaultman - Agent Memory.md`
+
+There is also `.codex/` untracked from local tool use. Do not commit it unless user explicitly wants that.
+
+`src/logic/logicQueue.ts` was an untracked resurrected legacy file and was removed. Handoff/memory from Sub-A.4.2 said it was intentionally deleted.
+
+---
+
+## Commands To Run Before Final
+
+```powershell
+pnpm run verify
+obsidian vault=plugin-dev dev:errors clear
+obsidian vault=plugin-dev plugin:reload id=vaultman
+obsidian vault=plugin-dev eval code="app.commands.executeCommandById('vaultman:open'); 'opened'"
+obsidian vault=plugin-dev eval code="app.setting.open(); app.setting.openTabById('vaultman'); JSON.stringify({settingsUI: !!app.setting.activeTab?.containerEl?.querySelector('.vm-settings')})"
+obsidian vault=plugin-dev dev:errors
+```
+
+Expected:
+
+- `pnpm run verify` green.
+- settings eval includes `"settingsUI":true`.
+- `dev:errors` says `No errors captured`.
+
+---
+
+## Rules For Next Agent
+
+- Read `AGENTS.md` first.
+- Read ADRs before touching `src/services/` or `src/types/`.
+- Use `apply_patch` for edits.
+- Use PowerShell `;`, not `&&`.
+- Do not edit `styles.css` manually.
+- Do not reintroduce blanket `$effect` autosave.
+- Any service method called from a `$effect` must be idempotent for no-op calls.
+- If context <20%, stop and update this handoff before continuing.
+
+
+

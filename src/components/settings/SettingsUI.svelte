@@ -45,11 +45,11 @@
   }
   let s = $state(initState());
 
-  $effect(() => {
+  function persistSettings(): void {
     Object.assign(plugin.settings, $state.snapshot(s));
     void plugin.saveSettings();
     plugin.updateGlassBlur();
-  });
+  }
 
   $effect(() => {
     activeDocument.body.toggleClass('vm-bases-column-separators', s.basesShowColumnSeparators);
@@ -73,6 +73,7 @@
     const order = [...s.pageOrder];
     order[pos] = value;
     s.pageOrder = order;
+    persistSettings();
   }
 </script>
 
@@ -84,6 +85,7 @@
   <Dropdown
     label={translate('settings.default_type')}
     bind:value={s.defaultPropertyType}
+    onChange={persistSettings}
     options={[
       { value: 'text',     label: translate('prop.type.text') },
       { value: 'number',   label: translate('prop.type.number') },
@@ -97,19 +99,20 @@
     label="Session file path"
     placeholder="vaultman/session.md"
     value={s.sessionFilePath}
-    onInput={(v) => { s.sessionFilePath = v; }}
+    onInput={(v) => { s.sessionFilePath = v; persistSettings(); }}
   />
 
   <!-- ── Explorer ──────────────────────────────────────────────────── -->
   <h3 class="vm-settings-heading">Explorer</h3>
 
-  <Toggle bind:checked={s.explorerCtrlClickSearch} label={translate('settings.ctrl_click_search')} />
-  <Toggle bind:checked={s.explorerShowQueuePreview} label={translate('settings.queue_preview')} />
-  <Toggle bind:checked={s.explorerContentSearch}    label={translate('settings.content_search')} />
+  <Toggle bind:checked={s.explorerCtrlClickSearch} label={translate('settings.ctrl_click_search')} onChange={persistSettings} />
+  <Toggle bind:checked={s.explorerShowQueuePreview} label={translate('settings.queue_preview')} onChange={persistSettings} />
+  <Toggle bind:checked={s.explorerContentSearch}    label={translate('settings.content_search')} onChange={persistSettings} />
 
   <Dropdown
     label={translate('settings.operation_scope')}
     bind:value={s.explorerOperationScope}
+    onChange={persistSettings}
     options={[
       { value: 'auto',     label: translate('settings.scope.auto') },
       { value: 'selected', label: translate('settings.scope.selected') },
@@ -124,6 +127,7 @@
   <Dropdown
     label={translate('settings.open_mode')}
     bind:value={s.openMode}
+    onChange={persistSettings}
     options={[
       { value: 'sidebar', label: translate('settings.open_mode.sidebar') },
       { value: 'main',    label: translate('settings.open_mode.main') },
@@ -134,6 +138,7 @@
   <Dropdown
     label={translate('settings.ops_position')}
     bind:value={s.operationsPanelPosition}
+    onChange={persistSettings}
     options={[
       { value: 'right',   label: translate('settings.ops_position.right') },
       { value: 'bottom',  label: translate('settings.ops_position.bottom') },
@@ -144,24 +149,25 @@
   <Dropdown
     label="File list view mode"
     bind:value={s.viewMode}
+    onChange={persistSettings}
     options={[
       { value: 'list',     label: translate('view.mode.list') },
       { value: 'selected', label: translate('view.mode.selected') },
     ]}
   />
 
-  <Toggle bind:checked={s.separatePanes}        label={translate('settings.layout.separate_panes')} />
-  <Toggle bind:checked={s.filtersShowTabLabels} label="Show tab labels in Filters" />
+  <Toggle bind:checked={s.separatePanes}        label={translate('settings.layout.separate_panes')} onChange={persistSettings} />
+  <Toggle bind:checked={s.filtersShowTabLabels} label="Show tab labels in Filters" onChange={persistSettings} />
 
   <div class="vm-settings-row">
     <span class="vm-settings-label">{translate('settings.page_order')}</span>
     <div class="vm-settings-page-order">
-      {#each [0, 1, 2] as pos}
+      {#each [0, 1, 2] as pos (pos)}
         <select
           value={s.pageOrder[pos]}
           onchange={(e) => setPageOrder(pos, (e.target as HTMLSelectElement).value)}
         >
-          {#each PAGE_IDS as id}
+          {#each PAGE_IDS as id (id)}
             <option value={id}>{PAGE_LABELS[id]}</option>
           {/each}
         </select>
@@ -174,7 +180,7 @@
 
   <label class="vm-settings-slider">
     <span class="vm-settings-label">Background blur intensity</span>
-    <input type="range" min="0" max="100" step="1" bind:value={s.glassBlurIntensity} />
+    <input type="range" min="0" max="100" step="1" bind:value={s.glassBlurIntensity} oninput={persistSettings} />
     <span class="vm-settings-slider-value">{s.glassBlurIntensity}</span>
   </label>
 
@@ -187,6 +193,7 @@
   <Dropdown
     label="Open mode"
     bind:value={s.basesOpenMode}
+    onChange={persistSettings}
     options={[
       { value: 'last-used', label: 'Reopen last used' },
       { value: 'picker',    label: 'Always show picker' },
@@ -195,6 +202,7 @@
   <Dropdown
     label="Operations panel side"
     bind:value={s.basesOpsPanelSide}
+    onChange={persistSettings}
     options={[
       { value: 'left',  label: 'Left' },
       { value: 'right', label: 'Right' },
@@ -203,14 +211,15 @@
   <Dropdown
     label="Properties explorer side"
     bind:value={s.basesExplorerSide}
+    onChange={persistSettings}
     options={[
       { value: 'left',  label: 'Left' },
       { value: 'right', label: 'Right' },
     ]}
   />
-  <Toggle bind:checked={s.basesAutoAttach}          label="Auto-attach to .base files" />
-  <Toggle bind:checked={s.basesInjectCheckboxes}    label="Inject checkbox column" />
-  <Toggle bind:checked={s.basesShowColumnSeparators} label="Show column separators" />
+  <Toggle bind:checked={s.basesAutoAttach}          label="Auto-attach to .base files" onChange={persistSettings} />
+  <Toggle bind:checked={s.basesInjectCheckboxes}    label="Inject checkbox column" onChange={persistSettings} />
+  <Toggle bind:checked={s.basesShowColumnSeparators} label="Show column separators" onChange={persistSettings} />
 
   <!-- ── Grid ──────────────────────────────────────────────────────── -->
   <h3 class="vm-settings-heading">Grid</h3>
@@ -218,6 +227,7 @@
   <Dropdown
     label={translate('settings.grid_render_mode')}
     bind:value={s.gridRenderMode}
+    onChange={persistSettings}
     options={[
       { value: 'plain', label: translate('settings.grid_render_mode.plain') },
       { value: 'chunk', label: translate('settings.grid_render_mode.chunk') },
@@ -228,27 +238,27 @@
     label={translate('settings.grid_editable_columns')}
     placeholder="name, tags, status"
     value={arrToStr(s.gridEditableColumns)}
-    onInput={(v) => { s.gridEditableColumns = strToArr(v); }}
+    onInput={(v) => { s.gridEditableColumns = strToArr(v); persistSettings(); }}
   />
   <TextInput
     label="Live preview columns"
     placeholder="content, notes"
     value={arrToStr(s.gridLivePreviewColumns)}
-    onInput={(v) => { s.gridLivePreviewColumns = strToArr(v); }}
+    onInput={(v) => { s.gridLivePreviewColumns = strToArr(v); persistSettings(); }}
   />
   <TextInput
     label="Visible columns"
     placeholder="name, tags, date"
     value={arrToStr(s.gridColumns)}
-    onInput={(v) => { s.gridColumns = strToArr(v); }}
+    onInput={(v) => { s.gridColumns = strToArr(v); persistSettings(); }}
   />
 
   <!-- ── Context menus ─────────────────────────────────────────────── -->
   <h3 class="vm-settings-heading">Context menus</h3>
 
-  <Toggle bind:checked={s.contextMenuShowInFileMenu}    label="Show in file explorer menu" />
-  <Toggle bind:checked={s.contextMenuShowInEditorMenu}  label="Show in editor menu" />
-  <Toggle bind:checked={s.contextMenuShowInMoreOptions} label="Show in more-options menu" />
+  <Toggle bind:checked={s.contextMenuShowInFileMenu}    label="Show in file explorer menu" onChange={persistSettings} />
+  <Toggle bind:checked={s.contextMenuShowInEditorMenu}  label="Show in editor menu" onChange={persistSettings} />
+  <Toggle bind:checked={s.contextMenuShowInMoreOptions} label="Show in more-options menu" onChange={persistSettings} />
 
   <!-- ── Filter templates ──────────────────────────────────────────── -->
   <h3 class="vm-settings-heading">{translate('settings.templates')}</h3>
@@ -262,7 +272,7 @@
         <span class="vm-settings-template-count">{tmpl.root.children.length} filters</span>
         <button
           class="mod-warning"
-          onclick={() => { s.filterTemplates = s.filterTemplates.filter((t) => t.name !== tmpl.name); }}
+          onclick={() => { s.filterTemplates = s.filterTemplates.filter((t) => t.name !== tmpl.name); persistSettings(); }}
         >
           {translate('filter.template.delete')}
         </button>

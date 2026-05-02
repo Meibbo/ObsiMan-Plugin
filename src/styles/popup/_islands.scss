@@ -6,6 +6,43 @@
 
 //...----------—————————————(  ISLANDS   )————————————------------...\\
 
+// .vm-island-backdrop styled in _v3-nav.scss (rising-glass mask design).
+// Do NOT redefine here — would override the ::before blur layer.
+
+// Popup-island wrapper rendered by popupIsland.svelte (overlayState stack)
+.vm-popup-island {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--vm-nav-height, 64px) + 8px);
+  pointer-events: none;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.vm-popup-island-entry {
+  pointer-events: auto;
+  width: calc(100% - 24px);
+  max-width: 420px;
+  display: flex;
+  justify-content: center;
+  animation: vm-popup-island-enter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes vm-popup-island-enter {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 // Shared island base — used by both Queue and Filters islands
 %vm-island-wrap {
   position: absolute;

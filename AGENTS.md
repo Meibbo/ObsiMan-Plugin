@@ -15,7 +15,7 @@
 6. **Ask the user** *(or verify via `npm run build`)* whether features from the last session are working
 7. **Check your own context budget** — estimate how many large files you can read. If <20% remaining, warn the user and suggest switching agents BEFORE starting implementation
 8. **Update `docs/Vaultman - Agent Memory.md`** at the END of your session with: what you completed, what's next, any blockers. Move completed tasks to `docs/Vaultman - Archived tasks.md`. Keep iterations to a strict maximum of 6 tasks.
-8. **Before implementing any integration with a core or community plugin** — search online for its API docs, GitHub repo, and any known inter-plugin communication patterns. Never assume an API exists; verify it first. See section 11 for the integration philosophy and known API surfaces.
+9. **Before implementing any integration with a core or community plugin** — search online for its API docs, GitHub repo, and any known inter-plugin communication patterns. Never assume an API exists; verify it first. See section 11 for the integration philosophy and known API surfaces.
 
 ---
 

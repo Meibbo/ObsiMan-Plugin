@@ -775,6 +775,8 @@
       aria-label="Close island"
     ></div>
 
+    <PopupIsland overlayState={plugin.overlayState} />
+
     <BottomNav
       {pageOrder}
       {activePage}
@@ -801,8 +803,6 @@
     />
   </div>
 </div>
-
-<PopupIsland overlayState={plugin.overlayState} />
 
 <PopupOverlay
   {plugin}
