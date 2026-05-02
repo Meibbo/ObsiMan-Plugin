@@ -25,6 +25,13 @@ const external = [
 const rootDir = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
+	fmt: {
+		useTabs: true,
+		tabWidth: 2,
+		printWidth: 100,
+		singleQuote: true,
+		semi: true,
+	},
 	plugins: [
 		svelte({
 			compilerOptions: {

@@ -1,28 +1,29 @@
 import tseslint from 'typescript-eslint';
-import obsidianmd from "eslint-plugin-obsidianmd";
-import globals from "globals";
+import obsidianmd from 'eslint-plugin-obsidianmd';
+import globals from 'globals';
 import oxlint from 'eslint-plugin-oxlint';
 
 export default tseslint.config(
 	{
 		ignores: [
-			"node_modules",
-			"dist",
-			"obsidian-sample-plugin",
-			"esbuild.config.mjs",
-			"vite.config.ts",
-			"svelte.config.js",
-			"eslint.config.js",
-			"version-bump.mjs",
-			"versions.json",
-			"main.js",
-			".obsidian",
-			".claude",
-			"scripts",
-			"test",
-			"coverage",
-			"vitest.config.ts",
-			"wdio.conf.mts",
+			'node_modules',
+			'dist',
+			'obsidian-sample-plugin',
+			'esbuild.config.mjs',
+			'vite.config.ts',
+			'svelte.config.js',
+			'eslint.config.js',
+			'version-bump.mjs',
+			'versions.json',
+			'main.js',
+			'.obsidian',
+			'.agents',
+			'.claude',
+			'scripts',
+			'test',
+			'coverage',
+			'vitest.config.ts',
+			'wdio.conf.mts',
 		],
 	},
 	{
@@ -39,13 +40,10 @@ export default tseslint.config(
 			},
 			parserOptions: {
 				projectService: {
-					allowDefaultProject: [
-						'eslint.config.mts',
-						'manifest.json',
-					]
+					allowDefaultProject: ['eslint.config.mts', 'manifest.json'],
 				},
 				tsconfigRootDir: import.meta.dirname,
-				extraFileExtensions: ['.json']
+				extraFileExtensions: ['.json'],
 			},
 		},
 	},
@@ -65,12 +63,14 @@ export default tseslint.config(
 			'no-restricted-syntax': [
 				'error',
 				{
-					selector: "TSAsExpression > TSAnyKeyword.typeAnnotation",
-					message: "Cast to `any` is forbidden. Use a typed wrapper from src/types/obsidian-extended.ts or refine the type.",
+					selector: 'TSAsExpression > TSAnyKeyword.typeAnnotation',
+					message:
+						'Cast to `any` is forbidden. Use a typed wrapper from src/types/obsidian-extended.ts or refine the type.',
 				},
 				{
-					selector: "TSAsExpression[expression.type='Identifier'][expression.name='app'] > TSAnyKeyword",
-					message: "(app as any) is forbidden. Use src/types/obsidian-extended.ts.",
+					selector:
+						"TSAsExpression[expression.type='Identifier'][expression.name='app'] > TSAnyKeyword",
+					message: '(app as any) is forbidden. Use src/types/obsidian-extended.ts.',
 				},
 			],
 		},

@@ -2,9 +2,11 @@
 	"name": "vaultman",
 	"version": "1.0.0-rc.1",
 	"description": "Bulk data & metadata editor for vault management in Obsidian",
-	"main": "main.js",
+	"keywords": [],
+	"license": "MIT",
+	"author": "Meibbo",
 	"type": "module",
-	"packageManager": "pnpm@10.29.2",
+	"main": "main.js",
 	"scripts": {
 		"dev": "vp build --watch",
 		"build": "tsc -noEmit -skipLibCheck && vp build && node scripts/sync-test-build.mjs",
@@ -13,6 +15,12 @@
 		"lint": "vp lint && eslint .",
 		"lint:fast": "vp lint",
 		"lint:full": "eslint .",
+		"format": "pnpm run format:ox && pnpm run format:prettier",
+		"format:check": "pnpm run format:ox:check && pnpm run format:prettier:check",
+		"format:ox": "vp fmt",
+		"format:ox:check": "vp fmt --check",
+		"format:prettier": "prettier --write \"**/*.svelte\"",
+		"format:prettier:check": "prettier --check \"**/*.svelte\"",
 		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"test:integrity": "vp test run --project integration --config vitest.config.ts",
 		"test:unit": "vp test run --project unit --config vitest.config.ts",
@@ -26,9 +34,6 @@
 		"audit:depcheck": "depcheck --ignores=\"@types/*,obsidian-integration-testing,wdio-obsidian-service\"",
 		"audit:all": "pnpm run audit:dead-exports ; pnpm run audit:knip ; pnpm run audit:depcheck"
 	},
-	"keywords": [],
-	"author": "Meibbo",
-	"license": "MIT",
 	"devDependencies": {
 		"@eslint/js": "^9.39.4",
 		"@sveltejs/vite-plugin-svelte": "^7.0.0",
@@ -57,6 +62,8 @@
 		"obsidian": "latest",
 		"obsidian-integration-testing": "^2.3.5",
 		"obsidian-launcher": "^3.0.2",
+		"prettier": "^3.8.3",
+		"prettier-plugin-svelte": "^3.5.1",
 		"sass": "^1.81.0",
 		"svelte": "^5.55.1",
 		"svelte-check": "^4.1.0",
@@ -69,5 +76,6 @@
 		"vitest": "^4.1.0",
 		"wdio-obsidian-reporter": "^3.0.2",
 		"wdio-obsidian-service": "^3.0.2"
-	}
+	},
+	"packageManager": "pnpm@10.29.2"
 }
