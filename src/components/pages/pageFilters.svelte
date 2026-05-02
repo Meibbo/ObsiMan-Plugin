@@ -4,6 +4,7 @@
   import FiltersTagsTab from "./tabTags.svelte";
   import FiltersPropsTab from "./tabProps.svelte";
   import FiltersFilesTab from "./tabFiles.svelte";
+  import ContentTab from "./tabContent.svelte";
   import NavbarPages from "../layout/navbarPages.svelte";
   import NavbarExplorer from "../layout/navbarExplorer.svelte";
   import { explorerFiles } from "../containers/explorerFiles";
@@ -11,9 +12,9 @@
   import { explorerTags } from "../containers/explorerTags";
   import { FILTERS_TABS_CONFIG } from "../../types/typeUI";
 
-  type FiltersTab = "props" | "files" | "tags";
+  type FiltersTab = "props" | "files" | "tags" | "content";
 
-  const TABS = FILTERS_TABS_CONFIG.filter((t) => t.id !== 'content');
+  const TABS: import("../../types/typeUI").TabConfig[] = [...FILTERS_TABS_CONFIG];
 
   let {
     plugin,
@@ -34,7 +35,7 @@
     plugin: VaultmanPlugin;
     filtersActiveTab: FiltersTab;
     filtersSearch: string;
-    filtersSearchCategory: Record<FiltersTab, number>;
+    filtersSearchCategory: Record<"tags" | "props" | "files", number>;
     filtersSortBy?: string;
     filtersSortDir?: "asc" | "desc";
     filtersViewMode?: any;
@@ -63,20 +64,22 @@
   showLabels={plugin.settings.filtersShowTabLabels}
 />
 
-<NavbarExplorer
-  activeTab={filtersActiveTab}
-  bind:filtersSearch
-  bind:filtersSearchCategory
-  bind:sortBy={filtersSortBy}
-  bind:sortDirection={filtersSortDir}
-  bind:viewMode={filtersViewMode}
-  bind:addMode
-  {tagsExplorer}
-  {propExplorer}
-  {fileList}
-  {addOpCount}
-  {icon}
-/>
+{#if filtersActiveTab !== "content"}
+  <NavbarExplorer
+    activeTab={filtersActiveTab as "props" | "files" | "tags"}
+    bind:filtersSearch
+    bind:filtersSearchCategory
+    bind:sortBy={filtersSortBy}
+    bind:sortDirection={filtersSortDir}
+    bind:viewMode={filtersViewMode}
+    bind:addMode
+    {tagsExplorer}
+    {propExplorer}
+    {fileList}
+    {addOpCount}
+    {icon}
+  />
+{/if}
 
 <div class="vm-filters-tabs-container">
   <div
@@ -122,6 +125,12 @@
       bind:selectedFilePaths
       onSelectionChange={(c) => (selectedCount = c)}
     />
+  </div>
+  <div
+    class="vm-tab-wrapper"
+    class:is-hidden={filtersActiveTab !== "content"}
+  >
+    <ContentTab {plugin} />
   </div>
 </div>
 

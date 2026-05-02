@@ -381,7 +381,7 @@
   let selectedFilePaths = $state(new Set<string>());
 
   // ─── Filters page state ──────────────────────────────────────────────────
-  type FiltersTab = "tags" | "props" | "files";
+  type FiltersTab = "tags" | "props" | "files" | "content";
   let filtersActiveTab = $state<FiltersTab>("props");
   $effect(() => {
     void filtersActiveTab;
@@ -389,7 +389,7 @@
     closeFiltersIsland();
   });
   let filtersSearch = $state("");
-  let filtersSearchCategory = $state<Record<FiltersTab, number>>({
+  let filtersSearchCategory = $state<Record<"tags" | "props" | "files", number>>({
     tags: 0,
     props: 0,
     files: 0,
@@ -402,7 +402,7 @@
   $effect(() => {
     const term = filtersSearch;
     const tab = filtersActiveTab;
-    const catMode = filtersSearchCategory[tab] ?? 0;
+    const catMode = filtersSearchCategory[tab as "tags" | "props" | "files"] ?? 0;
 
     // Route search with per-tab category scoping
     switch (tab) {
