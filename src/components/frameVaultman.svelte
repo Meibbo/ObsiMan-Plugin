@@ -26,11 +26,23 @@
 	import ExplorerActiveFiltersComp from './explorers/explorerActiveFilters.svelte';
 
 	import { FolderSuggest } from '../utils/autocomplete';
-	import { MOVE_FILE } from '../types/typeOps';
-	import type { PendingChange } from '../types/typeOps';
 	import { translate } from '../i18n/index';
-	import type { PopupType, FabDef } from '../types/typePrimitives';
-	import { openPluginSettings } from '../types/obsidian-extended';
+	import type { FabDef } from '../types/typePrimitives';
+	import {
+		collectActiveFilterRules,
+		countFilterLeaves,
+		type ActiveFilterRule,
+	} from './frame/frameActiveFilters';
+	import {
+		createFramePageFabs,
+		createFramePageIcons,
+		createFramePageLabels,
+		resolveFramePageOrder,
+	} from './frame/framePages';
+	import { FrameViewportController } from './frame/frameViewport';
+	import { FrameNavReorderController } from './frame/frameNavReorder.svelte';
+	import { FrameOverlayController } from './frame/frameOverlays.svelte';
+	import { createMoveChanges, createMovePreviews } from './frame/frameMoves';
 
 	// ─── Props ─────────────------------------...........
 
@@ -38,143 +50,64 @@
 
 	// ─── Page navigation ──────────────────────────────────────────────────────
 
-	function resolvedPageOrder(): string[] {
-		const order = plugin.settings.pageOrder as string[] | undefined;
-		const valid = ['statistics', 'filters', 'ops'];
-		if (Array.isArray(order) && order.length === 3 && valid.every((p) => order.includes(p))) {
-			return order;
-		}
-		return ['ops', 'statistics', 'filters'];
+	function initFrameState() {
+		return {
+			pageOrder: resolveFramePageOrder(plugin.settings.pageOrder),
+			overlays: new FrameOverlayController(plugin, ExplorerQueueComp, ExplorerActiveFiltersComp),
+		};
 	}
 
-	const initialPageOrder = resolvedPageOrder();
-	let pageOrder = $state(initialPageOrder);
+	const initialFrameState = initFrameState();
+	let pageOrder = $state<string[]>(initialFrameState.pageOrder);
 	let pageRenderKey = $state(0); // incremented on each reorder to force page content remount
-	const pageLabels: Record<string, string> = {
-		statistics: translate('nav.statistics'),
-		filters: translate('nav.filters'),
-		ops: translate('nav.ops'),
-	};
-
-	const pageIcons: Record<string, string> = {
-		statistics: 'lucide-bar-chart-2',
-		filters: 'lucide-filter',
-		ops: 'lucide-settings-2',
-	};
+	const pageLabels: Record<string, string> = createFramePageLabels();
+	const pageIcons: Record<string, string> = createFramePageIcons();
+	const overlays = initialFrameState.overlays;
 
 	// ─── Per-page FAB definitions ────────────────────────────────────────────────
 
-	const pageFabs = $derived.by<Record<string, { left: FabDef | null; right: FabDef | null }>>(
-		() => ({
-			ops: {
-				left: {
-					icon: 'lucide-list-checks',
-					label: translate('ops.queue'),
-					action: () => {
-						toggleQueueIsland();
-					},
-				},
-				right: null,
-			},
-			statistics: {
-				left: { icon: 'lucide-blocks', label: 'Add-ons', action: () => {} },
-				right: {
-					icon: 'lucide-settings',
-					label: translate('nav.statistics') ?? 'Settings',
-					action: () => {
-						// Stub settings open hook
-						openPluginSettings(plugin.app, 'vaultman');
-					},
-				},
-			},
-			filters: {
-				left: {
-					icon: 'lucide-list-checks',
-					label: translate('ops.queue'),
-					action: () => {
-						toggleQueueIsland();
-					},
-				},
-				right: {
-					icon: 'lucide-sparkles',
-					label: translate('filters.active'),
-					action: () => toggleFiltersIsland(),
-				},
-			},
-		}),
+	const pageFabs = $derived.by<Record<string, { left: FabDef | null; right: FabDef | null }>>(() =>
+		createFramePageFabs(
+			plugin,
+			() => overlays.toggleQueueIsland(),
+			() => overlays.toggleFiltersIsland(),
+		),
 	);
 
 	const leftFab = $derived.by<FabDef | null>(() => pageFabs[activePage]?.left ?? null);
 	const rightFab = $derived.by<FabDef | null>(() => pageFabs[activePage]?.right ?? null);
 
-	let activePage = $state(initialPageOrder[0] ?? 'ops');
+	let activePage = $state<string>(initialFrameState.pageOrder[0] ?? 'ops');
 
 	// Use DOM insertion order (pageOrder at mount time) — avoids stale settings mismatch
 	let pageIndex = $derived(pageOrder.indexOf(activePage));
-
+	const viewport = new FrameViewportController(() => pageIndex);
+	const navReorder = new FrameNavReorderController({
+		getPageOrder: () => pageOrder,
+		setPageOrder: (order) => {
+			pageOrder = order;
+		},
+		incrementRenderKey: () => {
+			pageRenderKey++;
+		},
+		saveOrder: (order) => {
+			plugin.settings.pageOrder = order;
+			void plugin.saveSettings();
+		},
+	});
 	function navigateTo(page: string) {
 		if (activePage !== page) {
-			closeQueueIsland();
-			closeFiltersIsland();
-			if (activePopup === 'active-filters') closePopup();
+			overlays.closeQueueIsland();
+			overlays.closeFiltersIsland();
+			if (overlays.activePopup === 'active-filters') overlays.closePopup();
 		}
 		activePage = page;
-		applyPageTransform(true);
-	}
-
-	function onContainerTransitionEnd(e: TransitionEvent) {
-		// Guard against child element transitions bubbling up
-		if (e.target === e.currentTarget && e.propertyName === 'transform') {
-			containerEl?.classList.remove('is-animating');
-		}
-	}
-
-	// ─── Page transition — pixel-based (fixes page-3 translateX bug) ─────────
-	let viewportEl: HTMLElement | null = null;
-	let containerEl: HTMLElement | null = null;
-
-	function applyPageTransform(animated: boolean) {
-		if (!containerEl || !viewportEl) return;
-		const w = viewportEl.offsetWidth;
-		if (w === 0) return;
-		// Set each page to exact pixel width
-		const pages = containerEl.querySelectorAll<HTMLElement>('.vm-page');
-		pages.forEach((p) => {
-			p.style.width = `${w}px`;
-		});
-		if (animated) containerEl.classList.add('is-animating');
-		// BUG-FIX: Round pixel values to prevent sub-pixel blur on high-DPI screens
-		containerEl.style.transform = `translateX(${Math.round(-pageIndex * w)}px)`;
-	}
-
-	function bindViewport(el: HTMLElement) {
-		viewportEl = el;
-		const ro = new ResizeObserver(() => {
-			applyPageTransform(false);
-		});
-		ro.observe(el);
-		applyPageTransform(false);
-		return {
-			destroy() {
-				ro.disconnect();
-				viewportEl = null;
-			},
-		};
-	}
-
-	function bindContainer(el: HTMLElement) {
-		containerEl = el;
-		applyPageTransform(false);
-		return {
-			destroy() {
-				containerEl = null;
-			},
-		};
+		viewport.applyPageTransform(true);
 	}
 
 	$effect(() => {
 		void pageIndex; // declare dependency
-		applyPageTransform(true);
+		viewport.applyPageTransform(true);
 	});
 
 	$effect(() => {
@@ -182,146 +115,6 @@
 			activePage = pageOrder[0] ?? 'ops';
 		}
 	});
-
-	// ─── Bottom Navbar DnD reorder ───────────────────────────
-	// Uses pointer events only — HTML5 DnD is avoided because Obsidian's
-	// workspace intercepts it and creates tab groups.
-
-	let isReordering = $state(false);
-	let longPressTimer: ReturnType<typeof setTimeout> | null = null;
-	let reorderSourceIdx = -1;
-	let reorderTargetIdx = $state(-1);
-	let pillEl = $state<HTMLElement | null>(null);
-	let pendingPointerId = -1;
-
-	function startLongPress(idx: number, pointerId: number) {
-		pendingPointerId = pointerId;
-		longPressTimer = setTimeout(() => {
-			isReordering = true;
-			reorderSourceIdx = idx;
-			// Capture only now so normal clicks are not blocked
-			if (pillEl) pillEl.setPointerCapture(pendingPointerId);
-		}, 2000);
-	}
-
-	function cancelLongPress() {
-		if (longPressTimer !== null) {
-			clearTimeout(longPressTimer);
-			longPressTimer = null;
-		}
-		pendingPointerId = -1;
-	}
-
-	function onNavIconPointerDown(e: PointerEvent, idx: number) {
-		startLongPress(idx, e.pointerId);
-	}
-
-	function onPillPointerMove(e: PointerEvent) {
-		if (!isReordering || reorderSourceIdx < 0 || !pillEl) return;
-		// Find which icon the pointer is currently over
-		const el = document.elementFromPoint(e.clientX, e.clientY);
-		const iconEl = el?.closest?.('.vm-nav-icon') as HTMLElement | null;
-		if (iconEl && pillEl.contains(iconEl)) {
-			const icons = pillEl.querySelectorAll('.vm-nav-icon');
-			const idx = Array.from(icons).indexOf(iconEl);
-			if (idx >= 0 && idx !== reorderSourceIdx) {
-				reorderTargetIdx = idx;
-			}
-		}
-	}
-
-	function onPillPointerUp() {
-		cancelLongPress();
-		if (
-			isReordering &&
-			reorderSourceIdx >= 0 &&
-			reorderTargetIdx >= 0 &&
-			reorderSourceIdx !== reorderTargetIdx
-		) {
-			const order = [...pageOrder];
-			const [moved] = order.splice(reorderSourceIdx, 1);
-			order.splice(reorderTargetIdx, 0, moved);
-			pageOrder = order;
-			pageRenderKey++;
-			plugin.settings.pageOrder = order;
-			void plugin.saveSettings();
-		}
-		isReordering = false;
-		reorderSourceIdx = -1;
-		reorderTargetIdx = -1;
-	}
-
-	function exitReorder() {
-		cancelLongPress();
-		isReordering = false;
-		reorderSourceIdx = -1;
-		reorderTargetIdx = -1;
-	}
-
-	// ─── Responsive bottom nav ────────────────────────────────────────────────
-	const NAV_COLLAPSE_THRESHOLD = 220; // px — below this width the nav collapses
-	let navCollapsed = $state(false);
-	let navEl: HTMLElement | null = null;
-	let viewRootEl: HTMLElement | null = null;
-	let navExpandTimer: ReturnType<typeof setTimeout> | null = null;
-
-	function bindNav(el: HTMLElement) {
-		navEl = el;
-		return {
-			destroy() {
-				if (navExpandTimer) {
-					clearTimeout(navExpandTimer);
-					navExpandTimer = null;
-				}
-				navEl = null;
-			},
-		};
-	}
-
-	// ResizeObserver on .vm-view updates nav state
-	function bindViewRoot(el: HTMLElement) {
-		const target = (el.closest('.vm-view') as HTMLElement) ?? el.parentElement ?? el;
-		viewRootEl = target;
-		const ro = new ResizeObserver((entries) => {
-			const w = entries[0]?.contentRect.width ?? target.offsetWidth;
-			navCollapsed = w < NAV_COLLAPSE_THRESHOLD;
-		});
-		ro.observe(target);
-		navCollapsed = target.offsetWidth < NAV_COLLAPSE_THRESHOLD;
-		return {
-			destroy() {
-				ro.disconnect();
-				viewRootEl = null;
-			},
-		};
-	}
-
-	function onCollapsedNavClick() {
-		if (!navCollapsed || !navEl) return;
-		navEl.classList.add('is-bar-expanding');
-		navCollapsed = false;
-		if (navExpandTimer) clearTimeout(navExpandTimer);
-		navExpandTimer = setTimeout(() => {
-			// Re-check width using the same element the ResizeObserver monitors
-			if (viewRootEl && viewRootEl.offsetWidth < NAV_COLLAPSE_THRESHOLD) {
-				navCollapsed = true;
-			}
-			navEl?.classList.remove('is-bar-expanding');
-		}, 2000);
-	}
-
-	// ─── Popup ────────────────────────────────────────────────────────────────
-
-	let activePopup = $state<PopupType | null>(null);
-	let popupOpen = $state(false);
-
-	function closePopup() {
-		popupOpen = false;
-		// Wait for the 0.3s spring transition before clearing content
-		setTimeout(() => {
-			activePopup = null;
-		}, 320);
-	}
 
 	// ─── Stats ────────────────────────────────────────────────────────────────
 
@@ -337,20 +130,6 @@
 		}
 		return count;
 	});
-
-	// ─── Island open state (derived from overlayState) ───────────────────────
-	const isIslandOpen = $derived(
-		plugin.overlayState.isOpen('queue') || plugin.overlayState.isOpen('active-filters'),
-	);
-
-	function countFilterLeaves(group: import('../types/typeFilter').FilterGroup): number {
-		let count = 0;
-		for (const child of group.children) {
-			if (child.type === 'rule') count++;
-			else if (child.type === 'group') count += countFilterLeaves(child);
-		}
-		return count;
-	}
 
 	function updateStats() {
 		queuedCount = plugin.queueService.fileCount;
@@ -368,8 +147,8 @@
 	$effect(() => {
 		void filtersActiveTab;
 		untrack(() => {
-			closeQueueIsland();
-			closeFiltersIsland();
+			overlays.closeQueueIsland();
+			overlays.closeFiltersIsland();
 		});
 	});
 	let filtersSearch = $state('');
@@ -405,57 +184,6 @@
 				break;
 		}
 	});
-
-	// ─── Actions for native components ────────────────────────────────────────
-
-	function toggleQueueIsland() {
-		closeFiltersIsland();
-		if (activePopup === 'active-filters') closePopup();
-		if (plugin.overlayState.isOpen('queue')) {
-			closeQueueIsland();
-		} else {
-			openQueueIsland();
-		}
-	}
-
-	function openQueueIsland() {
-		plugin.overlayState.push({
-			id: 'queue',
-			component: ExplorerQueueComp,
-			props: {
-				plugin,
-				onClose: () => plugin.overlayState.popById('queue'),
-			},
-		});
-	}
-
-	function closeQueueIsland() {
-		plugin.overlayState.popById('queue');
-	}
-
-	function toggleFiltersIsland() {
-		closeQueueIsland();
-		if (plugin.overlayState.isOpen('active-filters')) {
-			closeFiltersIsland();
-		} else {
-			openFiltersIsland();
-		}
-	}
-
-	function openFiltersIsland() {
-		plugin.overlayState.push({
-			id: 'active-filters',
-			component: ExplorerActiveFiltersComp,
-			props: {
-				plugin,
-				onClose: () => plugin.overlayState.popById('active-filters'),
-			},
-		});
-	}
-
-	function closeFiltersIsland() {
-		plugin.overlayState.popById('active-filters');
-	}
 
 	// ─── Refresh ─────────────────────────────────────────────────────────────
 
@@ -512,7 +240,7 @@
 	function setScope(value: string) {
 		plugin.settings.explorerOperationScope = value as 'auto' | 'selected' | 'filtered' | 'all';
 		void plugin.saveSettings();
-		closePopup();
+		overlays.closePopup();
 	}
 
 	// ─── Search popup ─────────────────────────────────────────────────────────
@@ -529,56 +257,10 @@
 
 	// ─── Active Filters popup state ───────────────────────────────────────────
 
-	type ActiveFilterRule = {
-		id: string;
-		description: string;
-		node: import('../types/typeFilter').FilterNode;
-		parent: import('../types/typeFilter').FilterGroup;
-		enabled: boolean;
-	};
-
 	let activeFilterRules = $state<ActiveFilterRule[]>([]);
 
 	function refreshActiveFiltersPopup(): void {
-		const rules: ActiveFilterRule[] = [];
-		let counter = 0;
-		function walk(group: import('../types/typeFilter').FilterGroup): void {
-			for (const child of group.children) {
-				if (child.type === 'rule') {
-					rules.push({
-						id: `rule-${counter++}`,
-						description: describeFilterNode(child),
-						node: child,
-						parent: group,
-						enabled: child.enabled !== false,
-					});
-				} else if (child.type === 'group') {
-					walk(child);
-				}
-			}
-		}
-		walk(plugin.filterService.activeFilter);
-		activeFilterRules = rules;
-	}
-
-	function describeFilterNode(node: import('../types/typeFilter').FilterNode): string {
-		if (node.type !== 'rule') return 'Group';
-		const prop = node.property ?? '';
-		const vals = node.values ?? [];
-		switch (node.filterType) {
-			case 'has_property':
-				return `has: ${prop}`;
-			case 'specific_value':
-				return `${prop}: ${vals[0] ?? ''}`;
-			case 'has_tag':
-				return `has tag: ${vals[0] ?? ''}`;
-			case 'folder':
-				return `folder: ${vals[0] ?? ''}`;
-			case 'file_name':
-				return `name: ${vals[0] ?? ''}`;
-			default:
-				return prop || 'filter';
-		}
+		activeFilterRules = collectActiveFilterRules(plugin.filterService.activeFilter);
 	}
 
 	function toggleFilterRule(rule: ActiveFilterRule): void {
@@ -601,33 +283,12 @@
 	let moveTargetFiles = $state<import('obsidian').TFile[]>([]);
 	let moveTargetFolder = $state('');
 
-	const movePreviews = $derived.by(() => {
-		const limit = Math.min(moveTargetFiles.length, 8);
-		return moveTargetFiles.slice(0, limit).map((file) => ({
-			oldPath: file.path,
-			newPath: moveTargetFolder ? `${moveTargetFolder}/${file.name}` : file.name,
-		}));
-	});
+	const movePreviews = $derived.by(() => createMovePreviews(moveTargetFiles, moveTargetFolder));
 
 	function queueMoves() {
-		const targetFolder = moveTargetFolder;
-		// Collect all changes first, then add in one batch (one UI event instead of N)
-		const changes: PendingChange[] = [];
-		for (const file of moveTargetFiles) {
-			const newPath = targetFolder ? `${targetFolder}/${file.name}` : file.name;
-			if (newPath === file.path) continue;
-			changes.push({
-				type: 'file_move',
-				action: 'move',
-				details: `${file.path} → ${newPath}`,
-				files: [file],
-				logicFunc: () => ({ [MOVE_FILE]: targetFolder }),
-				customLogic: true,
-				targetFolder,
-			});
-		}
+		const changes = createMoveChanges(moveTargetFiles, moveTargetFolder);
 		void plugin.queueService.addBatch(changes);
-		closePopup();
+		overlays.closePopup();
 	}
 
 	function attachFolderSuggest(el: HTMLElement) {
@@ -656,7 +317,7 @@
 	// ─── Refresh active filters popup when it becomes visible ────────────────
 
 	$effect(() => {
-		if (activePopup === 'active-filters' && popupOpen) {
+		if (overlays.activePopup === 'active-filters' && overlays.popupOpen) {
 			refreshActiveFiltersPopup();
 		}
 	});
@@ -675,7 +336,7 @@
 		const onQueueChanged = () => {
 			refreshQueue();
 			if (plugin.queueService.isEmpty && plugin.overlayState.isOpen('queue')) {
-				closeQueueIsland();
+				overlays.closeQueueIsland();
 			}
 		};
 
@@ -698,9 +359,13 @@
 
 <!-- ─── Page container (horizontal slide strip) ────────────────────────────── -->
 <!-- vm-pages-viewport clips via overflow:hidden; the container slides inside it -->
-<div class="vm-view" use:bindViewRoot>
-	<div class="vm-pages-viewport" use:bindViewport>
-		<div class="vm-page-container" use:bindContainer ontransitionend={onContainerTransitionEnd}>
+<div class="vm-view" use:navReorder.bindViewRoot>
+	<div class="vm-pages-viewport" use:viewport.bindViewport>
+		<div
+			class="vm-page-container"
+			use:viewport.bindContainer
+			ontransitionend={viewport.onContainerTransitionEnd}
+		>
 			{#each pageOrder as pageId (pageId)}
 				<div class="vm-page" data-page={pageId}>
 					{#key pageRenderKey}
@@ -734,15 +399,15 @@
 		<!-- ─── Island Backdrop (Rising Glass) ─────────────────────────────────── -->
 		<div
 			class="vm-island-backdrop vm-glass"
-			class:is-open={isIslandOpen}
+			class:is-open={overlays.isIslandOpen}
 			onclick={() => {
-				closeQueueIsland();
-				closeFiltersIsland();
+				overlays.closeQueueIsland();
+				overlays.closeFiltersIsland();
 			}}
 			onkeydown={(e) => {
 				if (e.key === 'Escape' || e.key === 'Enter') {
-					closeQueueIsland();
-					closeFiltersIsland();
+					overlays.closeQueueIsland();
+					overlays.closeFiltersIsland();
 				}
 			}}
 			role="button"
@@ -759,20 +424,20 @@
 			{pageIcons}
 			{leftFab}
 			{rightFab}
-			{navCollapsed}
-			{isIslandOpen}
-			bind:isReordering
-			{reorderTargetIdx}
-			bind:pillEl
+			navCollapsed={navReorder.navCollapsed}
+			isIslandOpen={overlays.isIslandOpen}
+			bind:isReordering={navReorder.isReordering}
+			reorderTargetIdx={navReorder.reorderTargetIdx}
+			bind:pillEl={navReorder.pillEl}
 			{selectedCount}
 			{filterRuleCount}
 			{queuedCount}
-			{bindNav}
-			{onCollapsedNavClick}
-			{onNavIconPointerDown}
-			{onPillPointerMove}
-			{onPillPointerUp}
-			{exitReorder}
+			bindNav={navReorder.bindNav}
+			onCollapsedNavClick={navReorder.onCollapsedNavClick}
+			onNavIconPointerDown={navReorder.onNavIconPointerDown}
+			onPillPointerMove={navReorder.onPillPointerMove}
+			onPillPointerUp={navReorder.onPillPointerUp}
+			exitReorder={navReorder.exitReorder}
 			{navigateTo}
 			{icon}
 		/>
@@ -781,9 +446,9 @@
 
 <PopupOverlay
 	{plugin}
-	{activePopup}
-	{popupOpen}
-	{closePopup}
+	activePopup={overlays.activePopup}
+	popupOpen={overlays.popupOpen}
+	closePopup={() => overlays.closePopup()}
 	{activeFilterRules}
 	{refreshActiveFiltersPopup}
 	{updateStats}
