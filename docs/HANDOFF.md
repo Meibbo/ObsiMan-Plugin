@@ -6,7 +6,52 @@
 
 ---
 
-## Most recent session (Codex, 2026-05-02 — Sub-A island runtime closure)
+## Most recent session (Codex, 2026-05-02 — formatter tooling + frame SOLID split)
+
+### ✅ Fixed in this turn
+
+1. **Formatter tooling installed** — Added Vite+ `vp fmt`/Oxfmt scripts plus Prettier fallback for `.svelte` files through `prettier-plugin-svelte`. Added `.prettierrc.json`, `.prettierignore`, and `fmt` config in `vite.config.ts`. `eslint.config.mts` now ignores local `.agents/` skill files.
+2. **Formatting-only baseline commit** — Formatted `src/components/frameVaultman.svelte` before semantic edits to keep refactor diff readable.
+3. **`frameVaultman.svelte` decomposed surgically** — Reduced frame shell from 738 LOC to 409 LOC by extracting:
+   - `src/components/frame/framePages.ts`
+   - `src/components/frame/frameViewport.ts`
+   - `src/components/frame/frameNavReorder.svelte.ts`
+   - `src/components/frame/frameOverlays.svelte.ts`
+   - `src/components/frame/frameActiveFilters.ts`
+   - `src/components/frame/frameMoves.ts`
+
+### Verify status
+
+- `pnpm run verify` → green:
+  - lint 0 errors / 4 existing warnings
+  - svelte-check 0 errors / 0 warnings
+  - build OK
+  - unit 167/167
+  - component 4/4
+- Formatter checks:
+  - `vp fmt --check` on touched TS/config files → green.
+  - `prettier --check src/components/frameVaultman.svelte` → green.
+- Obsidian smoke:
+  - plugin reload OK
+  - `vaultman:open` OK
+  - settings tab mounts: `{"settingsUI":true}`
+  - queue island opens: stack length 1, `.vm-popup-island` + `.vm-explorer-popup` rendered
+  - `dev:errors` clean after clearing transient ResizeObserver loop notifications
+
+### Next
+
+1. Push `hardening-refactor`.
+2. Open/refresh PR `hardening-refactor` → `hardening`.
+3. Decide whether `hardening → main` waits until after v1.0 Polish.
+4. Start v1.0 Polish plan.
+
+### Observed residual polish/i18n issue
+
+Queue island smoke showed text with missing interpolation/key fallback: `Queue ({count} pending)` and `queue.empty`. Not introduced by the frame split as far as this turn investigated; document for Polish unless user wants it fixed before PR.
+
+---
+
+## Previous session (Codex, 2026-05-02 — Sub-A island runtime closure)
 
 ### ✅ Fixed in this turn
 
@@ -448,5 +493,3 @@ Expected:
 - Do not reintroduce blanket `$effect` autosave.
 - Any service method called from a `$effect` must be idempotent for no-op calls.
 - If context <20%, stop and update this handoff before continuing.
-
-

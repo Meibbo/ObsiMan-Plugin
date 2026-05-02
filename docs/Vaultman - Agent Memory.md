@@ -98,7 +98,42 @@ input: AI-gen
 ## Last updated
 
 - **Date**: 2026-05-02
-- **Agent**: ChatGPT Codex — Sub-A island runtime closure
+- **Agent**: ChatGPT Codex — formatter tooling + frame SOLID split
+
+## Session 2026-05-02 (Codex) — formatter tooling + frame SOLID split
+
+**Status: Formatter tooling installed; `frameVaultman.svelte` decomposed surgically. Hardening branch remains green.**
+
+- Added formatter tooling commit:
+  - `oxfmt` via Vite+ `vp fmt` scripts.
+  - Prettier + `prettier-plugin-svelte` for `.svelte` files unsupported by Oxfmt.
+  - `.prettierrc.json`, `.prettierignore`, `fmt` config in `vite.config.ts`.
+  - `eslint.config.mts` now ignores local `.agents/` skill files.
+- Formatting-only commit:
+  - Formatted only `src/components/frameVaultman.svelte` before refactor.
+- SOLID frame split:
+  - `frameVaultman.svelte`: 738 LOC before formatting/refactor → 409 LOC after split.
+  - New focused helpers/controllers:
+    - `src/components/frame/framePages.ts`
+    - `src/components/frame/frameViewport.ts`
+    - `src/components/frame/frameNavReorder.svelte.ts`
+    - `src/components/frame/frameOverlays.svelte.ts`
+    - `src/components/frame/frameActiveFilters.ts`
+    - `src/components/frame/frameMoves.ts`
+  - Frame now mostly composes pages/nav/popup components and delegates page config, viewport transform, nav reorder/collapse, overlay orchestration, active-filter flattening, and move-op creation.
+- Verification:
+  - `pnpm run verify` ✅ lint 0 errors / 4 existing warnings, svelte-check 0/0, build OK, unit 167/167, component 4/4.
+  - Formatter checks ✅ targeted Oxfmt for touched TS/config files; Prettier check for `frameVaultman.svelte`.
+  - Obsidian reload ✅
+  - `vaultman:open` command ✅
+  - Settings tab mount ✅ `{"settingsUI":true}`
+  - Queue island smoke ✅ stack opens and `.vm-explorer-popup` renders.
+  - `dev:errors` clean after clearing transient ResizeObserver notifications ✅
+
+Next:
+- Continue hardening closure: push `hardening-refactor`, PR to `hardening`, then decide whether `hardening → main` waits for polish.
+- Start v1.0 Polish design after hardening closure.
+- Known residual UI text issue observed during smoke: queue island displays untranslated/missing interpolation text (`Queue ({count} pending)`, `queue.empty`). Treat as polish/i18n bug unless user wants it fixed before PR.
 
 ## Session 2026-05-02 (Codex) — Sub-A island runtime closure
 
