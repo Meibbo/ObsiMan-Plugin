@@ -1,72 +1,82 @@
 # HANDOFF — Vaultman Next Session
 
-> Updated: 2026-05-01 | From: Claude Code (Sonnet 4.6) Sub-A A.3 → To: next agent
-> Branch: `hardening-refactor` | Version: `1.0.0-beta.22` (tagged + GitHub Release + BRAT live)
-> **A.1 + A.2 + A.3 COMPLETOS. Próximo: A.4.1 (T28–T31, Explorer + Decoration).**
+> Updated: 2026-05-01 | From: Claude Code (Sonnet 4.6) Sub-A A.4.1 partial → To: next agent
+> Branch: `hardening-refactor` | Version: `1.0.0-beta.22` (NO bump yet — A.4 not fully closed)
+> **T28–T32 completos (158 tests). T33+T34 pendientes (viewTree + viewGrid).**
 
 ---
 
 ## CONTEXTO INMEDIATO
 
-Sesión 2026-05-01: completada iteración A.3 del plan Sub-A (T22–T27).
+Sesión 2026-05-01: completadas T28–T32 de A.4.1.
 
 ### Lo que se hizo esta sesión
 
-**A.3 — Svelte 5 Primitives (T22–T27):**
-- T22–T26: `BtnSquircle`, `Badge`, `Toggle`, `Dropdown`, `TextInput` en `src/components/primitives/`
-- T27: `HighlightText` + `_primitives.scss` + bump beta.22 + GitHub Release (BRAT)
-- CSS: TODOS los estilos de primitivos viven en `src/styles/components/_primitives.scss` (importado por `src/main.scss`)
-- **Corrección crítica de sesión**: los primeros subagents escribieron CSS en `styles.css` directamente — incorrecto. `styles.css` es output compilado (se borra en cada build). Corregido a SCSS.
+**A.4.1 parcial (T28–T32):**
+- T28: `serviceDecorate.ts` (WIP→real) — `DecorationManager implements IDecorationManager`, 4 tests. ADR-011 creado.
+- T29: `serviceSorting.ts` — `sortNodes<T>()` puro con perf budget 50ms/1000 nodos, 4 tests.
+- T30: `serviceVirtualizer.ts` → `serviceVirtualizer.svelte.ts` — `Virtualizer<T>` con `$state`/`$derived.by()`. `viewTree.svelte` actualizado.
+- T31: `logicExplorer.ts` — pure TS, 5 tests.
+- T32: `serviceExplorer.svelte.ts` — `ExplorerService<T> implements IExplorer<T>`, runes, 4 tests.
 
-**BRAT Release:**
-- GitHub Release `1.0.0-beta.22` creado con `main.js` + `manifest.json` + `styles.css`
-- URL: `https://github.com/Meibbo/Vaultman/releases/tag/1.0.0-beta.22`
+### Pendiente: T33 + T34
+
+**T33 (viewTree thin renderer):** El spec del plan es problemático — elimina virtual windowing (regresión de performance) y pierde inline editing/badges/icons. El `viewTree.svelte` actual (168 LOC) ya es correcto después de T30. T33 necesita una evaluación cuidadosa antes de implementar.
+
+**Opciones para T33:**
+1. Implementar snippets opcionales SIN remover funcionalidad existente (additive)
+2. Reescribir según spec pero preservando virtualización (consumer computa `flatNodes` externamente + virtualizer interno)
+3. Diferir T33 — el plan spec está incompleto para el componente real
+
+**T34 (viewGrid + close A.4.1):** depende de T33. No hay version bump hasta cerrar A.4.
 
 ---
 
 ## ESTADO ACTUAL DEL REPO
 
-- Branch: `hardening-refactor`, limpio, up-to-date con origin.
-- Último commit: `ea2e897 chore(release): bump to 1.0.0-beta.22 (Sub-A.3 primitives close)`
-- `npm run verify` = lint(0) + check(0) + build(✓) + test:unit(**141/141** ✓, 24 files).
-- Primitives: `src/components/primitives/` — 6 archivos: BtnSquircle, Badge, Toggle, Dropdown, TextInput, HighlightText.
-- CSS source: `src/styles/components/_primitives.scss`.
+- Branch: `hardening-refactor`, limpio, pushed.
+- Último commit: `341ae4e feat(services): add serviceExplorer (IExplorer<T>) + tests (Sub-A.4.1)`
+- `npm run verify` = lint(0) + check(0) + build(✓) + test:unit(**158/158** ✓, 28 files).
+- NO version bump esta sesión (A.4 no cerrada).
+
+### Archivos clave A.4.1
+- `src/services/serviceDecorate.ts` — `DecorationManager`
+- `src/services/serviceSorting.ts` — `sortNodes<T>`
+- `src/services/serviceVirtualizer.svelte.ts` — `Virtualizer<T>` + `TreeVirtualizer`
+- `src/logic/logicExplorer.ts` — `ExplorerLogic`
+- `src/services/serviceExplorer.svelte.ts` — `ExplorerService<T>`
+- `docs/superpowers/adr/ADR-011-*.md` — decoration rule
 
 ### REGLA CRÍTICA — CSS
-**NUNCA editar `styles.css` directamente.** Es output compilado de SCSS. Editar siempre en `src/styles/**/*.scss`. Entry point: `src/main.scss`.
+`styles.css` es output compilado. Editar SIEMPRE en `src/styles/**/*.scss`. Primitives → `_primitives.scss`.
 
 ---
 
-## PRÓXIMOS PASOS — A.4.1 (T28–T31)
+## PRÓXIMOS PASOS
 
-Plan: `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-a.md` desde línea 2178
+### Opción A — continuar A.4.1 (T33+T34)
+Leer `viewTree.svelte` (168 LOC) antes de T33. El spec del plan elimina virtualización — NO copiar ciegamente. Evaluar qué puede añadirse sin romper. T34 = viewGrid + close A.4.1 + memory note (sin version bump).
 
-| Task | Descripción | Líneas plan |
-|------|-------------|-------------|
-| T28 | Promote `serviceDecorate_WIP` → `serviceDecorate` + tests + ADR-011 | 2180–2265 |
-| T29 | `serviceSorting` revival + tests | 2284–2371 |
-| T30 | `Virtualizer<T>` Svelte 5 component + tests | plan A.4.1 |
-| T31 | `Explorer<T>` component + close A.4.1 → beta.23 | plan A.4.1 |
+### Opción B — saltar a A.4.2 (si T33 se difiere)
+El plan continúa en A.4.2. Verificar líneas en el plan.
 
 ---
 
 ## ARCHIVOS A LEER ANTES DE EMPEZAR
 
-1. `AGENTS.md` — checklist + ADR review rule (sección 12).
-2. `docs/Vaultman - Agent Memory.md` — estado actual.
-3. `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-a.md` desde línea 2178 — T28+.
-4. `docs/superpowers/adr/ADR-009-misnamed-logic-files.md` — ADR sobre WIP naming.
+1. `AGENTS.md` — checklist + ADR review.
+2. `docs/Vaultman - Agent Memory.md` — estado.
+3. `docs/superpowers/plans/2026-04-28-vaultman-hardening-sub-a.md` líneas 2694–2820 — T33+T34.
+4. `src/components/views/viewTree.svelte` — leer completo antes de T33.
 5. Esta `HANDOFF.md`.
 
 ---
 
 ## NOTAS PARA EL SIGUIENTE AGENTE
 
-- **Caveman mode** activo — mantener output al usuario; código/commits/PRs normal.
-- **Idioma docs**: español.
-- **Skill**: `superpowers:subagent-driven-development`.
-- **CSS → siempre SCSS** (`src/styles/`). Nunca `styles.css` directo.
-- **Version bump de A.4.1** → crear GitHub Release para BRAT (igual que beta.22).
+- **Caveman mode** activo.
+- **CSS → siempre SCSS** (`src/styles/`).
+- **Version bump + BRAT release** = cuando se cierre A.4 completo (T33+T34 o se salte según decisión).
 - `test:integrity` excluido del gate.
-- T28 usa `git mv` para renombrar el WIP file.
-- `serviceDecorate_WIP.ts` existe en `src/services/` — verificar con `ls`.
+- T33 spec en el plan elimina virtual windowing — NO implementar ciegamente. Leer viewTree actual primero.
+- `panelLists.svelte` es el único consumer de viewTree.
