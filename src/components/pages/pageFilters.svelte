@@ -9,8 +9,11 @@
   import { explorerFiles } from "../containers/explorerFiles";
   import { explorerProps } from "../containers/explorerProps";
   import { explorerTags } from "../containers/explorerTags";
+  import { FILTERS_TABS_CONFIG } from "../../types/typeUI";
 
   type FiltersTab = "props" | "files" | "tags";
+
+  const TABS = FILTERS_TABS_CONFIG.filter((t) => t.id !== 'content');
 
   let {
     plugin,
@@ -44,11 +47,6 @@
     addOpCount?: number;
   } = $props();
 
-  function switchFiltersTab(tab: FiltersTab) {
-    if (filtersActiveTab === tab) return;
-    filtersActiveTab = tab;
-  }
-
   function icon(el: HTMLElement, name: string) {
     setIcon(el, name);
     return {
@@ -60,10 +58,9 @@
 </script>
 
 <NavbarPages
-  activeTab={filtersActiveTab}
+  tabs={TABS}
+  bind:active={filtersActiveTab as string}
   showLabels={plugin.settings.filtersShowTabLabels}
-  onTabChange={switchFiltersTab}
-  {icon}
 />
 
 <NavbarExplorer
