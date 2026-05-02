@@ -98,7 +98,16 @@ input: AI-gen
 ## Last updated
 
 - **Date**: 2026-05-02
-- **Agent**: Claude Code (Sonnet 4.6 → Opus 4.7) — Sub-A.4.2 closure (T35–T40)
+- **Agent**: Claude Code (Sonnet 4.6) — Sub-A.5 código + tests verde, BUG smoke-test pendiente
+
+## Session 2026-05-02 (tarde) — Sub-A.5 smoke-test BLOQUEADO
+
+**Status: Código commiteado (T41+T42+T43), verify gate verde (lint+check+build+163 tests). PERO bug Svelte 5 en mount → handoff a Opus 4.7. NO PUSHEAR.**
+
+- Versión bumped `1.0.0-rc.1`, tagged local, NO pushed.
+- Bug: `effect_update_depth_exceeded` en `SettingsUI.svelte` `$effect`. `$state.snapshot()` no arregló.
+- Setup descubierto: `plugin-dev/plugins/vaultman` es symlink → `Start of The Road/Production/Code/vaultman`. Nuestro build en `obsiman/` necesita copiarse al target del symlink para que Obsidian lo cargue.
+- Ver `docs/HANDOFF.md` para detalles del bug, hipótesis, y estrategias propuestas.
 
 ## Session 2026-04-30 — Sub-C Tests closure
 

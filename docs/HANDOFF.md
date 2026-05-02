@@ -1,8 +1,80 @@
 # HANDOFF — Vaultman Next Session
 
-> Updated: 2026-05-02 | From: Claude Code (Sonnet 4.6) Sub-A.5 close → To: next agent
+> Updated: 2026-05-02 | From: Claude Code (Sonnet 4.6) → To: Opus 4.7
 > Branch: `hardening-refactor` | Version: `1.0.0-rc.1` (tagged, NOT pushed yet)
-> **Sub-A.5 completo. Hardening project DONE. Siguiente: smoke-test → push → GitHub Release → PR.**
+> **Sub-A.5 código commiteado, build/test verde. PERO smoke-test BLOQUEADO por bug Svelte 5 `effect_update_depth_exceeded`. NO PUSHEAR hasta arreglarlo.**
+
+---
+
+## ⚠️ BUG ACTIVO — Sub-A.5 SettingsUI infinite effect loop
+
+### Síntoma
+Al abrir Settings → Vaultman, Svelte 5 lanza:
+```
+Uncaught Error: https://svelte.dev/e/effect_update_depth_exceeded
+at Sa (plugin:vaultman:17:94)
+at Xc (plugin:vaultman:54:5573)
+at #m (plugin:vaultman:54:1248)
+at #m (plugin:vaultman:54:1999)  ← repetido 100+ veces
+```
+
+### Setup crítico antes de testear (NO obvio)
+- `plugin-dev/.obsidian/plugins/vaultman` es **symlink** a `Start of The Road/Production/Code/vaultman`
+- Nuestro dev/build está en `obsiman/`, pero Obsidian carga desde `vaultman` (symlink)
+- Ambos repos están en branch `hardening-refactor` (production behind nuestros commits)
+- **Para smoke-test**: copiar `obsiman/{main.js,styles.css,manifest.json}` → symlink path, luego `obsidian plugin:reload id=vaultman`
+
+### Lo que se intentó (NO funcionó)
+1. **Versión inicial**: `Object.assign(plugin.settings, s)` directo → loop
+2. **Fix con `$state.snapshot`**:
+```ts
+$effect(() => {
+  Object.assign(plugin.settings, $state.snapshot(s));
+  void plugin.saveSettings();
+  plugin.updateGlassBlur();
+});
+```
+También loop. Mismo error en línea 54 (confirmando que código se actualizó).
+
+### Hipótesis pendientes (no testeadas)
+- Algún `bind:value` en `<select>` corrige el valor en mount → escribe a `s` → effect re-corre
+- `plugin.updateGlassBlur()` lee `plugin.settings.glassBlurIntensity` que ahora es proxy reactivo → triggers reactivity
+- Algún campo array (`filterTemplates`, `contextMenuHideRules`) compartido por referencia con `plugin.settings` causa cycle vía Svelte deep proxy
+- Bug en `$state.snapshot` con types complejos del `MenuHideRule[]`
+
+### Próximo agente: estrategias a probar (en orden)
+1. **Patrón explícito sin `$effect` blanket**: usar `onChange` callback en cada Toggle/Dropdown que llame función `save()`. Eliminar el `$effect` global. Más verboso pero garantizado sin loop.
+2. **Usar `untrack`** de svelte para envolver `Object.assign + saveSettings`:
+```ts
+import { untrack } from 'svelte';
+$effect(() => {
+  const snap = $state.snapshot(s);
+  untrack(() => {
+    Object.assign(plugin.settings, snap);
+    void plugin.saveSettings();
+    plugin.updateGlassBlur();
+  });
+});
+```
+3. **Consultar Svelte MCP** (`mcp__svelte__get-documentation` con `section` correcto): leer `svelte/$effect` + `svelte/runtime-errors` para ver cómo se sincroniza state reactivo con external store sin loop. Skill svelte estaba activa al final de la sesión.
+4. **Aislar el campo culpable**: comentar todos los bindings excepto uno y agregar uno por uno hasta reproducir el loop. Probable culprit: arrays (`filterTemplates`, `contextMenuHideRules`).
+
+### Archivo a editar
+- `src/components/settings/SettingsUI.svelte` — solo el `$effect` y posiblemente bindings.
+
+### Validación al arreglar
+```powershell
+cd "C:/Users/vic_A/My Drive (vic_alejandronavas@outlook.com)/plugin-dev/.obsidian/plugins/obsiman"
+npm run check ; npm run build
+# Copiar a symlink target:
+Copy-Item main.js,styles.css "C:/Users/vic_A/My Drive (vic_alejandronavas@outlook.com)/Start of The Road/Production/Code/vaultman/" -Force
+obsidian vault=plugin-dev plugin:reload id=vaultman
+obsidian vault=plugin-dev dev:errors  # debe ser "No errors captured"
+obsidian vault=plugin-dev eval code="JSON.stringify({vmSettings: !!app.setting.activeTab?.containerEl?.querySelector('.vm-settings')})"
+# vmSettings debe ser true → confirma que SettingsUI montó OK
+```
+
+---
 
 ---
 

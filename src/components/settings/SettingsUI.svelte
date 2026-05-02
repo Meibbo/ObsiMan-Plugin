@@ -46,7 +46,7 @@
   let s = $state(initState());
 
   $effect(() => {
-    Object.assign(plugin.settings, s);
+    Object.assign(plugin.settings, $state.snapshot(s));
     void plugin.saveSettings();
     plugin.updateGlassBlur();
   });
