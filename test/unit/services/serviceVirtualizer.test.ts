@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { TreeVirtualizer } from '../../../src/services/serviceVirtualizer';
+import { TreeVirtualizer, Virtualizer } from '../../../src/services/serviceVirtualizer.svelte';
 import type { TreeNode } from '../../../src/types/typeTree';
 
 function n(id: string, children?: TreeNode<unknown>[]): TreeNode<unknown> {
@@ -31,33 +31,47 @@ describe('TreeVirtualizer.flatten', () => {
 	});
 });
 
-describe('TreeVirtualizer.computeWindow', () => {
-	it('returns zero range when total is zero', () => {
-		const v = new TreeVirtualizer();
-		expect(v.computeWindow(0, 100, 20, 0)).toEqual({ startIndex: 0, endIndex: 0 });
+describe('Virtualizer.window (rune-derived)', () => {
+	it('returns zero range when items is empty', () => {
+		const v = new Virtualizer<string>();
+		expect(v.window).toEqual({ startIndex: 0, endIndex: 0 });
 	});
 
-	it('returns zero range when rowH is zero', () => {
-		const v = new TreeVirtualizer();
-		expect(v.computeWindow(0, 100, 0, 50)).toEqual({ startIndex: 0, endIndex: 0 });
+	it('returns zero range when rowHeight is zero', () => {
+		const v = new Virtualizer<string>();
+		v.items = Array(50).fill('x');
+		v.rowHeight = 0;
+		expect(v.window).toEqual({ startIndex: 0, endIndex: 0 });
 	});
 
 	it('clamps start to 0 with overscan', () => {
-		const v = new TreeVirtualizer();
-		const w = v.computeWindow(20, 100, 20, 100, 5);
-		expect(w.startIndex).toBe(0);
+		const v = new Virtualizer<string>();
+		v.items = Array(100).fill('x');
+		v.rowHeight = 20;
+		v.viewportHeight = 100;
+		v.overscan = 5;
+		v.scrollTop = 20;
+		expect(v.window.startIndex).toBe(0);
 	});
 
-	it('clamps end to total', () => {
-		const v = new TreeVirtualizer();
-		const w = v.computeWindow(180, 100, 20, 10, 5);
-		expect(w.endIndex).toBe(10);
+	it('clamps end to items.length', () => {
+		const v = new Virtualizer<string>();
+		v.items = Array(10).fill('x');
+		v.rowHeight = 20;
+		v.viewportHeight = 100;
+		v.overscan = 5;
+		v.scrollTop = 180;
+		expect(v.window.endIndex).toBe(10);
 	});
 
 	it('returns symmetric overscan around the visible window', () => {
-		const v = new TreeVirtualizer();
-		const w = v.computeWindow(400, 100, 20, 100, 5);
-		expect(w.startIndex).toBe(15);
-		expect(w.endIndex).toBe(30);
+		const v = new Virtualizer<string>();
+		v.items = Array(100).fill('x');
+		v.rowHeight = 20;
+		v.viewportHeight = 100;
+		v.overscan = 5;
+		v.scrollTop = 400;
+		expect(v.window.startIndex).toBe(15);
+		expect(v.window.endIndex).toBe(30);
 	});
 });

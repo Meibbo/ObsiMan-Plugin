@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TreeNode } from "../../types/typeTree";
-  import { TreeVirtualizer } from "../../services/serviceVirtualizer";
+  import { TreeVirtualizer } from "../../services/serviceVirtualizer.svelte";
 
   interface Props {
     nodes: TreeNode[];
@@ -37,29 +37,29 @@
   const virtualizer = new TreeVirtualizer();
 
   let outerEl: HTMLDivElement | undefined = $state();
-  let scrollTop = $state(0);
-  let viewportH = $state(0);
-  let rowH = $state(32);
 
   const flatArray = $derived(virtualizer.flatten(nodes, expandedIds));
-  const totalH = $derived(flatArray.length * rowH);
-  const win = $derived(
-    virtualizer.computeWindow(scrollTop, viewportH, rowH, flatArray.length),
-  );
+  const totalH = $derived(flatArray.length * virtualizer.rowHeight);
+
+  $effect(() => {
+    virtualizer.items = flatArray;
+  });
+
+  const win = $derived(virtualizer.window);
   const visibleSlice = $derived(flatArray.slice(win.startIndex, win.endIndex));
 
   function onScroll(e: Event) {
-    scrollTop = (e.currentTarget as HTMLDivElement).scrollTop;
+    virtualizer.scrollTop = (e.currentTarget as HTMLDivElement).scrollTop;
   }
 
   $effect(() => {
     if (!outerEl) return;
     const cs = getComputedStyle(outerEl);
     const v = parseFloat(cs.getPropertyValue("--vm-tree-row-h"));
-    if (v > 0) rowH = v;
-    viewportH = outerEl.clientHeight;
+    if (v > 0) virtualizer.rowHeight = v;
+    virtualizer.viewportHeight = outerEl.clientHeight;
     const ro = new ResizeObserver(() => {
-      if (outerEl) viewportH = outerEl.clientHeight;
+      if (outerEl) virtualizer.viewportHeight = outerEl.clientHeight;
     });
     ro.observe(outerEl);
     return () => ro.disconnect();
@@ -99,7 +99,7 @@
         class:vm-badge-warning={isWarning}
         class:vm-search-highlight={isHighlighted}
         class:is-editing={isEditing}
-        style="--vm-tree-y: {absIdx * rowH}px; --depth: {flat.depth}"
+        style="--vm-tree-y: {absIdx * virtualizer.rowHeight}px; --depth: {flat.depth}"
         data-id={node.id}
         onclick={() => onRowClick(node.id)}
         oncontextmenu={(e) => onContextMenu(node.id, e)}
