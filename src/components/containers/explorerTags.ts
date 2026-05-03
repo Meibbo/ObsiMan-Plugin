@@ -1,5 +1,5 @@
 import { TagsLogic } from '../../logic/logicTags';
-import type { TreeNode, TagMeta } from '../../types/typeTree';
+import type { TreeNode, TagMeta } from '../../types/typeNode';
 import type { VaultmanPlugin } from '../../main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
 
@@ -79,7 +79,7 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 				? this._decorateTree(node.children, isEffectivelyDeleted)
 				: [];
 
-			const badges: import('../../types/typeTree').NodeBadge[] = [];
+			const badges: import('../../types/typeNode').NodeBadge[] = [];
 			for (const op of relevantOps) {
 				const opIdx = queue.indexOf(op);
 				if (op.action === 'delete')
@@ -101,6 +101,7 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 				...node,
 				cls: currentCls,
 				icon: decoration.icons[0],
+				highlights: decoration.highlights,
 				badges,
 				children: resolvedChildren,
 			};

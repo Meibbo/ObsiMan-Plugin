@@ -7,7 +7,7 @@
   } from "../../types/typeExplorer";
   import ViewTree from "../views/viewTree.svelte";
   import ViewGrid from "../views/viewGrid.svelte";
-  import type { TreeNode } from "../../types/typeTree";
+  import type { TreeNode } from "../../types/typeNode";
 
   let {
     plugin,

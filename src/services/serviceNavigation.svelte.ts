@@ -1,5 +1,5 @@
 /* global $state, $derived */
-import type { IRouter } from '../types/contracts';
+import type { IRouter } from '../types/typeContracts';
 
 /**
  * Service to manage hierarchical navigation (Pages and Tabs).

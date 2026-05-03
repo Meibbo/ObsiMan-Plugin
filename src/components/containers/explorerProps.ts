@@ -1,5 +1,5 @@
 import { PropsLogic } from '../../logic/logicProps';
-import type { TreeNode, PropMeta } from '../../types/typeTree';
+import type { TreeNode, PropMeta } from '../../types/typeNode';
 import type { PropertyChange } from '../../types/typeOps';
 import { showInputModal } from '../../utils/inputModal';
 import type { VaultmanPlugin } from '../../main';
@@ -20,6 +20,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 	private plugin: VaultmanPlugin;
 	private logic: PropsLogic;
 	private searchTerm = '';
+	private searchMode: 'all' | 'leaf' = 'all';
 	private sortBy: string = 'name';
 	private sortDir: 'asc' | 'desc' = 'asc';
 	private addMode = false;
@@ -95,7 +96,10 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 	}
 
 	getTree(): TreeNode<PropMeta>[] {
-		const tree = this.logic.getTree();
+		let tree = this.logic.getTree();
+		if (this.searchTerm) {
+			tree = this.logic.filterTree(tree, this.searchTerm, this.searchMode === 'leaf' ? 1 : 0);
+		}
 		const sorted = this._applySort(tree);
 		return this._decorateTree(sorted);
 	}
@@ -145,7 +149,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 				currentCls = `${currentCls} vm-search-highlight`.trim();
 			}
 
-			const badges: import('../../types/typeTree').NodeBadge[] = [];
+			const badges: import('../../types/typeNode').NodeBadge[] = [];
 			if (meta.isTypeIncompatible) {
 				badges.push({ text: 'Conflict', color: 'red', solid: true, icon: 'lucide-alert-triangle' });
 			}
@@ -181,6 +185,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 				...node,
 				cls: currentCls,
 				icon: decoration.icons[0] ?? undefined,
+				highlights: decoration.highlights,
 				badges,
 				children: node.children ? this._decorateTree(node.children, isPropDeleted) : undefined,
 			};
@@ -229,8 +234,9 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 		this.plugin.contextMenuService.openPanelMenu({ nodeType, node: node, surface: 'panel' }, e);
 	}
 
-	setSearchTerm(term: string): void {
+	setSearchTerm(term: string, mode: 'all' | 'leaf' = 'all'): void {
 		this.searchTerm = term;
+		this.searchMode = mode;
 	}
 	setSortBy(sortBy: string, direction: 'asc' | 'desc'): void {
 		this.sortBy = sortBy;

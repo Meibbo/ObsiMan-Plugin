@@ -1,6 +1,6 @@
 import type { App, TFile } from 'obsidian';
 import type { FilterGroup, FilterNode, FilterTemplate } from '../types/typeFilter';
-import type { IFilterService, IFilesIndex } from '../types/contracts';
+import type { IFilterService, IFilesIndex } from '../types/typeContracts';
 import { evalNode } from '../utils/filter-evaluator';
 
 /**

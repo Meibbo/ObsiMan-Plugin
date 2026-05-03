@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TFile } from "obsidian";
-  import { translate } from "../../i18n/index";
+  import { translate } from "../../index/i18n/lang";
   import { Virtualizer } from "../../services/serviceVirtualizer.svelte";
 
   type SortColumn = "name" | "props" | "path" | "date";

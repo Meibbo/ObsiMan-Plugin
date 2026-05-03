@@ -1,7 +1,7 @@
 import type { StagedOp, VirtualFileState } from "../types/typeOps";
 import type { OpKind } from "../types/typeOps";
 import type { OperationQueueService } from "../services/serviceQueue.svelte";
-import { translate } from "../i18n/index";
+import { translate } from "../index/i18n/lang";
 
 export interface QueueListCallbacks {
   onRemoveFile: (path: string) => void;

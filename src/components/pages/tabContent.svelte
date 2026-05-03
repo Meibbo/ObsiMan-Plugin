@@ -3,8 +3,8 @@
   import { Virtualizer } from "../../services/serviceVirtualizer.svelte";
   import TextInput from "../primitives/TextInput.svelte";
   import HighlightText from "../primitives/HighlightText.svelte";
-  import type { ContentMatch } from "../../types/contracts";
-  import { translate } from "../../i18n/index";
+  import type { ContentMatch } from "../../types/typeContracts";
+  import { translate } from "../../index/i18n/lang";
 
   let { plugin }: { plugin: VaultmanPlugin } = $props();
 
@@ -16,7 +16,10 @@
 
   $effect(() => { plugin.contentIndex.setQuery(query); });
 
-  $effect(() => { v.items = [...plugin.contentIndex.nodes]; });
+  $effect(() => {
+    syncItems();
+    return plugin.contentIndex.subscribe(syncItems);
+  });
 
   $effect(() => {
     if (!outerEl) return;
@@ -30,6 +33,10 @@
 
   function onScroll(e: Event) {
     v.scrollTop = (e.currentTarget as HTMLDivElement).scrollTop;
+  }
+
+  function syncItems() {
+    v.items = [...plugin.contentIndex.nodes];
   }
 </script>
 

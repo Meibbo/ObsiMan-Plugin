@@ -1,5 +1,5 @@
 import type { TFile } from 'obsidian';
-import type { TreeNode } from './typeTree';
+import type { TreeNode } from './typeNode';
 
 export type ExplorerViewMode = 'tree' | 'grid' | 'cards' | 'masonry';
 

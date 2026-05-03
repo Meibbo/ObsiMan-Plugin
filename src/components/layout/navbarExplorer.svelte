@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { translate } from "../../i18n/index";
-  import SortPopup from "./menuSort.svelte";
-  import ViewModePopup from "./menuView.svelte";
+  import { translate } from "../../index/i18n/lang";
+  import SortPopup from "./overlays/overlaySortMenu.svelte";
+  import ViewModePopup from "./overlays/overlayViewMenu.svelte";
   import { explorerFiles } from "../containers/explorerFiles";
   import { explorerProps } from "../containers/explorerProps";
   import { explorerTags } from "../containers/explorerTags";

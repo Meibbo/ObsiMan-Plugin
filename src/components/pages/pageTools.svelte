@@ -1,9 +1,10 @@
 <script lang="ts">
   import type { VaultmanPlugin } from "../../main";
-  import type { defOpsTab } from "../../types/typePrimitives";
+  import { translate } from "../../index/i18n/lang";
+  import { TTabs } from "../../types/typeTab";  //, type OpsTab
   import { MenuCuratorPanel } from "../containers/panelCurator";
-  import { translate } from "../../i18n/index";
-
+  // import { NavbarTabs } from "../layout/navbarTabs.svelte";
+  // import TabLinter from "./tabLinter.svelte";
   // ─── Props ───────────────────────────────────────────────────────────────
   let {
     plugin,
@@ -17,23 +18,6 @@
   let opsTab = $state<string>("layout");
 
   // ─── Tabs definition ─────────────────────────────────────────────────────
-  const Tabs: defOpsTab[] = [
-    {
-      id: "linter",
-      label: translate("ops.tabs.linter"),
-      icon: "lucide-sparkles",
-    },
-    {
-      id: "template",
-      label: translate("ops.tabs.template"),
-      icon: "lucide-layout-template",
-    },
-    {
-      id: "layout",
-      label: translate("ops.tabs.layout"),
-      icon: "lucide-layout",
-    },
-  ];
 
   // function openLinter() {
   // 	const selected = getSelectedFiles();
@@ -54,7 +38,7 @@
 </script>
 
 <div class="vm-tab-bar">
-  {#each Tabs as tab}
+  {#each TTabs as tab}
     <div
       class="vm-tab nav-action-button"
       class:is-active={opsTab === tab.id}
@@ -64,7 +48,7 @@
       }}
       role="tab"
       tabindex="0"
-      aria-label={tab.label}
+      aria-label={tab.labelKey}
       onkeydown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -73,7 +57,7 @@
       }}
     >
       <span class="vm-tab-icon" use:icon={tab.icon}></span>
-      <span class="vm-tab-label">{tab.label}</span>
+      <span class="vm-tab-label">{tab.labelKey}</span>
     </div>
   {/each}
 </div>

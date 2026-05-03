@@ -1,6 +1,6 @@
 import type { App } from 'obsidian';
-import type { TagNode, ITagsIndex } from '../types/contracts';
-import { createNodeIndex } from './createNodeIndex';
+import type { TagNode, ITagsIndex } from '../types/typeContracts';
+import { createNodeIndex } from './indexNodeCreate';
 
 export function createTagsIndex(app: App): ITagsIndex {
   return createNodeIndex<TagNode>({

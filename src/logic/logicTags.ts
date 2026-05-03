@@ -1,6 +1,6 @@
 // src/logic/TagsLogic.ts
 import { prepareSimpleSearch, type App } from 'obsidian';
-import type { TreeNode, TagMeta } from '../types/typeTree';
+import type { TreeNode, TagMeta } from '../types/typeNode';
 
 export class TagsLogic {
 	private app: App;

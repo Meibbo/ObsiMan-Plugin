@@ -21,6 +21,7 @@ export interface TreeNode<TMeta = unknown> {
 	depth: number;
 	meta: TMeta;
 	cls?: string;
+	highlights?: { start: number; end: number }[];
 }
 
 export interface TagMeta {

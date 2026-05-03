@@ -1,6 +1,6 @@
 // src/logic/PropsLogic.ts
 import { prepareSimpleSearch, type App } from 'obsidian';
-import type { TreeNode, PropMeta } from '../types/typeTree';
+import type { TreeNode, PropMeta } from '../types/typeNode';
 
 const COMPATIBLE_TYPES: Record<string, (v: unknown) => boolean> = {
 	checkbox: (v) => v === true || v === false || v === 'true' || v === 'false',

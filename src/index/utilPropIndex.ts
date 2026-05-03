@@ -1,3 +1,4 @@
+// TODO: Este e indexProps no son los mismos??
 import { Component, type App, type TAbstractFile, type CachedMetadata } from 'obsidian';
 
 /**

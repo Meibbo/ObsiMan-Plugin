@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { iVaultmanPlugin } from '../../types/typeSettings';
-	import { translate } from '../../i18n/index';
+	import { translate } from '../../index/i18n/lang';
 	import Toggle from '../primitives/Toggle.svelte';
 	import Dropdown from '../primitives/Dropdown.svelte';
 	import TextInput from '../primitives/TextInput.svelte';

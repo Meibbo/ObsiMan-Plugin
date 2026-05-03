@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { TreeNode } from "../../types/typeTree";
   import { TreeVirtualizer } from "../../services/serviceVirtualizer.svelte";
+  import HighlightText from "../primitives/HighlightText.svelte";
 
   interface Props {
     nodes: TreeNode[];
@@ -138,7 +139,9 @@
             use:focus
           />
         {:else}
-          <span class="vm-tree-label">{node.label}</span>
+          <span class="vm-tree-label">
+            <HighlightText text={node.label} ranges={node.highlights ?? []} />
+          </span>
         {/if}
 
         <!-- Badges / Counts -->

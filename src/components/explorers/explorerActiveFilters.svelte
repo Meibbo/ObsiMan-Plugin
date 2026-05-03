@@ -2,8 +2,8 @@
 	import { setIcon } from 'obsidian';
 	import type { VaultmanPlugin } from '../../main';
 	import { Virtualizer } from '../../services/serviceVirtualizer.svelte';
-	import type { ActiveFilterEntry } from '../../types/contracts';
-	import { translate } from '../../i18n/index';
+	import type { ActiveFilterEntry } from '../../types/typeContracts';
+	import { translate } from '../../index/i18n/lang';
 
 	let {
 		plugin,
@@ -21,7 +21,8 @@
 	const hasItems = $derived(v.items.length > 0);
 
 	$effect(() => {
-		v.items = [...plugin.activeFiltersIndex.nodes];
+		syncItems();
+		return plugin.activeFiltersIndex.subscribe(syncItems);
 	});
 
 	$effect(() => {
@@ -77,6 +78,10 @@
 
 	function clearFilters() {
 		plugin.filterService.clearFilters();
+	}
+
+	function syncItems() {
+		v.items = [...plugin.activeFiltersIndex.nodes];
 	}
 </script>
 

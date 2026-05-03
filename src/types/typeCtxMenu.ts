@@ -1,5 +1,5 @@
 // src/types/context-menu.ts
-import type { TreeNode } from './typeTree';
+import type { TreeNode } from './typeNode';
 import type { TFile } from 'obsidian';
 
 export interface MenuCtx {

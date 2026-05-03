@@ -1,4 +1,4 @@
-import type { TreeNode } from '../types/typeTree';
+import type { TreeNode } from '../types/typeNode';
 
 export interface FlatNode<TMeta = unknown> {
   node: TreeNode<TMeta>;

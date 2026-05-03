@@ -1,5 +1,5 @@
-import type { ITemplatesIndex, TemplateNode } from '../types/contracts';
-import { createNodeIndex } from './createNodeIndex';
+import type { ITemplatesIndex, TemplateNode } from '../types/typeContracts';
+import { createNodeIndex } from '../index/indexNodeCreate';
 
 /**
  * Stub. v1.0 has no consumer; structure preserved per ADR-008 + Annex A.2.2.

@@ -5,7 +5,7 @@
  */
 import { Modal, Notice, Setting, type App } from 'obsidian';
 import type { OperationQueueService } from '../services/serviceQueue.svelte';
-import { translate } from '../i18n/index';
+import { translate } from '../index/i18n/lang';
 import {
   buildDiff,
   computeBodyHunks,

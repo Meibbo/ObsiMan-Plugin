@@ -1,20 +1,19 @@
 <script lang="ts">
 	import type { VaultmanPlugin } from '../../main';
-	import { setIcon } from 'obsidian';
-	import FiltersTagsTab from './tabTags.svelte';
+	// TODO: por qué importo los tabs y los explorer?
 	import FiltersPropsTab from './tabProps.svelte';
 	import FiltersFilesTab from './tabFiles.svelte';
+	import FiltersTagsTab from './tabTags.svelte';
 	import ContentTab from './tabContent.svelte';
-	import NavbarPages from '../layout/navbarPages.svelte';
+	// TODO: por qué importa navbartabs??
+	import NavbarTabs from '../layout/navbarTabs.svelte';
 	import NavbarExplorer from '../layout/navbarExplorer.svelte';
-	import { explorerFiles } from '../containers/explorerFiles';
+	import { FTabs, type FilTab } from '../../types/typeTab';
 	import { explorerProps } from '../containers/explorerProps';
+	import { explorerFiles } from '../containers/explorerFiles';
 	import { explorerTags } from '../containers/explorerTags';
-	import { FILTERS_TABS_CONFIG } from '../../types/typeUI';
-
-	type FiltersTab = 'props' | 'files' | 'tags' | 'content';
-
-	const TABS: import('../../types/typeUI').TabConfig[] = [...FILTERS_TABS_CONFIG];
+	// TODO: por qué setIcon?
+	import { setIcon } from 'obsidian';
 
 	let {
 		plugin,
@@ -33,7 +32,7 @@
 		addOpCount = 0,
 	}: {
 		plugin: VaultmanPlugin;
-		filtersActiveTab: FiltersTab;
+		filtersActiveTab: FilTab;
 		filtersSearch: string;
 		filtersSearchCategory: Record<'tags' | 'props' | 'files', number>;
 		filtersSortBy?: string;
@@ -58,8 +57,8 @@
 	}
 </script>
 
-<NavbarPages
-	tabs={TABS}
+<NavbarTabs
+	tabs={FTabs}
 	bind:active={filtersActiveTab as string}
 	showLabels={plugin.settings.filtersShowTabLabels}
 />
@@ -81,19 +80,8 @@
 	/>
 {/if}
 
-<div class="vm-filters-tabs-container">
-	<div class="vm-tab-wrapper" class:is-hidden={filtersActiveTab !== 'tags'}>
-		<FiltersTagsTab
-			{plugin}
-			bind:searchTerm={filtersSearch}
-			searchMode={filtersSearchCategory.tags}
-			bind:sortBy={filtersSortBy}
-			bind:sortDirection={filtersSortDir}
-			bind:viewMode={filtersViewMode}
-			bind:explorer={tagsExplorer}
-		/>
-	</div>
-	<div class="vm-tab-wrapper" class:is-hidden={filtersActiveTab !== 'props'}>
+<div class="vm-tab-area">
+	<div class="vm-tab-content" class:is-active={filtersActiveTab === 'props'}>
 		<FiltersPropsTab
 			{plugin}
 			bind:searchTerm={filtersSearch}
@@ -104,7 +92,7 @@
 			bind:explorer={propExplorer}
 		/>
 	</div>
-	<div class="vm-tab-wrapper" class:is-hidden={filtersActiveTab !== 'files'}>
+	<div class="vm-tab-content" class:is-active={filtersActiveTab === 'files'}>
 		<FiltersFilesTab
 			{plugin}
 			bind:searchTerm={filtersSearch}
@@ -117,33 +105,18 @@
 			onSelectionChange={(c) => (selectedCount = c)}
 		/>
 	</div>
-	<div class="vm-tab-wrapper" class:is-hidden={filtersActiveTab !== 'content'}>
+	<div class="vm-tab-content" class:is-active={filtersActiveTab === 'tags'}>
+		<FiltersTagsTab
+			{plugin}
+			bind:searchTerm={filtersSearch}
+			searchMode={filtersSearchCategory.tags}
+			bind:sortBy={filtersSortBy}
+			bind:sortDirection={filtersSortDir}
+			bind:viewMode={filtersViewMode}
+			bind:explorer={tagsExplorer}
+		/>
+	</div>
+	<div class="vm-tab-content" class:is-active={filtersActiveTab === 'content'}>
 		<ContentTab {plugin} />
 	</div>
 </div>
-
-<style>
-	.vm-filters-tabs-container {
-		flex: 1;
-		min-height: 0;
-		width: 100%;
-		display: flex;
-		flex-direction: column;
-		overflow: hidden;
-		position: relative;
-	}
-	.vm-tab-wrapper {
-		display: flex;
-		flex-direction: column;
-		flex: 1;
-		min-height: 0;
-		height: 100%;
-		width: 100%;
-		overflow: hidden;
-		position: absolute;
-		inset: 0;
-	}
-	.is-hidden {
-		display: none !important;
-	}
-</style>

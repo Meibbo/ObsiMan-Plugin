@@ -1,5 +1,5 @@
 import type { App } from 'obsidian';
-import type { IDecorationManager, DecorationOutput, NodeBase } from '../types/contracts';
+import type { IDecorationManager, DecorationOutput, NodeBase } from '../types/typeContracts';
 
 const TYPE_ICON_MAP: Record<string, string> = {
 	text: 'lucide-text-align-start',

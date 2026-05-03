@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { translate } from "../../i18n/index";
+	import { translate } from "../../../index/i18n/lang";
 
 	type FiltersTab = "props" | "files" | "tags";
 

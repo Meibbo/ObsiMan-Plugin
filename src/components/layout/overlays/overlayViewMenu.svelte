@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { translate } from "../../i18n/index";
+  import { translate } from "../../../index/i18n/lang";
   import { untrack } from "svelte";
-  import BtnSelection from "../btnSelection.svelte";
-  import type { BtnSelectionItem } from "../../types/typePrimitives";
+  import BtnSelection from "../../btnSelection.svelte";
+  import type { BtnSelectionItem } from "../../../types/typePrimitives";
 
   type FiltersTab = "props" | "files" | "tags";
   type ViewMode = "tree" | "dnd" | "grid" | "cards";

@@ -1,6 +1,6 @@
 import type { Plugin } from 'obsidian';
 import type { FilterTemplate } from './typeFilter';
-import type { MenuHideRule } from './typeCMenu';
+import type { MenuHideRule } from './typeCtxMenu';
 
 export type Language = 'auto' | 'en' | 'es';
 export type LayoutTheme = 'native' | 'polish' | 'glass';

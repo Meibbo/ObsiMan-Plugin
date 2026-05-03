@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { FabDef } from "../../types/typePrimitives";
-  import { translate } from "../../i18n/index";
+  import { translate } from "../../index/i18n/lang";
 
   let {
     isIslandOpen = false,

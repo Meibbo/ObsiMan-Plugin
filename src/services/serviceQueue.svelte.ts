@@ -7,8 +7,8 @@ import type {
 	TemplateChange,
 } from '../types/typeOps';
 import { DELETE_PROP, RENAME_FILE, REORDER_ALL, MOVE_FILE, FIND_REPLACE_CONTENT, NATIVE_RENAME_PROP, APPLY_TEMPLATE } from '../types/typeOps';
-import type { IOperationQueue } from '../types/contracts';
-import { translate } from '../i18n/index';
+import type { IOperationQueue } from '../types/typeContracts';
+import { translate } from '../index/i18n/lang';
 
 /**
  * Split a markdown file's raw content into its frontmatter object and body string.

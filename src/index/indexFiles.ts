@@ -1,6 +1,6 @@
 import type { App } from 'obsidian';
-import type { FileNode, IFilesIndex } from '../types/contracts';
-import { createNodeIndex } from './createNodeIndex';
+import type { FileNode, IFilesIndex } from '../types/typeContracts';
+import { createNodeIndex } from './indexNodeCreate';
 
 export function createFilesIndex(app: App): IFilesIndex {
   return createNodeIndex<FileNode>({

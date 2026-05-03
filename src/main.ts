@@ -14,30 +14,31 @@
 /########|||-------|                                |------|||#########/
 /-------------------————————————————————————————————------------------*/
 //        Here is defined the connection between the different        \\
-//    services that Obsidian offers to the plugin and the main        \\
-//    classes of the plugin.
+//    services and modules that Obsidian uses to communicate with     \\
+//    the plugin, then the declared foundation of components that     \\
+//    will be used throughout                       \\
 //--------------------------------------------------------------------//
 
 //...----------—————————————(   IMPORTS   )————————————------------...\\
 import { Plugin, WorkspaceLeaf } from 'obsidian';
 import type { VaultmanSettings } from './types/typeSettings';
 import { DEFAULT_SETTINGS } from './types/typeSettings';
-import { PropertyIndexService } from './utils/utilPropIndex';
+import { PropertyIndexService } from './index/utilPropIndex';
 import { FilterService } from './services/serviceFilter.svelte';
 import { OperationQueueService } from './services/serviceQueue.svelte';
 import { VaultmanFrame, TYPE_FRAME_VM } from './types/typeFrame';
 import { IconicService } from './services/serviceIcons';
-import { PropertyTypeService } from './utils/utilPropType';
+import { PropertyTypeService } from './types/typeProp';
 import { ContextMenuService } from './services/serviceCMenu';
 import { VaultmanSettingsTab } from './settingsVM';
-import { translate } from './i18n/index';
-import { createFilesIndex } from './services/serviceFilesIndex';
-import { createTagsIndex } from './services/serviceTagsIndex';
-import { createPropsIndex } from './services/servicePropsIndex';
-import { createContentIndex } from './services/serviceContentIndex';
-import { createOperationsIndex } from './services/serviceOperationsIndex';
-import { createActiveFiltersIndex } from './services/serviceActiveFiltersIndex';
-import { createCSSSnippetsIndex } from './services/serviceCSSSnippetsIndex';
+import { translate } from './index/i18n/lang';
+import { createFilesIndex } from './index/indexFiles';
+import { createTagsIndex } from './index/indexTags';
+import { createPropsIndex } from './index/indexProps';
+import { createContentIndex } from './index/indexContent';
+import { createOperationsIndex } from './index/indexOperations';
+import { createActiveFiltersIndex } from './index/indexActiveFilters';
+import { createCSSSnippetsIndex } from './index/indexSnippets';
 import { createTemplatesIndex } from './services/serviceTemplatesIndex';
 import { OverlayStateService } from './services/serviceOverlayState.svelte';
 import { DecorationManager } from './services/serviceDecorate';
@@ -52,7 +53,7 @@ import type {
 	ITemplatesIndex,
 	IOverlayState,
 	IDecorationManager,
-} from './types/contracts';
+} from './types/typeContracts';
 
 export class VaultmanPlugin extends Plugin {
 	settings!: VaultmanSettings;

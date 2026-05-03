@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { explorerTags } from "../containers/explorerTags";
-  import PanelExplorer from "../containers/panelLists.svelte";
   import type { VaultmanPlugin } from "../../main";
+  import { explorerTags } from "../containers/explorerTags";
+  import PanelExplorer from "../containers/panelExplorer.svelte";
   import { setIcon } from "obsidian";
 
   let {

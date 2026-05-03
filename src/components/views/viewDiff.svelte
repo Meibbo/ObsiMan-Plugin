@@ -1,6 +1,6 @@
 <script lang="ts">
   import { stringifyYaml } from "obsidian";
-  import { translate } from "../../i18n/index";
+  import { translate } from "../../index/i18n/lang";
   import type { OperationQueueService } from "../../services/serviceQueue.svelte";
   import {
     buildDiff,

@@ -1,4 +1,4 @@
-import type { IOverlayState, OverlayEntry } from '../types/contracts';
+import type { IOverlayState, OverlayEntry } from '../types/typeContracts';
 
 export class OverlayStateService implements IOverlayState {
   stack = $state<OverlayEntry[]>([]);

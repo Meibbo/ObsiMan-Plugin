@@ -1,6 +1,6 @@
 // src/logic/FilesLogic.ts
 import type { App, TFile } from 'obsidian';
-import type { TreeNode, FileMeta } from '../types/typeTree';
+import type { TreeNode, FileMeta } from '../types/typeNode';
 
 export class FilesLogic {
 	private app: App;

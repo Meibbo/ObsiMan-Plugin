@@ -2,8 +2,8 @@
 	import { setIcon } from 'obsidian';
 	import type { VaultmanPlugin } from '../../main';
 	import { Virtualizer } from '../../services/serviceVirtualizer.svelte';
-	import type { QueueChange } from '../../types/contracts';
-	import { translate } from '../../i18n/index';
+	import type { QueueChange } from '../../types/typeContracts';
+	import { translate } from '../../index/i18n/lang';
 
 	let {
 		plugin,
@@ -20,7 +20,8 @@
 	const hasItems = $derived(v.items.length > 0);
 
 	$effect(() => {
-		v.items = [...plugin.operationsIndex.nodes];
+		syncItems();
+		return plugin.operationsIndex.subscribe(syncItems);
 	});
 
 	$effect(() => {
@@ -53,6 +54,10 @@
 	function executeAll() {
 		void plugin.queueService.execute();
 		onClose?.();
+	}
+
+	function syncItems() {
+		v.items = [...plugin.operationsIndex.nodes];
 	}
 </script>
 

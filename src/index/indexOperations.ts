@@ -1,5 +1,5 @@
-import type { IOperationQueue, IOperationsIndex, QueueChange } from '../types/contracts';
-import { createNodeIndex } from './createNodeIndex';
+import type { IOperationQueue, IOperationsIndex, QueueChange } from '../types/typeContracts';
+import { createNodeIndex } from './indexNodeCreate';
 import type { PendingChange, StagedOp, VirtualFileState } from '../types/typeOps';
 
 type QueueWithTransactions = IOperationQueue & {

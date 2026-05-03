@@ -12,37 +12,37 @@
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
 	import { setIcon } from 'obsidian';
-	import type { VaultmanPlugin } from '../main';
-	import { explorerFiles } from './containers/explorerFiles';
-	import { explorerProps } from './containers/explorerProps';
-	import { explorerTags } from './containers/explorerTags';
-	import StatisticsPage from './pages/pageStats.svelte';
-	import FiltersPage from './pages/pageFilters.svelte';
-	import OperationsPage from './pages/pageTools.svelte';
-	import BottomNav from './layout/navbarPillFab.svelte';
-	import PopupOverlay from './layout/layoutPopup.svelte';
-	import PopupIsland from './layout/popupIsland.svelte';
-	import ExplorerQueueComp from './explorers/explorerQueue.svelte';
-	import ExplorerActiveFiltersComp from './explorers/explorerActiveFilters.svelte';
+	import type { VaultmanPlugin } from '../../main';
+	import { explorerFiles } from '../containers/explorerFiles';
+	import { explorerProps } from '../containers/explorerProps';
+	import { explorerTags } from '../containers/explorerTags';
+	import StatisticsPage from '../pages/pageStats.svelte';
+	import FiltersPage from '../pages/pageFilters.svelte';
+	import OperationsPage from '../pages/pageTools.svelte';
+	import BottomNav from '../layout/navbarPillFab.svelte';
+	import PopupOverlay from '../layout/overlays/layoutOverlay.svelte';
+	import PopupIsland from '../layout/overlays/overlayIsland.svelte';
+	import ExplorerQueueComp from '../explorers/explorerQueue.svelte';
+	import ExplorerActiveFiltersComp from '../explorers/explorerActiveFilters.svelte';
 
-	import { FolderSuggest } from '../utils/autocomplete';
-	import { translate } from '../i18n/index';
-	import type { FabDef } from '../types/typePrimitives';
+	import { FolderSuggest } from '../../utils/autocomplete';
+	import { translate } from '../../index/i18n/lang';
+	import type { FabDef } from '../../types/typePrimitives';
 	import {
 		collectActiveFilterRules,
 		countFilterLeaves,
 		type ActiveFilterRule,
-	} from './frame/frameActiveFilters';
+	} from './frameActiveFilters';
 	import {
 		createFramePageFabs,
 		createFramePageIcons,
 		createFramePageLabels,
 		resolveFramePageOrder,
-	} from './frame/framePages';
-	import { FrameViewportController } from './frame/frameViewport';
-	import { FrameNavReorderController } from './frame/frameNavReorder.svelte';
-	import { FrameOverlayController } from './frame/frameOverlays.svelte';
-	import { createMoveChanges, createMovePreviews } from './frame/frameMoves';
+	} from './framePages';
+	import { FrameViewportController } from './frameViewport';
+	import { FrameNavReorderController } from './frameNavReorder.svelte';
+	import { FrameOverlayController } from './frameOverlays.svelte';
+	import { createMoveChanges, createMovePreviews } from './frameMoves';
 
 	// ─── Props ─────────────------------------...........
 
@@ -194,7 +194,7 @@
 	function refreshActiveFilterHighlights(): void {
 		const props = new Set<string>();
 		const vals = new Map<string, Set<string>>();
-		function walk(node: import('../types/typeFilter').FilterNode): void {
+		function walk(node: import('../../types/typeFilter').FilterNode): void {
 			if (node.type === 'rule') {
 				if (node.property) {
 					props.add(node.property);

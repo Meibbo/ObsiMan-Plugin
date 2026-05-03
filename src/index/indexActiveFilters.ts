@@ -1,6 +1,6 @@
-import type { IActiveFiltersIndex, ActiveFilterEntry, IFilterService } from '../types/contracts';
+import type { IActiveFiltersIndex, ActiveFilterEntry, IFilterService } from '../types/typeContracts';
 import type { FilterGroup, FilterRule } from '../types/typeFilter';
-import { createNodeIndex } from './createNodeIndex';
+import { createNodeIndex } from './indexNodeCreate';
 
 function flatten(group: FilterGroup): FilterRule[] {
 	const out: FilterRule[] = [];

@@ -19,6 +19,33 @@ input: AI-gen
 
 ---
 
+## Session 2026-05-02 (Codex) — explorer reactivity regressions
+
+**Status: Fixed and verified.** Root cause was internal, not external Obsidian state.
+
+Completed:
+- Restored Props explorer search filtering. `explorerProps.getTree()` now applies `PropsLogic.filterTree()` before sort/decorate, including value-search mode via the shared category toggle.
+- Restored reactive updates for index-backed explorers:
+  - Content tab subscribes to `contentIndex`.
+  - Queue island subscribes to `operationsIndex`.
+  - Active Filters island subscribes to `activeFiltersIndex`.
+- Made `DecorationManager` highlight ranges visible in `ViewTree` labels through `HighlightText` instead of only setting a row class.
+- Added regression tests:
+  - `test/unit/components/explorerProps.test.ts`
+  - `test/component/reactiveExplorers.test.ts`
+  - `test/component/viewTreeDecorations.test.ts`
+
+Verification:
+- `pnpm run verify` ✅ lint 0 errors / 4 existing warnings, svelte-check 0/0, build OK, unit 172/172, component 8/8.
+- Obsidian CLI smoke ✅ plugin reload OK, Props no-match search returns 0 rows, Props `status` search returns only status with service decoration icon and `<mark>` highlight.
+- Content tab smoke ✅ visible non-zero dimensions; `contentIndex.setQuery('the')` produced rendered content rows in the open tab.
+- Queue island smoke ✅ open island updated from empty to `Queue (1 pending) property Codex smoke op`.
+- Active Filters island smoke ✅ open island updated live to `has: status`, then cleared back to empty.
+- `dev:errors` ✅ `No errors captured`.
+
+Next:
+- The deeper architecture mismatch remains: `createNodeIndex.ts` claims rune-backed behavior in ADR-008 but currently notifies through `subscribe()`, not Svelte state. Current fix uses the existing contract without renaming the factory. Future hardening should either rename/migrate factory to `createNodeIndex.svelte.ts` or document `subscribe()` as the canonical reactivity surface.
+
 ## Session 2026-05-02 (Codex) — island/theme regressions restored
 
 **Status: Hardening PR follow-up green.** `pnpm run verify` passed; Obsidian smoke passed; PR #4 should be refreshed after commit/push.
@@ -127,7 +154,7 @@ Next:
 ## Last updated
 
 - **Date**: 2026-05-02
-- **Agent**: ChatGPT Codex — formatter tooling + frame SOLID split
+- **Agent**: ChatGPT Codex — explorer reactivity regressions
 
 ## Session 2026-05-02 (Codex) — formatter tooling + frame SOLID split
 

@@ -1,6 +1,6 @@
 import type { VaultmanPlugin } from '../../main';
-import { translate } from '../../i18n/index';
-import { openPluginSettings } from '../../types/obsidian-extended';
+import { translate } from '../../index/i18n/lang';
+import { openPluginSettings } from '../../types/typeObsidian';
 import type { FabDef } from '../../types/typePrimitives';
 
 export type FramePageId = 'ops' | 'statistics' | 'filters';

@@ -1,6 +1,6 @@
 // src/services/ContextMenuService.ts
 import { Component, Menu, TFile, Notice, App, MenuItem } from 'obsidian';
-import type { ActionDef, MenuCtx, MenuHideRule } from '../types/typeCMenu';
+import type { ActionDef, MenuCtx, MenuHideRule } from '../types/typeCtxMenu';
 
 export interface ContextMenuPluginCtx extends Component {
 	app: App;

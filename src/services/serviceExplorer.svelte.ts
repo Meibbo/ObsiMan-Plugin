@@ -1,5 +1,5 @@
 /* global $state, $derived */
-import type { INodeIndex, IDecorationManager, NodeBase, IExplorer } from '../types/contracts';
+import type { INodeIndex, IDecorationManager, NodeBase, IExplorer } from '../types/typeContracts';
 import { ExplorerLogic } from '../logic/logicExplorer';
 
 export interface ExplorerOptions<TNode extends NodeBase> {

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { TabConfig } from "../../types/typeUI";
+  import type { TabConfig } from "../../types/typeTab";
   import { setIcon } from "obsidian";
-  import { translate } from "../../i18n/index";
+  import { translate } from "../../index/i18n/lang";
 
   let {
     tabs,

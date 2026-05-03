@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Menu } from "obsidian";
-	import { translate } from "../../i18n/index";
+	import { translate } from "../../index/i18n/lang";
 	import type { VaultmanPlugin } from "../../main";
 	import { SaveTemplateModal } from "../../modals/modalSaveTemplate";
 

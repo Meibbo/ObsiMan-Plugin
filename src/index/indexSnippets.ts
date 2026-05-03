@@ -1,5 +1,5 @@
-import type { ICSSSnippetsIndex, SnippetNode } from '../types/contracts';
-import { createNodeIndex } from './createNodeIndex';
+import type { ICSSSnippetsIndex, SnippetNode } from '../types/typeContracts';
+import { createNodeIndex } from './indexNodeCreate';
 
 /**
  * Stub. v1.0 has no consumer; structure preserved per ADR-008 + Annex A.2.2.

@@ -1,3 +1,4 @@
+// TODO: este archivo no tiene ningún import, además creo que que un primitive
 import { AbstractInputSuggest, type App } from 'obsidian';
 
 export interface DropDSuggestionItem {

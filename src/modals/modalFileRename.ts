@@ -1,9 +1,9 @@
 import { Modal, Setting, type App, type TFile } from 'obsidian';
 import type { PendingChange } from '../types/typeOps';
 import { RENAME_FILE } from '../types/typeOps';
-import type { PropertyIndexService } from '../utils/utilPropIndex';
+import type { PropertyIndexService } from '../index/utilPropIndex';
 import { PropertySuggest } from '../utils/autocomplete';
-import { translate } from '../i18n/index';
+import { translate } from '../index/i18n/lang';
 
 type QueueCallback = (change: PendingChange) => void;
 

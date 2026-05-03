@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { IOverlayState } from "../../types/contracts";
+  import type { IOverlayState } from "../../../types/typeContracts";
   import type { Component } from "svelte";
 
   let { overlayState }: { overlayState: IOverlayState } = $props();

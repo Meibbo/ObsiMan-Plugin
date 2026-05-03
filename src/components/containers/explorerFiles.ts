@@ -1,8 +1,8 @@
 import type { TFile } from 'obsidian';
 import type { VaultmanPlugin } from '../../main';
 import { FilesLogic } from '../../logic/logicsFiles';
-import type { TreeNode, FileMeta } from '../../types/typeTree';
-import type { MenuCtx } from '../../types/typeCMenu';
+import type { TreeNode, FileMeta } from '../../types/typeNode';
+import type { MenuCtx } from '../../types/typeCtxMenu';
 import { FileRenameModal } from '../../modals/modalFileRename';
 import { FileMoveModal } from '../../modals/modalFileMove';
 import { PropertyManagerModal } from '../../modals/modalPropertyManager';
@@ -96,6 +96,7 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 				isFolder: n.meta.isFolder,
 			});
 			n.icon = decoration.icons[0];
+			n.highlights = decoration.highlights;
 			if (decoration.highlights.length > 0 && !n.cls?.includes('vm-search-highlight')) {
 				n.cls = `${n.cls ?? ''} vm-search-highlight`.trim();
 			}

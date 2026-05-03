@@ -1,4 +1,4 @@
-import type { INodeIndex, NodeBase } from '../types/contracts';
+import type { INodeIndex, NodeBase } from '../types/typeContracts';
 
 export interface NodeIndexOptions<TNode extends NodeBase> {
   build: () => TNode[] | Promise<TNode[]>;

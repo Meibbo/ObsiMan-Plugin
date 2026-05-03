@@ -38,14 +38,14 @@
 				"src/modals/*"
 			],
 			"@i18n/*": [
-				"src/i18n/*"
+				"src/index/i18n/i18n/*"
 			]
 		}
 	},
 	"include": [
 		"src/**/*.ts",
 		"src/**/*.svelte",
-		"esbuild.config.mjs",
+		"scripts/esbuild.config.mjs",
 		"svelte.config.js",
 		"vite.config.ts",
 		"main.ts"

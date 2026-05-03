@@ -1,10 +1,11 @@
+<!-- TODO: no es lo mismo que un frame?? -->
 <script lang="ts">
-  import type { VaultmanPlugin } from "../../main";
-  import type { PopupType } from "../../types/typePrimitives";
-  import ActiveFiltersPopup from "./popupFilters.svelte";
-  import ScopePopup from "./popupScope.svelte";
-  import SearchPopup from "./boxSearch.svelte";
-  import MovePopup from "./popupMove.svelte";
+  import type { VaultmanPlugin } from "../../../main";
+  import type { PopupType } from "../../../types/typePrimitives";
+  import ActiveFiltersPopup from "../popupFilters.svelte";
+  import ScopePopup from "../../primitives/dropDScope.svelte";
+  import SearchPopup from "../../primitives/boxSearch.svelte";
+  import MovePopup from "../popupMove.svelte";
 
   let {
     plugin,

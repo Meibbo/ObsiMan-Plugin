@@ -2,7 +2,7 @@ import { Modal, Setting, type App, type TFile } from 'obsidian';
 import type { PendingChange } from '../types/typeOps';
 import { MOVE_FILE } from '../types/typeOps';
 import { FolderSuggest } from '../utils/autocomplete';
-import { translate } from '../i18n/index';
+import { translate } from '../index/i18n/lang';
 
 type QueueCallback = (change: PendingChange) => void;
 

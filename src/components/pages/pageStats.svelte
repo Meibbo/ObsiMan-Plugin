@@ -1,7 +1,7 @@
 <script lang="ts">
   import { setIcon } from "obsidian";
   import type { VaultmanPlugin } from "../../main";
-  import { translate } from "../../i18n/index";
+  import { translate } from "../../index/i18n/lang";
 
   let { plugin }: { plugin: VaultmanPlugin } = $props();
 

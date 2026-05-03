@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { translate } from "../../i18n/index";
+	import { translate } from "../../index/i18n/lang";
 	import type { TFile } from "obsidian";
 
 	let {

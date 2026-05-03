@@ -1,6 +1,6 @@
 import type { App } from 'obsidian';
-import type { IPropsIndex, PropNode } from '../types/contracts';
-import { createNodeIndex } from './createNodeIndex';
+import type { IPropsIndex, PropNode } from '../types/typeContracts';
+import { createNodeIndex } from './indexNodeCreate';
 
 export function createPropsIndex(app: App): IPropsIndex {
   return createNodeIndex<PropNode>({

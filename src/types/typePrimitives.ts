@@ -6,14 +6,6 @@ export type PopupType =
 	| "search"
 	| "move";
 
-export type OpsTab = "linter" | "template" | "layout";
-
-export interface defOpsTab {
-	id: OpsTab;
-	label: string;
-	icon: string;
-}
-
 export interface ContentSnippet {
 	before: string;
 	match: string;

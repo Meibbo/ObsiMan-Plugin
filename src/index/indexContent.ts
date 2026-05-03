@@ -1,6 +1,6 @@
 import type { App } from 'obsidian';
-import type { ContentMatch, IContentIndex } from '../types/contracts';
-import { createNodeIndex } from './createNodeIndex';
+import type { ContentMatch, IContentIndex } from '../types/typeContracts';
+import { createNodeIndex } from './indexNodeCreate';
 
 export function createContentIndex(app: App): IContentIndex {
   let query = '';
