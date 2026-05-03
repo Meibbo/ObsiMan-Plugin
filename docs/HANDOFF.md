@@ -2,11 +2,49 @@
 
 > Updated: 2026-05-02 | From: ChatGPT Codex → Next agent
 > Branch: `hardening-refactor` | Version: `1.0.0-rc.1`
-> `pnpm run verify` green; Obsidian reload/settings/queue island smoke green.
+> `pnpm run verify` green; Obsidian reload/settings/queue island/tabContent smoke green.
 
 ---
 
-## Most recent session (Codex, 2026-05-02 — formatter tooling + frame SOLID split)
+## Most recent session (Codex, 2026-05-02 — island/theme regressions)
+
+### ✅ Fixed in this turn
+
+1. **`tabContent` visible again** — added explicit flex/min-height/overflow constraints to the Filters tab container/wrappers. Live smoke: `.vm-tab-content` rendered with non-zero dimensions (`tabHeight: 587`, `tabWidth: 473`).
+2. **`serviceDecorate` reconnected** — wired `DecorationManager` into `VaultmanPlugin`, added context-aware icon/highlight decoration, and reconnected Props/Tags/Files explorers to use it for icon/highlight output. Queue badges stay inline because `IDecorationManager` does not yet support rich badge fields like `queueIndex` without an ADR/contracts change.
+3. **`navToolbar` blur restored** — sticky filters toolbar is transparent; blur lives on the `::before` glass layer. Search pill/FAB surfaces are translucent instead of solid. Live smoke: toolbar `::before` backdrop is `blur(3px)`.
+4. **Unified popup islands restored** — Queue and Active Filters islands now render separate squircle action islands above the body island. Shared styling lives in `src/styles/popup/_islands.scss`.
+5. **i18n island regression fixed** — Queue header now interpolates `{count}` and empty states use real keys (`Queue (0 pending) Queue is empty` in smoke).
+6. **Theme settings started** — added `layoutTheme: 'native' | 'polish' | 'glass'` with default `native`, plus `islandDismissOnOutsideClick` and `islandBackdropBlur` settings. `updateGlassBlur()` now also maintains body theme classes.
+7. **Queue island data source fixed** — `createOperationsIndex()` now reads staged transaction ops from concrete `OperationQueueService.listTransactions()` when available, instead of only `queue.pending` (which is empty in the current queue implementation).
+
+### Verify status
+
+- `pnpm run verify` → green:
+  - lint 0 errors / 4 existing warnings
+  - svelte-check 0 errors / 0 warnings
+  - build OK
+  - unit 170/170
+  - component 4/4
+- Obsidian smoke:
+  - `dev:errors clear` OK
+  - plugin reload OK
+  - `vaultman:open` OK
+  - settings tab mounts: `{"settingsUI":true,"theme":"native","dismiss":false}`
+  - queue island opens: `{"popup":true,"squircles":5,"text":"Queue (0 pending) Queue is empty"}`
+  - toolbar glass pseudo blur present: `blur(3px)`
+  - Content tab visible with non-zero dimensions
+  - final `dev:errors`: `No errors captured`
+
+### Next
+
+1. Review visual result in Obsidian manually.
+2. Continue Polish plan after merge-blocking regressions are accepted.
+3. If expanding theme system, convert explorer/tree/list markup progressively to native Obsidian classes where safe.
+
+---
+
+## Previous session (Codex, 2026-05-02 — formatter tooling + frame SOLID split)
 
 ### ✅ Fixed in this turn
 

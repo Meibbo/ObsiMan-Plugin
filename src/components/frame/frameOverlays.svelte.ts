@@ -44,6 +44,7 @@ export class FrameOverlayController {
 				plugin: this.plugin,
 				onClose: () => this.plugin.overlayState.popById('queue'),
 			},
+			dismissOnOutsideClick: this.plugin.settings.islandDismissOnOutsideClick,
 		});
 	}
 
@@ -68,6 +69,7 @@ export class FrameOverlayController {
 				plugin: this.plugin,
 				onClose: () => this.plugin.overlayState.popById('active-filters'),
 			},
+			dismissOnOutsideClick: this.plugin.settings.islandDismissOnOutsideClick,
 		});
 	}
 

@@ -40,6 +40,7 @@ import { createActiveFiltersIndex } from './services/serviceActiveFiltersIndex';
 import { createCSSSnippetsIndex } from './services/serviceCSSSnippetsIndex';
 import { createTemplatesIndex } from './services/serviceTemplatesIndex';
 import { OverlayStateService } from './services/serviceOverlayState.svelte';
+import { DecorationManager } from './services/serviceDecorate';
 import type {
 	IFilesIndex,
 	ITagsIndex,
@@ -50,6 +51,7 @@ import type {
 	ICSSSnippetsIndex,
 	ITemplatesIndex,
 	IOverlayState,
+	IDecorationManager,
 } from './types/contracts';
 
 export class VaultmanPlugin extends Plugin {
@@ -73,6 +75,7 @@ export class VaultmanPlugin extends Plugin {
 	cssSnippetsIndex!: ICSSSnippetsIndex;
 	templatesIndex!: ITemplatesIndex;
 	overlayState!: IOverlayState;
+	decorationManager!: IDecorationManager;
 
 	// Native status bar element
 	private statusBarEl!: HTMLElement;
@@ -84,12 +87,18 @@ export class VaultmanPlugin extends Plugin {
 		this.filesIndex = createFilesIndex(this.app);
 		this.tagsIndex = createTagsIndex(this.app);
 		this.propsIndex = createPropsIndex(this.app);
-		await Promise.all([this.filesIndex.refresh(), this.tagsIndex.refresh(), this.propsIndex.refresh()]);
+		await Promise.all([
+			this.filesIndex.refresh(),
+			this.tagsIndex.refresh(),
+			this.propsIndex.refresh(),
+		]);
 
-		this.registerEvent(this.app.metadataCache.on('changed', () => {
-			void this.propsIndex.refresh();
-			void this.tagsIndex.refresh();
-		}));
+		this.registerEvent(
+			this.app.metadataCache.on('changed', () => {
+				void this.propsIndex.refresh();
+				void this.tagsIndex.refresh();
+			}),
+		);
 		this.registerEvent(this.app.vault.on('create', () => void this.filesIndex.refresh()));
 		this.registerEvent(this.app.vault.on('delete', () => void this.filesIndex.refresh()));
 		this.registerEvent(this.app.vault.on('rename', () => void this.filesIndex.refresh()));
@@ -111,6 +120,7 @@ export class VaultmanPlugin extends Plugin {
 			this.templatesIndex.refresh(),
 		]);
 		this.overlayState = new OverlayStateService();
+		this.decorationManager = new DecorationManager(this.app);
 		this.iconicService = new IconicService(this.app);
 		this.propertyTypeService = new PropertyTypeService(this.app);
 		this.contextMenuService = new ContextMenuService(this);
@@ -124,7 +134,7 @@ export class VaultmanPlugin extends Plugin {
 		this.registerEvent(
 			this.app.metadataCache.on('resolved', () => {
 				void this.filesIndex.refresh();
-			})
+			}),
 		);
 
 		this.statusBarEl = this.addStatusBarItem();
@@ -165,7 +175,10 @@ export class VaultmanPlugin extends Plugin {
 
 	async loadSettings(): Promise<void> {
 		const saved = ((await this.loadData()) ?? {}) as Partial<VaultmanSettings>;
-		const hasSavedTabLabelPref = Object.prototype.hasOwnProperty.call(saved, 'filtersShowTabLabels');
+		const hasSavedTabLabelPref = Object.prototype.hasOwnProperty.call(
+			saved,
+			'filtersShowTabLabels',
+		);
 		const needsTabLabelMigration = saved.filtersTabLabelsMigrated !== true;
 
 		this.settings = {
@@ -189,7 +202,13 @@ export class VaultmanPlugin extends Plugin {
 	updateGlassBlur(): void {
 		const intensity: number = this.settings.glassBlurIntensity ?? 60;
 		const px = (intensity / 100) * 20;
-		activeDocument.body.style.setProperty('--vm-glass-blur', `${px}px`);
+		const body = activeDocument.body;
+		body.style.setProperty('--vm-glass-blur', `${px}px`);
+		const theme = this.settings.layoutTheme ?? 'native';
+		body.toggleClass('vm-theme-native', theme === 'native');
+		body.toggleClass('vm-theme-polish', theme === 'polish');
+		body.toggleClass('vm-theme-glass', theme === 'glass');
+		body.toggleClass('vm-island-backdrop-enabled', this.settings.islandBackdropBlur === true);
 	}
 
 	async activateView(): Promise<void> {
@@ -229,4 +248,3 @@ export class VaultmanPlugin extends Plugin {
 }
 
 export default VaultmanPlugin;
-

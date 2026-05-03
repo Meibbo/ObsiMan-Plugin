@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { createOperationsIndex } from '../../../src/services/serviceOperationsIndex';
 import type { IOperationQueue } from '../../../src/types/contracts';
-import type { PendingChange } from '../../../src/types/typeOps';
+import type { PendingChange, VirtualFileState } from '../../../src/types/typeOps';
 
 function stubQueue(
 	initial: PendingChange[] = [],
@@ -9,14 +9,33 @@ function stubQueue(
 	let list = initial;
 	const subs = new Set<() => void>();
 	return {
-		get pending() { return list; },
-		get size() { return list.length; },
-		add: (c) => { list = [...list, c]; for (const s of subs) s(); },
-		remove: (id) => { list = list.filter((c) => c.id !== id); for (const s of subs) s(); },
-		clear: () => { list = []; for (const s of subs) s(); },
-		execute: async () => ({ ok: true } as never),
-		subscribe: (cb) => { subs.add(cb); return () => subs.delete(cb); },
-		_set: (p) => { list = p; for (const s of subs) s(); },
+		get pending() {
+			return list;
+		},
+		get size() {
+			return list.length;
+		},
+		add: (c) => {
+			list = [...list, c];
+			for (const s of subs) s();
+		},
+		remove: (id) => {
+			list = list.filter((c) => c.id !== id);
+			for (const s of subs) s();
+		},
+		clear: () => {
+			list = [];
+			for (const s of subs) s();
+		},
+		execute: async () => ({ ok: true }) as never,
+		subscribe: (cb) => {
+			subs.add(cb);
+			return () => subs.delete(cb);
+		},
+		_set: (p) => {
+			list = p;
+			for (const s of subs) s();
+		},
 	};
 }
 
@@ -59,5 +78,36 @@ describe('serviceOperationsIndex', () => {
 		const idx = createOperationsIndex(q);
 		await idx.refresh();
 		expect(idx.byId('z')).toBeUndefined();
+	});
+
+	it('uses staged transaction ops when the concrete queue exposes them', async () => {
+		const file = { path: 'a.md' };
+		const tx: VirtualFileState = {
+			file: file as never,
+			originalPath: 'a.md',
+			fm: {},
+			body: '',
+			ops: [
+				{
+					id: 'op-1',
+					kind: 'rename_file',
+					action: 'rename',
+					details: 'Rename file',
+					apply: vi.fn(),
+				},
+			],
+			fmInitial: {},
+			bodyInitial: '',
+			bodyLoaded: true,
+		};
+		const q = Object.assign(stubQueue([{ id: 'legacy', type: 'property' } as never]), {
+			listTransactions: () => [tx],
+		});
+		const idx = createOperationsIndex(q);
+		await idx.refresh();
+		expect(idx.nodes).toHaveLength(1);
+		expect(idx.nodes[0].id).toBe('op-1');
+		expect(idx.nodes[0].change.type).toBe('file_rename');
+		expect(idx.nodes[0].group).toBe('rename_file');
 	});
 });

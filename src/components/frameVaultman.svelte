@@ -218,7 +218,7 @@
 	}
 
 	// ─── Scope popup ──────────────────────────────────────────────────────────
-
+	// TODO: where this icons are showed?
 	const scopeOptions = [
 		{
 			value: 'all',
@@ -400,12 +400,19 @@
 		<div
 			class="vm-island-backdrop vm-glass"
 			class:is-open={overlays.isIslandOpen}
+			class:has-blur={plugin.settings.islandBackdropBlur}
+			class:is-dismissable={plugin.settings.islandDismissOnOutsideClick}
 			onclick={() => {
-				overlays.closeQueueIsland();
-				overlays.closeFiltersIsland();
+				if (plugin.settings.islandDismissOnOutsideClick) {
+					overlays.closeQueueIsland();
+					overlays.closeFiltersIsland();
+				}
 			}}
 			onkeydown={(e) => {
-				if (e.key === 'Escape' || e.key === 'Enter') {
+				if (
+					plugin.settings.islandDismissOnOutsideClick &&
+					(e.key === 'Escape' || e.key === 'Enter')
+				) {
 					overlays.closeQueueIsland();
 					overlays.closeFiltersIsland();
 				}

@@ -19,6 +19,35 @@ input: AI-gen
 
 ---
 
+## Session 2026-05-02 (Codex) — island/theme regressions restored
+
+**Status: Hardening PR follow-up green.** `pnpm run verify` passed; Obsidian smoke passed; PR #4 should be refreshed after commit/push.
+
+Completed:
+- Restored `tabContent` visibility by fixing Filters tab container flex/min-height/overflow constraints. Live smoke showed `.vm-tab-content` non-zero dimensions.
+- Reconnected `DecorationManager` through `VaultmanPlugin` and wired Props/Tags/Files explorers to consume it for icon/highlight decoration. Rich queue badges remain inline until `IDecorationManager` grows a badge contract with `queueIndex` support.
+- Restored translucent/blur behavior for `navbarExplorer`/filters toolbar: strip transparent, blur on pseudo layer, search/FAB surfaces translucent.
+- Restored unified popup islands with separate squircle action row above Queue and Active Filters body islands.
+- Fixed island i18n (`ops.queue` interpolation, `queue.island.empty`, missing Active Filters keys).
+- Added first theme settings: `layoutTheme` default `native`, plus optional `islandDismissOnOutsideClick` and `islandBackdropBlur`.
+- Fixed `createOperationsIndex()` so Queue island reads staged transaction ops from the real queue implementation instead of empty `pending`.
+
+Verification:
+- `pnpm run verify` ✅ lint 0 errors / 4 existing warnings, svelte-check 0/0, build OK, unit 170/170, component 4/4.
+- Obsidian reload ✅
+- `vaultman:open` ✅
+- Settings mount ✅ `{"settingsUI":true,"theme":"native","dismiss":false}`
+- Queue island smoke ✅ popup rendered, 5 squircles, text `Queue (0 pending) Queue is empty`
+- Content tab smoke ✅ `.vm-tab-content` visible/non-zero
+- `dev:errors` ✅ `No errors captured`
+
+Next:
+- Push refreshed `hardening-refactor` and update PR #4.
+- Manual visual review in Obsidian before merging to main.
+- Polish plan: progressively map native theme markup/classes to Obsidian core explorer/search/properties patterns.
+
+---
+
 ## Convenciones de Código y Preferencias (USER)
 
 ### 1. Nomenclatura de Archivos

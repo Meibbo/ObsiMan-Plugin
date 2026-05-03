@@ -67,8 +67,11 @@
     transition: opacity 0.3s ease;
     background: transparent;
 
-    &.is-open {
+    &.is-open.is-dismissable {
       pointer-events: auto;
+    }
+
+    &.is-open.has-blur {
       opacity: 1;
 
       &::before {
@@ -102,6 +105,17 @@
     max-width: 520px;
     width: 100%;
     margin-inline: auto;
+    background: transparent;
+
+    .vm-nav-icon {
+      background: color-mix(in srgb, var(--background-secondary) 45%, transparent);
+      backdrop-filter: blur(var(--vm-glass-blur, 12px));
+      -webkit-backdrop-filter: blur(var(--vm-glass-blur, 12px));
+
+      &.is-active {
+        background: color-mix(in srgb, var(--color-accent) 16%, transparent);
+      }
+    }
   }
 
   // Nav Items

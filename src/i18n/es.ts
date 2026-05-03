@@ -3,6 +3,7 @@ export const es: Record<string, string> = {
 	'plugin.name': 'Vaultman',
 	'plugin.description': 'Editor masivo de propiedades y herramienta de gestión de vault',
 	'plugin.open': 'Abrir Vaultman',
+	'common.close': 'Cerrar',
 
 	// Sections
 	'section.filters': 'Filtros',
@@ -41,6 +42,7 @@ export const es: Record<string, string> = {
 	'files.select_none': 'Deseleccionar todo',
 	'files.show_checked_only': 'Mostrar solo archivos marcados',
 	'files.count': '{filtered} / {total} archivos',
+	'files.count.short': 'archivos',
 	'files.col.name': 'Nombre',
 	'files.col.props': '# Props',
 	'files.col.path': 'Ruta',
@@ -86,6 +88,7 @@ export const es: Record<string, string> = {
 	// Queue island
 	'queue.island.pending': 'cambios pendientes',
 	'queue.island.empty': 'La cola está vacía',
+	'queue.remove': 'Quitar cambio de la cola',
 
 	// Queue counter
 	'queue.summary': '{ops} ops · {files}',
@@ -141,6 +144,12 @@ export const es: Record<string, string> = {
 	'settings.default_type.desc': 'Tipo por defecto para nuevas propiedades',
 	'settings.templates': 'Plantillas de filtros',
 	'settings.templates.desc': 'Gestionar plantillas de filtros guardadas',
+	'settings.layout_theme': 'Tema del layout',
+	'settings.layout_theme.native': 'Nativo',
+	'settings.layout_theme.polish': 'Polish',
+	'settings.layout_theme.glass': 'Glass',
+	'settings.island_dismiss_outside': 'Cerrar islas al hacer clic fuera',
+	'settings.island_backdrop_blur': 'Desenfocar contenido detrás de islas',
 
 	// Main view
 	'view.main.title': 'Vaultman',
@@ -153,6 +162,9 @@ export const es: Record<string, string> = {
 	'toolbar.queue': 'Cola',
 	'toolbar.no_session': 'Sin sesión',
 	'toolbar.new_session': '+ Nueva sesión...',
+	'filters.active': 'Filtros activos',
+	'filters.active.empty': 'No hay filtros activos',
+	'filters.remove': 'Quitar filtro',
 
 	// Session
 	'session.create': 'Crear sesión',

@@ -13,6 +13,7 @@
     gap: 6px;
     padding: 6px 8px 4px;
     flex-shrink: 0;
+    background: transparent;
 
     &-wrap {
       position: relative;
@@ -25,7 +26,9 @@
       height: 28px;
       flex-shrink: 0;
       border: none;
-      background: transparent;
+      background: color-mix(in srgb, var(--background-secondary) 45%, transparent);
+      backdrop-filter: blur(var(--vm-glass-blur, 12px));
+      -webkit-backdrop-filter: blur(var(--vm-glass-blur, 12px));
       border-radius: var(--radius-s);
       color: var(--text-muted);
       cursor: pointer;
@@ -47,7 +50,9 @@
       flex: 1;
       min-width: 0;
       @include flex-center;
-      background: var(--background-modifier-form-field);
+      background: color-mix(in srgb, var(--background-modifier-form-field) 72%, transparent);
+      backdrop-filter: blur(var(--vm-glass-blur, 12px));
+      -webkit-backdrop-filter: blur(var(--vm-glass-blur, 12px));
       border: 1px solid var(--background-modifier-border);
       border-radius: 999px;
       padding: 0 6px 0 10px;

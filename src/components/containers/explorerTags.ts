@@ -4,169 +4,196 @@ import type { VaultmanPlugin } from '../../main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
 
 export class explorerTags implements ExplorerProvider<TagMeta> {
-    id = 'tags';
-    private plugin: VaultmanPlugin;
-    private logic: TagsLogic;
-    private searchTerm = '';
-    private searchMode: 'all' | 'leaf' = 'all';
-    private sortBy: string = 'name';
-    private sortDir: 'asc' | 'desc' = 'asc';
-    private addMode = false;
+	id = 'tags';
+	private plugin: VaultmanPlugin;
+	private logic: TagsLogic;
+	private searchTerm = '';
+	private searchMode: 'all' | 'leaf' = 'all';
+	private sortBy: string = 'name';
+	private sortDir: 'asc' | 'desc' = 'asc';
+	private addMode = false;
 
-    constructor(plugin: VaultmanPlugin) {
-        this.plugin = plugin;
-        this.logic = new TagsLogic(plugin.app);
-        this.registerActions();
-    }
+	constructor(plugin: VaultmanPlugin) {
+		this.plugin = plugin;
+		this.logic = new TagsLogic(plugin.app);
+		this.registerActions();
+	}
 
-    private registerActions() {
-        const svc = this.plugin.contextMenuService;
+	private registerActions() {
+		const svc = this.plugin.contextMenuService;
 
-        svc.registerAction({
-            id: 'tag.rename',
-            nodeTypes: ['tag'],
-            surfaces: ['panel', 'file-menu'],
-            label: 'Rename',
-            icon: 'lucide-pencil',
-            run: () => {
-                // In Svelte version, rename can be triggered via editingId in the component
-                // This would need a way to set editingId from the context menu
-            },
-        });
+		svc.registerAction({
+			id: 'tag.rename',
+			nodeTypes: ['tag'],
+			surfaces: ['panel', 'file-menu'],
+			label: 'Rename',
+			icon: 'lucide-pencil',
+			run: () => {
+				// In Svelte version, rename can be triggered via editingId in the component
+				// This would need a way to set editingId from the context menu
+			},
+		});
 
-        svc.registerAction({
-            id: 'tag.delete',
-            nodeTypes: ['tag'],
-            surfaces: ['panel'],
-            label: 'Delete',
-            icon: 'lucide-trash-2',
-            run: (ctx) => {
-                const meta = ctx.node.meta as TagMeta;
-                return this._deleteTag(meta.tagPath);
-            },
-        });
-    }
+		svc.registerAction({
+			id: 'tag.delete',
+			nodeTypes: ['tag'],
+			surfaces: ['panel'],
+			label: 'Delete',
+			icon: 'lucide-trash-2',
+			run: (ctx) => {
+				const meta = ctx.node.meta as TagMeta;
+				return this._deleteTag(meta.tagPath);
+			},
+		});
+	}
 
-    getTree(): TreeNode<TagMeta>[] {
-        let tree = this.logic.getTree();
-        if (this.searchMode === 'leaf') tree = this._collectLeaves(tree);
-        if (this.searchTerm) tree = this.logic.filterTree(tree, this.searchTerm);
-        tree = this._applySort(tree);
-        
-        return this._resolveIcons(tree);
-    }
+	getTree(): TreeNode<TagMeta>[] {
+		let tree = this.logic.getTree();
+		if (this.searchMode === 'leaf') tree = this._collectLeaves(tree);
+		if (this.searchTerm) tree = this.logic.filterTree(tree, this.searchTerm);
+		tree = this._applySort(tree);
 
-    private _resolveIcons(nodes: TreeNode<TagMeta>[], parentDeleted = false): TreeNode<TagMeta>[] {
-        const queue = this.plugin.queueService.queue;
-        return nodes.map(node => {
-            const meta = node.meta;
-            const currentCls = node.cls || '';
+		return this._decorateTree(tree);
+	}
 
-            const relevantOps = queue.filter(op => op.type === 'tag' && op.tag === meta.tagPath);
-            const isEffectivelyDeleted = parentDeleted || relevantOps.some(op => op.action === 'delete');
+	private _decorateTree(nodes: TreeNode<TagMeta>[], parentDeleted = false): TreeNode<TagMeta>[] {
+		const queue = this.plugin.queueService.queue;
+		return nodes.map((node) => {
+			const meta = node.meta;
+			let currentCls = node.cls || '';
 
-            const cls = isEffectivelyDeleted ? (currentCls + ' is-deleted-tag').trim() : currentCls;
-            const resolvedChildren = node.children ? this._resolveIcons(node.children, isEffectivelyDeleted) : [];
+			const relevantOps = queue.filter((op) => op.type === 'tag' && op.tag === meta.tagPath);
+			const isEffectivelyDeleted =
+				parentDeleted || relevantOps.some((op) => op.action === 'delete');
 
-            const badges: import('../../types/typeTree').NodeBadge[] = [];
-            for (const op of relevantOps) {
-                const opIdx = queue.indexOf(op);
-                if (op.action === 'delete') badges.push({ text: 'Delete', icon: 'lucide-trash-2', color: 'red', queueIndex: opIdx });
-                else if (op.action === 'rename') badges.push({ text: 'Update', icon: 'lucide-pencil', color: 'blue', queueIndex: opIdx });
-                else if (op.action === 'add') badges.push({ text: 'Add', icon: 'lucide-plus', color: 'green', queueIndex: opIdx });
-                else badges.push({ text: 'In Queue', icon: 'lucide-clock', color: 'purple', queueIndex: opIdx });
-            }
+			if (isEffectivelyDeleted) currentCls = `${currentCls} is-deleted-tag`.trim();
+			const decoration = this.plugin.decorationManager.decorate(node, {
+				kind: 'tag',
+				highlightQuery: this.searchTerm,
+				iconicIcon: this.plugin.iconicService?.getTagIcon(meta.tagPath)?.icon ?? null,
+			});
+			if (decoration.highlights.length > 0 && !currentCls.includes('vm-search-highlight')) {
+				currentCls = `${currentCls} vm-search-highlight`.trim();
+			}
+			const resolvedChildren = node.children
+				? this._decorateTree(node.children, isEffectivelyDeleted)
+				: [];
 
-            return {
-                ...node,
-                cls: cls,
-                icon: this.plugin.iconicService?.getTagIcon(meta.tagPath)?.icon ?? 'lucide-tag',
-                badges,
-                children: resolvedChildren
-            };
-        });
-    }
+			const badges: import('../../types/typeTree').NodeBadge[] = [];
+			for (const op of relevantOps) {
+				const opIdx = queue.indexOf(op);
+				if (op.action === 'delete')
+					badges.push({ text: 'Delete', icon: 'lucide-trash-2', color: 'red', queueIndex: opIdx });
+				else if (op.action === 'rename')
+					badges.push({ text: 'Update', icon: 'lucide-pencil', color: 'blue', queueIndex: opIdx });
+				else if (op.action === 'add')
+					badges.push({ text: 'Add', icon: 'lucide-plus', color: 'green', queueIndex: opIdx });
+				else
+					badges.push({
+						text: 'In Queue',
+						icon: 'lucide-clock',
+						color: 'purple',
+						queueIndex: opIdx,
+					});
+			}
 
-    handleNodeClick(node: TreeNode<TagMeta>): void {
-        const meta = node.meta;
-        if (this.addMode) {
-             void this.plugin.queueService.add({
-                type: 'tag', tag: meta.tagPath, action: 'add',
-                details: `Add tag "#${meta.tagPath}"`,
-                files: this.plugin.filterService.filteredFiles,
-                customLogic: true,
-                logicFunc: (_file, fm: Record<string, unknown>) => {
-                    const raw = fm.tags;
-                    const coerce = (v: unknown): string =>
-                        typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v);
-                    const tags = Array.isArray(raw) ? (raw as string[]) : (raw ? [coerce(raw)] : []);
-                    if (tags.includes(meta.tagPath)) return null;
-                    fm.tags = [...tags, meta.tagPath];
-                    return fm;
-                },
-            });
-            return;
-        }
+			return {
+				...node,
+				cls: currentCls,
+				icon: decoration.icons[0],
+				badges,
+				children: resolvedChildren,
+			};
+		});
+	}
 
-        const tagId = `#${meta.tagPath}`;
-        if (this.plugin.filterService.hasTagFilter(tagId)) {
-            void this.plugin.filterService.removeNodeByTag(tagId);
-        } else {
-            void this.plugin.filterService.addNode({
-                type: 'rule', filterType: 'has_tag', property: '', values: [tagId],
-            });
-        }
-    }
+	handleNodeClick(node: TreeNode<TagMeta>): void {
+		const meta = node.meta;
+		if (this.addMode) {
+			void this.plugin.queueService.add({
+				type: 'tag',
+				tag: meta.tagPath,
+				action: 'add',
+				details: `Add tag "#${meta.tagPath}"`,
+				files: this.plugin.filterService.filteredFiles,
+				customLogic: true,
+				logicFunc: (_file, fm: Record<string, unknown>) => {
+					const raw = fm.tags;
+					const coerce = (v: unknown): string =>
+						typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v);
+					const tags = Array.isArray(raw) ? (raw as string[]) : raw ? [coerce(raw)] : [];
+					if (tags.includes(meta.tagPath)) return null;
+					fm.tags = [...tags, meta.tagPath];
+					return fm;
+				},
+			});
+			return;
+		}
 
-    handleContextMenu(node: TreeNode<TagMeta>, e: MouseEvent): void {
-        this.plugin.contextMenuService.openPanelMenu(
-            { nodeType: 'tag', node: node, surface: 'panel' },
-            e,
-        );
-    }
+		const tagId = `#${meta.tagPath}`;
+		if (this.plugin.filterService.hasTagFilter(tagId)) {
+			void this.plugin.filterService.removeNodeByTag(tagId);
+		} else {
+			void this.plugin.filterService.addNode({
+				type: 'rule',
+				filterType: 'has_tag',
+				property: '',
+				values: [tagId],
+			});
+		}
+	}
 
-    setSearchTerm(term: string, mode: 'all' | 'leaf' = 'all'): void {
-        this.searchTerm = term;
-        this.searchMode = mode;
-    }
+	handleContextMenu(node: TreeNode<TagMeta>, e: MouseEvent): void {
+		this.plugin.contextMenuService.openPanelMenu(
+			{ nodeType: 'tag', node: node, surface: 'panel' },
+			e,
+		);
+	}
 
-    setSortBy(sortBy: string, direction: 'asc' | 'desc'): void {
-        this.sortBy = sortBy;
-        this.sortDir = direction;
-    }
+	setSearchTerm(term: string, mode: 'all' | 'leaf' = 'all'): void {
+		this.searchTerm = term;
+		this.searchMode = mode;
+	}
 
-    setViewMode(_mode: ExplorerViewMode): void { }
-    setAddMode(active: boolean): void { this.addMode = active; }
+	setSortBy(sortBy: string, direction: 'asc' | 'desc'): void {
+		this.sortBy = sortBy;
+		this.sortDir = direction;
+	}
 
-    private _applySort(nodes: TreeNode<TagMeta>[]): TreeNode<TagMeta>[] {
-        const dir = this.sortDir === 'asc' ? 1 : -1;
-        return [...nodes].sort((a, b) => {
-            if (this.sortBy === 'count') return dir * ((a.count ?? 0) - (b.count ?? 0));
-            return dir * a.label.localeCompare(b.label);
-        });
-    }
+	setViewMode(_mode: ExplorerViewMode): void {}
+	setAddMode(active: boolean): void {
+		this.addMode = active;
+	}
 
-    private _collectLeaves(nodes: TreeNode<TagMeta>[]): TreeNode<TagMeta>[] {
-        const leaves: TreeNode<TagMeta>[] = [];
-        const walk = (ns: TreeNode<TagMeta>[]) => {
-            for (const n of ns) {
-                if (!n.children || n.children.length === 0) leaves.push({ ...n, children: [] });
-                else walk(n.children);
-            }
-        };
-        walk(nodes);
-        return leaves;
-    }
+	private _applySort(nodes: TreeNode<TagMeta>[]): TreeNode<TagMeta>[] {
+		const dir = this.sortDir === 'asc' ? 1 : -1;
+		return [...nodes].sort((a, b) => {
+			if (this.sortBy === 'count') return dir * ((a.count ?? 0) - (b.count ?? 0));
+			return dir * a.label.localeCompare(b.label);
+		});
+	}
 
-    private async _deleteTag(tagPath: string): Promise<void> {
-        for (const file of this.plugin.app.vault.getMarkdownFiles()) {
-            await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
-                const raw = fm.tags;
-                if (!raw) return;
-                const tagsRaw = Array.isArray(raw) ? (raw as unknown[]) : [raw];
-                fm.tags = tagsRaw.filter((t) => String(t) !== tagPath && String(t) !== `#${tagPath}`);
-            });
-        }
-        this.logic.invalidate();
-    }
+	private _collectLeaves(nodes: TreeNode<TagMeta>[]): TreeNode<TagMeta>[] {
+		const leaves: TreeNode<TagMeta>[] = [];
+		const walk = (ns: TreeNode<TagMeta>[]) => {
+			for (const n of ns) {
+				if (!n.children || n.children.length === 0) leaves.push({ ...n, children: [] });
+				else walk(n.children);
+			}
+		};
+		walk(nodes);
+		return leaves;
+	}
+
+	private async _deleteTag(tagPath: string): Promise<void> {
+		for (const file of this.plugin.app.vault.getMarkdownFiles()) {
+			await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
+				const raw = fm.tags;
+				if (!raw) return;
+				const tagsRaw = Array.isArray(raw) ? (raw as unknown[]) : [raw];
+				fm.tags = tagsRaw.filter((t) => String(t) !== tagPath && String(t) !== `#${tagPath}`);
+			});
+		}
+		this.logic.invalidate();
+	}
 }

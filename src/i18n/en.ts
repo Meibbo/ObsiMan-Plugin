@@ -6,6 +6,7 @@ export const en: Record<string, string> = {
 	'plugin.name_explorer': 'Vaultman Explorer',
 	'plugin.description': 'Bulk property editor and vault management tool',
 	'plugin.open': 'Open Vaultman',
+	'common.close': 'Close',
 
 	// Sections
 	'section.filters': 'Filters',
@@ -44,6 +45,7 @@ export const en: Record<string, string> = {
 	'files.select_none': 'Deselect all',
 	'files.show_checked_only': 'Show only checked files',
 	'files.count': '{filtered} / {total} files',
+	'files.count.short': 'files',
 	'files.col.name': 'Name',
 	'files.col.props': '# Props',
 	'files.col.path': 'Path',
@@ -89,6 +91,7 @@ export const en: Record<string, string> = {
 	// Queue island
 	'queue.island.pending': 'pending changes',
 	'queue.island.empty': 'Queue is empty',
+	'queue.remove': 'Remove queued change',
 
 	// Queue counter (§12.5 — no verbs, no "files" word)
 	'queue.summary': '{ops} ops · {files}',
@@ -145,6 +148,12 @@ export const en: Record<string, string> = {
 	'settings.default_type.desc': 'Default type for new properties',
 	'settings.templates': 'Filter templates',
 	'settings.templates.desc': 'Manage saved filter templates',
+	'settings.layout_theme': 'Layout theme',
+	'settings.layout_theme.native': 'Native',
+	'settings.layout_theme.polish': 'Polish',
+	'settings.layout_theme.glass': 'Glass',
+	'settings.island_dismiss_outside': 'Close islands when clicking outside',
+	'settings.island_backdrop_blur': 'Blur content behind islands',
 
 	// Main view
 	'view.main.title': 'Vaultman',
@@ -353,6 +362,8 @@ export const en: Record<string, string> = {
 	'ops.linter.desc': 'Reorder and clean YAML frontmatter using the Obsidian Linter plugin.',
 	'ops.linter.run': 'Run Linter',
 	'filters.active': 'Active filters',
+	'filters.active.empty': 'No active filters',
+	'filters.remove': 'Remove filter',
 	'scope.title': 'Operation scope',
 	'scope.desc': 'Determines which files\' properties appear in the filter list.',
 	'scope.all': 'All vault files',

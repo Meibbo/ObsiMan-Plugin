@@ -3,12 +3,19 @@ import type { FilterTemplate } from './typeFilter';
 import type { MenuHideRule } from './typeCMenu';
 
 export type Language = 'auto' | 'en' | 'es';
+export type LayoutTheme = 'native' | 'polish' | 'glass';
 
 export interface VaultmanSettings {
+	/** Visual treatment for Vaultman chrome. Native follows Obsidian core classes/tokens. */
+	layoutTheme: LayoutTheme;
+	/** Whether popup islands close when clicking the transparent outside area/backdrop. */
+	islandDismissOnOutsideClick: boolean;
+	/** Whether opening popup islands blurs/dims the content behind them. */
+	islandBackdropBlur: boolean;
 	/** Glassmorphism blur intensity for bottom bar and popups (0–100, maps to 0–20px) */
 	glassBlurIntensity: number;
 	// after this line these settings are not used
-	// 
+	//
 	// -----------------------------------------------------------------
 	defaultPropertyType: string;
 	filterTemplates: FilterTemplate[];
@@ -78,9 +85,12 @@ export interface iVaultmanPlugin extends Plugin {
 }
 
 export const DEFAULT_SETTINGS: VaultmanSettings = {
+	layoutTheme: 'native',
+	islandDismissOnOutsideClick: false,
+	islandBackdropBlur: false,
 	glassBlurIntensity: 15,
 	// after this line these settings are not used
-	// 
+	//
 	// -----------------------------------------------------------------
 	defaultPropertyType: 'text',
 	filterTemplates: [],
