@@ -38,7 +38,7 @@
 				"src/modals/*"
 			],
 			"@i18n/*": [
-				"src/index/i18n/i18n/*"
+				"src/index/i18n/*"
 			]
 		}
 	},
