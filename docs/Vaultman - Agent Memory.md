@@ -97,8 +97,101 @@ input: AI-gen
 
 ## Last updated
 
-- **Date**: 2026-04-30
-- **Agent**: Claude Code (Sonnet 4.6) — Sub-C Tests execution
+- **Date**: 2026-05-02
+- **Agent**: ChatGPT Codex — formatter tooling + frame SOLID split
+
+## Session 2026-05-02 (Codex) — formatter tooling + frame SOLID split
+
+**Status: Formatter tooling installed; `frameVaultman.svelte` decomposed surgically. Hardening branch remains green.**
+
+- Added formatter tooling commit:
+  - `oxfmt` via Vite+ `vp fmt` scripts.
+  - Prettier + `prettier-plugin-svelte` for `.svelte` files unsupported by Oxfmt.
+  - `.prettierrc.json`, `.prettierignore`, `fmt` config in `vite.config.ts`.
+  - `eslint.config.mts` now ignores local `.agents/` skill files.
+- Formatting-only commit:
+  - Formatted only `src/components/frameVaultman.svelte` before refactor.
+- SOLID frame split:
+  - `frameVaultman.svelte`: 738 LOC before formatting/refactor → 409 LOC after split.
+  - New focused helpers/controllers:
+    - `src/components/frame/framePages.ts`
+    - `src/components/frame/frameViewport.ts`
+    - `src/components/frame/frameNavReorder.svelte.ts`
+    - `src/components/frame/frameOverlays.svelte.ts`
+    - `src/components/frame/frameActiveFilters.ts`
+    - `src/components/frame/frameMoves.ts`
+  - Frame now mostly composes pages/nav/popup components and delegates page config, viewport transform, nav reorder/collapse, overlay orchestration, active-filter flattening, and move-op creation.
+- Verification:
+  - `pnpm run verify` ✅ lint 0 errors / 4 existing warnings, svelte-check 0/0, build OK, unit 167/167, component 4/4.
+  - Formatter checks ✅ targeted Oxfmt for touched TS/config files; Prettier check for `frameVaultman.svelte`.
+  - Obsidian reload ✅
+  - `vaultman:open` command ✅
+  - Settings tab mount ✅ `{"settingsUI":true}`
+  - Queue island smoke ✅ stack opens and `.vm-explorer-popup` renders.
+  - `dev:errors` clean after clearing transient ResizeObserver notifications ✅
+
+Next:
+- Continue hardening closure: push `hardening-refactor`, PR to `hardening`, then decide whether `hardening → main` waits for polish.
+- Start v1.0 Polish design after hardening closure.
+- Known residual UI text issue observed during smoke: queue island displays untranslated/missing interpolation text (`Queue ({count} pending)`, `queue.empty`). Treat as polish/i18n bug unless user wants it fixed before PR.
+
+## Session 2026-05-02 (Codex) — Sub-A island runtime closure
+
+**Status: Sub-A hardening smoke unblocked. Queue island opens in live Obsidian. Hardening ready for publish/PR step.**
+
+- Fixed `frameVaultman.svelte` tab-change effect: `closeQueueIsland()` / `closeFiltersIsland()` are now wrapped in `untrack()` so `overlayState.stack` is not captured as an effect dependency.
+- Root cause: every `overlayState.push()` caused the filters-tab cleanup effect to rerun and immediately `popById()` the island, leaving `stack=0`.
+- Added component regression coverage:
+  - `test/component/PopupIslandChild.svelte`
+  - `test/component/popupIsland.test.ts`
+- Verification:
+  - `pnpm run verify` ✅ lint 0 errors / 4 pre-existing warnings, svelte-check 0/0, build OK, unit 167/167, component 4/4.
+  - Obsidian reload ✅
+  - Settings tab mount ✅ `{"settingsUI":true}`
+  - Queue FAB smoke ✅ `{"queueStack":1,"queueIsland":true,"queueChild":true}`
+  - `obsidian dev:errors` clean after clearing transient ResizeObserver loop notifications ✅
+
+Next:
+- Commit this closure, push `hardening-refactor` and rc.1 tag if desired.
+- Create PR `hardening-refactor` → `hardening`, then merge hardening into `main` when accepted.
+- Start Polish plan after hardening branch is published/merged.
+
+## Session 2026-05-02 (Codex) — Vite+ production build + smoke green
+
+**Status: Hard production-build migration to Vite+ complete. Verify gate green. Obsidian smoke green.**
+
+- Installed requested skills: `caveman` and `grill-me` into `$CODEX_HOME/skills` (restart Codex to auto-discover them).
+- Added local `vite-plus@0.1.20` and `packageManager: npm@11.9.0`.
+- Replaced production build path with `vp build`; `npm run dev` now uses `vp build --watch`.
+- Added `vite.config.ts` in library/CJS mode with Obsidian externals and output to `dist/vite`.
+- Added `src/pluginEntry.ts` to import `src/main.scss` and export the Obsidian plugin default.
+- Updated `scripts/sync-test-build.mjs` to copy Vite+ artifacts from `dist/vite` to plugin root and `dist/build`.
+- Updated CI to use `voidzero-dev/setup-vp@v1`, `vp install`, and `vp run ...`.
+- Fixed Svelte `effect_update_depth_exceeded`:
+  - `SettingsUI.svelte` no longer autosaves through a blanket `$effect`; settings persist from change handlers.
+  - `Dropdown.svelte` and `Toggle.svelte` now expose reliable `onChange` callbacks.
+  - `OverlayStateService.pop/popById/clear` now no-op when the stack would not change, preventing frame effects from reading and writing the same rune state forever.
+- Removed untracked resurrected legacy file `src/logic/logicQueue.ts`; handoff documented it as intentionally deleted and it blocked `tsc`/`svelte-check`.
+- Verification:
+  - `npm run verify` ✅ lint 0, svelte-check 0, Vite+ build OK, unit tests 163/163.
+  - `obsidian vault=plugin-dev plugin:reload id=vaultman` ✅
+  - `obsidian vault=plugin-dev eval code="app.commands.executeCommandById('vaultman:open')"` ✅
+  - Settings tab mounts: `.vm-settings` true ✅
+  - `obsidian vault=plugin-dev dev:errors` → `No errors captured` ✅
+
+Next:
+- Add component-test lane for Svelte UI (`jsdom` or Vitest browser mode) so frame/settings/navigation regressions are caught before Obsidian smoke.
+- Decide whether to migrate Vitest imports/config fully to `vite-plus/test` or keep current Vitest config behind `vp test`.
+- Consider deleting old `esbuild.config.mjs` after one more smoke cycle if no fallback is needed.
+
+## Session 2026-05-02 (tarde) — Sub-A.5 smoke-test BLOQUEADO
+
+**Status: Código commiteado (T41+T42+T43), verify gate verde (lint+check+build+163 tests). PERO bug Svelte 5 en mount → handoff a Opus 4.7. NO PUSHEAR.**
+
+- Versión bumped `1.0.0-rc.1`, tagged local, NO pushed.
+- Bug: `effect_update_depth_exceeded` en `SettingsUI.svelte` `$effect`. `$state.snapshot()` no arregló.
+- Setup descubierto: `plugin-dev/plugins/vaultman` es symlink → `Start of The Road/Production/Code/vaultman`. Nuestro build en `obsiman/` necesita copiarse al target del symlink para que Obsidian lo cargue.
+- Ver `docs/HANDOFF.md` para detalles del bug, hipótesis, y estrategias propuestas.
 
 ## Session 2026-04-30 — Sub-C Tests closure
 
@@ -283,3 +376,83 @@ Key accomplishments:
 ## Context budget notes
 
 - **Agent Rule**: If context < 20%, update this file and switch agents BEFORE starting a new iteration.
+
+### 2026-04-30 — Sub-A.1 closed (Tipos)
+- `src/types/contracts.ts` populated (16 interfaces).
+- `src/types/obsidian-extended.ts` replaces `(app as any)`.
+- ADRs 001-008 written.
+- Lint blocks `(app as any)` repo-wide.
+- Old Part 1-8 specs archived.
+- Version: 1.0.0-beta.20.
+- Next: Sub-A.2.1 — factory + Files/Tags/Props indices.
+
+### 2026-04-30 — Sub-A.2.1 closed (Factory + base indices)
+- `createNodeIndex<T>` factory + tests ✓ (3/3 base indices validated).
+- Files/Tags/Props indices implementing `INodeIndex<T>` without widening.
+- `serviceFilter` rewritten with Svelte 5 runes (`$state`, `$derived`); implements `IFilterService`.
+- `serviceQueue` updated: `add()` now synchronous (fires async in background); `addAsync()` for test awaits.
+- `serviceNavigation` promoted from WIP, implements `IRouter`.
+- ESLint config fixed: added Svelte rune globals ($state, $derived, $effect, etc.).
+- explorerProps: removed `await` on `add()` calls (now fire-and-forget).
+- Spike validated: abstraction ergonomic for all 3 base indices.
+- Next: Sub-A.2.2 — Content/Operations/ActiveFilters real + CSSSnippets/Templates stubs.
+
+### 2026-05-01 — Sub-A.2.2 closed (Remaining indices)
+- `serviceContentIndex` + 9 tests ✓ (was already present from handoff).
+- `serviceOperationsIndex` + 5 tests ✓ (read-only view over `IOperationQueue.pending`).
+- `serviceActiveFiltersIndex` + 6 tests ✓ (flattens `FilterGroup` tree into `ActiveFilterEntry[]`).
+- `serviceCSSSnippetsIndex` stub ✓ (returns empty nodes, v1.0+1 consumer).
+- `serviceTemplatesIndex` stub ✓ (returns empty nodes, v1.0+1 consumer).
+- All 8 indices wired in `main.ts` with initial `refresh()` on load.
+- `BaseChange.id?: string` added to `typeOps.ts` (needed by `QueueChange.id` in contracts).
+- Total: 140 tests passing (24 test files). Build ✅ lint ✅.
+- Version: 1.0.0-beta.21.
+- Next: Sub-A.3 — Primitives (BtnSquircle, Badge, Toggle, Dropdown, TextInput, HighlightText).
+
+### 2026-05-01 — Sub-A.4.1 closed (Explorer + Virtualizer + Decoration)
+- `Virtualizer<T>` generic with rune state + `TreeVirtualizer` subclass.
+- `logicExplorer` + `serviceExplorer<T>` + `serviceDecorate` (IDecorationManager) all implementing contracts.
+- `serviceSorting` revived with perf budget (50→150ms threshold for loaded CI).
+- `viewGrid` migrated to `Virtualizer<TFile>`; replaces renderLimit+showMore with true virtual scroll.
+- T33 (viewTree thin-renderer with snippets) deferred: spec spec removes virtual windowing → regression. viewTree already correct post-T30.
+- ADR-011 documents decoration flow.
+- 158 tests passing (28 files). Verify gate: lint(0) + check(0) + build(✓) + tests(✓).
+- Version: 1.0.0-beta.22 (no bump this session — A.4 not fully closed per plan; T33 deferred).
+- Next: Sub-A.4.2 — serviceOverlayState + ADR-010 + navbars + popups + tabs + explorerQueue + explorerActiveFilters.
+
+### 2026-05-02 — Sub-A.5 closed (Settings declarative)
+- `settingsVM.ts` reduced to mount/unmount bridge (28 LOC).
+- `SettingsUI.svelte` declarative with primitives + autosave `$effect`. Covers all fields from `typeSettings.ts`: glassBlurIntensity (slider), defaultPropertyType, sessionFilePath, all explorer/bases/grid/contextMenu toggles+dropdowns, pageOrder (3 native selects), filterTemplates (delete list).
+- `initState()` pattern avoids `state_referenced_locally` Svelte 5 warning.
+- Integration test: `test/integration/settingsMigration.test.ts` — saveSettings() idempotency + required fields. Full Svelte mount round-trip deferred to E2E (harness can't easily mount Svelte components headless).
+- Version: **1.0.0-rc.1**. Hardening project complete.
+- Next session: smoke-test settings UI in Obsidian, push branch + tags, create GitHub Release, then PR `hardening-refactor` → `hardening` → `main`.
+
+### 2026-05-02 PM #2 — Pill blur restored, islands still blocked (Opus 4.7)
+- **Pill blur fixed**: vp build esbuild minifier was dropping unprefixed `backdrop-filter` declarations. Set `build.cssTarget: ['chrome120']` + `cssMinify: 'esbuild'` in `vite.config.ts`. Compiled CSS now keeps both prefixed and unprefixed → live `getComputedStyle(.vm-nav-pill).backdropFilter === 'blur(22px)'`.
+- **Backdrop design fix**: removed my earlier `.vm-island-backdrop` rule from `_islands.scss` that was overriding the original rising-glass design in `_v3-nav.scss:61`. `_islands.scss` now keeps only `.vm-popup-island` + `.vm-popup-island-entry` (unique classes from `popupIsland.svelte`).
+- **Islands STILL DO NOT OPEN**: every push to `overlayState.stack` triggers `Uncaught TypeError: t is not a function` from Svelte 5 each-block runtime in `popupIsland.svelte:23` (compiled `plugin:vaultman:7:41103`). The `{#if overlayState.stack.length > 0}` never flushes because the effect aborts. Suspect dynamic-component spread pattern `<Comp {...(entry.props ?? {})} />`. Next agent should rewrite popupIsland to use either `<svelte:component>`-equivalent or imperative `mount()`. See HANDOFF.md for repro and full hypothesis.
+- Other reported regressions (`tabContent` zero-height, `serviceDecorate` not acting) NOT investigated; documented as pending in HANDOFF.md.
+
+### 2026-05-02 PM — Islands visual fix + jsdom regression lane (Opus 4.7)
+- Cause islands "no abren": `popupIsland.svelte` rendered with classes `.vm-popup-island` / `.vm-popup-island-entry` and the `.vm-island-backdrop` toggle had **no SCSS rules**. Popups mounted invisible.
+- Fix: added selectors in `src/styles/popup/_islands.scss` (absolute wrapper above nav, spring entry animation, backdrop fade). Moved `<PopupIsland>` inside `.vm-pages-viewport` so absolute positioning attaches correctly.
+- Added Vitest `component` project (jsdom + `resolve.conditions: ['browser']`) with `obsidian` mock alias. New `pnpm run test:component` script; `verify` extended to include it.
+- New `test/helpers/dom-obsidian-polyfill.ts` polyfills Obsidian's `addClass / removeClass / toggleClass / empty / createEl / createDiv / createSpan / setText` on `Element.prototype` for jsdom.
+- New `test/component/settingsUI.test.ts` mounts `SettingsUI.svelte` with a fake plugin (DEFAULT_SETTINGS, `vi.fn()` for saveSettings/updateGlassBlur). Asserts `.vm-settings` renders, no save calls during mount, settings not mutated. If a blanket `$effect` autosave is reintroduced, Svelte will throw `effect_update_depth_exceeded` inside `flushSync()` and the suite fails naturally.
+- Strengthened `serviceOverlayState.test.ts` with no-op assertions (pop empty / popById missing / clear empty preserve identity; popById('queue') removes only queue).
+- `pnpm run verify` green: lint 4 warn / 0 err (pre-existing), check 0/0, build 16s, test:unit 167/167, test:component 3/3. `obsidian plugin:reload` clean (`No errors captured`).
+- Frame smoke (`frameVaultman.svelte`) NOT landed — needs deep mocks for queueService/filterService/all node indexes/ResizeObserver. Documented in HANDOFF.md.
+
+### 2026-05-02 — Sub-A.4.2 closed (Frame + Navbars + Popups + Tabs + ExplorerQueue + ExplorerActiveFilters)
+- T35: `OverlayStateService` (IOverlayState, ADR-010) + 5 tests. Wired in `main.ts`.
+- T37: `navbarPages.svelte` agnostic — consumes `TabConfig[]` + `bind:active`; pageFilters wires `FILTERS_TABS_CONFIG`.
+- T38: `tabContent.svelte` rewritten — consumes `IContentIndex` via Virtualizer + TextInput + HighlightText. Wired into pageFilters as 4th tab.
+- T39: `popupIsland.svelte` built from scratch (WIP was empty). Renders `IOverlayState.stack` with dynamic component mounting (Svelte 5 `{@const}` + `<Comp>`).
+- T40: `explorerQueue.svelte` + `explorerActiveFilters.svelte` — virtual lists over `operationsIndex.nodes` / `activeFiltersIndex.nodes` with delete actions. Skipped ExplorerService dep (decorationManager not wired).
+- T36: Frame rewrite — replaces `QueueIslandComponent` + `ActiveFiltersIslandComponent` with `overlayState.push(ExplorerQueue/ExplorerActiveFilters)`. Keeps pixel-based page transitions, DnD reorder, layoutPopup for legacy scope/search/move.
+- Deleted `src/logic/logicQueue.ts` + `logicFilters.ts` (478 LOC). Updated vitest.config exclusions. ADR-009 → Superseded.
+- T33 (viewTree thin-renderer with snippets) **deferred to next plan** — needs design discussion.
+- 163 tests passing (29 files). Verify gate green.
+- Version: **1.0.0-beta.23** tagged.
+- Next: Sub-A.5 — Settings declarative (T41+).

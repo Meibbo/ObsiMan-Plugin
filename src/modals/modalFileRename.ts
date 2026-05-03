@@ -142,12 +142,19 @@ export class FileRenameModal extends Modal {
 			newName = newName.replace(/\{date\}|\[fecha\]/ig, today);
 			newName = newName.replace(/\{counter\}|\(1\)/ig, String(index + 1).padStart(3, '0'));
 
+			const stringifyValue = (v: unknown): string => {
+				if (v === null || v === undefined) return '';
+				if (typeof v === 'object') return JSON.stringify(v);
+				// Primitives (string, number, boolean, bigint, symbol) — safe to stringify.
+				// eslint-disable-next-line @typescript-eslint/no-base-to-string -- guarded above
+				return String(v);
+			};
 			// Replace {propertyName} with property values
 			newName = newName.replace(/\{(\w[\w-]*)\}/g, (_match: string, prop: string) => {
 				const val: unknown = fm[prop];
 				if (val == null) return '';
-				if (Array.isArray(val)) return val.map(String).join('-');
-				return String(val as string | number | boolean);
+				if (Array.isArray(val)) return val.map(stringifyValue).join('-');
+				return stringifyValue(val);
 			});
 
 			// Sanitize filename

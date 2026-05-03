@@ -60,6 +60,8 @@ export interface StagedOp {
 
 /** Common fields for all queued operations */
 export interface BaseChange {
+	/** Stable identifier for this change entry (used by IOperationsIndex). */
+	id?: string;
 	files: TFile[];
 	action: string;
 	details: string;

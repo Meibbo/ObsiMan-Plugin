@@ -4,7 +4,7 @@
  * `twinkling-pearl.md`). Scheduled for deletion in Fase 5. Do not extend.
  */
 import { Modal, Notice, Setting, type App } from 'obsidian';
-import type { OperationQueueService } from '../services/serviceQueue';
+import type { OperationQueueService } from '../services/serviceQueue.svelte';
 import { translate } from '../i18n/index';
 import {
   buildDiff,
@@ -45,7 +45,7 @@ export class QueueDetailsModal extends Modal {
 		});
 
 		// --- File diffs ---
-		const diffContainer = contentEl.createEl('div', { cls: 'vm-diff-container' });
+		const diffContainer = contentEl.createDiv({ cls: 'vm-diff-container' });
 		this.renderDiffs(diffContainer, diffs);
 
 		// --- Apply / Cancel buttons ---

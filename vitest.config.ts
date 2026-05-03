@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import { fileURLToPath } from 'node:url';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 const obsidianMockPath = fileURLToPath(
 	new URL('./test/helpers/obsidian-mocks.ts', import.meta.url),
@@ -15,13 +16,29 @@ export default defineConfig({
 					fileParallelism: false,
 					environment: 'node',
 					include: ['test/integration/**/*.test.ts'],
-					globalSetup: ['obsidian-integration-testing/obsidian-plugin-vitest-setup'],
+					globalSetup: ['obsidian-integration-testing/vitest-global-setup'],
 					testTimeout: 60_000,
 					hookTimeout: 60_000,
 				},
 			},
 			{
 				extends: true,
+				plugins: [svelte()],
+				resolve: {
+					conditions: ['browser'],
+				},
+				test: {
+					name: 'component',
+					environment: 'jsdom',
+					include: ['test/component/**/*.test.ts'],
+					alias: {
+						obsidian: obsidianMockPath,
+					},
+				},
+			},
+			{
+				extends: true,
+				plugins: [svelte()],
 				test: {
 					name: 'unit',
 					environment: 'node',
@@ -38,11 +55,8 @@ export default defineConfig({
 							'**/*_WIP*',
 							'**/*.svelte',
 							'src/services/serviceLayout-WIP.svelte.ts',
-							'src/services/serviceNavigation-WIP.svelte.ts',
 							'src/services/serviceStats-WIP.svelte.ts',
 							'src/services/serviceDecorate_WIP.ts',
-							'src/logic/logicQueue.ts',
-							'src/logic/logicFilters.ts',
 						],
 						thresholds: {
 							lines: 60,

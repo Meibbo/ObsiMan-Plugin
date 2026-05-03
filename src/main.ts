@@ -23,14 +23,34 @@ import { Plugin, WorkspaceLeaf } from 'obsidian';
 import type { VaultmanSettings } from './types/typeSettings';
 import { DEFAULT_SETTINGS } from './types/typeSettings';
 import { PropertyIndexService } from './utils/utilPropIndex';
-import { FilterService } from './services/serviceFilter';
-import { OperationQueueService } from './services/serviceQueue';
+import { FilterService } from './services/serviceFilter.svelte';
+import { OperationQueueService } from './services/serviceQueue.svelte';
 import { VaultmanFrame, TYPE_FRAME_VM } from './types/typeFrame';
 import { IconicService } from './services/serviceIcons';
 import { PropertyTypeService } from './utils/utilPropType';
 import { ContextMenuService } from './services/serviceCMenu';
 import { VaultmanSettingsTab } from './settingsVM';
 import { translate } from './i18n/index';
+import { createFilesIndex } from './services/serviceFilesIndex';
+import { createTagsIndex } from './services/serviceTagsIndex';
+import { createPropsIndex } from './services/servicePropsIndex';
+import { createContentIndex } from './services/serviceContentIndex';
+import { createOperationsIndex } from './services/serviceOperationsIndex';
+import { createActiveFiltersIndex } from './services/serviceActiveFiltersIndex';
+import { createCSSSnippetsIndex } from './services/serviceCSSSnippetsIndex';
+import { createTemplatesIndex } from './services/serviceTemplatesIndex';
+import { OverlayStateService } from './services/serviceOverlayState.svelte';
+import type {
+	IFilesIndex,
+	ITagsIndex,
+	IPropsIndex,
+	IContentIndex,
+	IOperationsIndex,
+	IActiveFiltersIndex,
+	ICSSSnippetsIndex,
+	ITemplatesIndex,
+	IOverlayState,
+} from './types/contracts';
 
 export class VaultmanPlugin extends Plugin {
 	settings!: VaultmanSettings;
@@ -43,6 +63,17 @@ export class VaultmanPlugin extends Plugin {
 	propertyTypeService!: PropertyTypeService;
 	contextMenuService!: ContextMenuService;
 
+	// New index interfaces (Sub-A hardening)
+	filesIndex!: IFilesIndex;
+	tagsIndex!: ITagsIndex;
+	propsIndex!: IPropsIndex;
+	contentIndex!: IContentIndex;
+	operationsIndex!: IOperationsIndex;
+	activeFiltersIndex!: IActiveFiltersIndex;
+	cssSnippetsIndex!: ICSSSnippetsIndex;
+	templatesIndex!: ITemplatesIndex;
+	overlayState!: IOverlayState;
+
 	// Native status bar element
 	private statusBarEl!: HTMLElement;
 
@@ -50,15 +81,41 @@ export class VaultmanPlugin extends Plugin {
 		await this.loadSettings();
 		this.updateGlassBlur();
 
+		this.filesIndex = createFilesIndex(this.app);
+		this.tagsIndex = createTagsIndex(this.app);
+		this.propsIndex = createPropsIndex(this.app);
+		await Promise.all([this.filesIndex.refresh(), this.tagsIndex.refresh(), this.propsIndex.refresh()]);
+
+		this.registerEvent(this.app.metadataCache.on('changed', () => {
+			void this.propsIndex.refresh();
+			void this.tagsIndex.refresh();
+		}));
+		this.registerEvent(this.app.vault.on('create', () => void this.filesIndex.refresh()));
+		this.registerEvent(this.app.vault.on('delete', () => void this.filesIndex.refresh()));
+		this.registerEvent(this.app.vault.on('rename', () => void this.filesIndex.refresh()));
+
 		this.propertyIndex = new PropertyIndexService(this.app);
-		this.filterService = new FilterService(this.app);
+		this.filterService = new FilterService(this.app, this.filesIndex);
 		this.queueService = new OperationQueueService(this.app);
+
+		this.contentIndex = createContentIndex(this.app);
+		this.operationsIndex = createOperationsIndex(this.queueService);
+		this.activeFiltersIndex = createActiveFiltersIndex(this.filterService);
+		this.cssSnippetsIndex = createCSSSnippetsIndex();
+		this.templatesIndex = createTemplatesIndex();
+		await Promise.all([
+			this.contentIndex.refresh(),
+			this.operationsIndex.refresh(),
+			this.activeFiltersIndex.refresh(),
+			this.cssSnippetsIndex.refresh(),
+			this.templatesIndex.refresh(),
+		]);
+		this.overlayState = new OverlayStateService();
 		this.iconicService = new IconicService(this.app);
 		this.propertyTypeService = new PropertyTypeService(this.app);
 		this.contextMenuService = new ContextMenuService(this);
 
 		this.addChild(this.propertyIndex);
-		this.addChild(this.filterService);
 		this.addChild(this.queueService);
 		this.addChild(this.iconicService);
 		this.addChild(this.propertyTypeService);
@@ -66,7 +123,7 @@ export class VaultmanPlugin extends Plugin {
 
 		this.registerEvent(
 			this.app.metadataCache.on('resolved', () => {
-				this.filterService.applyFilters();
+				void this.filesIndex.refresh();
 			})
 		);
 
@@ -102,6 +159,10 @@ export class VaultmanPlugin extends Plugin {
 		this.addSettingTab(new VaultmanSettingsTab(this.app, this));
 	}
 
+	onunload(): void {
+		this.filterService.destroy();
+	}
+
 	async loadSettings(): Promise<void> {
 		const saved = ((await this.loadData()) ?? {}) as Partial<VaultmanSettings>;
 		const hasSavedTabLabelPref = Object.prototype.hasOwnProperty.call(saved, 'filtersShowTabLabels');
@@ -128,7 +189,7 @@ export class VaultmanPlugin extends Plugin {
 	updateGlassBlur(): void {
 		const intensity: number = this.settings.glassBlurIntensity ?? 60;
 		const px = (intensity / 100) * 20;
-		document.body.style.setProperty('--vm-glass-blur', `${px}px`);
+		activeDocument.body.style.setProperty('--vm-glass-blur', `${px}px`);
 	}
 
 	async activateView(): Promise<void> {

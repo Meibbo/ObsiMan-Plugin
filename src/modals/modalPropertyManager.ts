@@ -263,13 +263,13 @@ export class PropertyManagerModal extends Modal {
 		switch (this.action) {
 			case 'set': {
 				const parsedValue = this.parseValue(this.value, this.propertyType);
-				const strParsed = String(parsedValue as string | number | boolean | null | undefined);
+				const strParsed = String(parsedValue);
 				const finalValue = this.asWikilink ? `[[${strParsed}]]` : parsedValue;
 				return {
 					type: 'property',
 					property: this.property,
 					action: 'set',
-					details: `${this.property} = ${String(finalValue as string | number | boolean | null | undefined)}`,
+					details: `${this.property} = ${String(finalValue)}`,
 					files,
 					logicFunc: (_file, metadata) => {
 						if (this.propertyType === 'list' && this.appendToList) {
@@ -444,7 +444,10 @@ export class PropertyManagerModal extends Modal {
 				if (typeof value === 'string') {
 					return value.split(',').map((s) => s.trim()).filter(Boolean);
 				}
-				return value != null ? [String(value as string | number | boolean)] : [];
+				if (value == null) return [];
+				if (typeof value === 'object') return [JSON.stringify(value)];
+				// eslint-disable-next-line @typescript-eslint/no-base-to-string -- guarded above (primitive only)
+				return [String(value)];
 			case 'date': {
 				if (Array.isArray(value)) return String(value[0] ?? '');
 				const str = String((value as string | number | boolean) ?? '');

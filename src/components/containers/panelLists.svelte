@@ -1,4 +1,5 @@
-<script lang="ts">
+<script lang="ts" generics="TMeta = unknown">
+  import type { TFile } from "obsidian";
   import type { VaultmanPlugin } from "../../main";
   import type {
     ExplorerProvider,
@@ -21,7 +22,7 @@
     icon,
   }: {
     plugin: VaultmanPlugin;
-    provider: ExplorerProvider<any>;
+    provider: ExplorerProvider<TMeta>;
     viewMode?: ExplorerViewMode;
     searchTerm?: string;
     searchMode?: number;
@@ -29,17 +30,18 @@
     sortDirection?: "asc" | "desc";
     addMode?: boolean;
     selectedFiles?: Set<string>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-unused-vars
     icon: (node: HTMLElement, name: string) => any;
   } = $props();
 
-  let nodes = $state<TreeNode<any>[]>([]);
-  let flatFiles = $state<any[]>([]);
+  let nodes = $state<TreeNode<TMeta>[]>([]);
+  let flatFiles = $state<TFile[]>([]);
   let expandedIds = $state(new Set<string>());
 
   $effect(() => {
     // React directly to prop changes
-    const mode = searchMode === 1 ? "leaf" : "all";
-    provider.setSearchTerm?.(searchTerm, mode as any);
+    const mode: "leaf" | "all" = searchMode === 1 ? "leaf" : "all";
+    provider.setSearchTerm?.(searchTerm, mode);
     provider.setSortBy?.(sortBy, sortDirection);
     provider.setViewMode?.(viewMode);
     provider.setAddMode?.(addMode);
@@ -65,9 +67,9 @@
   }
 
   function findNodeById(
-    nodes: TreeNode<any>[],
+    nodes: TreeNode<TMeta>[],
     id: string,
-  ): TreeNode<any> | undefined {
+  ): TreeNode<TMeta> | undefined {
     for (const n of nodes) {
       if (n.id === id) return n;
       if (n.children) {
@@ -107,29 +109,29 @@
         totalCount={plugin.propertyIndex.fileCount}
         bind:selectedFiles
         onSelectionChange={() => {}}
-        onFileClick={(file: any) => {
+        onFileClick={(file: TFile) => {
           const node = {
             id: file.path,
             label: file.basename,
-            meta: { file },
+            meta: { file } as TMeta,
             icon: "",
             depth: 0,
-          };
-          provider.handleNodeClick(node as any);
+          } as TreeNode<TMeta>;
+          provider.handleNodeClick(node);
         }}
-        onContextMenu={(file: any, e: MouseEvent) => {
+        onContextMenu={(file: TFile, e: MouseEvent) => {
           const node = {
             id: file.path,
             label: file.basename,
-            meta: { file },
+            meta: { file } as TMeta,
             icon: "",
             depth: 0,
-          };
-          provider.handleContextMenu(node as any, e);
+          } as TreeNode<TMeta>;
+          provider.handleContextMenu(node, e);
         }}
-        sortColumn={sortBy as any}
+        sortColumn={sortBy as "name" | "props" | "path" | "date"}
         {sortDirection}
-        onSortChange={(col: any, dir: any) => {
+        onSortChange={(col: "name" | "props" | "path" | "date", dir: "asc" | "desc") => {
           sortBy = col;
           sortDirection = dir;
         }}
@@ -159,7 +161,7 @@
   }
   .vm-grid-container {
     flex: 1;
-    overflow-y: auto;
+    overflow: hidden;
     min-height: 0;
     height: 100%;
   }

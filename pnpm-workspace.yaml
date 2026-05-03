@@ -1,0 +1,8 @@
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - classic-level
+  - edgedriver
+  - esbuild
+  - geckodriver
+  - obsidian-integration-testing
+  - svelte-preprocess

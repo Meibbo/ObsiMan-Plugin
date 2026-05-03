@@ -15,7 +15,7 @@
 6. **Ask the user** *(or verify via `npm run build`)* whether features from the last session are working
 7. **Check your own context budget** — estimate how many large files you can read. If <20% remaining, warn the user and suggest switching agents BEFORE starting implementation
 8. **Update `docs/Vaultman - Agent Memory.md`** at the END of your session with: what you completed, what's next, any blockers. Move completed tasks to `docs/Vaultman - Archived tasks.md`. Keep iterations to a strict maximum of 6 tasks.
-8. **Before implementing any integration with a core or community plugin** — search online for its API docs, GitHub repo, and any known inter-plugin communication patterns. Never assume an API exists; verify it first. See section 11 for the integration philosophy and known API surfaces.
+9. **Before implementing any integration with a core or community plugin** — search online for its API docs, GitHub repo, and any known inter-plugin communication patterns. Never assume an API exists; verify it first. See section 11 for the integration philosophy and known API surfaces.
 
 ---
 
@@ -340,3 +340,17 @@ Access via `app.plugins.plugins['<id>']` — only if installed and enabled. Alwa
 - Multi-Properties GitHub: https://github.com/technohiker/obsidian-multi-properties
 - Forum — search API: https://forum.obsidian.md/t/is-it-possible-when-will-it-be-possible-to-access-search-programmatically/24916
 - Forum — Bases API request: https://forum.obsidian.md/t/bases-api-for-plugins-to-add-custom-functions/109612
+
+---
+
+## 12. ADR review (mandatory before touching `src/services/` or `src/types/`)
+
+Before modifying any file under `src/services/`, `src/types/contracts.ts`, or `src/types/obsidian-extended.ts`, read the relevant ADRs in `docs/superpowers/adr/`:
+
+- ADR-001 — reactive state in `*.svelte.ts`
+- ADR-002 — consumers depend on interfaces
+- ADR-004 — Obsidian internal API only via `obsidian-extended.ts`
+- ADR-006 — `contracts.ts` changes require new ADR
+- ADR-008 — indexing uses `createNodeIndex<T>`
+
+Skipping this is the most common cause of regression. New ADRs supersede old ones — check the `Status:` line.

@@ -47,6 +47,7 @@
 		"src/**/*.svelte",
 		"esbuild.config.mjs",
 		"svelte.config.js",
+		"vite.config.ts",
 		"main.ts"
 	],
 }

@@ -1,46 +1,43 @@
 <script lang="ts">
+  import type { TabConfig } from "../../types/typeUI";
+  import { setIcon } from "obsidian";
   import { translate } from "../../i18n/index";
 
-  type FiltersTab = "props" | "files" | "tags";
-
-  const TAB_ICONS: Record<FiltersTab, string> = {
-    tags: "lucide-tags",
-    props: "lucide-book-plus",
-    files: "lucide-files",
-  };
-
   let {
-    activeTab,
+    tabs,
+    active = $bindable(),
     showLabels = false,
-    onTabChange,
-    icon,
   }: {
-    activeTab: FiltersTab;
+    tabs: TabConfig[];
+    active: string;
     showLabels?: boolean;
-    onTabChange: (tab: FiltersTab) => void;
-    icon: (node: HTMLElement, name: string) => { update(n: string): void };
   } = $props();
+
+  function attachIcon(node: HTMLElement, iconName: string): { update: (n: string) => void } {
+    setIcon(node, iconName);
+    return { update: (n: string) => setIcon(node, n) };
+  }
 </script>
 
 <div class="vm-tab-bar" class:has-labels={showLabels}>
-  {#each ["props", "files", "tags"] as FiltersTab[] as tab}
+  {#each tabs as tab (tab.id)}
     <div
       class="vm-tab nav-action-button"
-      class:is-active={activeTab === tab}
-      onclick={() => onTabChange(tab)}
+      class:is-active={active === tab.id}
+      onclick={() => (active = tab.id)}
       onkeydown={(e: KeyboardEvent) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          onTabChange(tab);
+          active = tab.id;
         }
       }}
-      aria-label={translate("filter.tab." + tab)}
+      aria-label={translate(tab.labelKey)}
       role="tab"
       tabindex="0"
     >
-      <span class="vm-tab-icon" use:icon={TAB_ICONS[tab]}></span>
+      <span class="vm-tab-icon" use:attachIcon={tab.icon}></span>
       {#if showLabels}
-        <span class="vm-tab-label">{translate("filter.tab." + tab)}</span>
+        <span class="vm-tab-label">{translate(tab.labelKey)}</span>
       {/if}
     </div>
   {/each}

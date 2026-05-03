@@ -66,6 +66,97 @@
   }
 }
 
+// SettingsUI.svelte — declarative settings component
+.vm-settings {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &-heading {
+    font-size: var(--font-ui-small);
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 12px 0 4px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--background-modifier-border);
+  }
+
+  &-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &-label {
+    font-size: var(--font-ui-small);
+    color: var(--text-normal);
+    flex-shrink: 0;
+  }
+
+  &-page-order {
+    display: flex;
+    gap: 6px;
+
+    select {
+      font-size: var(--font-ui-small);
+      padding: 3px 6px;
+      border-radius: var(--radius-s);
+      background: var(--background-secondary);
+      border: 1px solid var(--background-modifier-border);
+      color: var(--text-normal);
+    }
+  }
+
+  &-slider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    input[type='range'] {
+      flex: 1;
+      accent-color: var(--color-accent);
+    }
+  }
+
+  &-slider-value {
+    font-size: var(--font-ui-smaller);
+    color: var(--text-muted);
+    min-width: 24px;
+    text-align: right;
+  }
+
+  &-desc {
+    font-size: var(--font-ui-small);
+    color: var(--text-muted);
+    margin: 2px 0;
+  }
+
+  &-template-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: var(--background-secondary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-s);
+  }
+
+  &-template-name {
+    font-size: var(--font-ui-small);
+    color: var(--text-normal);
+    flex: 1;
+  }
+
+  &-template-count {
+    font-size: var(--font-ui-smaller);
+    color: var(--text-faint);
+  }
+}
+
 // Main layout (3-section: Filters | Grid | Ops)
 .vm-main {
   &-layout {

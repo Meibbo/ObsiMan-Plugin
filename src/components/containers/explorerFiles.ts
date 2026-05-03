@@ -115,7 +115,7 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
         const meta = node.meta;
         if (meta.isFolder || !meta.file) return;
         this.plugin.contextMenuService.openPanelMenu(
-            { nodeType: 'file', node: node as TreeNode<unknown>, surface: 'panel', file: meta.file },
+            { nodeType: 'file', node: node, surface: 'panel', file: meta.file },
             e,
         );
     }

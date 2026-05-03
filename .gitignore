@@ -1,15 +1,20 @@
-node_modules/
+# Docs for the repo
 docs/*
-!docs/superpowers
 docs/superpowers/*
-!docs/superpowers/audits
 docs/superpowers/audits/*
+!docs/superpowers
+!docs/superpowers/audits
 !docs/superpowers/audits/*.md
 !docs/superpowers/audits/raw
 !docs/superpowers/plans
 !docs/superpowers/specs
 !docs/superpowers/triage
 !docs/superpowers/adr
+!docs/archive
+!docs/archive/superpowers
+!docs/archive/superpowers/specs
+!docs/archive/superpowers/specs/*.md
+node_modules/
 coverage/
 img/
 dist/
