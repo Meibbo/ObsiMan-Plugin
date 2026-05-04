@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { PropertyTypeService } from '../../../src/utils/utilPropType';
-import { mockApp } from 'obsidian';
+import { PropertyTypeService } from '../../../src/types/typeProp';
+import { mockApp } from '../../helpers/obsidian-mocks';
 
 describe('PropertyTypeService', () => {
 	it('reads types.json from configDir on load and exposes getType', async () => {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { PropsLogic } from '../../../src/logic/logicProps';
-import { mockApp, mockTFile, type CachedMetadata } from 'obsidian';
+import { mockApp, mockTFile, type CachedMetadata } from '../../helpers/obsidian-mocks';
 
 function setup() {
 	const a = mockTFile('a.md', { frontmatter: { status: 'draft', tags: ['x'] } });

@@ -4,7 +4,7 @@ type: architecture
 status: active
 parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-04T08:40:55
+updated: 2026-05-04T16:35:00
 tags:
   - agent/architecture
 ---
@@ -22,12 +22,16 @@ Agents should act as route-following collaborators:
 - Read less, edit narrowly, and verify the exact surface touched.
 - Keep current docs concise by routing to shards and archives, not by deleting
   detail or replacing source records with lossy summaries.
+- Treat unfamiliar project/domain terms as glossary-gated. Check the glossary
+  first, then say plainly when the term is absent.
 
 Operational defaults:
 
 - Optimize for token efficiency, agent efficacy, and human-in-the-loop control.
 - Before repeated memory maintenance, ask whether a local script can make the
   operation faster, safer, or easier to verify.
+- Use metrics as evidence for maintenance claims instead of saying process rules
+  were applied without a recorded trace.
 - Do not commit unless the user asks.
 - Do not revert other agents' or user changes.
 - Do not put AI files on `main`.

@@ -1,8 +1,10 @@
-<script lang="ts">
+	<script lang="ts">
 	import { setIcon } from 'obsidian';
 	import type { VaultmanPlugin } from '../../main';
-	import { Virtualizer } from '../../services/serviceVirtualizer.svelte';
-	import type { QueueChange } from '../../types/typeContracts';
+	import ViewList from '../views/viewList.svelte';
+	import { ViewService } from '../../services/serviceViews.svelte';
+	import type { NodeBase, QueueChange } from '../../types/typeContracts';
+	import type { ExplorerRenderModel, ViewAction, ViewRow } from '../../types/typeViews';
 	import { translate } from '../../index/i18n/lang';
 
 	let {
@@ -13,34 +15,19 @@
 		onClose?: () => void;
 	} = $props();
 
-	let outerEl: HTMLDivElement | undefined = $state();
-	const v = new Virtualizer<QueueChange>();
+	const fallbackViewService = new ViewService();
+	let model: ExplorerRenderModel<NodeBase> = $state(emptyModel());
 
-	const totalH = $derived(v.items.length * v.rowHeight);
-	const hasItems = $derived(v.items.length > 0);
+	const hasItems = $derived(model.rows.length > 0);
 
 	$effect(() => {
 		syncItems();
 		return plugin.operationsIndex.subscribe(syncItems);
 	});
 
-	$effect(() => {
-		if (!outerEl) return;
-		v.viewportHeight = outerEl.clientHeight;
-		const ro = new ResizeObserver(() => {
-			if (outerEl) v.viewportHeight = outerEl.clientHeight;
-		});
-		ro.observe(outerEl);
-		return () => ro.disconnect();
-	});
-
 	function icon(el: HTMLElement, name: string) {
 		setIcon(el, name);
 		return { update: (n: string) => setIcon(el, n) };
-	}
-
-	function onScroll(e: Event) {
-		v.scrollTop = (e.currentTarget as HTMLDivElement).scrollTop;
 	}
 
 	function removeItem(id: string) {
@@ -57,7 +44,37 @@
 	}
 
 	function syncItems() {
-		v.items = [...plugin.operationsIndex.nodes];
+		model = (plugin.viewService ?? fallbackViewService).getModel({
+			explorerId: 'queue',
+			mode: 'list',
+			nodes: [...plugin.operationsIndex.nodes],
+			getLabel: (node) => (node as QueueChange).change.type,
+			getDetail: (node) => (node as QueueChange).change.details ?? '',
+			getActions: () => [
+				{ id: 'remove', label: translate('queue.remove'), icon: 'lucide-x', tone: 'danger' },
+			],
+			getDecorationContext: () => ({ kind: 'operation' }),
+		}) as unknown as ExplorerRenderModel<NodeBase>;
+	}
+
+	function handleAction(action: ViewAction<NodeBase>, row: ViewRow<NodeBase>) {
+		if (action.id === 'remove') removeItem(row.id);
+	}
+
+	function emptyModel(): ExplorerRenderModel<NodeBase> {
+		return {
+			explorerId: 'queue',
+			mode: 'list',
+			rows: [],
+			columns: [],
+			groups: [],
+			selection: { ids: new Set() },
+			focus: { id: null },
+			sort: { id: 'manual', direction: 'asc' },
+			search: { query: '' },
+			virtualization: { rowHeight: 32, overscan: 5 },
+			capabilities: {},
+		};
 	}
 </script>
 
@@ -99,31 +116,13 @@
 
 	<div class="vm-explorer-popup">
 		<header class="vm-explorer-popup-header">
-			<span class="vm-subtitle">{translate('ops.queue', { count: v.items.length })}</span>
+			<span class="vm-subtitle">{translate('ops.queue', { count: model.rows.length })}</span>
 		</header>
 
 		{#if !hasItems}
 			<div class="vm-explorer-popup-empty">{translate('queue.island.empty')}</div>
 		{:else}
-			<div bind:this={outerEl} class="vm-explorer-popup-list" onscroll={onScroll}>
-				<div class="vm-explorer-popup-inner" style="height: {totalH}px">
-					{#each v.visible as item, i (item.id)}
-						{@const absIdx = v.window.startIndex + i}
-						<div
-							class="vm-explorer-popup-row"
-							style="transform: translateY({absIdx * v.rowHeight}px)"
-						>
-							<span class="vm-queue-item-type">{item.change.type}</span>
-							<span class="vm-queue-item-detail">{item.change.details ?? ''}</span>
-							<button
-								class="vm-btn-icon vm-btn-danger"
-								onclick={() => removeItem(item.id)}
-								aria-label={translate('queue.remove')}>×</button
-							>
-						</div>
-					{/each}
-				</div>
-			</div>
+			<ViewList {model} {icon} onAction={handleAction} />
 		{/if}
 	</div>
 </div>

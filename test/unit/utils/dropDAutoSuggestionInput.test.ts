@@ -1,9 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import {
 	attachDropDAutoSuggestionInput,
+	type DropDAutoSuggestionConfig,
 	type DropDSuggestionItem,
 } from '../../../src/utils/dropDAutoSuggestionInput';
-import { mockApp } from 'obsidian';
+import { mockApp } from '../../helpers/obsidian-mocks';
+
+type SuggestionApp = DropDAutoSuggestionConfig['app'];
 
 function makeInput(): HTMLInputElement {
 	if (typeof document !== 'undefined') return document.createElement('input');
@@ -12,7 +15,7 @@ function makeInput(): HTMLInputElement {
 
 describe('attachDropDAutoSuggestionInput', () => {
 	it('filters items whose label or hint includes the query (case-insensitive)', () => {
-		const app = mockApp();
+		const app = mockApp() as unknown as SuggestionApp;
 		const inputEl = makeInput();
 		const items: DropDSuggestionItem[] = [
 			{ value: 'a', label: 'README', hint: 'root' },
@@ -37,7 +40,7 @@ describe('attachDropDAutoSuggestionInput', () => {
 	});
 
 	it('destroy() does not throw', () => {
-		const app = mockApp();
+		const app = mockApp() as unknown as SuggestionApp;
 		const inputEl = makeInput();
 		const handle = attachDropDAutoSuggestionInput({
 			app,

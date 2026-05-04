@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mount, unmount, flushSync, type Component } from 'svelte';
-import PopupIsland from '../../src/components/layout/popupIsland.svelte';
+import PopupIsland from '../../src/components/layout/overlays/overlayIsland.svelte';
 import PopupIslandChild from './PopupIslandChild.svelte';
 import { OverlayStateService } from '../../src/services/serviceOverlayState.svelte';
 

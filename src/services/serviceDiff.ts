@@ -187,7 +187,7 @@ function lcsTable(a: string[], b: string[]): number[][] {
     m = b.length;
   const t: number[][] = [];
   for (let i = 0; i <= n; i++) {
-    t.push(new Array<number>(m + 1).fill(0));
+    t.push(Array.from({ length: m + 1 }, () => 0));
   }
   for (let i = 1; i <= n; i++) {
     for (let j = 1; j <= m; j++) {

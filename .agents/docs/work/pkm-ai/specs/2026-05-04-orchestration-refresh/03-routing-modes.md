@@ -4,7 +4,7 @@ type: spec-slice
 parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 status: approved-draft
 created: 2026-05-04T00:00:00
-updated: 2026-05-04T00:00:00
+updated: 2026-05-04T16:12:00
 tags:
   - agent/spec
 ---
@@ -25,7 +25,7 @@ Then it chooses the smallest relevant route:
 - new initiative candidate -> draft items + initiative proposal + problems to resolve
 - plan/design request -> active initiative spec or draft initiative proposal
 - implement -> active initiative index plus current plan
-- refresh -> docs policy plus target docs
+- update -> docs policy plus target docs
 - research -> research index plus source note
 - release -> `work/v1-stable/index.md`
 - teach -> PKM-AI manual
@@ -38,7 +38,7 @@ research:
 teach:
 implement:
 review:
-refresh:
+update:
 health:
 handoff:
 ```
@@ -79,6 +79,6 @@ Explicit user skill invocation still wins.
 - `teach:` -> PKM-AI guide; updates docs only when explicitly requested.
 - `implement:` -> plan route, code/docs edits, targeted verification.
 - `review:` -> review stance; findings before summary.
-- `refresh:` -> docs migration/update route.
+- `update:` -> docs migration/update route.
 - `health:` -> doc health checks and repair proposals.
 - `handoff:` -> compact status and handoff update.

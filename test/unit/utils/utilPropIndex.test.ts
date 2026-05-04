@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { PropertyIndexService } from '../../../src/utils/utilPropIndex';
-import { mockApp, mockTFile, type CachedMetadata } from 'obsidian';
+import { PropertyIndexService } from '../../../src/index/utilPropIndex';
+import { mockApp, mockTFile, type CachedMetadata } from '../../helpers/obsidian-mocks';
 
 function setup() {
 	const a = mockTFile('a.md', { frontmatter: { status: 'draft', tags: ['x'] } });

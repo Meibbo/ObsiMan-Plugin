@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { mockApp, mockTFile, TFile } from 'obsidian';
-import { createFilesIndex } from '../../../src/services/serviceFilesIndex';
+import { mockApp, mockTFile } from '../../helpers/obsidian-mocks';
+import { createFilesIndex } from '../../../src/index/indexFiles';
 
 describe('serviceFilesIndex', () => {
   it('builds FileNode[] from vault.getMarkdownFiles', async () => {

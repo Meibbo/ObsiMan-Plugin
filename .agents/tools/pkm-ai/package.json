@@ -6,6 +6,8 @@
     "health": "node check-doc-health.mjs",
     "index": "node index-docs.mjs",
     "query": "node query-docs.mjs",
+    "metric": "node record-metric.mjs",
+    "archive": "node archive-active-doc.mjs",
     "update": "node update-indexes.mjs",
     "shard": "node shard-index.mjs",
     "test": "node --test \"test/*.test.mjs\""
@@ -14,6 +16,8 @@
     "pkm-ai-health": "./check-doc-health.mjs",
     "pkm-ai-index": "./index-docs.mjs",
     "pkm-ai-query": "./query-docs.mjs",
+    "pkm-ai-metric": "./record-metric.mjs",
+    "pkm-ai-archive": "./archive-active-doc.mjs",
     "pkm-ai-update": "./update-indexes.mjs",
     "pkm-ai-shard": "./shard-index.mjs"
   }

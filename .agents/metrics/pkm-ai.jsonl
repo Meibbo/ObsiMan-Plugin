@@ -1,0 +1,12 @@
+{"ts":"2026-05-04T21:23:48","event":"health_passed","path":".agents/docs","detail":"0 warnings"}
+{"ts":"2026-05-04T21:44:06","event":"health_passed","path":".agents/docs","detail":"0 warnings"}
+{"ts":"2026-05-04T21:46:57","event":"health_passed","path":".agents/docs","detail":"0 warnings"}
+{"ts":"2026-05-04T21:47:14","event":"glossary_checked","path":".agents/docs/architecture/glossary.md","detail":"swam"}
+{"ts":"2026-05-04T21:47:14","event":"glossary_miss","path":".agents/docs/architecture/glossary.md","detail":"swam"}
+{"ts":"2026-05-04T21:49:53","event":"health_passed","path":".agents/docs","detail":"0 warnings"}
+{"ts":"2026-05-04T22:37:17","event":"health_passed","path":".agents/docs","detail":"0 warnings"}
+{"ts":"2026-05-04T22:42:58","event":"health_passed","path":".agents/docs","detail":"0 warnings"}
+{"ts":"2026-05-04T22:57:38","event":"health_passed","path":".agents/docs","detail":"0 warnings"}
+{"ts":"2026-05-04T23:14:49","event":"health_failed","path":".agents/docs","detail":"2 failures"}
+{"ts":"2026-05-04T23:16:15","event":"health_failed","path":".agents/docs","detail":"1 failures"}
+{"ts":"2026-05-04T23:16:35","event":"health_passed","path":".agents/docs","detail":"0 warnings"}

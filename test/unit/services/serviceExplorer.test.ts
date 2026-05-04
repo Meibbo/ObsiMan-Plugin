@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ExplorerService } from '../../../src/services/serviceExplorer.svelte';
-import type { INodeIndex, IDecorationManager, NodeBase } from '../../../src/types/contracts';
+import type { INodeIndex, IDecorationManager, NodeBase } from '../../../src/types/typeContracts';
 
 function stubIdx<T extends NodeBase>(nodes: T[]): INodeIndex<T> {
   const subs = new Set<() => void>();

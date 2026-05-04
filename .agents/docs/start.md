@@ -4,7 +4,7 @@ type: agent-router
 status: active
 parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-04T01:36:20
+updated: 2026-05-04T16:12:00
 tags:
   - agent/router
 ---
@@ -26,7 +26,7 @@ question can be answered directly without changing mode.
 - `teach`: explain PKM-AI behavior and navigation.
 - `implement`: execute a current plan slice and verify.
 - `review`: inspect changes; findings first.
-- `refresh`: update docs, routing, archive, or migration records.
+- `update`: update docs, routing, archive, or migration records.
 - `health`: check line limits, links, frontmatter, and stale state.
 - `handoff`: update concise current state for the next agent.
 

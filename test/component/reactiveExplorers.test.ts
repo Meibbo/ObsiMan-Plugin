@@ -8,7 +8,7 @@ import type {
 	ContentMatch,
 	INodeIndex,
 	QueueChange,
-} from '../../src/types/contracts';
+} from '../../src/types/typeContracts';
 import type { VaultmanPlugin } from '../../src/main';
 
 class MutableIndex<TNode extends { id: string }> implements INodeIndex<TNode> {

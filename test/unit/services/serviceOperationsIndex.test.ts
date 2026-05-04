@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createOperationsIndex } from '../../../src/services/serviceOperationsIndex';
-import type { IOperationQueue } from '../../../src/types/contracts';
+import { createOperationsIndex } from '../../../src/index/indexOperations';
+import type { IOperationQueue } from '../../../src/types/typeContracts';
 import type { PendingChange, VirtualFileState } from '../../../src/types/typeOps';
 
 function stubQueue(

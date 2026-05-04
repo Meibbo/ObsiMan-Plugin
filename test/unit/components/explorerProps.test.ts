@@ -1,9 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import { mockApp, mockTFile, type CachedMetadata } from 'obsidian';
+import { mockApp, mockTFile, type CachedMetadata, type TFile } from '../../helpers/obsidian-mocks';
 import { explorerProps } from '../../../src/components/containers/explorerProps';
 import { DecorationManager } from '../../../src/services/serviceDecorate';
 import type { VaultmanPlugin } from '../../../src/main';
-import type { TFile } from 'obsidian';
 
 function makePlugin(): VaultmanPlugin {
 	const a = mockTFile('a.md', { frontmatter: { status: 'draft', owner: 'vic' } });

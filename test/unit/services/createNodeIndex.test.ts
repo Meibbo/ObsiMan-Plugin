@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createNodeIndex } from '../../../src/services/createNodeIndex';
-import type { NodeBase } from '../../../src/types/contracts';
+import { createNodeIndex } from '../../../src/index/indexNodeCreate';
+import type { NodeBase } from '../../../src/types/typeContracts';
 
 interface TestNode extends NodeBase {
   label: string;

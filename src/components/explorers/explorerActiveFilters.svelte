@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { setIcon } from 'obsidian';
 	import type { VaultmanPlugin } from '../../main';
-	import { Virtualizer } from '../../services/serviceVirtualizer.svelte';
-	import type { ActiveFilterEntry } from '../../types/typeContracts';
+	import ViewList from '../views/viewList.svelte';
+	import { ViewService } from '../../services/serviceViews.svelte';
+	import type { ActiveFilterEntry, NodeBase } from '../../types/typeContracts';
+	import type { ExplorerRenderModel, ViewAction, ViewRow } from '../../types/typeViews';
 	import { translate } from '../../index/i18n/lang';
 
 	let {
@@ -13,35 +15,20 @@
 		onClose?: () => void;
 	} = $props();
 
-	let outerEl: HTMLDivElement | undefined = $state();
-	const v = new Virtualizer<ActiveFilterEntry>();
+	const fallbackViewService = new ViewService();
+	let model: ExplorerRenderModel<NodeBase> = $state(emptyModel());
 
-	const totalH = $derived(v.items.length * v.rowHeight);
 	const fileCount = $derived(plugin.filterService.filteredFiles.length);
-	const hasItems = $derived(v.items.length > 0);
+	const hasItems = $derived(model.rows.length > 0);
 
 	$effect(() => {
 		syncItems();
 		return plugin.activeFiltersIndex.subscribe(syncItems);
 	});
 
-	$effect(() => {
-		if (!outerEl) return;
-		v.viewportHeight = outerEl.clientHeight;
-		const ro = new ResizeObserver(() => {
-			if (outerEl) v.viewportHeight = outerEl.clientHeight;
-		});
-		ro.observe(outerEl);
-		return () => ro.disconnect();
-	});
-
 	function icon(el: HTMLElement, name: string) {
 		setIcon(el, name);
 		return { update: (n: string) => setIcon(el, n) };
-	}
-
-	function onScroll(e: Event) {
-		v.scrollTop = (e.currentTarget as HTMLDivElement).scrollTop;
 	}
 
 	function describeRule(entry: ActiveFilterEntry): string {
@@ -81,7 +68,36 @@
 	}
 
 	function syncItems() {
-		v.items = [...plugin.activeFiltersIndex.nodes];
+		model = (plugin.viewService ?? fallbackViewService).getModel({
+			explorerId: 'active-filters',
+			mode: 'list',
+			nodes: [...plugin.activeFiltersIndex.nodes],
+			getLabel: (node) => describeRule(node as ActiveFilterEntry),
+			getActions: () => [
+				{ id: 'remove', label: translate('filters.remove'), icon: 'lucide-x', tone: 'danger' },
+			],
+			getDecorationContext: () => ({ kind: 'filter' }),
+		}) as unknown as ExplorerRenderModel<NodeBase>;
+	}
+
+	function handleAction(action: ViewAction<NodeBase>, row: ViewRow<NodeBase>) {
+		if (action.id === 'remove') removeFilter(row.node as ActiveFilterEntry);
+	}
+
+	function emptyModel(): ExplorerRenderModel<NodeBase> {
+		return {
+			explorerId: 'active-filters',
+			mode: 'list',
+			rows: [],
+			columns: [],
+			groups: [],
+			selection: { ids: new Set() },
+			focus: { id: null },
+			sort: { id: 'manual', direction: 'asc' },
+			search: { query: '' },
+			virtualization: { rowHeight: 32, overscan: 5 },
+			capabilities: {},
+		};
 	}
 </script>
 
@@ -123,7 +139,7 @@
 	<div class="vm-explorer-popup">
 		<header class="vm-explorer-popup-header">
 			<span class="vm-subtitle">
-				{v.items.length}
+				{model.rows.length}
 				{translate('filters.active')} · {fileCount}
 				{translate('files.count.short')}
 			</span>
@@ -132,24 +148,7 @@
 		{#if !hasItems}
 			<div class="vm-explorer-popup-empty">{translate('filters.active.empty')}</div>
 		{:else}
-			<div bind:this={outerEl} class="vm-explorer-popup-list" onscroll={onScroll}>
-				<div class="vm-explorer-popup-inner" style="height: {totalH}px">
-					{#each v.visible as entry, i (entry.id)}
-						{@const absIdx = v.window.startIndex + i}
-						<div
-							class="vm-explorer-popup-row"
-							style="transform: translateY({absIdx * v.rowHeight}px)"
-						>
-							<span class="vm-filter-entry-desc">{describeRule(entry)}</span>
-							<button
-								class="vm-btn-icon vm-btn-danger"
-								onclick={() => removeFilter(entry)}
-								aria-label={translate('filters.remove')}>×</button
-							>
-						</div>
-					{/each}
-				</div>
-			</div>
+			<ViewList {model} {icon} onAction={handleAction} />
 		{/if}
 	</div>
 </div>

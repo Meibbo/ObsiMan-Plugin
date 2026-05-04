@@ -1,6 +1,7 @@
 import type { TFile } from 'obsidian';
 import type { FilterGroup, FilterNode, FilterRule } from './typeFilter';
 import type { PendingChange, OperationResult } from './typeOps';
+import type { IViewService } from './typeViews';
 
 // ─────────────────────────────────────────────────────────
 // Indexing primitives
@@ -160,6 +161,8 @@ export interface IOverlayState {
   clear(): void;
   isOpen(id: string): boolean;
 }
+
+export type { IViewService };
 
 /** Explorer: index + UI state (selection, expansion, scroll, search). */
 export interface IExplorer<TNode extends NodeBase> {

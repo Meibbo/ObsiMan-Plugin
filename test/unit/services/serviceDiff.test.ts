@@ -6,7 +6,7 @@ import {
 	computeBodyHunks,
 } from '../../../src/services/serviceDiff';
 import type { VirtualFileState, StagedOp } from '../../../src/types/typeOps';
-import { mockTFile } from 'obsidian';
+import { mockTFile } from '../../helpers/obsidian-mocks';
 
 function vfs(partial: Partial<VirtualFileState>): VirtualFileState {
 	const file = mockTFile('a.md');

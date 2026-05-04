@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { FilesLogic } from '../../../src/logic/logicsFiles';
-import { mockApp, mockTFile, type CachedMetadata } from 'obsidian';
+import { mockApp, mockTFile, type CachedMetadata } from '../../helpers/obsidian-mocks';
 
 function setup() {
 	const a = mockTFile('Notes/a.md', { frontmatter: { x: 1 } });

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sortNodes, type SortOption } from '../../../src/services/serviceSorting';
+import { sortNodes } from '../../../src/services/serviceSorting';
 
 describe('serviceSorting', () => {
   it('sorts by label asc', () => {

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { showInputModal } from '../../../src/utils/inputModal';
-import { mockApp } from 'obsidian';
+import { mockApp } from '../../helpers/obsidian-mocks';
 
 beforeAll(() => {
 	if (typeof (globalThis as { requestAnimationFrame?: unknown }).requestAnimationFrame !== 'function') {

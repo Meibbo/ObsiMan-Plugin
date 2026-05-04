@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { FilterService } from '../../../src/services/serviceFilter.svelte';
 import type { FilterRule, FilterTemplate } from '../../../src/types/typeFilter';
-import type { IFilesIndex } from '../../../src/types/contracts';
-import { mockApp, mockTFile, type CachedMetadata } from 'obsidian';
+import type { IFilesIndex } from '../../../src/types/typeContracts';
+import { mockApp, mockTFile, type CachedMetadata } from '../../helpers/obsidian-mocks';
 
 function makeIdx(files: ReturnType<typeof mockTFile>[]): IFilesIndex {
 	return {

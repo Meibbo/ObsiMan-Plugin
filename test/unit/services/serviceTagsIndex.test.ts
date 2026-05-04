@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { mockApp, mockTFile, type CachedMetadata } from 'obsidian';
-import { createTagsIndex } from '../../../src/services/serviceTagsIndex';
+import { mockApp, mockTFile, type CachedMetadata } from '../../helpers/obsidian-mocks';
+import { createTagsIndex } from '../../../src/index/indexTags';
 
 describe('serviceTagsIndex', () => {
   it('aggregates #tag counts across files via metadataCache', async () => {

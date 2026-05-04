@@ -359,7 +359,7 @@ export function mockApp(opts: MockAppOptions = {}): App {
 	const fileManager: FileManager = {
 		processFrontMatter: async (file, fn) => {
 			const cur = meta.get(file.path) ?? { frontmatter: {} };
-			const fm = { ...(cur.frontmatter ?? {}) };
+			const fm = { ...cur.frontmatter };
 			fn(fm);
 			meta.set(file.path, { ...cur, frontmatter: fm });
 		},

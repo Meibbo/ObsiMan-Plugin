@@ -4,7 +4,7 @@ type: architecture
 status: active
 parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-04T07:54:04
+updated: 2026-05-04T16:12:00
 tags:
   - agent/architecture
 ---
@@ -26,7 +26,7 @@ Mode routes:
 - `teach` -> PKM-AI manual or compact map.
 - `implement` -> initiative index, active plan, relevant policies.
 - `review` -> changed files and matching policy.
-- `refresh` -> docs policy and target doc set.
+- `update` -> docs policy and target doc set.
 - `health` -> verification rules and health scripts when present.
 - `handoff` -> status and handoff only.
 - tool/environment friction -> tools policy, then current handoff if still relevant.

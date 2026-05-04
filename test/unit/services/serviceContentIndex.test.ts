@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { mockApp, mockTFile } from '../../helpers/obsidian-mocks';
-import { createContentIndex } from '../../../src/services/serviceContentIndex';
+import { createContentIndex } from '../../../src/index/indexContent';
 
 describe('serviceContentIndex', () => {
   it('returns empty when query is empty', async () => {

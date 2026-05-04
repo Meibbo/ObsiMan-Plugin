@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ContextMenuService, type ContextMenuPluginCtx } from '../../../src/services/serviceCMenu';
 import type { ActionDef } from '../../../src/types/typeCMenu';
-import { mockApp, mockTFile, Component } from 'obsidian';
+import { mockApp, mockTFile, Component } from '../../helpers/obsidian-mocks';
 
 function makeCtx(): ContextMenuPluginCtx {
 	const ctx = new Component() as unknown as ContextMenuPluginCtx;

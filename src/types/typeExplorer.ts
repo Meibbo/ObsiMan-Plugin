@@ -1,7 +1,7 @@
 import type { TFile } from 'obsidian';
 import type { TreeNode } from './typeNode';
-
-export type ExplorerViewMode = 'tree' | 'grid' | 'cards' | 'masonry';
+import type { ExplorerViewMode } from './typeViews';
+export type { ExplorerViewMode } from './typeViews';
 
 export interface ExplorerProvider<TMeta = unknown> {
     id: string;

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { TagsLogic } from '../../../src/logic/logicTags';
-import { mockApp } from 'obsidian';
+import { mockApp } from '../../helpers/obsidian-mocks';
 
 function appWithTags(rawTags: Record<string, number>) {
 	const app = mockApp();

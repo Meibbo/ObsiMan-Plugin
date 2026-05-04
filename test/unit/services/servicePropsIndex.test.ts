@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { mockApp, mockTFile, type CachedMetadata } from 'obsidian';
-import { createPropsIndex } from '../../../src/services/servicePropsIndex';
+import { mockApp, mockTFile, type CachedMetadata } from '../../helpers/obsidian-mocks';
+import { createPropsIndex } from '../../../src/index/indexProps';
 
 describe('servicePropsIndex', () => {
   it('aggregates properties + values across files', async () => {

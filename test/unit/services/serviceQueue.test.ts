@@ -13,7 +13,7 @@ import {
 	type FileChange,
 	type TemplateChange,
 } from '../../../src/types/typeOps';
-import { mockApp, mockTFile, type CachedMetadata, type TFile } from 'obsidian';
+import { mockApp, mockTFile, type CachedMetadata, type TFile } from '../../helpers/obsidian-mocks';
 
 function buildPropChange(file: TFile, prop: string, value: string): PropertyChange {
 	return {

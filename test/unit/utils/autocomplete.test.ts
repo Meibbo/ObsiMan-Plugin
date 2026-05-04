@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { PropertySuggest, FolderSuggest } from '../../../src/utils/autocomplete';
-import { mockApp, mockTFolder } from 'obsidian';
+import { mockApp, mockTFolder } from '../../helpers/obsidian-mocks';
 
 function makeInput(): HTMLInputElement {
 	if (typeof document !== 'undefined') return document.createElement('input');

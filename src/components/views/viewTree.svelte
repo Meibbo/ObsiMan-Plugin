@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { TreeNode } from "../../types/typeTree";
+  import type { TreeNode } from "../../types/typeNode";
   import { TreeVirtualizer } from "../../services/serviceVirtualizer.svelte";
   import HighlightText from "../primitives/HighlightText.svelte";
 

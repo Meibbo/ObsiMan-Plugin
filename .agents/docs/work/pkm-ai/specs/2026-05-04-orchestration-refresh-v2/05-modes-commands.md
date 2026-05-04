@@ -5,7 +5,7 @@ status: draft
 initiative: pkm-ai
 parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh-v2/index|pkm-ai]]"
 created: 2026-05-04T08:50:28
-updated: 2026-05-04T08:50:28
+updated: 2026-05-04T16:12:00
 tags:
   - agent/spec
 ---
@@ -19,7 +19,7 @@ tags:
 - `teach:` explain PKM-AI or workflow behavior.
 - `implement:` change code/docs against a plan.
 - `review:` review stance, findings first.
-- `refresh:` update docs, policies, migration, or memory.
+- `update:` update docs, policies, migration, or memory.
 - `health:` check system consistency and propose repairs.
 - `handoff:` compact current state and stop cleanly.
 
@@ -46,4 +46,3 @@ must document:
 
 If a toggle is active but harms clarity, the agent should explain the exception
 briefly and resume the toggle afterward.
-

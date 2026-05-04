@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { createActiveFiltersIndex } from '../../../src/services/serviceActiveFiltersIndex';
-import type { IFilterService } from '../../../src/types/contracts';
+import { createActiveFiltersIndex } from '../../../src/index/indexActiveFilters';
+import type { IFilterService } from '../../../src/types/typeContracts';
 import type { FilterRule } from '../../../src/types/typeFilter';
 
 function stubFilter(rules: FilterRule[] = []): IFilterService {

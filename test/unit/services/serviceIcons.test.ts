@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { IconicService } from '../../../src/services/serviceIcons';
-import { mockApp } from 'obsidian';
+import { mockApp } from '../../helpers/obsidian-mocks';
 
 function buildSvc(data: Record<string, unknown>) {
 	const adapterFiles = new Map<string, string>([

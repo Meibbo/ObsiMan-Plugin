@@ -20,9 +20,14 @@ Use the mode named by the user, or infer one:
 - `teach`: explain the PKM-AI system.
 - `implement`: execute a scoped plan.
 - `review`: findings first, ordered by risk.
-- `refresh`: update or migrate docs.
+- `update`: update or migrate docs.
 - `health`: check doc/system consistency.
 - `handoff`: compact current state for the next agent.
+
+## Communication Policy
+
+- **Split Caveman:** Si el modo `caveman` está activo, aplicarlo **únicamente** al chat.
+- **Documentación y Código:** Mantener siempre el máximo detalle técnico, fidelidad y contexto en archivos. La compresión de archivos de conocimiento está prohibida para evitar alucinaciones y pérdida de contexto.
 
 Micro commands are read-only and short: `skills:`, `status:`, `next:`,
 `qq:`, `question:`, `help:`.
@@ -40,9 +45,20 @@ switching agents before starting implementation.
 
 ## Line Limits
 
-- Every active agent Markdown file must stay under 200 lines.
+- Preserve source detail first. Never compress, omit, summarize away, or delete
+  technical context just to satisfy a line limit.
+- The 200-line active Markdown limit is a navigation/sharding trigger, not a
+  hard content cap. If a spec, plan, or record needs more detail, write the
+  detail and shard it into a folder with a compact `index.md` manifest.
+- Shards do not have to be thematic. If one topic needs 300 lines, split it into
+  continuation shards such as `01-topic.md` and `01-topic-part-2.md`, then put
+  the next topic in its own shard.
+- If sharding would slow down or interrupt a user-requested capture, a temporary
+  oversized source file is allowed. Add or queue a follow-up shard/manifest pass
+  instead of asking the user to restate that detail must be preserved.
 - `.agents/docs/current/status.md` and `.agents/docs/current/handoff.md`
-  must stay under 100 lines.
+  should stay under 100 lines by linking to shards or archives, not by losing
+  information.
 - Shard large specs, plans, histories, indexes, and manuals into folders with
   compact `index.md` manifests.
 

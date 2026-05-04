@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { evalNode } from '../../../src/utils/filter-evaluator';
 import type { FilterGroup, FilterRule } from '../../../src/types/typeFilter';
-import { mockTFile, type CachedMetadata, type TFile } from 'obsidian';
+import { mockTFile, type CachedMetadata, type TFile } from '../../helpers/obsidian-mocks';
 
 function rule(partial: Partial<FilterRule>): FilterRule {
 	return {

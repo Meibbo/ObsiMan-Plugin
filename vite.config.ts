@@ -25,6 +25,9 @@ const external = [
 const rootDir = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
+	resolve: {
+		conditions: ['browser'],
+	},
 	fmt: {
 		useTabs: true,
 		tabWidth: 2,
