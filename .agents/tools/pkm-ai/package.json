@@ -1,0 +1,20 @@
+{
+  "name": "vaultman-pkm-ai-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "health": "node check-doc-health.mjs",
+    "index": "node index-docs.mjs",
+    "query": "node query-docs.mjs",
+    "update": "node update-indexes.mjs",
+    "shard": "node shard-index.mjs",
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "bin": {
+    "pkm-ai-health": "./check-doc-health.mjs",
+    "pkm-ai-index": "./index-docs.mjs",
+    "pkm-ai-query": "./query-docs.mjs",
+    "pkm-ai-update": "./update-indexes.mjs",
+    "pkm-ai-shard": "./shard-index.mjs"
+  }
+}
