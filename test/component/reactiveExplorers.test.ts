@@ -10,6 +10,7 @@ import type {
 	QueueChange,
 } from '../../src/types/typeContracts';
 import type { VaultmanPlugin } from '../../src/main';
+import { mockApp, mockTFile, type TFile } from '../helpers/obsidian-mocks';
 
 class MutableIndex<TNode extends { id: string }> implements INodeIndex<TNode> {
 	private current: TNode[] = [];
@@ -64,9 +65,28 @@ describe('reactive explorer components', () => {
 	});
 
 	it('updates Content tab when contentIndex refreshes after a query', () => {
+		const file = mockTFile('note.md') as TFile;
 		const contentIndex = new MutableIndex<ContentMatch>();
 		const plugin = {
+			app: mockApp({ files: [file] }),
 			contentIndex: Object.assign(contentIndex, { setQuery: vi.fn() }),
+			filterService: {
+				filteredFiles: [file],
+				selectedFiles: [],
+			},
+			queueService: {
+				add: vi.fn(),
+				remove: vi.fn(),
+			},
+			operationsIndex: new MutableIndex<QueueChange>(),
+			activeFiltersIndex: new MutableIndex<ActiveFilterEntry>(),
+			viewService: {
+				clearSelection: vi.fn(),
+				select: vi.fn(),
+				setFocused: vi.fn(),
+			},
+			propertyIndex: { fileCount: 1 },
+			contextMenuService: { openPanelMenu: vi.fn() },
 		} as unknown as VaultmanPlugin;
 
 		app = mount(ContentTab as unknown as Component<{ plugin: VaultmanPlugin }>, {
@@ -87,8 +107,65 @@ describe('reactive explorer components', () => {
 		]);
 		flushSync();
 
-		expect(target.textContent).toContain('note.md:2');
+		expect(target.textContent).toContain('note.md');
+		expect(target.textContent).toContain('3: before needle after');
 		expect(target.textContent).toContain('needle');
+	});
+
+	it('queues a content find and replace operation from the Content tab inputs', () => {
+		const file = mockTFile('note.md') as TFile;
+		const contentIndex = new MutableIndex<ContentMatch>();
+		const queueAdd = vi.fn();
+		const plugin = {
+			app: mockApp({ files: [file] }),
+			contentIndex: Object.assign(contentIndex, { setQuery: vi.fn() }),
+			filterService: {
+				filteredFiles: [file],
+				selectedFiles: [],
+			},
+			queueService: {
+				add: queueAdd,
+			},
+			operationsIndex: new MutableIndex<QueueChange>(),
+			activeFiltersIndex: new MutableIndex<ActiveFilterEntry>(),
+			viewService: {
+				clearSelection: vi.fn(),
+				select: vi.fn(),
+				setFocused: vi.fn(),
+			},
+			propertyIndex: { fileCount: 1 },
+			contextMenuService: { openPanelMenu: vi.fn() },
+		} as unknown as VaultmanPlugin;
+
+		app = mount(ContentTab as unknown as Component<{ plugin: VaultmanPlugin; query: string }>, {
+			target,
+			props: { plugin, query: 'needle' },
+		});
+		flushSync();
+
+		const replaceInput = target.querySelector<HTMLInputElement>(
+			'input[aria-label="Replace with…"]',
+		);
+		expect(replaceInput).toBeTruthy();
+		replaceInput!.value = 'thread';
+		replaceInput!.dispatchEvent(new Event('input', { bubbles: true }));
+		flushSync();
+
+		const queueButton = [...target.querySelectorAll('button')].find((button) =>
+			button.textContent?.includes('Queue replace'),
+		) as HTMLButtonElement | undefined;
+		expect(queueButton).toBeTruthy();
+		queueButton!.click();
+		flushSync();
+
+		expect(queueAdd).toHaveBeenCalledWith(
+			expect.objectContaining({
+				type: 'content_replace',
+				find: 'needle',
+				replace: 'thread',
+				files: [file],
+			}),
+		);
 	});
 
 	it('updates Queue island when operationsIndex refreshes', () => {

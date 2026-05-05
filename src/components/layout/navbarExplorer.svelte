@@ -47,12 +47,6 @@
     addOpCount?: number;
   } = $props();
 
-  const CATEGORY_ICONS: Record<FiltersTab, [string, string]> = {
-    props: ["lucide-tag", "lucide-text-cursor-input"],
-    tags: ["lucide-hash", "lucide-git-branch"],
-    files: ["lucide-file", "lucide-folder"],
-    content: ["lucide-search", "lucide-file-text"],
-  };
   const CATEGORY_LABELS: Record<FiltersTab, [string, string]> = {
     props: [
       translate("filter.category.props"),
@@ -72,9 +66,9 @@
     ],
   };
 
-  const currentCategoryIcon = $derived(
-    CATEGORY_ICONS[activeTab]?.[filtersSearchCategory[activeTab] ?? 0] ??
-      "lucide-search",
+  const currentCategoryLabel = $derived(
+    CATEGORY_LABELS[activeTab]?.[filtersSearchCategory[activeTab] ?? 0] ??
+      translate("filter.search_mode"),
   );
 
   let headerMode = $state<HeaderMode>("header");
@@ -175,16 +169,13 @@
               ></button>
             {/if}
             <button
-              class="vm-filters-search-mode"
-              aria-label={CATEGORY_LABELS[activeTab]?.[
-                filtersSearchCategory[activeTab] ?? 0
-              ] ?? translate("filter.search_mode")}
-              title={CATEGORY_LABELS[activeTab]?.[
-                filtersSearchCategory[activeTab] ?? 0
-              ] ?? translate("filter.search_mode")}
-              use:icon={currentCategoryIcon}
+              class="vm-filters-search-mode has-label"
+              aria-label={currentCategoryLabel}
+              title={currentCategoryLabel}
               onclick={cycleSearchCategory}
-            ></button>
+            >
+              <span>{currentCategoryLabel}</span>
+            </button>
           </div>
           {#if searchFocused && historyItems.length > 0}
             <div

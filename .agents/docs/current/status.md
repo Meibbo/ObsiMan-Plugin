@@ -4,7 +4,7 @@ type: agent-status
 status: active
 parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-04T23:21:12
+updated: 2026-05-04T23:47:29
 tags:
   - agent/current
 ---
@@ -74,7 +74,11 @@ Recent work:
 - Latest hardening B slice keeps `selected-files` as a visible active-filter
   group with child file rows, depth-aware list rendering, group/count badges,
   and synchronized remove behavior for the group or individual selected files.
-- Remaining hardening: full smart `serviceFnR`/navbar semantic editor.
+- Latest hardening C slice added `serviceFnR`, an advanced navbar FnR island,
+  content-tab queue replace across filtered/selected/all files, syntax/source
+  metadata, and moved the help/read-more icon inside that advanced island.
+- Remaining hardening: deeper Obsidian/Bases/Dataview parser compatibility and
+  rename-node handoff into FnR mode.
 
 Recent metric evidence:
 
@@ -89,7 +93,7 @@ Recent metric evidence:
 
 Verification focus:
 
-- Latest run: `pnpm run lint`, `pnpm run check`, `pnpm run build`, `pnpm exec vitest run --project unit --config vitest.config.ts --fileParallelism=false`, `pnpm run test:component`, and `obsidian plugin:reload id=vaultman` pass; `obsidian dev:errors` reports no captured runtime errors.
-- Svelte autofixer on `explorerActiveFilters.svelte`, `viewList.svelte`, and `serviceViews.svelte.ts` reported no issues; remaining suggestions are structural (`SvelteMap`/`SvelteSet`, effects, and Svelte attachments).
+- Latest run: `pnpm run lint`, `pnpm run check`, `pnpm run build`, full unit Vitest with `--fileParallelism=false`, `pnpm run test:component`, and `obsidian plugin:reload id=vaultman` pass; `obsidian dev:errors` reports no captured runtime errors.
+- Svelte autofixer on FnR-touched files reported no issues except existing `frameVaultman` structural suggestions.
 - Next session should decide whether to promote V2 over V1 before staging.
 - Timestamp updates now use `.agents/tools/pkm-ai/update-frontmatter.mjs`.

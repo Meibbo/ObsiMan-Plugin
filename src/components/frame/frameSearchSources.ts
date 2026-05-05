@@ -16,9 +16,19 @@ export const SEARCH_SEMANTICS_SOURCES: SearchSemanticsSource[] = [
 		href: 'https://obsidian.md/help/bases/syntax',
 	},
 	{
+		id: 'obsidian-bases-functions',
+		label: 'Bases functions',
+		href: 'https://obsidian.md/help/bases/functions',
+	},
+	{
 		id: 'dataview-dql',
 		label: 'Dataview DQL',
 		href: 'https://blacksmithgu.github.io/obsidian-dataview/queries/dql-js-inline/',
+	},
+	{
+		id: 'regex',
+		label: 'JavaScript regex',
+		href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions',
 	},
 	{
 		id: 'javascript-replace',
@@ -29,10 +39,5 @@ export const SEARCH_SEMANTICS_SOURCES: SearchSemanticsSource[] = [
 		id: 'ant-renamer',
 		label: 'Ant Renamer',
 		href: 'https://www.antp.be/doc/renamer/regexp_en.html',
-	},
-	{
-		id: 'notebook-navigator',
-		label: 'Notebook Navigator',
-		href: 'https://github.com/johansan/notebook-navigator',
 	},
 ];

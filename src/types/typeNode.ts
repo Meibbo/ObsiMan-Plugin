@@ -41,3 +41,13 @@ export interface FileMeta {
 	isFolder: boolean;
 	folderPath: string;
 }
+
+export interface ContentMeta {
+	kind: 'file' | 'match';
+	filePath: string;
+	file: TFile | null;
+	line?: number;
+	before?: string;
+	match?: string;
+	after?: string;
+}

@@ -6,10 +6,11 @@ describe('frame search sources', () => {
 		expect(SEARCH_SEMANTICS_SOURCES.map((source) => source.id)).toEqual([
 			'obsidian-search',
 			'obsidian-bases',
+			'obsidian-bases-functions',
 			'dataview-dql',
+			'regex',
 			'javascript-replace',
 			'ant-renamer',
-			'notebook-navigator',
 		]);
 		expect(SEARCH_SEMANTICS_SOURCES.every((source) => source.href.startsWith('https://'))).toBe(
 			true,

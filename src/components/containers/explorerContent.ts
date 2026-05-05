@@ -1,0 +1,112 @@
+import type { TFile } from 'obsidian';
+import type { VaultmanPlugin } from '../../main';
+import type { ExplorerProvider } from '../../types/typeExplorer';
+import type { MenuCtx } from '../../types/typeCtxMenu';
+import type { ContentMeta, TreeNode } from '../../types/typeNode';
+import type { ContentMatch } from '../../types/typeContracts';
+
+export class explorerContent implements ExplorerProvider<ContentMeta> {
+	id = 'content';
+	private plugin: VaultmanPlugin;
+
+	constructor(plugin: VaultmanPlugin) {
+		this.plugin = plugin;
+	}
+
+	getTree(): TreeNode<ContentMeta>[] {
+		const grouped = new Map<string, ContentMatch[]>();
+		for (const match of this.plugin.contentIndex.nodes) {
+			const list = grouped.get(match.filePath) ?? [];
+			list.push(match);
+			grouped.set(match.filePath, list);
+		}
+
+		return [...grouped.entries()].map(([filePath, matches]) => {
+			const file = this.resolveFile(filePath);
+			return {
+				id: `content:file:${filePath}`,
+				label: filePath,
+				icon: 'lucide-file-text',
+				count: matches.length,
+				depth: 0,
+				meta: {
+					kind: 'file',
+					filePath,
+					file,
+				},
+				children: matches.map((match) => this.matchNode(match, file)),
+			};
+		});
+	}
+
+	getFiles(): TFile[] {
+		const files = new Map<string, TFile>();
+		for (const match of this.plugin.contentIndex.nodes) {
+			const file = this.resolveFile(match.filePath);
+			if (file) files.set(file.path, file);
+		}
+		return [...files.values()];
+	}
+
+	handleNodeClick(node: TreeNode<ContentMeta>): void {
+		const file = node.meta.file ?? this.resolveFile(node.meta.filePath);
+		if (!file) return;
+		const workspace = this.plugin.app.workspace as typeof this.plugin.app.workspace & {
+			openLinkText?: (linktext: string, sourcePath: string, newLeaf?: boolean) => unknown;
+		};
+		void workspace.openLinkText?.(file.path, '', false);
+	}
+
+	handleContextMenu(
+		node: TreeNode<ContentMeta>,
+		e: MouseEvent,
+		selectedNodes: TreeNode<ContentMeta>[] = [],
+	): void {
+		const file = node.meta.file ?? this.resolveFile(node.meta.filePath);
+		if (!file) return;
+		this.plugin.contextMenuService.openPanelMenu(
+			{
+				nodeType: 'file',
+				node,
+				selectedNodes,
+				surface: 'panel',
+				file,
+			},
+			e,
+		);
+	}
+
+	getNodeType(): MenuCtx['nodeType'] {
+		return 'file';
+	}
+
+	setSearchTerm(term: string): void {
+		this.plugin.contentIndex.setQuery(term);
+	}
+
+	private matchNode(match: ContentMatch, file: TFile | null): TreeNode<ContentMeta> {
+		const lineLabel = `${match.line + 1}: `;
+		const label = `${lineLabel}${match.before}${match.match}${match.after}`;
+		const highlightStart = lineLabel.length + match.before.length;
+		return {
+			id: `content:match:${match.id}`,
+			label,
+			icon: 'lucide-search',
+			depth: 1,
+			meta: {
+				kind: 'match',
+				filePath: match.filePath,
+				file,
+				line: match.line,
+				before: match.before,
+				match: match.match,
+				after: match.after,
+			},
+			highlights: [{ start: highlightStart, end: highlightStart + match.match.length }],
+		};
+	}
+
+	private resolveFile(path: string): TFile | null {
+		return this.plugin.app.vault.getFileByPath(path);
+	}
+}

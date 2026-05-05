@@ -49,6 +49,8 @@
 		type FiltersSearchTab,
 		type FiltersSearchState,
 	} from './frameFiltersSearch';
+	import { createFnRState } from '../../services/serviceFnR.svelte';
+	import type { FnRState } from '../../types/typeFnR';
 
 	// ─── Props ─────────────------------------...........
 
@@ -158,6 +160,7 @@
 		});
 	});
 	let filtersSearchByTab = $state<FiltersSearchState>(createFiltersSearchState());
+	let filtersFnRState = $state<FnRState>(createFnRState());
 	let filtersSearchCategory = $state<Record<FiltersTab, number>>({
 		tags: 0,
 		props: 0,
@@ -409,6 +412,7 @@
 								bind:filtersActiveTab
 								bind:filtersSearchByTab
 								bind:filtersSearchCategory
+								bind:filtersFnRState
 								bind:filtersOperationScope
 								onOperationScopeChange={setFiltersOperationScope}
 								bind:tagsExplorer

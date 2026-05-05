@@ -12,6 +12,8 @@
 	import { explorerProps } from '../containers/explorerProps';
 	import { explorerFiles } from '../containers/explorerFiles';
 	import { explorerTags } from '../containers/explorerTags';
+	import { createFnRState } from '../../services/serviceFnR.svelte';
+	import type { FnRState } from '../../types/typeFnR';
 	import {
 		addFiltersSearchHistory,
 		createFiltersSearchState,
@@ -29,6 +31,7 @@
 		filtersActiveTab = $bindable('props'),
 		filtersSearchByTab = $bindable(createFiltersSearchState()),
 		filtersSearchCategory = $bindable({ tags: 0, props: 0, files: 0, content: 0 }),
+		filtersFnRState = $bindable(createFnRState()),
 		filtersOperationScope = $bindable('auto'),
 		onOperationScopeChange,
 		filtersSortBy = $bindable('name'),
@@ -46,6 +49,7 @@
 		filtersActiveTab: FiltersSearchTab;
 		filtersSearchByTab: FiltersSearchState;
 		filtersSearchCategory: Record<FilTab, number>;
+		filtersFnRState: FnRState;
 		filtersOperationScope?: 'auto' | 'selected' | 'filtered' | 'all';
 		onOperationScopeChange?: (value: 'auto' | 'selected' | 'filtered' | 'all') => void;
 		filtersSortBy?: string;
@@ -73,13 +77,16 @@
 	const activeFiltersSearchHistory = $derived(
 		getFiltersSearchHistory(filtersSearchByTab, filtersActiveTab),
 	);
-
 	function setActiveFiltersSearch(term: string): void {
 		filtersSearchByTab = setFiltersSearch(filtersSearchByTab, filtersActiveTab, term);
 	}
 
 	function commitActiveFiltersSearch(term: string): void {
 		filtersSearchByTab = addFiltersSearchHistory(filtersSearchByTab, filtersActiveTab, term);
+	}
+
+	function setContentSearch(term: string): void {
+		filtersSearchByTab = setFiltersSearch(filtersSearchByTab, 'content', term);
 	}
 </script>
 
@@ -146,6 +153,16 @@
 		/>
 	</div>
 	<div class="vm-tab-content" class:is-active={filtersActiveTab === 'content'}>
-		<ContentTab {plugin} query={filtersSearchByTab.content} />
+		<ContentTab
+			{plugin}
+			query={filtersSearchByTab.content}
+			onQueryChange={setContentSearch}
+			bind:fnrState={filtersFnRState}
+			{selectedFilePaths}
+			bind:sortBy={filtersSortBy}
+			bind:sortDirection={filtersSortDir}
+			bind:viewMode={filtersViewMode}
+			{icon}
+		/>
 	</div>
 </div>
