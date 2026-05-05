@@ -190,9 +190,13 @@ export interface ViewCapabilities {
 	canApplyMarks?: boolean;
 }
 
+export type ViewEmptyKind = 'loading' | 'empty' | 'search' | 'filters' | 'import';
+
 export interface ViewEmptyState {
+	kind?: ViewEmptyKind;
 	label: string;
 	detail?: string;
+	icon?: string;
 }
 
 export interface ExplorerViewInput<TNode extends NodeBase = NodeBase> {

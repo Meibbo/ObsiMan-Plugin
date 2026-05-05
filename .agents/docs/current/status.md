@@ -4,7 +4,7 @@ type: agent-status
 status: active
 parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-04T23:47:29
+updated: 2026-05-05T01:13:46
 tags:
   - agent/current
 ---
@@ -37,29 +37,11 @@ Current rules:
 
 Recent work:
 
-- Implemented PKM-AI archive/glossary/metrics tooling and policy gates.
-- Doc health is clean after fixing four hardening regression frontmatters.
-- Created serviceViews plan:
+- PKM-AI archive/glossary/metrics tooling and docs policy gates are implemented.
+- serviceViews work is tracked in:
   [[.agents/docs/work/hardening/plans/2026-05-04-serviceviews-implementation/index|serviceViews plan]].
-- Implemented serviceViews Slice 0-2: `typeViews`, `ViewService`,
-  `viewList`, queue migration, and active filters migration.
-- User removed `src/superseded`; `pnpm run check` no longer reports
-  superseded reference failures.
-- Started serviceViews Slice 3: `ViewService` now maps `QueueChange` nodes to
-  semantic operation badges/state and `ActiveFilterEntry` nodes to filter
-  badges/state/highlights.
-- Repaired stale test imports after index module moves and updated
-  `popupIsland` test to the current `overlayIsland` path.
-- `test:component` now runs with `--fileParallelism=false` because the full
-  component suite reproduced a Vite/Svelte resolver race under parallel files.
-- Run Vite+/Svelte verifications sequentially; parallel `build` plus component
-  tests reproduced transient `svelte` import resolution failures, while each
-  command passed alone.
-- Unit tests now import test-only Obsidian mocks from
-  `test/helpers/obsidian-mocks` instead of relying on the Vitest `obsidian`
-  alias; integration tests keep real `obsidian` type imports.
-- `vite.config.ts` now sets `resolve.conditions: ['browser']` so production
-  builds resolve Svelte's client export.
+- Verification notes for Vite/Svelte resolver issues and Obsidian mocks are in
+  [[.agents/docs/current/handoff|handoff]].
 - Operations suite live handoff saved:
   [[.agents/docs/work/hardening/backlog/regressions/operations-suite-live-handoff|operations suite live handoff]].
 - `pressBarBench` live Obsidian probe now queues as 1 logical delete operation
@@ -79,6 +61,8 @@ Recent work:
   metadata, and moved the help/read-more icon inside that advanced island.
 - Remaining hardening: deeper Obsidian/Bases/Dataview parser compatibility and
   rename-node handoff into FnR mode.
+- Bases interop research now has a compatibility matrix:
+  [[.agents/docs/work/hardening/research/2026-05-05-bases-interop-research/04-compatibility-matrix|bases compatibility matrix]].
 
 Recent metric evidence:
 

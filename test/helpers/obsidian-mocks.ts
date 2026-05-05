@@ -193,6 +193,7 @@ export interface App {
 
 export interface Vault {
 	configDir: string;
+	getFiles(): TFile[];
 	getMarkdownFiles(): TFile[];
 	getFileByPath(path: string): TFile | null;
 	getAbstractFileByPath(path: string): TFile | TFolder | null;
@@ -283,7 +284,9 @@ export function mockTFile(path: string, options: { frontmatter?: Record<string, 
 	file.path = path;
 	const segs = path.split('/');
 	file.name = segs[segs.length - 1];
-	file.basename = file.name.replace(/\.md$/, '');
+	const dot = file.name.lastIndexOf('.');
+	file.extension = dot >= 0 ? file.name.slice(dot + 1) : '';
+	file.basename = dot >= 0 ? file.name.slice(0, dot) : file.name;
 	const parentPath = segs.slice(0, -1).join('/');
 	if (parentPath) {
 		const folder = new TFolder();
@@ -319,6 +322,7 @@ export function mockApp(opts: MockAppOptions = {}): App {
 
 	const vault: Vault = {
 		configDir: opts.configDir ?? '.obsidian',
+		getFiles: () => [...files],
 		getMarkdownFiles: () => [...files],
 		getFileByPath: (path) => files.find((f) => f.path === path) ?? null,
 		getAbstractFileByPath: (path) =>

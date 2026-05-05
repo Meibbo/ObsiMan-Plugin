@@ -69,6 +69,25 @@ describe('FilterService.applyFilters', () => {
 });
 
 describe('FilterService node mutation helpers', () => {
+	it('starts and clears with an and root group', () => {
+		const { svc } = setup();
+
+		expect(svc.activeFilter.logic).toBe('and');
+
+		svc.addNode({ ...draftRule });
+		svc.clearFilters();
+
+		expect(svc.activeFilter).toEqual(
+			expect.objectContaining({
+				type: 'group',
+				logic: 'and',
+				id: 'root',
+				children: [],
+				enabled: true,
+			}),
+		);
+	});
+
 	it('removeNodeByProperty removes has_property rule', () => {
 		const { svc } = setup();
 		svc.addNode({ ...draftRule, filterType: 'has_property' } as FilterRule);
@@ -115,6 +134,7 @@ describe('FilterService node mutation helpers', () => {
 		expect(svc.activeFilter.children).toContainEqual(
 			expect.objectContaining({
 				type: 'group',
+				logic: 'or',
 				id: 'selected-files',
 				label: '2 selected files',
 				children: [
@@ -220,6 +240,29 @@ describe('FilterService introspection', () => {
 			root: { type: 'group', logic: 'all', children: [draftRule] },
 		};
 		svc.loadTemplate(tpl);
+		expect(svc.filteredFiles.map((f) => f.path)).toEqual([a.path]);
+	});
+
+	it('loadTemplate recursively normalizes legacy group logic', () => {
+		const { svc, a } = setup();
+		const tpl: FilterTemplate = {
+			name: 'legacy',
+			root: {
+				type: 'group',
+				logic: 'all',
+				children: [{
+					type: 'group',
+					logic: 'any',
+					children: [draftRule],
+				}],
+			},
+		};
+
+		svc.loadTemplate(tpl);
+
+		expect(svc.activeFilter.logic).toBe('and');
+		const child = svc.activeFilter.children[0];
+		expect(child).toEqual(expect.objectContaining({ type: 'group', logic: 'or' }));
 		expect(svc.filteredFiles.map((f) => f.path)).toEqual([a.path]);
 	});
 

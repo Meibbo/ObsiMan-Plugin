@@ -1,4 +1,5 @@
 import type { App, TFile } from 'obsidian';
+import { normalizeGroupLogic } from '../types/typeFilter';
 import type { FilterGroup, FilterNode, FilterRule, FilterTemplate } from '../types/typeFilter';
 import type { IFilterService, IFilesIndex } from '../types/typeContracts';
 import { evalNode } from '../utils/filter-evaluator';
@@ -9,7 +10,7 @@ import { evalNode } from '../utils/filter-evaluator';
  * Also retains the full legacy API for backward compatibility.
  */
 export class FilterService implements IFilterService {
-	activeFilter = $state<FilterGroup>({ type: 'group', logic: 'all', children: [], id: 'root', enabled: true });
+	activeFilter = $state<FilterGroup>({ type: 'group', logic: 'and', children: [], id: 'root', enabled: true });
 	selectedFiles = $state<TFile[]>([]);
 	filteredFiles = $derived.by(() => this.computeFiltered());
 
@@ -70,7 +71,7 @@ export class FilterService implements IFilterService {
 
 	/** Clear all filters (show all files) */
 	clearFilters(): void {
-		this.activeFilter = { type: 'group', logic: 'all', children: [], id: 'root', enabled: true };
+		this.activeFilter = { type: 'group', logic: 'and', children: [], id: 'root', enabled: true };
 		this._searchName = '';
 		this._searchFolder = '';
 		this.fire();
@@ -202,7 +203,10 @@ export class FilterService implements IFilterService {
 		const ensureMeta = (node: FilterNode) => {
 			node.id = node.id ?? Math.random().toString(36).substring(2, 11);
 			node.enabled = node.enabled ?? true;
-			if (node.type === 'group') node.children.forEach(ensureMeta);
+			if (node.type === 'group') {
+				node.logic = normalizeGroupLogic(node.logic);
+				node.children.forEach(ensureMeta);
+			}
 		};
 		ensureMeta(this.activeFilter);
 		this.fire();
@@ -346,7 +350,7 @@ export class FilterService implements IFilterService {
 		if (selected.length > 0) {
 			children.push({
 				type: 'group',
-				logic: 'any',
+				logic: 'or',
 				id: 'selected-files',
 				kind: 'selected_files',
 				label: `${selected.length} selected file${selected.length === 1 ? '' : 's'}`,

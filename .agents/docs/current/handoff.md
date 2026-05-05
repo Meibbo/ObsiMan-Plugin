@@ -4,7 +4,7 @@ type: agent-handoff
 status: active
 parent: "[[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-04T23:47:29
+updated: 2026-05-05T01:13:46
 tags:
   - agent/current
 ---
@@ -83,13 +83,17 @@ Last known work:
   `viewTable.svelte`.
 - Docs policy updated: preserve detail first; line limits are sharding triggers,
   not content caps; temporary oversized captures are allowed if needed.
+- Bases interop research continued with API details and a compatibility matrix:
+  [[.agents/docs/work/hardening/research/2026-05-05-bases-interop-research/index|bases interop research]].
 
 Next agent should:
 
 1. Read `AGENTS.md`, [[.agents/docs/start|start]], [[.agents/docs/current/status|status]], and this file.
 2. Read the Explorer view service spec index and relevant shards.
 3. Current verification passes: `pnpm run lint`, `pnpm run check`, `pnpm run build`, full unit Vitest with `--fileParallelism=false`, `pnpm run test:component`, `obsidian plugin:reload id=vaultman`, and `obsidian dev:errors`.
-4. Continue with deeper parser compatibility and rename-node handoff into FnR mode.
-5. Review `git status`; there are unrelated/user changes in product files.
+4. Decide the first Bases interop slice before product edits; recommended slice
+   is read-only import preview.
+5. Continue with rename-node handoff into FnR mode after Bases slice is scoped.
+6. Review `git status`; there are unrelated/user changes in product files.
 
 Do not: commit without explicit user request; move AI files into `main`; use `parent_path`; compress specs/plans; base `viewTable` on current `viewGrid.svelte`.

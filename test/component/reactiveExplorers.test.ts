@@ -239,4 +239,39 @@ describe('reactive explorer components', () => {
 
 		expect(target.textContent).toContain('has: status');
 	});
+
+	it('shows active filters import/export flyout from the toolbar', () => {
+		const activeFiltersIndex = new MutableIndex<ActiveFilterEntry>();
+		const onImportBases = vi.fn();
+		const plugin = {
+			activeFiltersIndex,
+			filterService: {
+				filteredFiles: [],
+				removeNode: vi.fn(),
+				clearFilters: vi.fn(),
+			},
+		} as unknown as VaultmanPlugin;
+
+		app = mount(ExplorerActiveFilters as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: { plugin, onImportBases },
+		});
+		flushSync();
+
+		expect(target.querySelectorAll('.vm-squircle')).toHaveLength(4);
+
+		const importExport = target.querySelector<HTMLButtonElement>('[aria-label="Import/export"]');
+		expect(importExport).toBeTruthy();
+		importExport!.click();
+		flushSync();
+
+		expect(target.textContent).toContain('Import');
+		expect(target.textContent).toContain('Export');
+		expect(target.querySelector<HTMLButtonElement>('[aria-label="Export filters"]')?.disabled).toBe(true);
+
+		target.querySelector<HTMLButtonElement>('[aria-label="Import Bases filters"]')?.click();
+		flushSync();
+
+		expect(onImportBases).toHaveBeenCalledOnce();
+	});
 });

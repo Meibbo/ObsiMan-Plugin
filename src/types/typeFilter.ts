@@ -13,11 +13,20 @@ export type FilterType =
 	| 'file_folder'    // matches folder path only (not filename)
 	| 'has_tag';       // matches files with a specific tag
 
-export type GroupLogic = 'all' | 'any' | 'none';
+export type GroupLogic = 'and' | 'or' | 'not';
+export type LegacyGroupLogic = 'all' | 'any' | 'none';
+export type AnyGroupLogic = GroupLogic | LegacyGroupLogic;
+
+export function normalizeGroupLogic(logic: AnyGroupLogic): GroupLogic {
+	if (logic === 'all') return 'and';
+	if (logic === 'any') return 'or';
+	if (logic === 'none') return 'not';
+	return logic;
+}
 
 export interface FilterGroup {
 	type: 'group';
-	logic: GroupLogic;
+	logic: AnyGroupLogic;
 	children: FilterNode[];
 	id?: string;
 	label?: string;

@@ -4,7 +4,7 @@ type: architecture
 status: active
 parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-04T16:55:00
+updated: 2026-05-05T02:33:30
 tags:
   - agent/architecture
 ---
@@ -18,6 +18,12 @@ tags:
 - Archive source: frontmatter field or explicit link from a compact replacement
   back to the preserved source record.
 - Bootloader: root file that only points agents to the real router.
+- Bases import choose mode: constrained filters-page state where Vaultman shows
+  only compatible `.base`, Bases view, or markdown fenced `bases` import
+  targets and applies selected compatible filters immediately.
+- Bases interop report: structured import/export report that records applied
+  rules, preserved-but-unapplied expressions, rejected candidates, and lossiness
+  between Obsidian Bases and Vaultman.
 - Continuation shard: a follow-on shard that preserves the rest of the same
   topic when the topic itself exceeds the active page size.
 - Current handoff: concise next-agent continuity file under `current/`.

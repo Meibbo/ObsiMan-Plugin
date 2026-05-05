@@ -9,14 +9,16 @@
 
 	let {
 		plugin,
-		onClose,
+		onImportBases,
 	}: {
 		plugin: VaultmanPlugin;
 		onClose?: () => void;
+		onImportBases?: () => void;
 	} = $props();
 
 	const fallbackViewService = new ViewService();
 	let model: ExplorerRenderModel<NodeBase> = $state(emptyModel());
+	let importExportOpen = $state(false);
 
 	const fileCount = $derived(plugin.filterService.filteredFiles.length);
 	const hasItems = $derived(model.rows.length > 0);
@@ -118,6 +120,27 @@
 	function clearFilters() {
 		plugin.filterService.clearFilters();
 		plugin.filterService.clearSearchFilter?.();
+		importExportOpen = false;
+	}
+
+	function addLogicGroup() {
+		plugin.filterService.addNode({
+			type: 'group',
+			logic: 'and',
+			children: [],
+			label: 'Group',
+			enabled: true,
+		});
+		importExportOpen = false;
+	}
+
+	function toggleImportExport() {
+		importExportOpen = !importExportOpen;
+	}
+
+	function importBases() {
+		importExportOpen = false;
+		onImportBases?.();
 	}
 
 	function syncItems() {
@@ -162,16 +185,49 @@
 <div class="vm-explorer-popup-shell">
 	<div class="vm-popup-squircles" aria-label={translate('filters.active')}>
 		<button
-			class="vm-squircle"
+			class="vm-squircle is-accent"
 			disabled
-			aria-label={translate('filter.tab.props')}
-			use:icon={'lucide-list-tree'}
+			aria-label={translate('filters.popup.templates')}
+			use:icon={'lucide-book-marked'}
 		></button>
+		<div class="vm-import-export-wrap">
+			<button
+				class="vm-squircle"
+				aria-label="Import/export"
+				aria-expanded={importExportOpen}
+				onclick={toggleImportExport}
+				use:icon={'lucide-arrow-down-up'}
+			></button>
+			{#if importExportOpen}
+				<div class="vm-import-export-flyout" role="menu" aria-label="Import/export">
+					<button
+						type="button"
+						class="vm-import-export-flyout-action"
+						role="menuitem"
+						aria-label="Import Bases filters"
+						onclick={importBases}
+					>
+						<span use:icon={'lucide-download'}></span>
+						<span>Import</span>
+					</button>
+					<button
+						type="button"
+						class="vm-import-export-flyout-action"
+						role="menuitem"
+						aria-label="Export filters"
+						disabled
+					>
+						<span use:icon={'lucide-upload'}></span>
+						<span>Export</span>
+					</button>
+				</div>
+			{/if}
+		</div>
 		<button
 			class="vm-squircle"
-			disabled
-			aria-label={translate('nav.ops')}
-			use:icon={'lucide-settings-2'}
+			onclick={addLogicGroup}
+			aria-label="Add logic group"
+			use:icon={'lucide-list-plus'}
 		></button>
 		<button
 			class="vm-squircle"
@@ -179,18 +235,6 @@
 			disabled={!hasItems}
 			aria-label={translate('filters.popup.clear_all')}
 			use:icon={'lucide-eraser'}
-		></button>
-		<button
-			class="vm-squircle"
-			disabled
-			aria-label={translate('filters.popup.templates')}
-			use:icon={'lucide-book-marked'}
-		></button>
-		<button
-			class="vm-squircle is-accent"
-			onclick={onClose}
-			aria-label={translate('common.close')}
-			use:icon={'lucide-check'}
 		></button>
 	</div>
 
@@ -210,3 +254,57 @@
 		{/if}
 	</div>
 </div>
+
+<style>
+	.vm-import-export-wrap {
+		position: relative;
+		display: inline-flex;
+	}
+
+	.vm-import-export-flyout {
+		position: absolute;
+		top: calc(100% + 8px);
+		left: 50%;
+		z-index: 20;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		min-width: 132px;
+		padding: 6px;
+		border-radius: 8px;
+		background: var(--background-primary);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+		transform: translateX(-50%);
+	}
+
+	.vm-import-export-flyout-action {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+		min-height: 30px;
+		padding: 4px 8px;
+		border: 0;
+		border-radius: 6px;
+		background: transparent;
+		color: var(--text-normal);
+		font-size: 12px;
+		text-align: left;
+	}
+
+	.vm-import-export-flyout-action:hover:not(:disabled),
+	.vm-import-export-flyout-action:focus-visible:not(:disabled) {
+		background: var(--background-modifier-hover);
+	}
+
+	.vm-import-export-flyout-action:disabled {
+		color: var(--text-faint);
+	}
+
+	.vm-import-export-flyout-action span:first-child {
+		display: inline-flex;
+		width: 16px;
+		height: 16px;
+		flex: 0 0 auto;
+	}
+</style>

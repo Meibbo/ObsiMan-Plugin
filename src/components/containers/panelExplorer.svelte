@@ -6,8 +6,10 @@
     ExplorerProvider,
     ExplorerViewMode,
   } from "../../types/typeExplorer";
+  import type { ViewEmptyState } from "../../types/typeViews";
   import ViewTree from "../views/viewTree.svelte";
   import ViewGrid from "../views/viewGrid.svelte";
+  import ViewEmptyLanding from "../views/viewEmptyLanding.svelte";
   import { applyKeyboardMove, applyPointerSelection } from "../../logic/logicKeyboard";
   import type { TreeNode } from "../../types/typeNode";
   import { bubbleHiddenTreeBadges } from "../../utils/utilBadgeBubbling";
@@ -59,6 +61,11 @@
     }),
   );
   const displayNodes = $derived(bubbleHiddenTreeBadges(nodes, expandedIds));
+  const emptyState = $derived.by(() => resolveEmptyState(viewMode, searchTerm, provider));
+  const fallbackItemCount = $derived(flatFiles.length + nodes.length);
+  const fallbackState = $derived.by(() => resolveFallbackState(viewMode, fallbackItemCount, emptyState));
+  const isTreeEmpty = $derived(viewMode === "tree" && nodes.length === 0);
+  const isGridEmpty = $derived(viewMode === "grid" && flatFiles.length === 0);
 
   $effect(() => {
     // React directly to prop changes
@@ -91,8 +98,11 @@
   function refreshData() {
     if (viewMode === "tree") {
       nodes = provider.getTree();
+      flatFiles = [];
     } else {
-      flatFiles = provider.getFiles?.() || [];
+      const files = provider.getFiles?.() || [];
+      flatFiles = files;
+      nodes = files.length === 0 && viewMode !== "grid" ? provider.getTree() : [];
     }
   }
 
@@ -215,59 +225,116 @@
     const sameType = selected.filter((candidate) => provider.getNodeType?.(candidate) === clickedType);
     return sameType.length > 0 ? sameType : [node];
   }
+
+  function resolveEmptyState(
+    mode: ExplorerViewMode,
+    term: string,
+    source: ExplorerProvider<TMeta>,
+  ): ViewEmptyState {
+    const fromProvider = source.getEmptyState?.({ mode, searchTerm: term }) ?? source.empty;
+    if (fromProvider) return fromProvider;
+    if (term.trim()) {
+      return {
+        kind: "search",
+        label: "No matches",
+        detail: "Try a different search term.",
+        icon: "lucide-search",
+      };
+    }
+    if (mode === "grid") {
+      return {
+        kind: "empty",
+        label: "No files",
+        detail: "This view has no files to show.",
+        icon: "lucide-files",
+      };
+    }
+    return {
+      kind: "empty",
+      label: "No items",
+      detail: "This explorer has no items to show.",
+      icon: "lucide-inbox",
+    };
+  }
+
+  function resolveFallbackState(
+    mode: ExplorerViewMode,
+    itemCount: number,
+    empty: ViewEmptyState,
+  ): ViewEmptyState {
+    if (itemCount === 0) return empty;
+    return {
+      kind: "empty",
+      label: `${mode[0].toUpperCase()}${mode.slice(1)} view not available`,
+      detail: "Switch to tree or grid to inspect these items.",
+      icon: "lucide-layout-list",
+    };
+  }
 </script>
 
 <div class="vm-panel-explorer">
   {#if viewMode === "tree"}
     <div class="vm-tree-container">
-      <ViewTree
-        nodes={displayNodes}
-        {expandedIds}
-        selectedIds={selectedNodeIds}
-        focusedId={focusedNodeId}
-        onToggle={toggleExpand}
-        onRowClick={handleNodeClick}
-        onContextMenu={handleContextMenu}
-        onRowKeydown={handleRowKeydown}
-        onBadgeDoubleClick={handleBadgeClick}
-        {icon}
-      />
+      {#if isTreeEmpty}
+        <ViewEmptyLanding state={emptyState} {icon} />
+      {:else}
+        <ViewTree
+          nodes={displayNodes}
+          {expandedIds}
+          selectedIds={selectedNodeIds}
+          focusedId={focusedNodeId}
+          onToggle={toggleExpand}
+          onRowClick={handleNodeClick}
+          onContextMenu={handleContextMenu}
+          onRowKeydown={handleRowKeydown}
+          onBadgeDoubleClick={handleBadgeClick}
+          {icon}
+        />
+      {/if}
     </div>
   {:else if viewMode === "grid"}
     <div class="vm-grid-container">
-      <ViewGrid
-        files={flatFiles}
-        totalCount={plugin.propertyIndex.fileCount}
-        bind:selectedFiles
-        onSelectionChange={() => {}}
-        onFileClick={(file: TFile) => {
-          const node = {
-            id: file.path,
-            label: file.basename,
-            meta: { file } as TMeta,
-            icon: "",
-            depth: 0,
-          } as TreeNode<TMeta>;
-          provider.handleNodeClick(node);
-        }}
-        onContextMenu={(file: TFile, e: MouseEvent) => {
-          const node = {
-            id: file.path,
-            label: file.basename,
-            meta: { file } as TMeta,
-            icon: "",
-            depth: 0,
-          } as TreeNode<TMeta>;
-          provider.handleContextMenu(node, e);
-        }}
-        sortColumn={sortBy as "name" | "props" | "path" | "date"}
-        {sortDirection}
-        onSortChange={(col: "name" | "props" | "path" | "date", dir: "asc" | "desc") => {
-          sortBy = col;
-          sortDirection = dir;
-        }}
-        app={plugin.app}
-      />
+      {#if isGridEmpty}
+        <ViewEmptyLanding state={emptyState} {icon} />
+      {:else}
+        <ViewGrid
+          files={flatFiles}
+          totalCount={plugin.propertyIndex.fileCount}
+          bind:selectedFiles
+          onSelectionChange={() => {}}
+          onFileClick={(file: TFile) => {
+            const node = {
+              id: file.path,
+              label: file.basename,
+              meta: { file } as TMeta,
+              icon: "",
+              depth: 0,
+            } as TreeNode<TMeta>;
+            provider.handleNodeClick(node);
+          }}
+          onContextMenu={(file: TFile, e: MouseEvent) => {
+            const node = {
+              id: file.path,
+              label: file.basename,
+              meta: { file } as TMeta,
+              icon: "",
+              depth: 0,
+            } as TreeNode<TMeta>;
+            provider.handleContextMenu(node, e);
+          }}
+          sortColumn={sortBy as "name" | "props" | "path" | "date"}
+          {sortDirection}
+          onSortChange={(col: "name" | "props" | "path" | "date", dir: "asc" | "desc") => {
+            sortBy = col;
+            sortDirection = dir;
+          }}
+          app={plugin.app}
+        />
+      {/if}
+    </div>
+  {:else}
+    <div class="vm-fallback-container">
+      <ViewEmptyLanding state={fallbackState} {icon} />
     </div>
   {/if}
 </div>
@@ -295,5 +362,13 @@
     overflow: hidden;
     min-height: 0;
     height: 100%;
+  }
+  .vm-fallback-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
   }
 </style>

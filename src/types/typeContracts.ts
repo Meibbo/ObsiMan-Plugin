@@ -1,4 +1,5 @@
 import type { TFile } from 'obsidian';
+import type { BasesImportTarget } from './typeBasesInterop';
 import type { FilterGroup, FilterNode, FilterRule } from './typeFilter';
 import type { PendingChange, OperationResult } from './typeOps';
 import type { IViewService } from './typeViews';
@@ -71,6 +72,13 @@ export interface TemplateNode extends NodeBase {
   path: string;
 }
 
+export interface BasesImportTargetNode extends NodeBase {
+  path: string;
+  label: string;
+  file: TFile;
+  targets: BasesImportTarget[];
+}
+
 // ─────────────────────────────────────────────────────────
 // INodeIndex — generic index contract
 // ─────────────────────────────────────────────────────────
@@ -96,6 +104,7 @@ export type IOperationsIndex = INodeIndex<QueueChange>;
 export type IActiveFiltersIndex = INodeIndex<ActiveFilterEntry>;
 export type ICSSSnippetsIndex = INodeIndex<SnippetNode>;
 export type ITemplatesIndex = INodeIndex<TemplateNode>;
+export type IBasesImportTargetsIndex = INodeIndex<BasesImportTargetNode>;
 
 // ─────────────────────────────────────────────────────────
 // Services

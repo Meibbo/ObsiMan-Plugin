@@ -61,13 +61,19 @@
 	function initFrameState() {
 		return {
 			pageOrder: resolveFramePageOrder(plugin.settings.pageOrder),
-			overlays: new FrameOverlayController(plugin, ExplorerQueueComp, ExplorerActiveFiltersComp),
+			overlays: new FrameOverlayController(
+				plugin,
+				ExplorerQueueComp,
+				ExplorerActiveFiltersComp,
+				enterBasesImportMode,
+			),
 		};
 	}
 
 	const initialFrameState = initFrameState();
 	let pageOrder = $state<string[]>(initialFrameState.pageOrder);
 	let pageRenderKey = $state(0); // incremented on each reorder to force page content remount
+	let filtersBaseChooseMode = $state(false);
 	const pageLabels: Record<string, string> = createFramePageLabels();
 	const pageIcons: Record<string, string> = createFramePageIcons();
 	const overlays = initialFrameState.overlays;
@@ -79,6 +85,10 @@
 			plugin,
 			() => overlays.toggleQueueIsland(),
 			() => overlays.toggleFiltersIsland(),
+			{
+				filtersBaseChooseMode,
+				exitBasesImportMode,
+			},
 		),
 	);
 
@@ -109,8 +119,20 @@
 			overlays.closeFiltersIsland();
 			if (overlays.activePopup === 'active-filters') overlays.closePopup();
 		}
+		if (page !== 'filters') filtersBaseChooseMode = false;
 		activePage = page;
 		viewport.applyPageTransform(true);
+	}
+
+	function enterBasesImportMode() {
+		filtersBaseChooseMode = true;
+		filtersActiveTab = 'files';
+		if (activePage !== 'filters') activePage = 'filters';
+		viewport.applyPageTransform(true);
+	}
+
+	function exitBasesImportMode() {
+		filtersBaseChooseMode = false;
 	}
 
 	$effect(() => {
@@ -423,6 +445,7 @@
 								bind:filtersSortBy
 								bind:filtersSortDir
 								bind:filtersViewMode
+								bind:filtersBaseChooseMode
 								bind:addMode
 								{addOpCount}
 							/>

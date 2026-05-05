@@ -41,10 +41,16 @@ export function createFramePageIcons(): Record<FramePageId, string> {
 	};
 }
 
+export interface FramePageFabOptions {
+	filtersBaseChooseMode?: boolean;
+	exitBasesImportMode?: () => void;
+}
+
 export function createFramePageFabs(
 	plugin: VaultmanPlugin,
 	toggleQueueIsland: () => void,
 	toggleFiltersIsland: () => void,
+	options: FramePageFabOptions = {},
 ): Record<FramePageId, { left: FabDef | null; right: FabDef | null }> {
 	return {
 		ops: {
@@ -71,11 +77,17 @@ export function createFramePageFabs(
 				label: translate('ops.queue'),
 				action: toggleQueueIsland,
 			},
-			right: {
-				icon: 'lucide-sparkles',
-				label: translate('filters.active'),
-				action: toggleFiltersIsland,
-			},
+			right: options.filtersBaseChooseMode
+				? {
+					icon: 'lucide-x',
+					label: 'Exit Bases import',
+					action: options.exitBasesImportMode ?? (() => {}),
+				}
+				: {
+					icon: 'lucide-sparkles',
+					label: translate('filters.active'),
+					action: toggleFiltersIsland,
+				},
 		},
 	};
 }

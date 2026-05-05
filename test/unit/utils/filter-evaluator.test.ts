@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { evalNode } from '../../../src/utils/filter-evaluator';
-import type { FilterGroup, FilterRule } from '../../../src/types/typeFilter';
+import { normalizeGroupLogic } from '../../../src/types/typeFilter';
+import type { AnyGroupLogic, FilterGroup, FilterRule } from '../../../src/types/typeFilter';
 import { mockTFile, type CachedMetadata, type TFile } from '../../helpers/obsidian-mocks';
 
 function rule(partial: Partial<FilterRule>): FilterRule {
@@ -15,7 +16,7 @@ function rule(partial: Partial<FilterRule>): FilterRule {
 	};
 }
 
-function group(children: (FilterRule | FilterGroup)[], logic: 'all' | 'any' | 'none' = 'all'): FilterGroup {
+function group(children: (FilterRule | FilterGroup)[], logic: AnyGroupLogic = 'all'): FilterGroup {
 	return { type: 'group', logic, children, id: 'g', enabled: true };
 }
 
@@ -109,6 +110,26 @@ describe('evalNode', () => {
 			rule({ property: 'status', filterType: 'has_property' }),
 		], 'none');
 		expect(evalNode(g, universe, getMeta)).toEqual(new Set([c.path]));
+	});
+
+	it('evaluates and/or/not group logic names', () => {
+		const { universe, getMeta, a, b, c } = fixture();
+
+		expect(evalNode(group([rule({ filterType: 'folder', values: ['Notes'] })], 'and'), universe, getMeta)).toEqual(new Set([a.path, b.path]));
+		expect(evalNode(group([
+			rule({ filterType: 'specific_value', property: 'status', values: ['draft'] }),
+			rule({ filterType: 'folder', values: ['Archive'] }),
+		], 'or'), universe, getMeta)).toEqual(new Set([a.path, c.path]));
+		expect(evalNode(group([rule({ property: 'status', filterType: 'has_property' })], 'not'), universe, getMeta)).toEqual(new Set([c.path]));
+	});
+
+	it('normalizes legacy all/any/none group logic', () => {
+		expect(normalizeGroupLogic('all')).toBe('and');
+		expect(normalizeGroupLogic('any')).toBe('or');
+		expect(normalizeGroupLogic('none')).toBe('not');
+		expect(normalizeGroupLogic('and')).toBe('and');
+		expect(normalizeGroupLogic('or')).toBe('or');
+		expect(normalizeGroupLogic('not')).toBe('not');
 	});
 
 	it('disabled node returns empty set', () => {

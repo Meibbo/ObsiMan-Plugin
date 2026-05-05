@@ -1,5 +1,6 @@
 import { getAllTags } from 'obsidian';
 import type { TFile, CachedMetadata } from 'obsidian';
+import { normalizeGroupLogic } from '../types/typeFilter';
 import type { FilterNode, FilterGroup, FilterRule } from '../types/typeFilter';
 
 /**
@@ -34,18 +35,19 @@ function matchGroup(
 	const universePaths = new Set(universe.map((f) => f.path));
 
 	const activeChildren = group.children.filter(c => c.enabled !== false);
+	const logic = normalizeGroupLogic(group.logic);
 
 	if (activeChildren.length === 0) {
-		// Empty / All-disabled group: ALL = universe, ANY = empty, NONE = universe
-		return group.logic === 'any' ? new Set() : new Set(universePaths);
+		// Empty / all-disabled group: AND = universe, OR = empty, NOT = universe
+		return logic === 'or' ? new Set() : new Set(universePaths);
 	}
 
 	const childResults = activeChildren.map((child) =>
 		evalNode(child, universe, getMeta)
 	);
 
-	switch (group.logic) {
-		case 'all': {
+	switch (logic) {
+		case 'and': {
 			// Intersection of all children
 			let result = new Set(childResults[0]);
 			for (let i = 1; i < childResults.length; i++) {
@@ -53,7 +55,7 @@ function matchGroup(
 			}
 			return result;
 		}
-		case 'any': {
+		case 'or': {
 			// Union of all children
 			let result = new Set<string>();
 			for (const cr of childResults) {
@@ -61,7 +63,7 @@ function matchGroup(
 			}
 			return result;
 		}
-		case 'none': {
+		case 'not': {
 			// Universe minus union of all children
 			let union = new Set<string>();
 			for (const cr of childResults) {

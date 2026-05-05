@@ -5,6 +5,7 @@ export class FrameOverlayController {
 	private readonly plugin!: VaultmanPlugin;
 	private readonly queueComponent!: unknown;
 	private readonly activeFiltersComponent!: unknown;
+	private readonly onImportBases?: () => void;
 
 	activePopup = $state<PopupType | null>(null);
 	popupOpen = $state(false);
@@ -13,10 +14,16 @@ export class FrameOverlayController {
 			this.plugin.overlayState.isOpen('queue') || this.plugin.overlayState.isOpen('active-filters'),
 	);
 
-	constructor(plugin: VaultmanPlugin, queueComponent: unknown, activeFiltersComponent: unknown) {
+	constructor(
+		plugin: VaultmanPlugin,
+		queueComponent: unknown,
+		activeFiltersComponent: unknown,
+		onImportBases?: () => void,
+	) {
 		this.plugin = plugin;
 		this.queueComponent = queueComponent;
 		this.activeFiltersComponent = activeFiltersComponent;
+		this.onImportBases = onImportBases;
 	}
 
 	closePopup(): void {
@@ -68,6 +75,10 @@ export class FrameOverlayController {
 			props: {
 				plugin: this.plugin,
 				onClose: () => this.plugin.overlayState.popById('active-filters'),
+				onImportBases: () => {
+					this.closeFiltersIsland();
+					this.onImportBases?.();
+				},
 			},
 			dismissOnOutsideClick: this.plugin.settings.islandDismissOnOutsideClick,
 		});
