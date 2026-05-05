@@ -4,7 +4,7 @@
   import BtnSelection from "../../btnSelection.svelte";
   import type { BtnSelectionItem } from "../../../types/typePrimitives";
 
-  type FiltersTab = "props" | "files" | "tags";
+  type FiltersTab = "props" | "files" | "tags" | "content";
   type ViewMode = "tree" | "dnd" | "grid" | "cards";
 
   type PillDef = {
@@ -67,6 +67,11 @@
       { id: "date", labelKey: "viewmode.pill.date", defaultOn: false },
       { id: "tags", labelKey: "viewmode.pill.tags", defaultOn: false },
       { id: "path", labelKey: "viewmode.pill.path", defaultOn: false },
+    ],
+    content: [
+      { id: "path", labelKey: "viewmode.pill.path", defaultOn: true },
+      { id: "text", labelKey: "viewmode.pill.text", defaultOn: true },
+      { id: "date", labelKey: "viewmode.pill.date", defaultOn: false },
     ],
   };
 

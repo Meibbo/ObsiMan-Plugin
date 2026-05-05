@@ -4,7 +4,7 @@ type: agent-status
 status: active
 parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-04T19:49:45
+updated: 2026-05-04T23:21:12
 tags:
   - agent/current
 ---
@@ -20,12 +20,9 @@ State:
 - V2 plan draft: `.agents/docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/`.
 - Bootstrap, migration, backlog, tools, and initial `vm-*` skills are implemented.
 - `.agents/tools/pkm-ai/update-frontmatter.mjs` is implemented and tested.
-- PKM-AI now names working memory, archive-before-delete, startup-without-prompt, and
-  tool observation rules.
-- Line limits now explicitly mean shard/manifest routing, not lossy compression
-  or deletion of source detail.
-- V2 exists because V1 overcompressed details from the design chat and should
-  not be treated as the final knowledge-preserving version.
+- PKM-AI now names working memory, archive-before-delete, startup-without-prompt, and tool observation rules.
+- Line limits now explicitly mean shard/manifest routing, not lossy compression or deletion of source detail.
+- V2 exists because V1 overcompressed details from the design chat and should not be treated as the final knowledge-preserving version.
 - `main` remains the release path with zero AI files.
 - Current item: [[.agents/docs/work/pkm-ai/items/vm-0001-pkm-ai-orchestration-refresh|VM-0001]] in `verify`.
 
@@ -67,8 +64,17 @@ Recent work:
   [[.agents/docs/work/hardening/backlog/regressions/operations-suite-live-handoff|operations suite live handoff]].
 - `pressBarBench` live Obsidian probe now queues as 1 logical delete operation
   across 2 files, and props/tags explorer caches are invalidated per read.
-- Remaining hardening: badge bubbling, smart `serviceFnR`/navbar searchbox,
-  file-node selection filters, and `logicKeyboard` multi-select/navigation.
+- Continued hardening after the operations suite fix:
+  `logicKeyboard` now drives explorer selection/focus; collapsed child badges
+  bubble to parent indicators; queue badges remove their logical operation on
+  click; file node activation creates a replaceable selected-files filter group.
+- Latest hardening A slice added parent auto-expand for search/small trees,
+  navbar read-more sources, 3-term per-tab search history, and file search
+  active filter rules.
+- Latest hardening B slice keeps `selected-files` as a visible active-filter
+  group with child file rows, depth-aware list rendering, group/count badges,
+  and synchronized remove behavior for the group or individual selected files.
+- Remaining hardening: full smart `serviceFnR`/navbar semantic editor.
 
 Recent metric evidence:
 
@@ -83,10 +89,7 @@ Recent metric evidence:
 
 Verification focus:
 
-- Latest run: `pnpm run lint`, `pnpm run check`, `pnpm run build`,
-  `pnpm run test:unit`, and `pnpm run test:component` pass.
-- Svelte autofixer on `src/services/serviceViews.svelte.ts` reported no issues;
-  it suggested SvelteMap/SvelteSet for existing private maps/sets, left as
-  explicit subscription state for this slice.
+- Latest run: `pnpm run lint`, `pnpm run check`, `pnpm run build`, `pnpm exec vitest run --project unit --config vitest.config.ts --fileParallelism=false`, `pnpm run test:component`, and `obsidian plugin:reload id=vaultman` pass; `obsidian dev:errors` reports no captured runtime errors.
+- Svelte autofixer on `explorerActiveFilters.svelte`, `viewList.svelte`, and `serviceViews.svelte.ts` reported no issues; remaining suggestions are structural (`SvelteMap`/`SvelteSet`, effects, and Svelte attachments).
 - Next session should decide whether to promote V2 over V1 before staging.
 - Timestamp updates now use `.agents/tools/pkm-ai/update-frontmatter.mjs`.

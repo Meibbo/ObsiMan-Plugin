@@ -51,6 +51,7 @@ describe('explorerTags', () => {
 			makePlugin([
 				{
 					id: 'filter-project',
+					kind: 'rule',
 					rule: {
 						id: 'filter-project',
 						type: 'rule',

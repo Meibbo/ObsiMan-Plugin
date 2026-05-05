@@ -455,6 +455,9 @@ export const en: Record<string, string> = {
 	'filter.sort_btn':     'Sort',
 	'filter.search_clear': 'Clear search',
 	'filter.search_mode':  'Search mode',
+	'filter.search_help': 'Search syntax help',
+	'filter.search_read_more': 'Read more',
+	'filter.search_history': 'Recent searches',
 
 	// Sort popup (Iter 17)
 	'sort.by.name':    'Name',

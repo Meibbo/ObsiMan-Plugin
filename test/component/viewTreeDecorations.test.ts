@@ -84,4 +84,73 @@ describe('ViewTree decorations', () => {
 
 		expect(target.querySelectorAll('.vm-badge')).toHaveLength(2);
 	});
+
+	it('projects inherited badges into a child badge indicator', () => {
+		const nodes: TreeNode[] = [
+			{
+				id: 'status',
+				label: 'status',
+				depth: 0,
+				meta: {},
+				badges: [
+					{
+						text: 'delete',
+						icon: 'lucide-trash-2',
+						color: 'red',
+						queueIndex: 0,
+						isInherited: true,
+					},
+				],
+			},
+		];
+
+		app = mount(ViewTree as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: {
+				nodes,
+				expandedIds: new Set<string>(),
+				onToggle: vi.fn(),
+				onRowClick: vi.fn(),
+				onContextMenu: vi.fn(),
+				icon: vi.fn(() => ({ update: vi.fn() })),
+			},
+		});
+		flushSync();
+
+		expect(target.querySelector('.vm-tree-child-badge-indicator')).toBeTruthy();
+		expect(target.querySelectorAll('.vm-tree-child-badge-pill .vm-badge.is-inherited')).toHaveLength(1);
+	});
+
+	it('removes a queued badge with a single click without triggering row activation', () => {
+		const onBadgeClick = vi.fn();
+		const onRowClick = vi.fn();
+		const nodes: TreeNode[] = [
+			{
+				id: 'status',
+				label: 'status',
+				depth: 0,
+				meta: {},
+				badges: [{ text: 'delete', icon: 'lucide-trash-2', color: 'red', queueIndex: 3 }],
+			},
+		];
+
+		app = mount(ViewTree as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: {
+				nodes,
+				expandedIds: new Set<string>(),
+				onToggle: vi.fn(),
+				onRowClick,
+				onContextMenu: vi.fn(),
+				onBadgeDoubleClick: onBadgeClick,
+				icon: vi.fn(() => ({ update: vi.fn() })),
+			},
+		});
+		flushSync();
+
+		(target.querySelector('.vm-badge.is-undoable') as HTMLElement).click();
+
+		expect(onBadgeClick).toHaveBeenCalledWith(3);
+		expect(onRowClick).not.toHaveBeenCalled();
+	});
 });

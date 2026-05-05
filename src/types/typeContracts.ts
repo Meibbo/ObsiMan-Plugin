@@ -43,9 +43,23 @@ export interface QueueChange extends NodeBase {
   group: string; // e.g. operation type
 }
 
-export interface ActiveFilterEntry extends NodeBase {
+export interface ActiveFilterRuleEntry extends NodeBase {
+  kind: 'rule';
   rule: FilterRule;
+  parent?: FilterGroup;
+  depth?: number;
+  source?: 'tree' | 'search';
 }
+
+export interface ActiveFilterGroupEntry extends NodeBase {
+  kind: 'group';
+  group: FilterGroup;
+  parent?: FilterGroup;
+  depth?: number;
+  source?: 'tree' | 'search';
+}
+
+export type ActiveFilterEntry = ActiveFilterRuleEntry | ActiveFilterGroupEntry;
 
 export interface SnippetNode extends NodeBase {
   name: string;
@@ -96,7 +110,12 @@ export interface IFilterService {
   addNode(node: FilterNode, parent?: FilterGroup): void;
   removeNode(node: FilterNode, parent?: FilterGroup): void;
   removeNodeByProperty(prop: string, value?: string): void;
+  setSearchFilter?(name: string, folder: string): void;
+  getSearchFilters?(): { name: string; folder: string };
+  getSearchFilterRules?(): FilterRule[];
+  clearSearchFilter?(kind?: 'name' | 'folder' | 'all'): void;
   setSelectedFiles(files: TFile[]): void;
+  setSelectedFileFilter?(files: TFile[]): void;
   subscribe(cb: () => void): () => void;
 }
 

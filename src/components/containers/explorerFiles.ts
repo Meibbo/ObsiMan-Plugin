@@ -113,28 +113,38 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 	}
 
 	handleNodeClick(node: TreeNode<FileMeta>): void {
-		const meta = node.meta;
-		if (!meta.isFolder && meta.file) {
-			if (this.addMode) {
-				new PropertyManagerModal(
-					this.plugin.app,
-					this.plugin.propertyIndex,
-					[meta.file],
-					(change) => void this.plugin.queueService.add(change),
-				).open();
-				return;
-			}
-			void this.plugin.app.workspace.openLinkText(meta.file.path, '', false);
-		}
+		this.handleNodeSelection([node]);
 	}
 
-	handleContextMenu(node: TreeNode<FileMeta>, e: MouseEvent): void {
+	handleNodeSelection(nodes: TreeNode<FileMeta>[]): void {
+		const files = nodes
+			.map((node) => node.meta)
+			.filter((meta) => !meta.isFolder && Boolean(meta.file))
+			.map((meta) => meta.file!);
+		if (files.length === 0) return;
+		if (this.addMode) {
+			new PropertyManagerModal(
+				this.plugin.app,
+				this.plugin.propertyIndex,
+				files,
+				(change) => void this.plugin.queueService.add(change),
+			).open();
+			return;
+		}
+		this.setSelectedFilesFilter(files);
+	}
+
+	handleContextMenu(node: TreeNode<FileMeta>, e: MouseEvent, selectedNodes: TreeNode<FileMeta>[] = []): void {
 		const meta = node.meta;
 		if (meta.isFolder || !meta.file) return;
 		this.plugin.contextMenuService.openPanelMenu(
-			{ nodeType: 'file', node: node, surface: 'panel', file: meta.file },
+			{ nodeType: 'file', node: node, selectedNodes, surface: 'panel', file: meta.file },
 			e,
 		);
+	}
+
+	getNodeType(node: TreeNode<FileMeta>): 'file' | 'folder' {
+		return node.meta.isFolder ? 'folder' : 'file';
 	}
 
 	setSearchTerm(term: string): void {
@@ -168,5 +178,16 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 			}
 			return dir * a.basename.localeCompare(b.basename);
 		});
+	}
+
+	private setSelectedFilesFilter(files: TFile[]): void {
+		const filterService = this.plugin.filterService as typeof this.plugin.filterService & {
+			setSelectedFileFilter?: (selected: TFile[]) => void;
+		};
+		if (filterService.setSelectedFileFilter) {
+			filterService.setSelectedFileFilter(files);
+			return;
+		}
+		filterService.setSelectedFiles(files);
 	}
 }

@@ -4,7 +4,7 @@ type: agent-handoff
 status: active
 parent: "[[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-04T19:49:45
+updated: 2026-05-04T23:21:12
 tags:
   - agent/current
 ---
@@ -64,8 +64,18 @@ Last known work:
 - `pressBarBench` live probe queues as one logical delete op over two files;
   props/tags explorers now invalidate cached trees on read to avoid stale
   metadata after core Obsidian or Vaultman changes.
+- Follow-up hardening implemented badge bubbling for collapsed tree descendants,
+  click-to-remove queue badges, file-node activation into selected-files
+  filters, and the shared `logicKeyboard` explorer selection path.
 - Queue and active filters now render through shared `ViewList` models while
   keeping popup shell actions in their explorer components.
+- Latest hardening A slice added parent auto-expand for search/small trees,
+  navbar help/read-more links, 3-term per-tab search history, and file search
+  terms as active filter rules.
+- Latest hardening B slice added `selected-files` hierarchy to active filters:
+  `indexActiveFilters` emits a parent group row plus file children, `ViewList`
+  renders row depth, and `explorerActiveFilters` removes the group or child
+  files through `setSelectedFileFilter` so `selectedFiles` stays synchronized.
 - `viewGrid.svelte` is considered failed table debt and should not seed
   `viewTable.svelte`.
 - Docs policy updated: preserve detail first; line limits are sharding triggers,
@@ -75,12 +85,8 @@ Next agent should:
 
 1. Read `AGENTS.md`, [[.agents/docs/start|start]], [[.agents/docs/current/status|status]], and this file.
 2. Read the Explorer view service spec index and relevant shards.
-3. Current verification passes: `pnpm run check`, `pnpm run build`,
-   `pnpm run test:unit`, `pnpm run test:component`, and `pnpm run lint`
-   (lint exits 0 with 0 warnings).
-4. Continue with badge bubbling, smart `serviceFnR` in navbar searchbox,
-   file-node click-to-filter selection groups, and `logicKeyboard`
-   multi-select/navigation.
+3. Current verification passes: `pnpm run lint`, `pnpm run check`, `pnpm run build`, full unit Vitest with `--fileParallelism=false`, `pnpm run test:component`, `obsidian plugin:reload id=vaultman`, and `obsidian dev:errors`.
+4. Continue with smart `serviceFnR` in the navbar searchbox.
 5. Review `git status`; there are unrelated/user changes in product files.
 
 Do not:

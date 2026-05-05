@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { createActiveFiltersIndex } from '../../../src/index/indexActiveFilters';
-import type { IFilterService } from '../../../src/types/typeContracts';
-import type { FilterRule } from '../../../src/types/typeFilter';
+import type { ActiveFilterEntry, IFilterService } from '../../../src/types/typeContracts';
+import type { FilterGroup, FilterNode, FilterRule } from '../../../src/types/typeFilter';
 
-function stubFilter(rules: FilterRule[] = []): IFilterService {
+function stubFilter(rules: FilterNode[] = []): IFilterService {
 	return {
 		activeFilter: {
 			type: 'group',
@@ -130,5 +130,76 @@ describe('serviceActiveFiltersIndex', () => {
 		expect(idx.nodes.length).toBe(2);
 		expect(idx.nodes[0].rule.property).toBe('a');
 		expect(idx.nodes[1].rule.property).toBe('b');
+	});
+
+	it('keeps selected-files as a group row with file children', async () => {
+		const selectedGroup: FilterGroup = {
+			type: 'group',
+			logic: 'any',
+			id: 'selected-files',
+			kind: 'selected_files',
+			label: '2 selected files',
+			children: [
+				{
+					type: 'rule',
+					filterType: 'file_path',
+					property: '',
+					values: ['Notes/A.md'],
+					id: 'selected-file:Notes/A.md',
+				},
+				{
+					type: 'rule',
+					filterType: 'file_path',
+					property: '',
+					values: ['Notes/B.md'],
+					id: 'selected-file:Notes/B.md',
+				},
+			],
+		};
+		const idx = createActiveFiltersIndex(stubFilter([selectedGroup]));
+		await idx.refresh();
+
+		const nodes = idx.nodes as Array<ActiveFilterEntry & { group?: FilterGroup }>;
+
+		expect(nodes.map((entry) => entry.id)).toEqual([
+			'selected-files',
+			'selected-file:Notes/A.md',
+			'selected-file:Notes/B.md',
+		]);
+		expect(nodes.map((entry) => entry.kind)).toEqual(['group', 'rule', 'rule']);
+		expect(nodes.map((entry) => entry.depth)).toEqual([0, 1, 1]);
+		expect(nodes[0].group).toBe(selectedGroup);
+		expect(nodes[1].parent).toBe(selectedGroup);
+		expect(nodes[2].parent).toBe(selectedGroup);
+	});
+
+	it('includes file explorer search terms as virtual active filter rules', async () => {
+		const filter = {
+			...stubFilter([]),
+			getSearchFilterRules: () => [
+				{
+					type: 'rule',
+					filterType: 'file_name',
+					property: '',
+					values: ['daily'],
+					id: 'search:file_name',
+					enabled: true,
+				},
+				{
+					type: 'rule',
+					filterType: 'file_folder',
+					property: '',
+					values: ['Journal'],
+					id: 'search:file_folder',
+					enabled: true,
+				},
+			],
+		};
+
+		const idx = createActiveFiltersIndex(filter);
+		await idx.refresh();
+
+		expect(idx.nodes.map((entry) => entry.id)).toEqual(['search:file_name', 'search:file_folder']);
+		expect(idx.nodes.every((entry) => entry.source === 'search')).toBe(true);
 	});
 });

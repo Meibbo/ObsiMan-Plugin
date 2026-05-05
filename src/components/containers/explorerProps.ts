@@ -1,3 +1,4 @@
+import type { TFile } from 'obsidian';
 import { PropsLogic } from '../../logic/logicProps';
 import type { TreeNode, PropMeta } from '../../types/typeNode';
 import { DELETE_PROP, NATIVE_RENAME_PROP } from '../../types/typeOps';
@@ -178,7 +179,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 				property: meta.propName,
 				action: 'add',
 				details: `Add property "${meta.propName}"`,
-				files: this.plugin.filterService.filteredFiles,
+				files: this.operationScopeFiles(),
 				customLogic: true,
 				logicFunc: (_file, fm) => {
 					if (meta.propName in fm) return null;
@@ -190,13 +191,22 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 
 		// Logic to toggle filter...
 		if (meta.isValueNode) {
+			const value = meta.rawValue ?? '';
+			if (this.plugin.filterService.hasValueFilter(meta.propName, value)) {
+				void this.plugin.filterService.removeNodeByProperty(meta.propName, value);
+				return;
+			}
 			void this.plugin.filterService.addNode({
 				type: 'rule',
 				filterType: 'specific_value',
 				property: meta.propName,
-				values: [meta.rawValue ?? ''],
+				values: [value],
 			});
 		} else {
+			if (this.plugin.filterService.hasPropFilter(meta.propName)) {
+				void this.plugin.filterService.removeNodeByProperty(meta.propName);
+				return;
+			}
 			void this.plugin.filterService.addNode({
 				type: 'rule',
 				filterType: 'has_property',
@@ -245,7 +255,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			property: canonicalName,
 			action: 'rename',
 			details: `Rename property "${propName}" → "${newName}"`,
-			files: this.filesWithProperty(propName),
+			files: this.scopedFilesWithProperty(propName),
 			customLogic: true,
 			logicFunc: (_file, fm) => {
 				const actualKey = frontmatterKey(fm, propName);
@@ -267,7 +277,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			property: canonicalName,
 			action: 'delete',
 			details: `Bulk delete property "${propName}"`,
-			files: this.filesWithProperty(propName),
+			files: this.scopedFilesWithProperty(propName),
 			customLogic: true,
 			logicFunc: (_file, fm) => {
 				const actualKey = frontmatterKey(fm, propName);
@@ -284,7 +294,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			property: canonicalName,
 			action: 'change_type',
 			details: `Change type of "${propName}" to ${newType}`,
-			files: this.filesWithProperty(propName),
+			files: this.scopedFilesWithProperty(propName),
 			customLogic: true,
 			logicFunc: (_file, fm) => {
 				const actualKey = frontmatterKey(fm, propName);
@@ -302,11 +312,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			property: propName,
 			action: 'set',
 			details: `Rename value "${oldValue}" → "${newVal}"`,
-			files: this.plugin.app.vault.getMarkdownFiles().filter((f) => {
-				const fm = this.plugin.app.metadataCache.getFileCache(f)?.frontmatter ?? {};
-				const actualKey = frontmatterKey(fm, propName);
-				return Boolean(actualKey && valueContains(fm[actualKey], oldValue));
-			}),
+			files: this.scopedFilesWithValue(propName, oldValue),
 			value: newVal,
 			oldValue: oldValue,
 			customLogic: true,
@@ -324,11 +330,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			property: propName,
 			action: 'delete',
 			details: `Delete value "${oldValue}" from "${propName}"`,
-			files: this.plugin.app.vault.getMarkdownFiles().filter((f) => {
-				const fm = this.plugin.app.metadataCache.getFileCache(f)?.frontmatter ?? {};
-				const actualKey = frontmatterKey(fm, propName);
-				return Boolean(actualKey && valueContains(fm[actualKey], oldValue));
-			}),
+			files: this.scopedFilesWithValue(propName, oldValue),
 			customLogic: true,
 			logicFunc: (_file, fm) => {
 				const actualKey = frontmatterKey(fm, propName);
@@ -346,11 +348,32 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 		return contextNodes<PropMeta>(ctx).filter((node) => node.meta.isValueNode);
 	}
 
-	private filesWithProperty(propName: string): import('obsidian').TFile[] {
-		return this.plugin.app.vault.getMarkdownFiles().filter((file) => {
+	private scopedFilesWithProperty(propName: string): TFile[] {
+		return this.operationScopeFiles().filter((file) => {
 			const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
 			return Boolean(frontmatterKey(fm, propName));
 		});
+	}
+
+	private scopedFilesWithValue(propName: string, value: string): TFile[] {
+		return this.operationScopeFiles().filter((file) => {
+			const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
+			const actualKey = frontmatterKey(fm, propName);
+			return Boolean(actualKey && valueContains(fm[actualKey], value));
+		});
+	}
+
+	private operationScopeFiles(): TFile[] {
+		const allFiles = this.plugin.app.vault.getMarkdownFiles();
+		const filteredFiles = [...(this.plugin.filterService.filteredFiles ?? [])] as TFile[];
+		const selectedFiles = [...(this.plugin.filterService.selectedFiles ?? [])] as TFile[];
+		const scope = this.plugin.settings?.explorerOperationScope ?? 'filtered';
+		if (scope === 'all') return allFiles;
+		if (scope === 'selected') return selectedFiles;
+		if (scope === 'filtered') return filteredFiles.length > 0 ? filteredFiles : allFiles;
+		if (selectedFiles.length > 0) return selectedFiles;
+		if (filteredFiles.length > 0) return filteredFiles;
+		return allFiles;
 	}
 
 	private canonicalPropName(propName: string): string {
@@ -365,7 +388,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 
 function contextNodes<TMeta>(ctx: MenuCtx): TreeNode<TMeta>[] {
 	const selected = (ctx.selectedNodes ?? []) as TreeNode<TMeta>[];
-	return selected.length > 0 ? selected : [ctx.node as TreeNode<TMeta>];
+	return (selected.length > 0 ? selected : [ctx.node as TreeNode<TMeta>]).filter(Boolean);
 }
 
 function frontmatterKey(fm: Record<string, unknown>, propName: string): string | null {

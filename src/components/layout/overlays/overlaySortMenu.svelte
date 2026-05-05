@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { translate } from "../../../index/i18n/lang";
 
-	type FiltersTab = "props" | "files" | "tags";
+	type FiltersTab = "props" | "files" | "tags" | "content";
 
 	type SortOption = {
 		id: string;
@@ -60,6 +60,24 @@
 				labelKey: "sort.by.columns",
 			},
 		],
+		content: [
+			{
+				id: "name",
+				iconName: "lucide-a-large-small",
+				labelKey: "sort.by.name",
+			},
+			{ id: "count", iconName: "lucide-hash", labelKey: "sort.by.count" },
+			{
+				id: "date",
+				iconName: "lucide-calendar",
+				labelKey: "sort.by.date",
+			},
+			{
+				id: "columns",
+				iconName: "lucide-file-text",
+				labelKey: "filter.tab.content",
+			},
+		],
 	};
 
 	const DRAWER_OPTIONS: Record<"props" | "tags", string[]> = {
@@ -72,18 +90,23 @@
 		onClose,
 		sortBy = $bindable("name"),
 		sortDir = $bindable("asc"),
+		operationScope = $bindable("auto"),
+		onOperationScopeChange,
 		icon,
 	}: {
 		activeTab: FiltersTab;
 		onClose: () => void;
 		sortBy: string;
 		sortDir: "asc" | "desc";
+		operationScope: "auto" | "selected" | "filtered" | "all";
+		onOperationScopeChange?: (
+			value: "auto" | "selected" | "filtered" | "all",
+		) => void;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	} = $props();
 
 	let drawerOpen = $state(false);
 	let vertTopActive = $state(false);
-	let activeScope = $state("all");
 
 	const DEFAULT_DIR: Record<string, "asc" | "desc"> = {
 		name: "asc",
@@ -125,7 +148,7 @@
 <div class="vm-sort-popup">
 	<!-- Vert-col: absolute, floats left over tab content -->
 	<div class="vm-sort-vertcol">
-		{#if activeTab !== "files"}
+		{#if activeTab === "props" || activeTab === "tags"}
 			<div
 				class="vm-sort-vertcol-btn"
 				class:is-active={vertTopActive}
@@ -161,9 +184,9 @@
 			tabindex="0"
 			use:icon={vertBotIcon}
 		></div>
-		{#if drawerOpen && activeTab !== "files"}
+		{#if drawerOpen && (activeTab === "props" || activeTab === "tags")}
 			<div class="vm-sort-vertcol-drawer">
-				{#each DRAWER_OPTIONS[activeTab] as opt}
+				{#each DRAWER_OPTIONS[activeTab] as opt (opt)}
 					<div class="vm-sort-drawer-item">{opt}</div>
 				{/each}
 			</div>
@@ -176,9 +199,11 @@
 		<div class="vm-sort-row vm-sort-row-controls">
 			<select
 				class="vm-sort-scope-select"
-				bind:value={activeScope}
+				bind:value={operationScope}
+				onchange={() => onOperationScopeChange?.(operationScope)}
 				aria-label={translate("sort.scope.label")}
 			>
+				<option value="auto">{translate("settings.scope.auto")}</option>
 				<option value="all">{translate("sort.scope.all")}</option>
 				<option value="filtered"
 					>{translate("sort.scope.filtered")}</option

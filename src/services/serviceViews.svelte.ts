@@ -161,6 +161,7 @@ export class ViewService implements IViewService {
 			label,
 			detail: input.getDetail?.(node),
 			icon: layers.icons?.[0]?.icon,
+			depth: (node as { depth?: number }).depth,
 			cells: [],
 			layers: {
 				...layers,
@@ -283,6 +284,7 @@ function operationLayersFor(node: NodeBase): ViewLayers {
 
 function filterLayersFor(node: NodeBase, label: string): ViewLayers {
 	if (!isActiveFilterEntry(node)) return {};
+	if (node.kind === 'group') return filterGroupLayersFor(node);
 	const enabled = node.rule.enabled !== false;
 	return {
 		icons: [
@@ -306,6 +308,44 @@ function filterLayersFor(node: NodeBase, label: string): ViewLayers {
 		},
 		highlights: {
 			filter: filterRangesForRule(label, node.rule),
+		},
+		state: {
+			activeFilter: enabled || undefined,
+			disabled: enabled ? undefined : true,
+		},
+	};
+}
+
+function filterGroupLayersFor(node: ActiveFilterEntry): ViewLayers {
+	if (node.kind !== 'group') return {};
+	const enabled = node.group.enabled !== false;
+	const label = node.group.kind === 'selected_files' ? 'selected files' : node.group.logic;
+	return {
+		icons: [
+			{
+				id: `${node.id}:filter-group-icon`,
+				icon: 'lucide-list-filter',
+				source: 'filter',
+			},
+		],
+		badges: {
+			filters: [
+				{
+					id: `${node.id}:filter-group`,
+					label,
+					icon: 'lucide-list-filter',
+					tone: enabled ? 'info' : 'neutral',
+					sourceId: node.id,
+					actionId: 'remove',
+				},
+			],
+			counts: [
+				{
+					id: `${node.id}:filter-group-count`,
+					label: String(node.group.children.length),
+					tone: 'neutral',
+				},
+			],
 		},
 		state: {
 			activeFilter: enabled || undefined,
@@ -358,8 +398,9 @@ function matchedActiveFilterLayersFor(
 	if (!activeFilters || activeFilters.length === 0) return {};
 	const target = semanticTargetFor(node, context);
 	const matches = activeFilters
-		.map((entry, index) => ({ entry, index }))
-		.filter(({ entry }) => filterMatchesTarget(entry.rule, target));
+		.flatMap((entry, index) =>
+			isActiveFilterRuleEntry(entry) && filterMatchesTarget(entry.rule, target) ? [{ entry, index }] : [],
+		);
 	if (matches.length === 0) return {};
 
 	const badges: ViewBadge[] = matches.map(({ entry, index }) => {
@@ -486,6 +527,8 @@ function filterMatchesTarget(rule: FilterRule, target: SemanticTarget): boolean 
 		case 'file_name':
 		case 'file_name_exclude':
 			return target.kind === 'file' && rule.values.some((value) => targetMatchesFileName(target, value));
+		case 'file_path':
+			return target.kind === 'file' && rule.values.some((value) => normalizePath(value) === target.filePath);
 		default:
 			return false;
 	}
@@ -595,8 +638,24 @@ function isQueueChange(node: NodeBase): node is QueueChange {
 }
 
 function isActiveFilterEntry(node: NodeBase): node is ActiveFilterEntry {
-	const candidate = node as Partial<ActiveFilterEntry>;
-	return Boolean(candidate.rule && candidate.rule.type === 'rule');
+	const candidate = node as {
+		kind?: string;
+		rule?: { type?: string };
+		group?: { type?: string };
+	};
+	return Boolean(
+		(candidate.kind === 'rule' && candidate.rule?.type === 'rule') ||
+			(candidate.kind === 'group' && candidate.group?.type === 'group') ||
+			candidate.rule?.type === 'rule',
+	);
+}
+
+function isActiveFilterRuleEntry(node: ActiveFilterEntry): node is Extract<ActiveFilterEntry, { kind: 'rule' }> {
+	const candidate = node as {
+		kind?: string;
+		rule?: { type?: string };
+	};
+	return candidate.kind !== 'group' && candidate.rule?.type === 'rule';
 }
 
 function mergeLayers(primary: ViewLayers, secondary: ViewLayers): ViewLayers {

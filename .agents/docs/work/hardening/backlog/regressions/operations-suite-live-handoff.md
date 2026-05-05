@@ -5,7 +5,7 @@ status: active
 initiative: hardening
 parent: "[[.agents/docs/work/hardening/index|hardening]]"
 created: 2026-05-04T19:49:00
-updated: 2026-05-04T19:49:45
+updated: 2026-05-04T21:00:23
 tags:
   - agent/handoff
   - hardening/logic
@@ -39,6 +39,10 @@ User-reported operation suite regressions:
 - `ViewService` maps semantic operations and active filters onto prop, value, tag, and file rows.
 - `panelExplorer.svelte` passes `operationsIndex` and `activeFiltersIndex` into explorer providers for row state.
 - `explorerProps` and `explorerTags` now invalidate their internal logic cache before reading the tree, preventing stale lists after external Obsidian metadata changes.
+- `logicKeyboard` drives tree selection/focus and panel activation can apply to compatible selected nodes.
+- Collapsed tree descendants bubble operation/filter badges to the visible parent as inherited child indicators.
+- Queue badges now remove the matching logical queue operation on single click.
+- File node activation no longer opens the note by default; it creates a replaceable selected-files filter group with exact `file_path` child rules.
 
 ## Live Obsidian Evidence
 
@@ -69,10 +73,7 @@ After `pnpm run build` and `obsidian plugin:reload id=vaultman`, Obsidian CLI co
 
 ## Deferred Requirements
 
-- Badge bubbling remains unfinished. Use the Explorer view service spec, especially
-  [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/13-hierarchical-badge-bubbling|hierarchical badge bubbling]].
 - Property rename still opens a modal. Next design should route rename into the smart navbar searchbox/FnR surface instead.
 - `serviceFnR` is not implemented yet. User wants `boxSearch`/`navbarExplorer`/`navTools` to become a smart component with search and optional replace input, ant-renamer style tools, regex, categories/subcategories as labels/pills, clear button, more-options control, and top-expanding island mode.
-- File node clicks still need a behavior change: default click should add files to filters as an `N selected files` grouped filter, with selected files exposed as child items, instead of opening the note.
-- `logicKeyboard` is the next navigation/selection layer: multi-selection and keyboard movement should align with the grouped explorer model.
-
+- Active filters still flatten selected-files child rules visually; the filter tree now stores the `N selected files` group, but the popup/list projection should expose the group row with child file rows.
+- Badge click currently removes queued operations. The next visual/action layer should add hover quick-action badges for enqueueing new operations from a node or selected node group.

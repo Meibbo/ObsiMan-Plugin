@@ -83,6 +83,7 @@ export class PropsLogic {
 		const valueMap = new Map<string, Map<string, number>>();
 		// Map to store which files contain which property (for accurate file count)
 		const propFileMap = new Map<string, Set<string>>();
+		const displayNameMap = new Map<string, string>();
 
 		for (const file of this.app.vault.getMarkdownFiles()) {
 			const fm = this.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
@@ -91,6 +92,7 @@ export class PropsLogic {
 
 				// Obsidian properties are case-insensitive for indexing
 				const normalizedKey = key.toLowerCase();
+				if (!displayNameMap.has(normalizedKey)) displayNameMap.set(normalizedKey, key);
 
 				// Track unique files per property
 				if (!propFileMap.has(normalizedKey)) propFileMap.set(normalizedKey, new Set());
@@ -110,15 +112,19 @@ export class PropsLogic {
 		}
 
 		const nodes: TreeNode<PropMeta>[] = [];
-		for (const [propName, info] of Object.entries(allProps)) {
-			// Obsidian's getAllPropertyInfos already returns lowercase keys or canonical keys?
-			// Actually, it returns what's in the index. We use lowercase as the primary key.
-			const normalizedName = propName.toLowerCase();
-			const propType = info.type ?? 'text';
+		const propInfoMap = new Map(
+			Object.entries(allProps).map(([propName, info]) => [propName.toLowerCase(), { propName, info }]),
+		);
+		const propNames = new Set([...propInfoMap.keys(), ...propFileMap.keys()]);
+		for (const normalizedName of propNames) {
+			const indexedInfo = propInfoMap.get(normalizedName);
+			const propName = displayNameMap.get(normalizedName) ?? indexedInfo?.propName ?? normalizedName;
+			const propType = indexedInfo?.info.type ?? 'text';
 			const valuesMap = (valueMap.get(normalizedName) ?? new Map()) as Map<string, number>;
 
 			// Accurate file count: how many unique files have this property
 			const fileCount = propFileMap.get(normalizedName)?.size ?? 0;
+			if (fileCount === 0) continue;
 
 			const valueNodes: TreeNode<PropMeta>[] = Array.from(valuesMap.entries()).map(
 				([rawValue, cnt]: [string, number]) => ({

@@ -102,13 +102,17 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0 8px;
+  padding: 0 8px 0 calc(8px + var(--vm-list-depth-indent, 0px));
   font-size: var(--font-ui-smaller);
   box-sizing: border-box;
   will-change: transform;
 
   &:nth-child(odd) {
     background: var(--background-modifier-hover);
+  }
+
+  &.is-group {
+    font-weight: 600;
   }
 }
 

@@ -9,6 +9,7 @@ export type FilterType =
 	| 'folder_exclude'
 	| 'file_name'
 	| 'file_name_exclude'
+	| 'file_path'
 	| 'file_folder'    // matches folder path only (not filename)
 	| 'has_tag';       // matches files with a specific tag
 
@@ -19,6 +20,8 @@ export interface FilterGroup {
 	logic: GroupLogic;
 	children: FilterNode[];
 	id?: string;
+	label?: string;
+	kind?: string;
 	enabled?: boolean;
 }
 

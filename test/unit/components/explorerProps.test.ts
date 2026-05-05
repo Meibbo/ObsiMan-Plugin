@@ -22,6 +22,8 @@ function makePlugin(overrides: Partial<VaultmanPlugin> = {}): VaultmanPlugin {
 	});
 
 	const decorationManager = new DecorationManager(app);
+	const addNode = vi.fn();
+	const removeNodeByProperty = vi.fn();
 	return {
 		app,
 		contextMenuService: { registerAction: vi.fn() },
@@ -30,7 +32,10 @@ function makePlugin(overrides: Partial<VaultmanPlugin> = {}): VaultmanPlugin {
 		activeFiltersIndex: { nodes: [], refresh: vi.fn(), subscribe: vi.fn(), byId: vi.fn() },
 		filterService: {
 			filteredFiles: files,
-			addNode: vi.fn(),
+			addNode,
+			removeNodeByProperty,
+			hasPropFilter: vi.fn(() => false),
+			hasValueFilter: vi.fn(() => false),
 		},
 		decorationManager,
 		viewService: new ViewService({ decorationManager }),
@@ -64,6 +69,7 @@ describe('explorerProps search', () => {
 		const activeFilters: ActiveFilterEntry[] = [
 			{
 				id: 'filter-status-draft',
+				kind: 'rule',
 				rule: {
 					id: 'filter-status-draft',
 					type: 'rule',
@@ -194,7 +200,7 @@ describe('explorerProps search', () => {
 			viewService: new ViewService({ decorationManager }),
 		});
 		const explorer = new explorerProps(plugin);
-		const propNode = explorer.getTree().find((node) => node.id === 'pressbarbench');
+		const propNode = explorer.getTree().find((node) => node.label === 'pressBarBench');
 		const deleteAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
 			([action]) => action.id === 'prop.delete',
 		)?.[0];
@@ -231,11 +237,51 @@ describe('explorerProps search', () => {
 			}),
 		);
 
-		expect(explorer.getTree().map((node) => node.label)).toEqual(['pressbarbench']);
+		expect(explorer.getTree().map((node) => node.label)).toEqual(['pressBarBench']);
 
 		meta.set(file.path, { frontmatter: {} });
-		propertyInfos = {};
+		propertyInfos = {
+			pressbarbench: { type: 'number' },
+		};
 
 		expect(explorer.getTree().map((node) => node.label)).toEqual([]);
+	});
+
+	it('toggles property and value filters instead of adding duplicates', () => {
+		const addNode = vi.fn();
+		const removeNodeByProperty = vi.fn();
+		const plugin = makePlugin({
+			filterService: {
+				filteredFiles: [],
+				addNode,
+				removeNodeByProperty,
+				hasPropFilter: vi.fn((prop: string) => prop === 'status'),
+				hasValueFilter: vi.fn((prop: string, value: string) => prop === 'owner' && value === 'vic'),
+			},
+		});
+		const explorer = new explorerProps(plugin);
+		const tree = explorer.getTree();
+		const statusNode = tree.find((node) => node.label === 'status');
+		const ownerValueNode = tree
+			.find((node) => node.label === 'owner')
+			?.children?.find((node) => node.label === 'vic');
+		const doneValueNode = tree
+			.find((node) => node.label === 'status')
+			?.children?.find((node) => node.label === 'done');
+
+		explorer.handleNodeClick(statusNode!);
+		explorer.handleNodeClick(ownerValueNode!);
+		explorer.handleNodeClick(doneValueNode!);
+
+		expect(removeNodeByProperty).toHaveBeenCalledWith('status');
+		expect(removeNodeByProperty).toHaveBeenCalledWith('owner', 'vic');
+		expect(addNode).toHaveBeenCalledTimes(1);
+		expect(addNode).toHaveBeenCalledWith(
+			expect.objectContaining({
+				filterType: 'specific_value',
+				property: 'status',
+				values: ['done'],
+			}),
+		);
 	});
 });

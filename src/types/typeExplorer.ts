@@ -9,6 +9,7 @@ export interface ExplorerProvider<TMeta = unknown> {
     getTree(): TreeNode<TMeta>[];
     getFiles?(): TFile[];
     handleNodeClick(node: TreeNode<TMeta>): void;
+    handleNodeSelection?(nodes: TreeNode<TMeta>[]): void;
     handleContextMenu(node: TreeNode<TMeta>, e: MouseEvent, selectedNodes?: TreeNode<TMeta>[]): void;
     getNodeType?(node: TreeNode<TMeta>): MenuCtx['nodeType'];
     handleBadgeDoubleClick?(queueIndex: number): void;

@@ -1,14 +1,12 @@
 <script lang="ts">
   import type { VaultmanPlugin } from "../../main";
   import { Virtualizer } from "../../services/serviceVirtualizer.svelte";
-  import TextInput from "../primitives/TextInput.svelte";
   import HighlightText from "../primitives/HighlightText.svelte";
   import type { ContentMatch } from "../../types/typeContracts";
   import { translate } from "../../index/i18n/lang";
 
-  let { plugin }: { plugin: VaultmanPlugin } = $props();
+  let { plugin, query = "" }: { plugin: VaultmanPlugin; query?: string } = $props();
 
-  let query = $state("");
   let outerEl: HTMLDivElement | undefined = $state();
   const v = new Virtualizer<ContentMatch>();
 
@@ -41,8 +39,6 @@
 </script>
 
 <div class="vm-tab-content">
-  <TextInput bind:value={query} placeholder={translate("content.search.placeholder")} />
-
   {#if query.length > 0}
     <div bind:this={outerEl} class="vm-content-list" onscroll={onScroll}>
       <div class="vm-content-list-inner" style="height: {totalH}px">

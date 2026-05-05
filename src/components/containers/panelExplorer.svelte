@@ -1,5 +1,6 @@
 <script lang="ts" generics="TMeta = unknown">
   import type { TFile } from "obsidian";
+  import { SvelteSet } from "svelte/reactivity";
   import type { VaultmanPlugin } from "../../main";
   import type {
     ExplorerProvider,
@@ -9,6 +10,11 @@
   import ViewGrid from "../views/viewGrid.svelte";
   import { applyKeyboardMove, applyPointerSelection } from "../../logic/logicKeyboard";
   import type { TreeNode } from "../../types/typeNode";
+  import { bubbleHiddenTreeBadges } from "../../utils/utilBadgeBubbling";
+  import {
+    collectAutoExpandedIds,
+    resolveExpandedIds,
+  } from "../../utils/utilExplorerExpansion";
 
   let {
     plugin,
@@ -36,10 +42,23 @@
 
   let nodes = $state<TreeNode<TMeta>[]>([]);
   let flatFiles = $state<TFile[]>([]);
-  let expandedIds = $state(new Set<string>());
+  const manualExpandedIds = new SvelteSet<string>();
+  const manualCollapsedIds = new SvelteSet<string>();
   let selectedNodeIds = $state(new Set<string>());
   let selectionAnchorId = $state<string | null>(null);
   let focusedNodeId = $state<string | null>(null);
+  let previousSearchTerm = "";
+  const autoExpandedIds = $derived(
+    collectAutoExpandedIds(nodes, { searchTerm, smallTreeThreshold: 8 }),
+  );
+  const expandedIds = $derived(
+    resolveExpandedIds({
+      manualExpandedIds,
+      manualCollapsedIds,
+      autoExpandedIds,
+    }),
+  );
+  const displayNodes = $derived(bubbleHiddenTreeBadges(nodes, expandedIds));
 
   $effect(() => {
     // React directly to prop changes
@@ -49,6 +68,14 @@
     provider.setViewMode?.(viewMode);
     provider.setAddMode?.(addMode);
     refreshData();
+  });
+
+  $effect(() => {
+    const normalizedSearch = searchTerm.trim();
+    if (normalizedSearch !== previousSearchTerm) {
+      manualCollapsedIds.clear();
+      previousSearchTerm = normalizedSearch;
+    }
   });
 
   $effect(() => {
@@ -76,7 +103,7 @@
     const additive = e.ctrlKey || e.metaKey;
     const range = e.shiftKey;
     applySelection(id, { additive, range });
-    if (!additive && !range) provider.handleNodeClick(node);
+    if (!additive && !range) activateNode(node);
   }
 
   function handleContextMenu(id: string, e: MouseEvent) {
@@ -104,8 +131,22 @@
       applySelection(id, { additive: true });
     } else if (e.key === "Enter") {
       const node = findNodeById(nodes, id);
-      if (node) provider.handleNodeClick(node);
+      if (node) activateNode(node);
     }
+  }
+
+  function activateNode(node: TreeNode<TMeta>) {
+    if (provider.handleNodeSelection) {
+      provider.handleNodeSelection(selectedNodesForContext(node));
+      return;
+    }
+    provider.handleNodeClick(node);
+  }
+
+  function handleBadgeClick(queueIndex: number) {
+    const operation = plugin.operationsIndex.nodes[queueIndex];
+    if (!operation) return;
+    plugin.queueService.remove(operation.id);
   }
 
   function findNodeById(
@@ -124,11 +165,12 @@
 
   function toggleExpand(id: string) {
     if (expandedIds.has(id)) {
-      expandedIds.delete(id);
+      manualExpandedIds.delete(id);
+      manualCollapsedIds.add(id);
     } else {
-      expandedIds.add(id);
+      manualExpandedIds.add(id);
+      manualCollapsedIds.delete(id);
     }
-    expandedIds = new Set(expandedIds);
   }
 
   function applySelection(id: string, opts: { additive?: boolean; range?: boolean }) {
@@ -179,7 +221,7 @@
   {#if viewMode === "tree"}
     <div class="vm-tree-container">
       <ViewTree
-        {nodes}
+        nodes={displayNodes}
         {expandedIds}
         selectedIds={selectedNodeIds}
         focusedId={focusedNodeId}
@@ -187,6 +229,7 @@
         onRowClick={handleNodeClick}
         onContextMenu={handleContextMenu}
         onRowKeydown={handleRowKeydown}
+        onBadgeDoubleClick={handleBadgeClick}
         {icon}
       />
     </div>

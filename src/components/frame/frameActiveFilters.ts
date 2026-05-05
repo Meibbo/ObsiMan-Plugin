@@ -1,4 +1,5 @@
 import type { FilterGroup, FilterNode } from '../../types/typeFilter';
+import type { IFilterService } from '../../types/typeContracts';
 
 export type ActiveFilterRule = {
 	id: string;
@@ -15,6 +16,10 @@ export function countFilterLeaves(group: FilterGroup): number {
 		else if (child.type === 'group') count += countFilterLeaves(child);
 	}
 	return count;
+}
+
+export function countActiveFilterEntries(filter: IFilterService): number {
+	return countFilterLeaves(filter.activeFilter) + (filter.getSearchFilterRules?.().length ?? 0);
 }
 
 export function collectActiveFilterRules(group: FilterGroup): ActiveFilterRule[] {
@@ -56,6 +61,10 @@ export function describeFilterNode(node: FilterNode): string {
 			return `folder: ${vals[0] ?? ''}`;
 		case 'file_name':
 			return `name: ${vals[0] ?? ''}`;
+		case 'file_path':
+			return `file: ${vals[0] ?? ''}`;
+		case 'file_folder':
+			return `folder: ${vals[0] ?? ''}`;
 		default:
 			return prop || 'filter';
 	}

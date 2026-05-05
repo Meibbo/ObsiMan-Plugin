@@ -166,6 +166,65 @@
     flex-shrink: 0;
   }
 
+  &-child-badge-indicator {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 18px;
+    flex: 0 0 14px;
+    overflow: visible;
+
+    &:hover,
+    &:focus-within {
+      .vm-tree-child-badge-dot {
+        opacity: 0;
+      }
+
+      .vm-tree-child-badge-pill {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(-50%) scaleX(1);
+      }
+    }
+  }
+
+  &-child-badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--text-muted);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--background-primary) 80%, transparent);
+    opacity: 0.75;
+    transition: opacity 0.12s ease;
+  }
+
+  &-child-badge-pill {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    max-width: min(220px, 48vw);
+    padding: 3px 6px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 999px;
+    background: var(--background-secondary);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50%) scaleX(0.8);
+    transform-origin: right center;
+    transition: opacity 0.12s ease, transform 0.12s ease;
+
+    .vm-badge.is-inherited {
+      opacity: 1;
+    }
+  }
+
   &-container {
     flex: 1;
     display: flex;

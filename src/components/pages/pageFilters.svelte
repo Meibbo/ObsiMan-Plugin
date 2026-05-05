@@ -12,14 +12,25 @@
 	import { explorerProps } from '../containers/explorerProps';
 	import { explorerFiles } from '../containers/explorerFiles';
 	import { explorerTags } from '../containers/explorerTags';
+	import {
+		addFiltersSearchHistory,
+		createFiltersSearchState,
+		getFiltersSearch,
+		getFiltersSearchHistory,
+		setFiltersSearch,
+		type FiltersSearchTab,
+		type FiltersSearchState,
+	} from '../frame/frameFiltersSearch';
 	// TODO: por qué setIcon?
 	import { setIcon } from 'obsidian';
 
 	let {
 		plugin,
 		filtersActiveTab = $bindable('props'),
-		filtersSearch = $bindable(''),
-		filtersSearchCategory = $bindable({ tags: 0, props: 0, files: 0 }),
+		filtersSearchByTab = $bindable(createFiltersSearchState()),
+		filtersSearchCategory = $bindable({ tags: 0, props: 0, files: 0, content: 0 }),
+		filtersOperationScope = $bindable('auto'),
+		onOperationScopeChange,
 		filtersSortBy = $bindable('name'),
 		filtersSortDir = $bindable('asc'),
 		filtersViewMode = $bindable('tree'),
@@ -32,9 +43,11 @@
 		addOpCount = 0,
 	}: {
 		plugin: VaultmanPlugin;
-		filtersActiveTab: FilTab;
-		filtersSearch: string;
-		filtersSearchCategory: Record<'tags' | 'props' | 'files', number>;
+		filtersActiveTab: FiltersSearchTab;
+		filtersSearchByTab: FiltersSearchState;
+		filtersSearchCategory: Record<FilTab, number>;
+		filtersOperationScope?: 'auto' | 'selected' | 'filtered' | 'all';
+		onOperationScopeChange?: (value: 'auto' | 'selected' | 'filtered' | 'all') => void;
 		filtersSortBy?: string;
 		filtersSortDir?: 'asc' | 'desc';
 		filtersViewMode?: any;
@@ -55,6 +68,19 @@
 			},
 		};
 	}
+
+	const activeFiltersSearch = $derived(getFiltersSearch(filtersSearchByTab, filtersActiveTab));
+	const activeFiltersSearchHistory = $derived(
+		getFiltersSearchHistory(filtersSearchByTab, filtersActiveTab),
+	);
+
+	function setActiveFiltersSearch(term: string): void {
+		filtersSearchByTab = setFiltersSearch(filtersSearchByTab, filtersActiveTab, term);
+	}
+
+	function commitActiveFiltersSearch(term: string): void {
+		filtersSearchByTab = addFiltersSearchHistory(filtersSearchByTab, filtersActiveTab, term);
+	}
 </script>
 
 <NavbarTabs
@@ -63,28 +89,31 @@
 	showLabels={plugin.settings.filtersShowTabLabels}
 />
 
-{#if filtersActiveTab !== 'content'}
-	<NavbarExplorer
-		activeTab={filtersActiveTab as 'props' | 'files' | 'tags'}
-		bind:filtersSearch
-		bind:filtersSearchCategory
-		bind:sortBy={filtersSortBy}
-		bind:sortDirection={filtersSortDir}
-		bind:viewMode={filtersViewMode}
-		bind:addMode
-		{tagsExplorer}
-		{propExplorer}
-		{fileList}
-		{addOpCount}
-		{icon}
-	/>
-{/if}
+<NavbarExplorer
+	activeTab={filtersActiveTab}
+	filtersSearch={activeFiltersSearch}
+	onSearchChange={setActiveFiltersSearch}
+	searchHistory={activeFiltersSearchHistory}
+	onSearchHistoryCommit={commitActiveFiltersSearch}
+	bind:filtersSearchCategory
+	bind:sortBy={filtersSortBy}
+	bind:sortDirection={filtersSortDir}
+	bind:viewMode={filtersViewMode}
+	bind:addMode
+	bind:operationScope={filtersOperationScope}
+	{onOperationScopeChange}
+	{tagsExplorer}
+	{propExplorer}
+	{fileList}
+	{addOpCount}
+	{icon}
+/>
 
 <div class="vm-tab-area">
 	<div class="vm-tab-content" class:is-active={filtersActiveTab === 'props'}>
 		<FiltersPropsTab
 			{plugin}
-			bind:searchTerm={filtersSearch}
+			searchTerm={filtersSearchByTab.props}
 			searchMode={filtersSearchCategory.props}
 			bind:sortBy={filtersSortBy}
 			bind:sortDirection={filtersSortDir}
@@ -95,7 +124,7 @@
 	<div class="vm-tab-content" class:is-active={filtersActiveTab === 'files'}>
 		<FiltersFilesTab
 			{plugin}
-			bind:searchTerm={filtersSearch}
+			searchTerm={filtersSearchByTab.files}
 			searchMode={filtersSearchCategory.files}
 			bind:sortBy={filtersSortBy}
 			bind:sortDirection={filtersSortDir}
@@ -108,7 +137,7 @@
 	<div class="vm-tab-content" class:is-active={filtersActiveTab === 'tags'}>
 		<FiltersTagsTab
 			{plugin}
-			bind:searchTerm={filtersSearch}
+			searchTerm={filtersSearchByTab.tags}
 			searchMode={filtersSearchCategory.tags}
 			bind:sortBy={filtersSortBy}
 			bind:sortDirection={filtersSortDir}
@@ -117,6 +146,6 @@
 		/>
 	</div>
 	<div class="vm-tab-content" class:is-active={filtersActiveTab === 'content'}>
-		<ContentTab {plugin} />
+		<ContentTab {plugin} query={filtersSearchByTab.content} />
 	</div>
 </div>

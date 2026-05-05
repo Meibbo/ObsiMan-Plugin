@@ -1,5 +1,5 @@
 import type { App, TFile } from 'obsidian';
-import type { FilterGroup, FilterNode, FilterTemplate } from '../types/typeFilter';
+import type { FilterGroup, FilterNode, FilterRule, FilterTemplate } from '../types/typeFilter';
 import type { IFilterService, IFilesIndex } from '../types/typeContracts';
 import { evalNode } from '../utils/filter-evaluator';
 
@@ -71,6 +71,8 @@ export class FilterService implements IFilterService {
 	/** Clear all filters (show all files) */
 	clearFilters(): void {
 		this.activeFilter = { type: 'group', logic: 'all', children: [], id: 'root', enabled: true };
+		this._searchName = '';
+		this._searchFolder = '';
 		this.fire();
 	}
 
@@ -152,9 +154,45 @@ export class FilterService implements IFilterService {
 
 	/** Set file name and folder search terms. Pass empty strings to clear. */
 	setSearchFilter(name: string, folder: string): void {
+		if (this._searchName === name && this._searchFolder === folder) return;
 		this._searchName = name;
 		this._searchFolder = folder;
 		this.fire();
+	}
+
+	getSearchFilters(): { name: string; folder: string } {
+		return { name: this._searchName, folder: this._searchFolder };
+	}
+
+	getSearchFilterRules(): FilterRule[] {
+		const rules: FilterRule[] = [];
+		if (this._searchName.trim()) {
+			rules.push({
+				type: 'rule',
+				filterType: 'file_name',
+				property: '',
+				values: [this._searchName],
+				id: 'search:file_name',
+				enabled: true,
+			});
+		}
+		if (this._searchFolder.trim()) {
+			rules.push({
+				type: 'rule',
+				filterType: 'file_folder',
+				property: '',
+				values: [this._searchFolder],
+				id: 'search:file_folder',
+				enabled: true,
+			});
+		}
+		return rules;
+	}
+
+	clearSearchFilter(kind: 'name' | 'folder' | 'all' = 'all'): void {
+		const nextName = kind === 'folder' ? this._searchName : '';
+		const nextFolder = kind === 'name' ? this._searchFolder : '';
+		this.setSearchFilter(nextName, nextFolder);
 	}
 
 	/** Load a saved filter template */
@@ -182,7 +220,9 @@ export class FilterService implements IFilterService {
 					case 'specific_value': desc = `${node.property} = ${node.values[0]}`; break;
 					case 'has_tag': desc = `Has tag: ${node.values[0]}`; break;
 					case 'file_name': desc = `Name contains: ${node.values[0]}`; break;
+					case 'file_path': desc = `File: ${node.values[0]}`; break;
 					case 'folder': desc = `In folder: ${node.values[0]}`; break;
+					case 'file_folder': desc = `Folder contains: ${node.values[0]}`; break;
 					default: desc = `${node.filterType}: ${node.property}`;
 				}
 				rules.push({ id: node.id!, description: desc, enabled: node.enabled !== false });
@@ -278,6 +318,54 @@ export class FilterService implements IFilterService {
 		this.fire();
 	}
 
+	setSelectedFileFilter(files: TFile[]): void {
+		const selected = uniqueFiles(files);
+		const currentSelectedGroup = this.activeFilter.children.find(
+			(child) => child.type === 'group' && child.id === 'selected-files',
+		);
+		const currentPaths: string[] = [];
+		if (currentSelectedGroup?.type === 'group') {
+			for (const child of currentSelectedGroup.children) {
+				if (child.type === 'rule' && child.filterType === 'file_path') {
+					currentPaths.push(...(child.values ?? []));
+				}
+			}
+		}
+		const selectedPaths = selected.map((file) => file.path);
+		const children = this.activeFilter.children.filter(
+			(child) => !(child.type === 'group' && child.id === 'selected-files'),
+		);
+
+		if (selected.length > 0 && samePathSet(currentPaths, selectedPaths)) {
+			this.selectedFiles = [];
+			this.activeFilter = { ...this.activeFilter, children };
+			this.fire();
+			return;
+		}
+
+		if (selected.length > 0) {
+			children.push({
+				type: 'group',
+				logic: 'any',
+				id: 'selected-files',
+				kind: 'selected_files',
+				label: `${selected.length} selected file${selected.length === 1 ? '' : 's'}`,
+				enabled: true,
+				children: selected.map((file) => ({
+					type: 'rule',
+					filterType: 'file_path',
+					property: '',
+					values: [file.path],
+					id: `selected-file:${file.path}`,
+					enabled: true,
+				})),
+			});
+		}
+		this.selectedFiles = selected;
+		this.activeFilter = { ...this.activeFilter, children };
+		this.fire();
+	}
+
 	subscribe(cb: () => void): () => void {
 		this.subs.add(cb);
 		return () => this.subs.delete(cb);
@@ -288,4 +376,21 @@ export class FilterService implements IFilterService {
 		this.indexUnsub();
 		this.subs.clear();
 	}
+}
+
+function uniqueFiles(files: TFile[]): TFile[] {
+	const seen = new Set<string>();
+	const out: TFile[] = [];
+	for (const file of files) {
+		if (seen.has(file.path)) continue;
+		seen.add(file.path);
+		out.push(file);
+	}
+	return out;
+}
+
+function samePathSet(left: string[], right: string[]): boolean {
+	if (left.length !== right.length) return false;
+	const set = new Set(left);
+	return right.every((path) => set.has(path));
 }

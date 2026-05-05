@@ -71,14 +71,8 @@ describe('reactive explorer components', () => {
 
 		app = mount(ContentTab as unknown as Component<{ plugin: VaultmanPlugin }>, {
 			target,
-			props: { plugin },
+			props: { plugin, query: 'needle' },
 		});
-		flushSync();
-
-		const input = target.querySelector('input');
-		expect(input).not.toBeNull();
-		input!.value = 'needle';
-		input!.dispatchEvent(new InputEvent('input', { bubbles: true, data: 'needle' }));
 		flushSync();
 
 		contentIndex.emit([

@@ -72,6 +72,12 @@ describe('evalNode', () => {
 		expect(evalNode(inc, universe, getMeta)).toEqual(new Set([a.path]));
 	});
 
+	it('file_path matches exact file paths case-insensitively', () => {
+		const { universe, getMeta, a } = fixture();
+		const r = rule({ filterType: 'file_path' as FilterRule['filterType'], values: ['notes/draft.md'] });
+		expect(evalNode(r, universe, getMeta)).toEqual(new Set([a.path]));
+	});
+
 	it('has_tag matches files with frontmatter tag', () => {
 		const { universe, getMeta, a } = fixture();
 		const r = rule({ filterType: 'has_tag', values: ['idea'] });

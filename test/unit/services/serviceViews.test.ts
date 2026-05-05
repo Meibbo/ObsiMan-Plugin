@@ -214,6 +214,7 @@ describe('ViewService', () => {
 		const nodes: ActiveFilterEntry[] = [
 			{
 				id: 'filter-status',
+				kind: 'rule',
 				rule: {
 					id: 'filter-status',
 					type: 'rule',
@@ -241,6 +242,59 @@ describe('ViewService', () => {
 		});
 		expect(model.rows[0].layers.highlights?.filter).toEqual([{ start: 5, end: 11 }]);
 		expect(model.rows[0].layers.highlights?.query).toBeUndefined();
+	});
+
+	it('maps selected-files groups to parent filter rows with count badges', () => {
+		const service = new ViewService();
+		const nodes: ActiveFilterEntry[] = [
+			{
+				id: 'selected-files',
+				kind: 'group',
+				depth: 0,
+				group: {
+					id: 'selected-files',
+					kind: 'selected_files',
+					type: 'group',
+					logic: 'any',
+					label: '2 selected files',
+					children: [
+						{
+							id: 'selected-file:Notes/A.md',
+							type: 'rule',
+							filterType: 'file_path',
+							property: '',
+							values: ['Notes/A.md'],
+						},
+						{
+							id: 'selected-file:Notes/B.md',
+							type: 'rule',
+							filterType: 'file_path',
+							property: '',
+							values: ['Notes/B.md'],
+						},
+					],
+				},
+			},
+		];
+		const model = service.getModel({
+			explorerId: 'active-filters',
+			mode: 'list',
+			nodes,
+			getLabel: () => '2 selected files',
+			getDecorationContext: () => ({ kind: 'filter' }),
+		});
+
+		expect(model.rows[0].depth).toBe(0);
+		expect(model.rows[0].layers.state?.activeFilter).toBe(true);
+		expect(model.rows[0].layers.badges?.filters?.[0]).toMatchObject({
+			id: 'selected-files:filter-group',
+			label: 'selected files',
+			tone: 'info',
+		});
+		expect(model.rows[0].layers.badges?.counts?.[0]).toMatchObject({
+			id: 'selected-files:filter-group-count',
+			label: '2',
+		});
 	});
 
 	it('projects queued property operations onto matching property rows', () => {
@@ -290,6 +344,7 @@ describe('ViewService', () => {
 		const activeFilters: ActiveFilterEntry[] = [
 			{
 				id: 'filter-status-todo',
+				kind: 'rule',
 				rule: {
 					id: 'filter-status-todo',
 					type: 'rule',
@@ -342,6 +397,7 @@ describe('ViewService', () => {
 		const activeFilters: ActiveFilterEntry[] = [
 			{
 				id: 'filter-project-tag',
+				kind: 'rule',
 				rule: {
 					id: 'filter-project-tag',
 					type: 'rule',
@@ -398,6 +454,7 @@ describe('ViewService', () => {
 		const activeFilters: ActiveFilterEntry[] = [
 			{
 				id: 'filter-task-name',
+				kind: 'rule',
 				rule: {
 					id: 'filter-task-name',
 					type: 'rule',

@@ -103,6 +103,92 @@ describe('FilterService node mutation helpers', () => {
 		svc.deleteFilterRule('r1');
 		expect(svc.activeFilter.children).toHaveLength(0);
 	});
+
+	it('sets a replaceable selected-files filter group with exact file children', () => {
+		const { svc, a, b, c } = setup();
+		const selectedSvc = svc as FilterService & { setSelectedFileFilter(files: Array<typeof a>): void };
+
+		selectedSvc.setSelectedFileFilter([a, b]);
+
+		expect(svc.selectedFiles).toEqual([a, b]);
+		expect(svc.filteredFiles.map((file) => file.path).sort()).toEqual([a.path, b.path].sort());
+		expect(svc.activeFilter.children).toContainEqual(
+			expect.objectContaining({
+				type: 'group',
+				id: 'selected-files',
+				label: '2 selected files',
+				children: [
+					expect.objectContaining({ filterType: 'file_path', values: [a.path] }),
+					expect.objectContaining({ filterType: 'file_path', values: [b.path] }),
+				],
+			}),
+		);
+
+		selectedSvc.setSelectedFileFilter([c]);
+
+		expect(svc.filteredFiles).toEqual([c]);
+		expect(svc.activeFilter.children).toContainEqual(
+			expect.objectContaining({
+				type: 'group',
+				id: 'selected-files',
+				label: '1 selected file',
+				children: [expect.objectContaining({ filterType: 'file_path', values: [c.path] })],
+			}),
+		);
+	});
+
+	it('toggles the selected-files filter off when the same file set is selected again', () => {
+		const { svc, a } = setup();
+		const selectedSvc = svc as FilterService & { setSelectedFileFilter(files: Array<typeof a>): void };
+
+		selectedSvc.setSelectedFileFilter([a]);
+		selectedSvc.setSelectedFileFilter([a]);
+
+		expect(svc.selectedFiles).toEqual([]);
+		expect(svc.activeFilter.children.find((node) => node.id === 'selected-files')).toBeUndefined();
+		expect(svc.filteredFiles).toHaveLength(3);
+	});
+
+	it('does not notify subscribers when search filter terms are unchanged', () => {
+		const { svc } = setup();
+		let calls = 0;
+		svc.subscribe(() => calls++);
+
+		svc.setSearchFilter('a', 'Notes');
+		svc.setSearchFilter('a', 'Notes');
+
+		expect(calls).toBe(1);
+	});
+
+	it('exposes file explorer search terms as active filter rules', () => {
+		const { svc } = setup();
+
+		svc.setSearchFilter('daily', 'Journal');
+
+		expect(svc.getSearchFilterRules()).toEqual([
+			expect.objectContaining({
+				id: 'search:file_name',
+				filterType: 'file_name',
+				values: ['daily'],
+			}),
+			expect.objectContaining({
+				id: 'search:file_folder',
+				filterType: 'file_folder',
+				values: ['Journal'],
+			}),
+		]);
+	});
+
+	it('can clear one or all file explorer search filter terms', () => {
+		const { svc } = setup();
+
+		svc.setSearchFilter('a', 'Notes');
+		svc.clearSearchFilter('name');
+		expect(svc.getSearchFilters()).toEqual({ name: '', folder: 'Notes' });
+
+		svc.clearSearchFilter();
+		expect(svc.getSearchFilters()).toEqual({ name: '', folder: '' });
+	});
 });
 
 describe('FilterService introspection', () => {

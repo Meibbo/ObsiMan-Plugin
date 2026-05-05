@@ -32,6 +32,9 @@
 	}
 
 	function describeRule(entry: ActiveFilterEntry): string {
+		if (entry.kind === 'group') {
+			return entry.group.label ?? `${entry.group.logic}: ${entry.group.children.length}`;
+		}
 		const rule = entry.rule;
 		const prop = rule.property ?? '';
 		const vals = rule.values ?? [];
@@ -54,17 +57,67 @@
 				return `name: ${vals[0] ?? ''}`;
 			case 'file_name_exclude':
 				return `excl. name: ${vals[0] ?? ''}`;
+			case 'file_path':
+				return `file: ${vals[0] ?? ''}`;
+			case 'file_folder':
+				return `folder: ${vals[0] ?? ''}`;
 			default:
 				return prop || 'filter';
 		}
 	}
 
+	function describeDetail(entry: ActiveFilterEntry): string | undefined {
+		if (entry.kind === 'group') {
+			return entry.group.kind === 'selected_files'
+				? `${entry.group.children.length} files`
+				: `${entry.group.logic} group`;
+		}
+		if (entry.parent?.id === 'selected-files' && entry.rule.filterType === 'file_path') {
+			return 'selected file';
+		}
+		return undefined;
+	}
+
 	function removeFilter(entry: ActiveFilterEntry) {
+		if (entry.kind === 'group') {
+			removeFilterGroup(entry);
+			return;
+		}
+		if (entry.source === 'search') {
+			const kind = entry.rule.filterType === 'file_name' ? 'name' : 'folder';
+			plugin.filterService.clearSearchFilter?.(kind);
+			return;
+		}
+		if (entry.parent?.id === 'selected-files' && entry.rule.filterType === 'file_path') {
+			if (removeSelectedFile(entry.rule.values[0])) return;
+		}
+		if (entry.rule.id && 'deleteFilterRule' in plugin.filterService) {
+			(plugin.filterService as { deleteFilterRule(id: string): void }).deleteFilterRule(entry.rule.id);
+			return;
+		}
 		plugin.filterService.removeNode(entry.rule);
+	}
+
+	function removeFilterGroup(entry: Extract<ActiveFilterEntry, { kind: 'group' }>) {
+		if (entry.group.id === 'selected-files' || entry.group.kind === 'selected_files') {
+			plugin.filterService.setSelectedFileFilter([]);
+			return;
+		}
+		plugin.filterService.removeNode(entry.group, entry.parent);
+	}
+
+	function removeSelectedFile(path: string | undefined): boolean {
+		if (!path) return false;
+		const remaining = plugin.filterService.selectedFiles.filter(
+			(file) => normalizePath(file.path) !== normalizePath(path),
+		);
+		plugin.filterService.setSelectedFileFilter([...remaining]);
+		return true;
 	}
 
 	function clearFilters() {
 		plugin.filterService.clearFilters();
+		plugin.filterService.clearSearchFilter?.();
 	}
 
 	function syncItems() {
@@ -73,6 +126,7 @@
 			mode: 'list',
 			nodes: [...plugin.activeFiltersIndex.nodes],
 			getLabel: (node) => describeRule(node as ActiveFilterEntry),
+			getDetail: (node) => describeDetail(node as ActiveFilterEntry),
 			getActions: () => [
 				{ id: 'remove', label: translate('filters.remove'), icon: 'lucide-x', tone: 'danger' },
 			],
@@ -98,6 +152,10 @@
 			virtualization: { rowHeight: 32, overscan: 5 },
 			capabilities: {},
 		};
+	}
+
+	function normalizePath(path: string): string {
+		return path.replaceAll('\\', '/').replace(/^\/+/, '').replace(/\/+$/, '').toLowerCase();
 	}
 </script>
 

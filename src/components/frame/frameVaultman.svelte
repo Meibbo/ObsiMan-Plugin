@@ -30,7 +30,7 @@
 	import type { FabDef } from '../../types/typePrimitives';
 	import {
 		collectActiveFilterRules,
-		countFilterLeaves,
+		countActiveFilterEntries,
 		type ActiveFilterRule,
 	} from './frameActiveFilters';
 	import {
@@ -43,6 +43,12 @@
 	import { FrameNavReorderController } from './frameNavReorder.svelte';
 	import { FrameOverlayController } from './frameOverlays.svelte';
 	import { createMoveChanges, createMovePreviews } from './frameMoves';
+	import {
+		createFiltersSearchState,
+		getFiltersSearch,
+		type FiltersSearchTab,
+		type FiltersSearchState,
+	} from './frameFiltersSearch';
 
 	// ─── Props ─────────────------------------...........
 
@@ -133,7 +139,7 @@
 
 	function updateStats() {
 		queuedCount = plugin.queueService.logicalOpCount;
-		filterRuleCount = countFilterLeaves(plugin.filterService.activeFilter);
+		filterRuleCount = countActiveFilterEntries(plugin.filterService);
 	}
 
 	let fileList = $state<explorerFiles | undefined>(undefined);
@@ -142,7 +148,7 @@
 	let selectedFilePaths = $state(new Set<string>());
 
 	// ─── Filters page state ──────────────────────────────────────────────────
-	type FiltersTab = 'tags' | 'props' | 'files' | 'content';
+	type FiltersTab = FiltersSearchTab;
 	let filtersActiveTab = $state<FiltersTab>('props');
 	$effect(() => {
 		void filtersActiveTab;
@@ -151,21 +157,26 @@
 			overlays.closeFiltersIsland();
 		});
 	});
-	let filtersSearch = $state('');
-	let filtersSearchCategory = $state<Record<'tags' | 'props' | 'files', number>>({
+	let filtersSearchByTab = $state<FiltersSearchState>(createFiltersSearchState());
+	let filtersSearchCategory = $state<Record<FiltersTab, number>>({
 		tags: 0,
 		props: 0,
 		files: 0,
+		content: 0,
 	});
 	let filtersSortBy = $state('name');
 	let filtersSortDir = $state<'asc' | 'desc'>('asc');
 	let filtersViewMode = $state<any>('tree');
 	let addMode = $state(false);
+	const initialOperationScope = untrack(() => plugin.settings.explorerOperationScope);
+	let filtersOperationScope = $state<'auto' | 'selected' | 'filtered' | 'all'>(
+		initialOperationScope,
+	);
 
 	$effect(() => {
-		const term = filtersSearch;
 		const tab = filtersActiveTab;
-		const catMode = filtersSearchCategory[tab as 'tags' | 'props' | 'files'] ?? 0;
+		const term = getFiltersSearch(filtersSearchByTab, tab);
+		const catMode = filtersSearchCategory[tab] ?? 0;
 
 		// Route search with per-tab category scoping
 		switch (tab) {
@@ -178,9 +189,14 @@
 			case 'files':
 				if (catMode === 0) {
 					fileList?.setSearchFilter(term, '');
+					plugin.filterService.setSearchFilter(term, '');
 				} else {
 					fileList?.setSearchFilter('', term);
+					plugin.filterService.setSearchFilter('', term);
 				}
+				break;
+			case 'content':
+				plugin.contentIndex.setQuery(term);
 				break;
 		}
 	});
@@ -221,6 +237,11 @@
 	// TODO: where this icons are showed?
 	const scopeOptions = [
 		{
+			value: 'auto',
+			label: translate('settings.scope.auto'),
+			icon: 'lucide-sparkles',
+		},
+		{
 			value: 'all',
 			label: translate('scope.all'),
 			icon: 'lucide-database',
@@ -238,9 +259,16 @@
 	];
 
 	function setScope(value: string) {
-		plugin.settings.explorerOperationScope = value as 'auto' | 'selected' | 'filtered' | 'all';
+		filtersOperationScope = value as 'auto' | 'selected' | 'filtered' | 'all';
+		plugin.settings.explorerOperationScope = filtersOperationScope;
 		void plugin.saveSettings();
 		overlays.closePopup();
+	}
+
+	function setFiltersOperationScope(value: 'auto' | 'selected' | 'filtered' | 'all') {
+		filtersOperationScope = value;
+		plugin.settings.explorerOperationScope = value;
+		void plugin.saveSettings();
 	}
 
 	// ─── Search popup ─────────────────────────────────────────────────────────
@@ -249,6 +277,8 @@
 	let searchFolder = $state('');
 
 	$effect(() => {
+		const filesSearchTerm = getFiltersSearch(filtersSearchByTab, 'files');
+		if (!searchName && !searchFolder && filesSearchTerm) return;
 		fileList?.setSearchFilter(searchName, searchFolder);
 		plugin.filterService.setSearchFilter(searchName, searchFolder);
 	});
@@ -377,8 +407,10 @@
 							<FiltersPage
 								{plugin}
 								bind:filtersActiveTab
-								bind:filtersSearch
+								bind:filtersSearchByTab
 								bind:filtersSearchCategory
+								bind:filtersOperationScope
+								onOperationScopeChange={setFiltersOperationScope}
 								bind:tagsExplorer
 								bind:propExplorer
 								bind:fileList

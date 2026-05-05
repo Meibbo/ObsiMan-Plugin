@@ -7,7 +7,7 @@ export interface NodeBadge {
 	color?: 'accent' | 'warning' | 'error' | 'success' | 'info' | 'faint' | 'red' | 'blue' | 'purple' | 'orange' | 'green';
 	solid?: boolean;
 	isInherited?: boolean;
-	/** Queue index for undo on double-click. Undefined = inherited/unremovable badge. */
+	/** Queue operation index for click-to-remove. Undefined = visual-only badge. */
 	queueIndex?: number;
 }
 

@@ -1,4 +1,5 @@
 import { TagsLogic } from '../../logic/logicTags';
+import type { TFile } from 'obsidian';
 import type { TreeNode, TagMeta } from '../../types/typeNode';
 import type { VaultmanPlugin } from '../../main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
@@ -123,7 +124,7 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 				tag: meta.tagPath,
 				action: 'add',
 				details: `Add tag "#${meta.tagPath}"`,
-				files: this.plugin.filterService.filteredFiles,
+				files: this.operationScopeFiles(),
 				customLogic: true,
 				logicFunc: (_file, fm: Record<string, unknown>) => {
 					const raw = fm.tags;
@@ -197,7 +198,7 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 	}
 
 	private _deleteTag(tagPath: string): void {
-		const files = this.plugin.app.vault.getMarkdownFiles().filter((file) => {
+		const files = this.operationScopeFiles().filter((file) => {
 			const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
 			return tagListContains(fm.tags, tagPath);
 		});
@@ -218,6 +219,19 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 	private contextTagNodes(ctx: MenuCtx): TreeNode<TagMeta>[] {
 		const selected = (ctx.selectedNodes ?? []) as TreeNode<TagMeta>[];
 		return selected.length > 0 ? selected : [ctx.node as TreeNode<TagMeta>];
+	}
+
+	private operationScopeFiles(): TFile[] {
+		const allFiles = this.plugin.app.vault.getMarkdownFiles();
+		const filteredFiles = [...(this.plugin.filterService.filteredFiles ?? [])] as TFile[];
+		const selectedFiles = [...(this.plugin.filterService.selectedFiles ?? [])] as TFile[];
+		const scope = this.plugin.settings?.explorerOperationScope ?? 'filtered';
+		if (scope === 'all') return allFiles;
+		if (scope === 'selected') return selectedFiles;
+		if (scope === 'filtered') return filteredFiles.length > 0 ? filteredFiles : allFiles;
+		if (selectedFiles.length > 0) return selectedFiles;
+		if (filteredFiles.length > 0) return filteredFiles;
+		return allFiles;
 	}
 }
 

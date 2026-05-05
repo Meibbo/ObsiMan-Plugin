@@ -60,6 +60,10 @@
 		action.run?.(row);
 		onAction?.(action, row);
 	}
+
+	function isGroupRow(row: ViewRow<NodeBase>): boolean {
+		return (row.node as { kind?: string }).kind === 'group';
+	}
 </script>
 
 <div bind:this={outerEl} class="vm-view-list vm-explorer-popup-list" onscroll={onScroll}>
@@ -72,7 +76,8 @@
 				class="vm-view-list-row vm-explorer-popup-row"
 				class:is-selected={row.layers.state?.selected}
 				class:is-disabled={row.disabled || row.layers.state?.disabled}
-				style="transform: translateY({absIdx * virtualizer.rowHeight}px)"
+				class:is-group={isGroupRow(row)}
+				style="transform: translateY({absIdx * virtualizer.rowHeight}px); --vm-list-depth-indent: {(row.depth ?? 0) * 14}px"
 				data-id={row.id}
 			>
 				{#if iconName}

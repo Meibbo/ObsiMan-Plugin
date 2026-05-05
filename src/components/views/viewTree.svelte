@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { TreeNode } from "../../types/typeNode";
+  import type { NodeBadge, TreeNode } from "../../types/typeNode";
   import { TreeVirtualizer } from "../../services/serviceVirtualizer.svelte";
   import HighlightText from "../primitives/HighlightText.svelte";
 
@@ -88,6 +88,42 @@
     }
   }
 
+  function ownBadges(node: TreeNode): NodeBadge[] {
+    return (node.badges ?? []).filter((badge) => !badge.isInherited);
+  }
+
+  function inheritedBadges(node: TreeNode): NodeBadge[] {
+    return (node.badges ?? []).filter((badge) => badge.isInherited);
+  }
+
+  function badgeKey(badge: NodeBadge, index: number): string {
+    return `${badge.queueIndex ?? 'badge'}:${index}:${badge.text ?? ''}:${badge.icon ?? ''}:${badge.color ?? ''}:${badge.isInherited ?? false}`;
+  }
+
+  function badgeTitle(badge: NodeBadge, inherited = false): string {
+    const label = badge.text ?? '';
+    const prefix = inherited ? 'Hidden child ' : '';
+    if (badge.queueIndex === undefined) return `${prefix}${label}`.trim();
+    return `${prefix}${label} - click to remove from queue`.trim();
+  }
+
+  function inheritedBadgeTitle(badges: NodeBadge[]): string {
+    return `${badges.length} hidden descendant badge${badges.length === 1 ? '' : 's'}`;
+  }
+
+  function handleBadgePress(e: MouseEvent | KeyboardEvent, badge: NodeBadge) {
+    if (badge.queueIndex === undefined) return;
+    e.stopPropagation();
+    e.preventDefault();
+    onBadgeDoubleClick?.(badge.queueIndex);
+  }
+
+  function handleBadgeKeydown(e: KeyboardEvent, badge: NodeBadge) {
+    if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+      handleBadgePress(e, badge);
+    }
+  }
+
   function focus(el: HTMLInputElement) {
     el.focus();
     el.select();
@@ -105,6 +141,8 @@
       {@const isHighlighted = searchHighlightIds?.has(node.id) ?? false}
       {@const isSelected = selectedIds?.has(node.id) ?? false}
       {@const isFocused = focusedId === node.id}
+      {@const directBadges = ownBadges(node)}
+      {@const childBadges = inheritedBadges(node)}
 
       <div
         class="vm-tree-virtual-row {node.cls ?? ''}"
@@ -159,35 +197,60 @@
         {/if}
 
         <!-- Badges / Counts -->
-        {#if (node.count != null && node.count > 0) || (node.badges && node.badges.length > 0)}
+        {#if (node.count != null && node.count > 0) || directBadges.length > 0 || childBadges.length > 0}
           <div class="vm-tree-badge-zone">
-            {#if node.badges}
-              {#each node.badges as badge, badgeIndex (`${badge.queueIndex ?? 'badge'}:${badgeIndex}:${badge.text ?? ''}:${badge.icon ?? ''}:${badge.color ?? ''}:${badge.isInherited ?? false}`)}
+            {#if directBadges.length > 0}
+              {#each directBadges as badge, badgeIndex (badgeKey(badge, badgeIndex))}
                 <div
                   class="vm-badge"
                   role="button"
                   tabindex="-1"
                   class:is-solid={badge.solid}
-                  class:is-inherited={badge.isInherited}
                   class:is-undoable={badge.queueIndex !== undefined}
                   class:vm-badge--red={badge.solid && badge.color === 'red'}
                   class:vm-badge--blue={badge.solid && badge.color === 'blue'}
                   class:vm-badge--purple={badge.solid && badge.color === 'purple'}
                   class:vm-badge--orange={badge.solid && badge.color === 'orange'}
                   class:vm-badge--green={badge.solid && badge.color === 'green'}
-                  title={badge.queueIndex !== undefined ? `${badge.text ?? ''} — double-click to undo` : (badge.text ?? '')}
-                  ondblclick={(e) => {
-                    if (badge.queueIndex !== undefined) {
-                      e.stopPropagation();
-                      onBadgeDoubleClick?.(badge.queueIndex);
-                    }
-                  }}
+                  title={badgeTitle(badge)}
+                  onclick={(e) => handleBadgePress(e, badge)}
+                  onkeydown={(e) => handleBadgeKeydown(e, badge)}
                 >
                   {#if badge.icon}
                     <span class="vm-badge-icon" use:icon={badge.icon}></span>
                   {/if}
                 </div>
               {/each}
+            {/if}
+
+            {#if childBadges.length > 0}
+              <div class="vm-tree-child-badge-indicator" title={inheritedBadgeTitle(childBadges)}>
+                <span class="vm-tree-child-badge-dot"></span>
+                <div class="vm-tree-child-badge-pill">
+                  {#each childBadges as badge, badgeIndex (badgeKey(badge, badgeIndex))}
+                    <div
+                      class="vm-badge"
+                      role="button"
+                      tabindex="-1"
+                      class:is-solid={badge.solid}
+                      class:is-inherited={badge.isInherited}
+                      class:is-undoable={badge.queueIndex !== undefined}
+                      class:vm-badge--red={badge.solid && badge.color === 'red'}
+                      class:vm-badge--blue={badge.solid && badge.color === 'blue'}
+                      class:vm-badge--purple={badge.solid && badge.color === 'purple'}
+                      class:vm-badge--orange={badge.solid && badge.color === 'orange'}
+                      class:vm-badge--green={badge.solid && badge.color === 'green'}
+                      title={badgeTitle(badge, true)}
+                      onclick={(e) => handleBadgePress(e, badge)}
+                      onkeydown={(e) => handleBadgeKeydown(e, badge)}
+                    >
+                      {#if badge.icon}
+                        <span class="vm-badge-icon" use:icon={badge.icon}></span>
+                      {/if}
+                    </div>
+                  {/each}
+                </div>
+              </div>
             {/if}
 
             {#if node.count != null && node.count > 0}

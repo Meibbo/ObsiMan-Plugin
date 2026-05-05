@@ -2,12 +2,33 @@ import type { IActiveFiltersIndex, ActiveFilterEntry, IFilterService } from '../
 import type { FilterGroup, FilterRule } from '../types/typeFilter';
 import { createNodeIndex } from './indexNodeCreate';
 
-function flatten(group: FilterGroup): FilterRule[] {
-	const out: FilterRule[] = [];
-	const walk = (g: FilterGroup): void => {
+function flatten(group: FilterGroup): ActiveFilterEntry[] {
+	const out: ActiveFilterEntry[] = [];
+	let generatedId = 0;
+	const walk = (g: FilterGroup, depth = 0): void => {
 		for (const child of g.children) {
-			if (child.type === 'rule') out.push(child);
-			else walk(child);
+			if (child.type === 'rule') {
+				out.push({
+					id: child.id ?? `rule-${generatedId++}`,
+					kind: 'rule',
+					rule: child,
+					parent: g,
+					depth,
+					source: 'tree',
+				});
+			} else if (isVisibleGroup(child)) {
+				out.push({
+					id: child.id ?? `group-${generatedId++}`,
+					kind: 'group',
+					group: child,
+					parent: g,
+					depth,
+					source: 'tree',
+				});
+				walk(child, depth + 1);
+			} else {
+				walk(child, depth);
+			}
 		}
 	};
 	walk(group);
@@ -16,12 +37,26 @@ function flatten(group: FilterGroup): FilterRule[] {
 
 export function createActiveFiltersIndex(filter: IFilterService): IActiveFiltersIndex {
 	const base = createNodeIndex<ActiveFilterEntry>({
-		build: () =>
-			flatten(filter.activeFilter).map((rule, i) => ({
-				id: rule.id ?? `rule-${i}`,
+		build: () => {
+			const treeRules = flatten(filter.activeFilter);
+			const searchRules = getSearchRules(filter).map((rule, i) => ({
+				id: rule.id ?? `search-rule-${i}`,
+				kind: 'rule' as const,
 				rule,
-			})),
+				source: 'search' as const,
+				depth: 0,
+			}));
+			return [...treeRules, ...searchRules];
+		},
 	});
 	filter.subscribe(() => { void base.refresh(); });
 	return base;
+}
+
+function getSearchRules(filter: IFilterService): FilterRule[] {
+	return filter.getSearchFilterRules?.() ?? [];
+}
+
+function isVisibleGroup(group: FilterGroup): boolean {
+	return group.id === 'selected-files' || group.kind === 'selected_files';
 }

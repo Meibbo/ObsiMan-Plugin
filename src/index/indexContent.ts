@@ -35,6 +35,7 @@ export function createContentIndex(app: App): IContentIndex {
   });
   return Object.assign(base, {
     setQuery(q: string): void {
+      if (query === q) return;
       query = q;
       void base.refresh();
     },

@@ -136,6 +136,11 @@ function matchesFile(
 			return !file.basename.toLowerCase().includes(term.toLowerCase());
 		}
 
+		case 'file_path': {
+			const filePath = normalizePath(file.path);
+			return rule.values.some((value) => normalizePath(value) === filePath);
+		}
+
 		case 'file_folder': {
 			const folder = rule.values[0] ?? '';
 			if (!folder) return true;
@@ -160,6 +165,10 @@ function matchValue(val: unknown, target: string): boolean {
 		return val.some((v) => String(v).toLowerCase() === target.toLowerCase());
 	}
 	return String(val).toLowerCase() === target.toLowerCase();
+}
+
+function normalizePath(path: string): string {
+	return path.replaceAll('\\', '/').replace(/^\/+/, '').toLowerCase();
 }
 
 // --- Set utilities ---
