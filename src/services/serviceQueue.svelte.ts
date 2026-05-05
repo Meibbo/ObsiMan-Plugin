@@ -42,6 +42,12 @@ export function serializeFile(fm: Record<string, unknown>, body: string): string
   return `---\n${yaml}---\n${body}`;
 }
 
+function tagOpKind(action: string): StagedOp['kind'] {
+	if (action === 'delete') return 'delete_tag';
+	if (action === 'add') return 'add_tag';
+	return 'set_tag';
+}
+
 /**
  * Manages the queue of pending property operations.
  * All operations are staged first, then executed atomically on user confirmation.
@@ -55,6 +61,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 
 	readonly transactions = new Map<string, VirtualFileState>();
 	private opCounter = 0;
+	private changeCounter = 0;
 
 	/**
 	 * Reactive list of pending changes (rune-backed).
@@ -65,8 +72,9 @@ export class OperationQueueService extends Component implements IOperationQueue 
 	 */
 	pending = $state<PendingChange[]>([]);
 
-	/** Derived count — reactive when pending changes. */
-	size = $derived(this.pending.length);
+	get size(): number {
+		return this.logicalOpCount;
+	}
 
 	constructor(app: App) {
 		super();
@@ -107,13 +115,14 @@ export class OperationQueueService extends Component implements IOperationQueue 
 
 	/** Remove a staged op by its op ID across all file transactions. */
 	remove(id: string): void {
-		for (const [path] of this.transactions) {
-			const vfs = this.transactions.get(path)!;
-			if (vfs.ops.some(o => o.id === id)) {
-				this.removeOp(path, id);
-				return;
+		let removed = false;
+		for (const [path, vfs] of this.transactions) {
+			if (vfs.ops.some(o => o.id === id || o.changeId === id)) {
+				this.removeOp(path, id, true);
+				removed = true;
 			}
 		}
+		if (removed) this.fireChanged();
 	}
 
 	/** Fire both the legacy Events emitter and all IOperationQueue subscribers. */
@@ -138,7 +147,26 @@ export class OperationQueueService extends Component implements IOperationQueue 
 			return existing;
 		}
 
-		// Fresh — read full content
+		if (!requireBody) {
+			const cache = this.app.metadataCache.getFileCache(file);
+			const fmCopy = { ...cache?.frontmatter };
+			delete fmCopy['position'];
+			const vfs: VirtualFileState = {
+				file,
+				originalPath: key,
+				newPath: undefined,
+				fm: { ...fmCopy },
+				body: '',
+				ops: [],
+				fmInitial: { ...fmCopy },
+				bodyInitial: '',
+				bodyLoaded: false,
+			};
+			this.transactions.set(key, vfs);
+			return vfs;
+		}
+
+		// Fresh and body-sensitive — read full content.
 		const content = await this.app.vault.read(file);
 		const { fm, body } = splitYamlBody(content);
 		const vfs: VirtualFileState = {
@@ -188,10 +216,11 @@ export class OperationQueueService extends Component implements IOperationQueue 
 
 	/** Shared internal ingestion: translate PendingChange to per-file StagedOps. */
 	private async ingest(change: PendingChange, silent: boolean): Promise<void> {
+		const changeId = change.id ?? `change-${++this.changeCounter}`;
 		// Special case: NATIVE_RENAME_PROP is vault-wide — expand across metadataCache.
 		const probe = this.probeForNativeRename(change);
 		if (probe) {
-			await this.expandNativeRename(change, probe.oldName, probe.newName);
+			await this.expandNativeRename(change, probe.oldName, probe.newName, changeId);
 			if (!silent) this.fireChanged();
 			return;
 		}
@@ -201,7 +230,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 			const vfs = await this.getOrCreateVFS(file, needsBody);
 			const updates = change.logicFunc(file, vfs.fm);
 			if (!updates) continue;
-			this.applyUpdates(vfs, change, updates);
+			this.applyUpdates(vfs, change, updates, changeId);
 		}
 		if (!silent) this.fireChanged();
 	}
@@ -233,10 +262,11 @@ export class OperationQueueService extends Component implements IOperationQueue 
 	private applyUpdates(
 		vfs: VirtualFileState,
 		change: PendingChange,
-		updates: Record<string, unknown>
+		updates: Record<string, unknown>,
+		changeId: string
 	): void {
 		for (const [key, value] of Object.entries(updates)) {
-			const op = this.translateUpdate(vfs, change, key, value);
+			const op = this.translateUpdate(vfs, change, key, value, changeId);
 			if (!op) continue;
 			vfs.ops.push(op);
 			op.apply(vfs);
@@ -248,7 +278,8 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		_vfs: VirtualFileState,
 		change: PendingChange,
 		key: string,
-		value: unknown
+		value: unknown,
+		changeId: string
 	): StagedOp | null {
 		const id = `op-${++this.opCounter}`;
 		const action = change.action;
@@ -257,14 +288,14 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		if (key === DELETE_PROP) {
 			const propName = value as string;
 			return {
-				id, kind: 'delete_prop', action, details,
+				id, changeId, property: propName, kind: 'delete_prop', action, details,
 				apply: (v) => { delete v.fm[propName]; },
 			};
 		}
 		if (key === REORDER_ALL) {
 			const ordered = value as string[];
 			return {
-				id, kind: 'reorder_props', action, details,
+				id, changeId, kind: 'reorder_props', action, details,
 				apply: (v) => {
 					const copy = { ...v.fm };
 					for (const k of Object.keys(v.fm)) delete v.fm[k];
@@ -276,14 +307,14 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		if (key === RENAME_FILE) {
 			const newName = value as string;
 			return {
-				id, kind: 'rename_file', action, details,
+				id, changeId, kind: 'rename_file', action, details,
 				apply: (v) => { v.newPath = v.originalPath.replace(v.file.name, newName); },
 			};
 		}
 		if (key === MOVE_FILE) {
 			const targetFolder = value as string;
 			return {
-				id, kind: 'move_file', action, details,
+				id, changeId, kind: 'move_file', action, details,
 				apply: (v) => {
 					v.newPath = targetFolder ? `${targetFolder}/${v.file.name}` : v.file.name;
 				},
@@ -297,14 +328,14 @@ export class OperationQueueService extends Component implements IOperationQueue 
 			const escaped = isRegex ? pattern : pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 			const rx = new RegExp(escaped, flags);
 			return {
-				id, kind: 'find_replace_content', action, details,
+				id, changeId, kind: 'find_replace_content', action, details,
 				apply: (v) => { v.body = v.body.replace(rx, replacement); },
 			};
 		}
 		if (key === APPLY_TEMPLATE) {
 			const templateContent = (change as TemplateChange).templateContent;
 			return {
-				id, kind: 'apply_template', action, details,
+				id, changeId, kind: 'apply_template', action, details,
 				apply: (v) => { v.body = v.body + '\n\n' + templateContent; },
 			};
 		}
@@ -312,9 +343,15 @@ export class OperationQueueService extends Component implements IOperationQueue 
 			// Should have been pre-expanded via probeForNativeRename. Skip defensively.
 			return null;
 		}
+		if (change.type === 'tag' && key === 'tags') {
+			return {
+				id, changeId, tag: change.tag, kind: tagOpKind(change.action), action, details,
+				apply: (v) => { v.fm.tags = value; },
+			};
+		}
 		// Normal frontmatter property set
 		return {
-			id, kind: 'set_prop', action, details,
+			id, changeId, property: key, kind: 'set_prop', action, details,
 			apply: (v) => { v.fm[key] = value; },
 		};
 	}
@@ -322,7 +359,8 @@ export class OperationQueueService extends Component implements IOperationQueue 
 	private async expandNativeRename(
 		change: PendingChange,
 		oldName: string,
-		newName: string
+		newName: string,
+		changeId: string
 	): Promise<void> {
 		const allFiles = this.app.vault.getMarkdownFiles();
 		for (const file of allFiles) {
@@ -355,6 +393,8 @@ export class OperationQueueService extends Component implements IOperationQueue 
 			const id = `op-${++this.opCounter}`;
 			const op: StagedOp = {
 				id,
+				changeId,
+				property: oldName,
 				kind: 'rename_prop',
 				action: change.action,
 				details: `${oldName} → ${newName}`,
@@ -384,10 +424,10 @@ export class OperationQueueService extends Component implements IOperationQueue 
 	}
 
 	/** Surgical: remove a single op from a file's VFS. Re-materializes that VFS from initial state. */
-	removeOp(path: string, opId: string): void {
+	removeOp(path: string, opId: string, silent = false): void {
 		const vfs = this.transactions.get(path);
 		if (!vfs) return;
-		const filtered = vfs.ops.filter(o => o.id !== opId);
+		const filtered = vfs.ops.filter(o => o.id !== opId && o.changeId !== opId);
 		if (filtered.length === vfs.ops.length) return; // no-op — op not found
 		if (filtered.length === 0) {
 			this.transactions.delete(path);
@@ -399,7 +439,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 			vfs.ops = filtered;
 			for (const op of vfs.ops) op.apply(vfs);
 		}
-		this.fireChanged();
+		if (!silent) this.fireChanged();
 	}
 
 	get fileCount(): number {
@@ -410,6 +450,16 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		let n = 0;
 		for (const v of this.transactions.values()) n += v.ops.length;
 		return n;
+	}
+
+	get logicalOpCount(): number {
+		const ids = new Set<string>();
+		for (const v of this.transactions.values()) {
+			for (const op of v.ops) {
+				ids.add(op.changeId ?? op.id);
+			}
+		}
+		return ids.size;
 	}
 
 	get isEmpty(): boolean {

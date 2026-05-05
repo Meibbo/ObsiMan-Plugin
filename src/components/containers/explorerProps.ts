@@ -1,9 +1,15 @@
 import { PropsLogic } from '../../logic/logicProps';
 import type { TreeNode, PropMeta } from '../../types/typeNode';
-import type { PropertyChange } from '../../types/typeOps';
+import { DELETE_PROP, NATIVE_RENAME_PROP } from '../../types/typeOps';
 import { showInputModal } from '../../utils/inputModal';
+import {
+	highlightsFromViewLayers,
+	nodeBadgesFromViewLayers,
+	withViewStateClasses,
+} from '../../utils/utilViewLayers';
 import type { VaultmanPlugin } from '../../main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
+import type { MenuCtx } from '../../types/typeCtxMenu';
 
 const TYPE_ICON_MAP: Record<string, string> = {
 	text: 'lucide-text-align-start',
@@ -41,17 +47,22 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			label: (ctx) => `Rename "${ctx.node.label}"`,
 			icon: 'lucide-pencil',
 			when: (ctx) => !(ctx.node.meta as PropMeta).isValueNode,
-			run: (ctx) => this._renameProp(ctx.node.label),
+			run: (ctx) => this._renameProp((ctx.node.meta as PropMeta).propName),
 		});
 
 		svc.registerAction({
 			id: 'prop.delete',
 			nodeTypes: ['prop'],
 			surfaces: ['panel'],
-			label: (ctx) => `Delete "${ctx.node.label}"`,
+			label: (ctx) => {
+				const nodes = this.contextPropNodes(ctx);
+				return nodes.length > 1 ? `Delete ${nodes.length} properties` : `Delete "${ctx.node.label}"`;
+			},
 			icon: 'lucide-trash-2',
 			when: (ctx) => !(ctx.node.meta as PropMeta).isValueNode,
-			run: (ctx) => this._deleteProp(ctx.node.label),
+			run: (ctx) => {
+				for (const node of this.contextPropNodes(ctx)) this._deleteProp(node.meta.propName);
+			},
 		});
 
 		const types = ['text', 'number', 'checkbox', 'date', 'list'] as const;
@@ -64,7 +75,9 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 				icon: TYPE_ICON_MAP[type],
 				submenu: 'Change type',
 				when: (ctx) => !(ctx.node.meta as PropMeta).isValueNode,
-				run: (ctx) => this._changePropType(ctx.node.label, type),
+				run: (ctx) => {
+					for (const node of this.contextPropNodes(ctx)) this._changePropType(node.meta.propName, type);
+				},
 			});
 		});
 
@@ -89,13 +102,15 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			icon: 'lucide-trash-2',
 			when: (ctx) => (ctx.node.meta as PropMeta).isValueNode,
 			run: (ctx) => {
-				const meta = ctx.node.meta as PropMeta;
-				return this._deleteValue(meta.propName, meta.rawValue ?? '');
+				for (const node of this.contextValueNodes(ctx)) {
+					this._deleteValue(node.meta.propName, node.meta.rawValue ?? '');
+				}
 			},
 		});
 	}
 
 	getTree(): TreeNode<PropMeta>[] {
+		this.logic.invalidate();
 		let tree = this.logic.getTree();
 		if (this.searchTerm) {
 			tree = this.logic.filterTree(tree, this.searchTerm, this.searchMode === 'leaf' ? 1 : 0);
@@ -105,89 +120,52 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 	}
 
 	private _decorateTree(nodes: TreeNode<PropMeta>[], parentDeleted = false): TreeNode<PropMeta>[] {
-		const queue = this.plugin.queueService.queue;
+		const operations = [...this.plugin.operationsIndex.nodes];
+		const activeFilters = [...this.plugin.activeFiltersIndex.nodes];
 		return nodes.map((node) => {
 			const meta = node.meta;
 			let currentCls = node.cls || '';
 
-			const isPropDeleted =
-				parentDeleted ||
-				queue.some(
-					(op) =>
-						op.type === 'property' &&
-						op.property === meta.propName &&
-						op.action === 'delete' &&
-						!('value' in op),
-				);
-
-			if (isPropDeleted) {
-				if (!currentCls.includes('is-deleted-prop'))
-					currentCls = (currentCls + ' is-deleted-prop').trim();
-			} else if (meta.isValueNode) {
-				const isValueDeleted = queue.some(
-					(op) =>
-						op.type === 'property' &&
-						op.property === meta.propName &&
-						op.action === 'delete' &&
-						op.oldValue === meta.rawValue,
-				);
-				if (isValueDeleted) {
-					if (!currentCls.includes('is-deleted-value'))
-						currentCls = (currentCls + ' is-deleted-value').trim();
-				}
-			}
-
 			const iconic = !meta.isValueNode ? this.plugin.iconicService?.getIcon(meta.propName) : null;
-			const decoration = this.plugin.decorationManager.decorate(node, {
-				kind: 'prop',
-				highlightQuery: this.searchTerm,
-				propType: meta.propType,
-				isValueNode: meta.isValueNode,
-				iconicIcon: iconic?.icon ?? null,
-			});
-			if (decoration.highlights.length > 0 && !currentCls.includes('vm-search-highlight')) {
+			const viewRow = this.plugin.viewService.getModel({
+				explorerId: this.id,
+				mode: 'tree',
+				nodes: [node],
+				operations,
+				activeFilters,
+				getLabel: (item) => item.label,
+				getDecorationContext: () => ({
+					kind: 'prop',
+					highlightQuery: this.searchTerm,
+					propType: meta.propType,
+					isValueNode: meta.isValueNode,
+					iconicIcon: iconic?.icon ?? null,
+					propName: meta.propName,
+					rawValue: meta.rawValue,
+				}),
+			}).rows[0];
+			const highlights = highlightsFromViewLayers(viewRow.layers);
+			if (highlights && !currentCls.includes('vm-search-highlight')) {
 				currentCls = `${currentCls} vm-search-highlight`.trim();
 			}
+			const deletedClass = meta.isValueNode ? 'is-deleted-value' : 'is-deleted-prop';
+			currentCls = withViewStateClasses(currentCls, viewRow.layers, { deletedClass });
+			if (parentDeleted) currentCls = withViewStateClasses(currentCls, { state: { deleted: true } }, { deletedClass });
 
 			const badges: import('../../types/typeNode').NodeBadge[] = [];
 			if (meta.isTypeIncompatible) {
 				badges.push({ text: 'Conflict', color: 'red', solid: true, icon: 'lucide-alert-triangle' });
 			}
-
-			const relevantOps = queue.filter(
-				(op) =>
-					op.type === 'property' &&
-					op.property === meta.propName &&
-					(meta.isValueNode
-						? op.value === meta.rawValue ||
-							op.oldValue === meta.rawValue ||
-							op.action === 'change_type'
-						: true),
-			) as PropertyChange[];
-
-			for (const op of relevantOps) {
-				const action = op.action;
-				const opIdx = queue.indexOf(op);
-				if (action === 'delete')
-					badges.push({ text: 'Delete', icon: 'lucide-trash-2', color: 'red', queueIndex: opIdx });
-				else if (action === 'rename' || action === 'set')
-					badges.push({ text: 'Update', icon: 'lucide-pencil', color: 'blue', queueIndex: opIdx });
-				else
-					badges.push({
-						text: 'In Queue',
-						icon: 'lucide-clock',
-						color: 'purple',
-						queueIndex: opIdx,
-					});
-			}
+			badges.push(...nodeBadgesFromViewLayers(viewRow.layers, operations));
+			const isDeleted = parentDeleted || viewRow.layers.state?.deleted === true;
 
 			return {
 				...node,
 				cls: currentCls,
-				icon: decoration.icons[0] ?? undefined,
-				highlights: decoration.highlights,
+				icon: viewRow.icon,
+				highlights,
 				badges,
-				children: node.children ? this._decorateTree(node.children, isPropDeleted) : undefined,
+				children: node.children ? this._decorateTree(node.children, isDeleted) : undefined,
 			};
 		});
 	}
@@ -204,8 +182,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 				customLogic: true,
 				logicFunc: (_file, fm) => {
 					if (meta.propName in fm) return null;
-					fm[meta.propName] = '';
-					return fm;
+					return { [meta.propName]: '' };
 				},
 			});
 			return;
@@ -229,9 +206,13 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 		}
 	}
 
-	handleContextMenu(node: TreeNode<PropMeta>, e: MouseEvent): void {
-		const nodeType: 'prop' | 'value' = node.meta.isValueNode ? 'value' : 'prop';
-		this.plugin.contextMenuService.openPanelMenu({ nodeType, node: node, surface: 'panel' }, e);
+	handleContextMenu(node: TreeNode<PropMeta>, e: MouseEvent, selectedNodes: TreeNode<PropMeta>[] = []): void {
+		const nodeType = this.getNodeType(node);
+		this.plugin.contextMenuService.openPanelMenu({ nodeType, node: node, selectedNodes, surface: 'panel' }, e);
+	}
+
+	getNodeType(node: TreeNode<PropMeta>): 'prop' | 'value' {
+		return node.meta.isValueNode ? 'value' : 'prop';
 	}
 
 	setSearchTerm(term: string, mode: 'all' | 'leaf' = 'all'): void {
@@ -258,59 +239,58 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 	private async _renameProp(propName: string): Promise<void> {
 		const newName = await showInputModal(this.plugin.app, `Rename "${propName}" to:`);
 		if (!newName) return;
+		const canonicalName = this.canonicalPropName(propName);
 		this.plugin.queueService.add({
 			type: 'property',
-			property: propName,
+			property: canonicalName,
 			action: 'rename',
 			details: `Rename property "${propName}" → "${newName}"`,
-			files: this.plugin.app.vault
-				.getMarkdownFiles()
-				.filter(
-					(f) => propName in (this.plugin.app.metadataCache.getFileCache(f)?.frontmatter ?? {}),
-				),
+			files: this.filesWithProperty(propName),
 			customLogic: true,
 			logicFunc: (_file, fm) => {
-				if (!(propName in fm)) return null;
-				fm[newName] = fm[propName];
-				delete fm[propName];
-				return fm;
+				const actualKey = frontmatterKey(fm, propName);
+				if (!actualKey) return null;
+				return {
+					[NATIVE_RENAME_PROP]: {
+						oldName: actualKey,
+						newName,
+					},
+				};
 			},
 		});
 	}
 
 	private _deleteProp(propName: string): void {
+		const canonicalName = this.canonicalPropName(propName);
 		this.plugin.queueService.add({
 			type: 'property',
-			property: propName,
+			property: canonicalName,
 			action: 'delete',
 			details: `Bulk delete property "${propName}"`,
-			files: this.plugin.app.vault
-				.getMarkdownFiles()
-				.filter(
-					(f) => propName in (this.plugin.app.metadataCache.getFileCache(f)?.frontmatter ?? {}),
-				),
+			files: this.filesWithProperty(propName),
 			customLogic: true,
 			logicFunc: (_file, fm) => {
-				if (!(propName in fm)) return null;
-				delete fm[propName];
-				return fm;
+				const actualKey = frontmatterKey(fm, propName);
+				if (!actualKey) return null;
+				return { [DELETE_PROP]: actualKey };
 			},
 		});
 	}
 
 	private _changePropType(propName: string, newType: string): void {
+		const canonicalName = this.canonicalPropName(propName);
 		this.plugin.queueService.add({
 			type: 'property',
-			property: propName,
+			property: canonicalName,
 			action: 'change_type',
 			details: `Change type of "${propName}" to ${newType}`,
-			files: this.plugin.app.vault
-				.getMarkdownFiles()
-				.filter(
-					(f) => propName in (this.plugin.app.metadataCache.getFileCache(f)?.frontmatter ?? {}),
-				),
+			files: this.filesWithProperty(propName),
 			customLogic: true,
-			logicFunc: (_file, fm) => fm,
+			logicFunc: (_file, fm) => {
+				const actualKey = frontmatterKey(fm, propName);
+				if (!actualKey) return null;
+				return { [actualKey]: fm[actualKey] };
+			},
 		});
 	}
 
@@ -324,15 +304,16 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			details: `Rename value "${oldValue}" → "${newVal}"`,
 			files: this.plugin.app.vault.getMarkdownFiles().filter((f) => {
 				const fm = this.plugin.app.metadataCache.getFileCache(f)?.frontmatter ?? {};
-				return propName in fm && String(fm[propName]) === oldValue;
+				const actualKey = frontmatterKey(fm, propName);
+				return Boolean(actualKey && valueContains(fm[actualKey], oldValue));
 			}),
 			value: newVal,
 			oldValue: oldValue,
 			customLogic: true,
 			logicFunc: (_file, fm) => {
-				if (!(propName in fm)) return null;
-				fm[propName] = newVal;
-				return fm;
+				const actualKey = frontmatterKey(fm, propName);
+				if (!actualKey) return null;
+				return replaceValueUpdate(actualKey, fm[actualKey], oldValue, newVal);
 			},
 		});
 	}
@@ -345,14 +326,95 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			details: `Delete value "${oldValue}" from "${propName}"`,
 			files: this.plugin.app.vault.getMarkdownFiles().filter((f) => {
 				const fm = this.plugin.app.metadataCache.getFileCache(f)?.frontmatter ?? {};
-				return propName in fm && String(fm[propName]) === oldValue;
+				const actualKey = frontmatterKey(fm, propName);
+				return Boolean(actualKey && valueContains(fm[actualKey], oldValue));
 			}),
 			customLogic: true,
 			logicFunc: (_file, fm) => {
-				if (!(propName in fm)) return null;
-				delete fm[propName];
-				return fm;
+				const actualKey = frontmatterKey(fm, propName);
+				if (!actualKey) return null;
+				return deleteValueUpdate(actualKey, fm[actualKey], oldValue);
 			},
 		});
 	}
+
+	private contextPropNodes(ctx: MenuCtx): TreeNode<PropMeta>[] {
+		return contextNodes<PropMeta>(ctx).filter((node) => !node.meta.isValueNode);
+	}
+
+	private contextValueNodes(ctx: MenuCtx): TreeNode<PropMeta>[] {
+		return contextNodes<PropMeta>(ctx).filter((node) => node.meta.isValueNode);
+	}
+
+	private filesWithProperty(propName: string): import('obsidian').TFile[] {
+		return this.plugin.app.vault.getMarkdownFiles().filter((file) => {
+			const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
+			return Boolean(frontmatterKey(fm, propName));
+		});
+	}
+
+	private canonicalPropName(propName: string): string {
+		for (const file of this.plugin.app.vault.getMarkdownFiles()) {
+			const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
+			const key = frontmatterKey(fm, propName);
+			if (key) return key;
+		}
+		return propName;
+	}
+}
+
+function contextNodes<TMeta>(ctx: MenuCtx): TreeNode<TMeta>[] {
+	const selected = (ctx.selectedNodes ?? []) as TreeNode<TMeta>[];
+	return selected.length > 0 ? selected : [ctx.node as TreeNode<TMeta>];
+}
+
+function frontmatterKey(fm: Record<string, unknown>, propName: string): string | null {
+	const expected = propName.toLowerCase();
+	return Object.keys(fm).find((key) => key.toLowerCase() === expected) ?? null;
+}
+
+function valueContains(value: unknown, needle: string): boolean {
+	if (Array.isArray(value)) return (value as unknown[]).some((item) => valueToString(item) === needle);
+	return valueToString(value) === needle;
+}
+
+function replaceValueUpdate(
+	propName: string,
+	current: unknown,
+	oldValue: string,
+	newValue: string,
+): Record<string, unknown> | null {
+	if (Array.isArray(current)) {
+		if (!valueContains(current, oldValue)) return null;
+		const values = current as unknown[];
+		return {
+			[propName]: values.map((item): unknown => (valueToString(item) === oldValue ? newValue : item)),
+		};
+	}
+	if (valueToString(current) !== oldValue) return null;
+	return { [propName]: newValue };
+}
+
+function deleteValueUpdate(
+	propName: string,
+	current: unknown,
+	oldValue: string,
+): Record<string, unknown> | null {
+	if (Array.isArray(current)) {
+		const values = current as unknown[];
+		const next = values.filter((item) => valueToString(item) !== oldValue);
+		if (next.length === current.length) return null;
+		if (next.length === 0) return { [DELETE_PROP]: propName };
+		return { [propName]: next };
+	}
+	if (valueToString(current) !== oldValue) return null;
+	return { [DELETE_PROP]: propName };
+}
+
+function valueToString(value: unknown): string {
+	if (typeof value === 'string') return value;
+	if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+		return String(value);
+	}
+	return JSON.stringify(value) ?? '';
 }

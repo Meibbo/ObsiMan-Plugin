@@ -1,4 +1,4 @@
-import type { NodeBase } from './typeContracts';
+import type { ActiveFilterEntry, NodeBase, QueueChange } from './typeContracts';
 
 export const EXPLORER_VIEW_MODES = ['tree', 'table', 'grid', 'cards', 'list'] as const;
 
@@ -199,6 +199,8 @@ export interface ExplorerViewInput<TNode extends NodeBase = NodeBase> {
 	explorerId: string;
 	mode: ExplorerViewMode;
 	nodes: readonly TNode[];
+	operations?: readonly QueueChange[];
+	activeFilters?: readonly ActiveFilterEntry[];
 	columns?: readonly ViewColumn<TNode>[];
 	groups?: readonly ViewGroup<TNode>[];
 	actions?: readonly ViewAction<TNode>[];

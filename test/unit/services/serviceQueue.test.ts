@@ -12,6 +12,7 @@ import {
 	type ContentChange,
 	type FileChange,
 	type TemplateChange,
+	type TagChange,
 } from '../../../src/types/typeOps';
 import { mockApp, mockTFile, type CachedMetadata, type TFile } from '../../helpers/obsidian-mocks';
 
@@ -90,6 +91,22 @@ function buildTemplateChange(file: TFile, content: string): TemplateChange {
 	};
 }
 
+function buildTagDeleteChange(file: TFile, tag: string): TagChange {
+	return {
+		type: 'tag',
+		files: [file],
+		action: 'delete',
+		details: `delete ${tag}`,
+		tag,
+		logicFunc: (_file, metadata) => {
+			const raw = metadata.tags;
+			const tags = Array.isArray(raw) ? raw.map(String) : raw ? [String(raw)] : [];
+			return { tags: tags.filter((item) => item !== tag) };
+		},
+		customLogic: true,
+	};
+}
+
 function buildNativeRenamePropChange(file: TFile, oldName: string, newName: string): PropertyChange {
 	return {
 		type: 'property',
@@ -150,6 +167,17 @@ describe('OperationQueueService.add (property set)', () => {
 		await svc.addAsync(buildPropChange(file, 'b', '2'));
 		expect(cb).toHaveBeenCalledTimes(2);
 	});
+
+	it('does not read markdown body when enqueuing frontmatter-only changes', async () => {
+		const { app, svc, file } = setupAppWithFile();
+		const read = vi.spyOn(app.vault, 'read');
+
+		await svc.addAsync(buildPropChange(file, 'author', 'Alice'));
+
+		expect(read).not.toHaveBeenCalled();
+		expect(svc.getTransaction(file.path)?.bodyLoaded).toBe(false);
+		expect(svc.getTransaction(file.path)?.fm.author).toBe('Alice');
+	});
 });
 
 describe('OperationQueueService.addBatch', () => {
@@ -172,6 +200,31 @@ describe('OperationQueueService.addBatch', () => {
 		svc.on('changed', cb);
 		await svc.addBatch([]);
 		expect(cb).not.toHaveBeenCalled();
+	});
+
+	it('distinguishes logical operation count from touched file operation count', async () => {
+		const fileA = mockTFile('a.md', { frontmatter: { status: 'draft' } });
+		const fileB = mockTFile('b.md', { frontmatter: { status: 'done' } });
+		const meta = new Map<string, CachedMetadata>([
+			[fileA.path, { frontmatter: { status: 'draft' } }],
+			[fileB.path, { frontmatter: { status: 'done' } }],
+		]);
+		const app = mockApp({ files: [fileA, fileB], metadata: meta });
+		const svc = new OperationQueueService(app);
+
+		await svc.addAsync({
+			type: 'property',
+			files: [fileA, fileB],
+			action: 'delete',
+			details: 'delete status',
+			logicFunc: () => ({ [DELETE_PROP]: 'status' }),
+			customLogic: false,
+			property: 'status',
+		});
+
+		expect(svc.opCount).toBe(2);
+		expect(svc.logicalOpCount).toBe(1);
+		expect(svc.size).toBe(1);
 	});
 });
 
@@ -204,6 +257,21 @@ describe('OperationQueueService op kinds', () => {
 		const { svc, file } = setupAppWithFile();
 		await svc.addAsync(buildTemplateChange(file, '## Appended'));
 		expect(svc.getTransaction(file.path)?.body).toContain('## Appended');
+	});
+
+	it('classifies tag changes as tag staged ops', async () => {
+		const file = mockTFile('tagged.md', { frontmatter: { tags: ['project', 'archive'] } });
+		const meta = new Map<string, CachedMetadata>([
+			[file.path, { frontmatter: { tags: ['project', 'archive'] } }],
+		]);
+		const app = mockApp({ files: [file], metadata: meta });
+		const svc = new OperationQueueService(app);
+
+		await svc.addAsync(buildTagDeleteChange(file, 'project'));
+
+		const tx = svc.getTransaction(file.path);
+		expect(tx?.ops[0].kind).toBe('delete_tag');
+		expect(tx?.fm.tags).toEqual(['archive']);
 	});
 
 	it('NATIVE_RENAME_PROP expands across vault for matching files', async () => {

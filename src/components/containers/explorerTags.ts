@@ -2,6 +2,12 @@ import { TagsLogic } from '../../logic/logicTags';
 import type { TreeNode, TagMeta } from '../../types/typeNode';
 import type { VaultmanPlugin } from '../../main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
+import type { MenuCtx } from '../../types/typeCtxMenu';
+import {
+	highlightsFromViewLayers,
+	nodeBadgesFromViewLayers,
+	withViewStateClasses,
+} from '../../utils/utilViewLayers';
 
 export class explorerTags implements ExplorerProvider<TagMeta> {
 	id = 'tags';
@@ -38,16 +44,19 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 			id: 'tag.delete',
 			nodeTypes: ['tag'],
 			surfaces: ['panel'],
-			label: 'Delete',
+			label: (ctx) => {
+				const nodes = this.contextTagNodes(ctx);
+				return nodes.length > 1 ? `Delete ${nodes.length} tags` : 'Delete';
+			},
 			icon: 'lucide-trash-2',
 			run: (ctx) => {
-				const meta = ctx.node.meta as TagMeta;
-				return this._deleteTag(meta.tagPath);
+				for (const node of this.contextTagNodes(ctx)) this._deleteTag(node.meta.tagPath);
 			},
 		});
 	}
 
 	getTree(): TreeNode<TagMeta>[] {
+		this.logic.invalidate();
 		let tree = this.logic.getTree();
 		if (this.searchMode === 'leaf') tree = this._collectLeaves(tree);
 		if (this.searchTerm) tree = this.logic.filterTree(tree, this.searchTerm);
@@ -57,52 +66,50 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 	}
 
 	private _decorateTree(nodes: TreeNode<TagMeta>[], parentDeleted = false): TreeNode<TagMeta>[] {
-		const queue = this.plugin.queueService.queue;
+		const operations = [...this.plugin.operationsIndex.nodes];
+		const activeFilters = [...this.plugin.activeFiltersIndex.nodes];
 		return nodes.map((node) => {
 			const meta = node.meta;
 			let currentCls = node.cls || '';
-
-			const relevantOps = queue.filter((op) => op.type === 'tag' && op.tag === meta.tagPath);
-			const isEffectivelyDeleted =
-				parentDeleted || relevantOps.some((op) => op.action === 'delete');
-
-			if (isEffectivelyDeleted) currentCls = `${currentCls} is-deleted-tag`.trim();
-			const decoration = this.plugin.decorationManager.decorate(node, {
-				kind: 'tag',
-				highlightQuery: this.searchTerm,
-				iconicIcon: this.plugin.iconicService?.getTagIcon(meta.tagPath)?.icon ?? null,
-			});
-			if (decoration.highlights.length > 0 && !currentCls.includes('vm-search-highlight')) {
+			const viewRow = this.plugin.viewService.getModel({
+				explorerId: this.id,
+				mode: 'tree',
+				nodes: [node],
+				operations,
+				activeFilters,
+				getLabel: (item) => item.label,
+				getDecorationContext: () => ({
+					kind: 'tag',
+					highlightQuery: this.searchTerm,
+					iconicIcon: this.plugin.iconicService?.getTagIcon(meta.tagPath)?.icon ?? null,
+					tagPath: meta.tagPath,
+				}),
+			}).rows[0];
+			const highlights = highlightsFromViewLayers(viewRow.layers);
+			if (highlights && !currentCls.includes('vm-search-highlight')) {
 				currentCls = `${currentCls} vm-search-highlight`.trim();
 			}
+			currentCls = withViewStateClasses(currentCls, viewRow.layers, {
+				deletedClass: 'is-deleted-tag',
+			});
+			if (parentDeleted) {
+				currentCls = withViewStateClasses(
+					currentCls,
+					{ state: { deleted: true } },
+					{ deletedClass: 'is-deleted-tag' },
+				);
+			}
+			const isEffectivelyDeleted = parentDeleted || viewRow.layers.state?.deleted === true;
 			const resolvedChildren = node.children
 				? this._decorateTree(node.children, isEffectivelyDeleted)
 				: [];
 
-			const badges: import('../../types/typeNode').NodeBadge[] = [];
-			for (const op of relevantOps) {
-				const opIdx = queue.indexOf(op);
-				if (op.action === 'delete')
-					badges.push({ text: 'Delete', icon: 'lucide-trash-2', color: 'red', queueIndex: opIdx });
-				else if (op.action === 'rename')
-					badges.push({ text: 'Update', icon: 'lucide-pencil', color: 'blue', queueIndex: opIdx });
-				else if (op.action === 'add')
-					badges.push({ text: 'Add', icon: 'lucide-plus', color: 'green', queueIndex: opIdx });
-				else
-					badges.push({
-						text: 'In Queue',
-						icon: 'lucide-clock',
-						color: 'purple',
-						queueIndex: opIdx,
-					});
-			}
-
 			return {
 				...node,
 				cls: currentCls,
-				icon: decoration.icons[0],
-				highlights: decoration.highlights,
-				badges,
+				icon: viewRow.icon,
+				highlights,
+				badges: nodeBadgesFromViewLayers(viewRow.layers, operations),
 				children: resolvedChildren,
 			};
 		});
@@ -124,8 +131,7 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 						typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v);
 					const tags = Array.isArray(raw) ? (raw as string[]) : raw ? [coerce(raw)] : [];
 					if (tags.includes(meta.tagPath)) return null;
-					fm.tags = [...tags, meta.tagPath];
-					return fm;
+					return { tags: [...tags, meta.tagPath] };
 				},
 			});
 			return;
@@ -144,11 +150,15 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 		}
 	}
 
-	handleContextMenu(node: TreeNode<TagMeta>, e: MouseEvent): void {
+	handleContextMenu(node: TreeNode<TagMeta>, e: MouseEvent, selectedNodes: TreeNode<TagMeta>[] = []): void {
 		this.plugin.contextMenuService.openPanelMenu(
-			{ nodeType: 'tag', node: node, surface: 'panel' },
+			{ nodeType: 'tag', node: node, selectedNodes, surface: 'panel' },
 			e,
 		);
+	}
+
+	getNodeType(_node: TreeNode<TagMeta>): 'tag' {
+		return 'tag';
 	}
 
 	setSearchTerm(term: string, mode: 'all' | 'leaf' = 'all'): void {
@@ -186,15 +196,55 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 		return leaves;
 	}
 
-	private async _deleteTag(tagPath: string): Promise<void> {
-		for (const file of this.plugin.app.vault.getMarkdownFiles()) {
-			await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
-				const raw = fm.tags;
-				if (!raw) return;
-				const tagsRaw = Array.isArray(raw) ? (raw as unknown[]) : [raw];
-				fm.tags = tagsRaw.filter((t) => String(t) !== tagPath && String(t) !== `#${tagPath}`);
-			});
-		}
-		this.logic.invalidate();
+	private _deleteTag(tagPath: string): void {
+		const files = this.plugin.app.vault.getMarkdownFiles().filter((file) => {
+			const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
+			return tagListContains(fm.tags, tagPath);
+		});
+		this.plugin.queueService.add({
+			type: 'tag',
+			tag: tagPath,
+			action: 'delete',
+			details: `Delete tag "#${tagPath}"`,
+			files,
+			customLogic: true,
+			logicFunc: (_file, fm: Record<string, unknown>) => {
+				if (!tagListContains(fm.tags, tagPath)) return null;
+				return { tags: removeTagValue(fm.tags, tagPath) };
+			},
+		});
 	}
+
+	private contextTagNodes(ctx: MenuCtx): TreeNode<TagMeta>[] {
+		const selected = (ctx.selectedNodes ?? []) as TreeNode<TagMeta>[];
+		return selected.length > 0 ? selected : [ctx.node as TreeNode<TagMeta>];
+	}
+}
+
+function tagListContains(raw: unknown, tagPath: string): boolean {
+	const expected = normalizeTag(tagPath);
+	return tagValues(raw).some((tag) => normalizeTag(tag) === expected);
+}
+
+function removeTagValue(raw: unknown, tagPath: string): string[] {
+	const expected = normalizeTag(tagPath);
+	return tagValues(raw).filter((tag) => normalizeTag(tag) !== expected);
+}
+
+function tagValues(raw: unknown): string[] {
+	if (Array.isArray(raw)) return (raw as unknown[]).map(tagValueToString);
+	if (raw == null || raw === '') return [];
+	return [tagValueToString(raw)];
+}
+
+function normalizeTag(value: string): string {
+	return value.replace(/^#/, '');
+}
+
+function tagValueToString(value: unknown): string {
+	if (typeof value === 'string') return value;
+	if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+		return String(value);
+	}
+	return JSON.stringify(value) ?? '';
 }

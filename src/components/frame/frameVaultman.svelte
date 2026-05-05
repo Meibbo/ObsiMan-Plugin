@@ -122,17 +122,17 @@
 	let queuedCount = $state(0);
 	let filterRuleCount = $state(0);
 	const addOpCount = $derived.by(() => {
-		let count = 0;
+		const ids = new Set<string>();
 		for (const vfs of plugin.queueService.listTransactions()) {
 			for (const op of vfs.ops) {
-				if (op.action === 'add') count++;
+				if (op.action === 'add') ids.add(op.changeId ?? op.id);
 			}
 		}
-		return count;
+		return ids.size;
 	});
 
 	function updateStats() {
-		queuedCount = plugin.queueService.fileCount;
+		queuedCount = plugin.queueService.logicalOpCount;
 		filterRuleCount = countFilterLeaves(plugin.filterService.activeFilter);
 	}
 

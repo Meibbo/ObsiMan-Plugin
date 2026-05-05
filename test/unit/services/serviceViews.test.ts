@@ -242,4 +242,199 @@ describe('ViewService', () => {
 		expect(model.rows[0].layers.highlights?.filter).toEqual([{ start: 5, end: 11 }]);
 		expect(model.rows[0].layers.highlights?.query).toBeUndefined();
 	});
+
+	it('projects queued property operations onto matching property rows', () => {
+		const service = new ViewService();
+		const nodes: TestNode[] = [{ id: 'prop:status', label: 'status' }];
+		const operations: QueueChange[] = [
+			{
+				id: 'op-delete-status',
+				group: 'delete_prop',
+				change: {
+					id: 'op-delete-status',
+					type: 'property',
+					action: 'delete',
+					details: 'Delete status',
+					property: 'status',
+				} as never,
+			},
+		];
+		const model = service.getModel({
+			explorerId: 'props',
+			mode: 'tree',
+			nodes,
+			operations,
+			getDecorationContext: () => ({
+				kind: 'prop',
+				propName: 'status',
+				isValueNode: false,
+			}),
+		});
+
+		expect(model.rows[0].layers.state).toMatchObject({
+			pending: true,
+			deleted: true,
+		});
+		expect(model.rows[0].layers.badges?.ops?.[0]).toMatchObject({
+			id: 'prop:status:op:op-delete-status',
+			label: 'delete',
+			tone: 'danger',
+			sourceId: 'op-delete-status',
+			actionId: 'remove',
+		});
+	});
+
+	it('projects active value filters onto matching property value rows', () => {
+		const service = new ViewService();
+		const nodes: TestNode[] = [{ id: 'prop:status::todo', label: 'todo' }];
+		const activeFilters: ActiveFilterEntry[] = [
+			{
+				id: 'filter-status-todo',
+				rule: {
+					id: 'filter-status-todo',
+					type: 'rule',
+					filterType: 'specific_value',
+					property: 'status',
+					values: ['todo'],
+				},
+			},
+		];
+		const model = service.getModel({
+			explorerId: 'props',
+			mode: 'tree',
+			nodes,
+			activeFilters,
+			getDecorationContext: () => ({
+				kind: 'prop',
+				propName: 'status',
+				isValueNode: true,
+				rawValue: 'todo',
+			}),
+		});
+
+		expect(model.rows[0].layers.state?.activeFilter).toBe(true);
+		expect(model.rows[0].layers.badges?.filters?.[0]).toMatchObject({
+			id: 'prop:status::todo:filter:filter-status-todo',
+			label: 'specific value',
+			tone: 'info',
+			sourceId: 'filter-status-todo',
+			actionId: 'remove',
+		});
+		expect(model.rows[0].layers.highlights?.filter).toEqual([{ start: 0, end: 4 }]);
+	});
+
+	it('projects queued tag operations and active tag filters onto matching tag rows', () => {
+		const service = new ViewService();
+		const nodes: TestNode[] = [{ id: 'tag:project', label: 'project' }];
+		const operations: QueueChange[] = [
+			{
+				id: 'op-delete-project-tag',
+				group: 'delete_tag',
+				change: {
+					id: 'op-delete-project-tag',
+					type: 'tag',
+					action: 'delete',
+					details: 'Delete #project',
+					tag: '#project',
+				} as never,
+			},
+		];
+		const activeFilters: ActiveFilterEntry[] = [
+			{
+				id: 'filter-project-tag',
+				rule: {
+					id: 'filter-project-tag',
+					type: 'rule',
+					filterType: 'has_tag',
+					property: '',
+					values: ['#project'],
+				},
+			},
+		];
+		const model = service.getModel({
+			explorerId: 'tags',
+			mode: 'tree',
+			nodes,
+			operations,
+			activeFilters,
+			getDecorationContext: () => ({ kind: 'tag', tagPath: 'project' }),
+		});
+
+		expect(model.rows[0].layers.state).toMatchObject({
+			pending: true,
+			deleted: true,
+			activeFilter: true,
+		});
+		expect(model.rows[0].layers.badges?.ops?.[0]).toMatchObject({
+			id: 'tag:project:op:op-delete-project-tag',
+			label: 'delete',
+			tone: 'danger',
+		});
+		expect(model.rows[0].layers.badges?.filters?.[0]).toMatchObject({
+			id: 'tag:project:filter:filter-project-tag',
+			label: 'has tag',
+			tone: 'info',
+		});
+		expect(model.rows[0].layers.highlights?.filter).toEqual([{ start: 0, end: 7 }]);
+	});
+
+	it('projects queued file operations and file-name filters onto matching file rows', () => {
+		const service = new ViewService();
+		const nodes: TestNode[] = [{ id: 'file:notes/task.md', label: 'Task' }];
+		const operations: QueueChange[] = [
+			{
+				id: 'op-rename-task',
+				group: 'rename_file',
+				change: {
+					id: 'op-rename-task',
+					type: 'file_rename',
+					action: 'rename',
+					details: 'Rename Task.md',
+					files: [{ path: 'Notes/Task.md', basename: 'Task' } as never],
+					newName: 'Task Done',
+				} as never,
+			},
+		];
+		const activeFilters: ActiveFilterEntry[] = [
+			{
+				id: 'filter-task-name',
+				rule: {
+					id: 'filter-task-name',
+					type: 'rule',
+					filterType: 'file_name',
+					property: '',
+					values: ['Task'],
+				},
+			},
+		];
+		const model = service.getModel({
+			explorerId: 'files',
+			mode: 'tree',
+			nodes,
+			operations,
+			activeFilters,
+			getDecorationContext: () => ({
+				kind: 'file',
+				filePath: 'Notes/Task.md',
+				basename: 'Task',
+			}),
+		});
+
+		expect(model.rows[0].layers.state).toMatchObject({
+			pending: true,
+			activeFilter: true,
+		});
+		expect(model.rows[0].layers.state?.deleted).toBeUndefined();
+		expect(model.rows[0].layers.badges?.ops?.[0]).toMatchObject({
+			id: 'file:notes/task.md:op:op-rename-task',
+			label: 'rename',
+			tone: 'warning',
+		});
+		expect(model.rows[0].layers.badges?.filters?.[0]).toMatchObject({
+			id: 'file:notes/task.md:filter:filter-task-name',
+			label: 'file name',
+			tone: 'info',
+		});
+		expect(model.rows[0].layers.highlights?.filter).toEqual([{ start: 0, end: 4 }]);
+	});
 });

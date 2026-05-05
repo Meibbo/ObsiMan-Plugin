@@ -6,9 +6,12 @@
   interface Props {
     nodes: TreeNode[];
     expandedIds: Set<string>;
+    selectedIds?: Set<string>;
+    focusedId?: string | null;
     onToggle: (id: string) => void;
-    onRowClick: (id: string) => void;
+    onRowClick: (id: string, e: MouseEvent) => void;
     onContextMenu: (id: string, e: MouseEvent) => void;
+    onRowKeydown?: (id: string, e: KeyboardEvent) => void;
     activeFilterIds?: Set<string>;
     searchHighlightIds?: Set<string>;
     warningIds?: Set<string>;
@@ -22,9 +25,12 @@
   let {
     nodes,
     expandedIds,
+    selectedIds,
+    focusedId,
     onToggle,
     onRowClick,
     onContextMenu,
+    onRowKeydown,
     activeFilterIds,
     searchHighlightIds,
     warningIds,
@@ -67,7 +73,11 @@
   });
 
   function handleKeydown(e: KeyboardEvent, id: string) {
-    if (e.key === "Enter") onRowClick(id);
+    if (onRowKeydown) {
+      onRowKeydown(id, e);
+      return;
+    }
+    if (e.key === "Enter") onRowClick(id, e as unknown as MouseEvent);
   }
 
   function handleInputKeydown(e: KeyboardEvent, id: string, inputEl: HTMLInputElement) {
@@ -93,20 +103,24 @@
       {@const isWarning = warningIds?.has(node.id) ?? false}
       {@const isEditing = editingId === node.id}
       {@const isHighlighted = searchHighlightIds?.has(node.id) ?? false}
+      {@const isSelected = selectedIds?.has(node.id) ?? false}
+      {@const isFocused = focusedId === node.id}
 
       <div
         class="vm-tree-virtual-row {node.cls ?? ''}"
         class:is-active-filter={isActive}
+        class:is-selected={isSelected}
+        class:is-focused={isFocused}
         class:vm-badge-warning={isWarning}
         class:vm-search-highlight={isHighlighted}
         class:is-editing={isEditing}
         style="--vm-tree-y: {absIdx * virtualizer.rowHeight}px; --depth: {flat.depth}"
         data-id={node.id}
-        onclick={() => onRowClick(node.id)}
+        onclick={(e) => onRowClick(node.id, e)}
         oncontextmenu={(e) => onContextMenu(node.id, e)}
         onkeydown={(e) => handleKeydown(e, node.id)}
         role="treeitem"
-        aria-selected={isActive}
+        aria-selected={isActive || isSelected}
         tabindex="0"
         aria-expanded={flat.hasChildren ? flat.isExpanded : undefined}
       >
@@ -148,7 +162,7 @@
         {#if (node.count != null && node.count > 0) || (node.badges && node.badges.length > 0)}
           <div class="vm-tree-badge-zone">
             {#if node.badges}
-              {#each node.badges as badge}
+              {#each node.badges as badge, badgeIndex (`${badge.queueIndex ?? 'badge'}:${badgeIndex}:${badge.text ?? ''}:${badge.icon ?? ''}:${badge.color ?? ''}:${badge.isInherited ?? false}`)}
                 <div
                   class="vm-badge"
                   role="button"

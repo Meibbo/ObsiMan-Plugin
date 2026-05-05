@@ -18,21 +18,33 @@ function opType(op: StagedOp): PendingChange['type'] {
 function stagedOps(queue: IOperationQueue): QueueChange[] | null {
 	const txs = (queue as QueueWithTransactions).listTransactions?.();
 	if (!txs) return null;
-	return txs.flatMap((vfs) =>
-		vfs.ops.map((op) => ({
-			id: op.id,
-			change: {
-				id: op.id,
-				type: opType(op),
-				action: op.action,
-				details: op.details,
-				files: [vfs.file],
-				customLogic: true,
-				logicFunc: () => null,
-			} as PendingChange,
-			group: op.kind,
-		})),
-	);
+	const groups = new Map<string, { op: StagedOp; files: VirtualFileState['file'][] }>();
+	for (const vfs of txs) {
+		for (const op of vfs.ops) {
+			const key = op.changeId ?? op.id;
+			const group = groups.get(key);
+			if (group) {
+				group.files.push(vfs.file);
+			} else {
+				groups.set(key, { op, files: [vfs.file] });
+			}
+		}
+	}
+	return [...groups.entries()].map(([id, group]) => ({
+		id,
+		change: {
+			id,
+			type: opType(group.op),
+			action: group.op.action,
+			details: group.op.details,
+			files: group.files,
+			...(group.op.property ? { property: group.op.property } : {}),
+			...(group.op.tag ? { tag: group.op.tag } : {}),
+			customLogic: true,
+			logicFunc: () => null,
+		} as PendingChange,
+		group: group.op.kind,
+	}));
 }
 
 export function createOperationsIndex(queue: IOperationQueue): IOperationsIndex {

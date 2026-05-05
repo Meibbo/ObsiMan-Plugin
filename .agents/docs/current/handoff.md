@@ -4,7 +4,7 @@ type: agent-handoff
 status: active
 parent: "[[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-04T18:15:57
+updated: 2026-05-04T19:49:45
 tags:
   - agent/current
 ---
@@ -59,12 +59,11 @@ Last known work:
 - Confirmed rule: because groups are being added to all views, all view modes
   should treat their render model as hierarchical; badge bubbling is general,
   not tree-specific.
-- Confirmed badge projection: parents should show a compact circular child
-  badge indicator for hidden descendant badges; on hover it expands as an
-  overlay pill toward available empty space, e.g. leftward from the right count
-  area in tree rows. Parent-owned badges stay separate; if a value child is
-  deleted and its property parent has a rename op, the row shows the child
-  indicator plus the parent's own rename badge to the indicator's left.
+- Current operations suite handoff:
+  [[.agents/docs/work/hardening/backlog/regressions/operations-suite-live-handoff|operations suite live handoff]].
+- `pressBarBench` live probe queues as one logical delete op over two files;
+  props/tags explorers now invalidate cached trees on read to avoid stale
+  metadata after core Obsidian or Vaultman changes.
 - Queue and active filters now render through shared `ViewList` models while
   keeping popup shell actions in their explorer components.
 - `viewGrid.svelte` is considered failed table debt and should not seed
@@ -79,9 +78,9 @@ Next agent should:
 3. Current verification passes: `pnpm run check`, `pnpm run build`,
    `pnpm run test:unit`, `pnpm run test:component`, and `pnpm run lint`
    (lint exits 0 with 0 warnings).
-4. Continue Slice 3 decoration layers from the serviceViews spec: next likely
-   areas are operation-to-prop/tag/file matching, filter-state mapping for
-   explorer rows, then general hierarchy badge bubbling/child indicators.
+4. Continue with badge bubbling, smart `serviceFnR` in navbar searchbox,
+   file-node click-to-filter selection groups, and `logicKeyboard`
+   multi-select/navigation.
 5. Review `git status`; there are unrelated/user changes in product files.
 
 Do not:

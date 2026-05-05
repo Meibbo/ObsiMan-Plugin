@@ -44,6 +44,15 @@
     box-sizing: border-box;
     will-change: transform;
 
+    &.is-selected {
+      background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
+      color: var(--text-normal);
+    }
+
+    &.is-focused {
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--interactive-accent) 55%, transparent);
+    }
+
     .vm-tree-label {
       flex: 1 1 auto;
       min-width: 0;

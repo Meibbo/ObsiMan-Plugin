@@ -54,4 +54,34 @@ describe('ViewTree decorations', () => {
 
 		expect(target.querySelector('mark.vm-highlight')?.textContent).toBe('status');
 	});
+
+	it('renders duplicate-looking badges without duplicate keyed-each errors', () => {
+		const nodes: TreeNode[] = [
+			{
+				id: 'status',
+				label: 'status',
+				depth: 0,
+				meta: {},
+				badges: [
+					{ text: 'delete', icon: 'lucide-trash-2', color: 'red' },
+					{ text: 'delete', icon: 'lucide-trash-2', color: 'red' },
+				],
+			},
+		];
+
+		app = mount(ViewTree as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: {
+				nodes,
+				expandedIds: new Set<string>(),
+				onToggle: vi.fn(),
+				onRowClick: vi.fn(),
+				onContextMenu: vi.fn(),
+				icon: vi.fn(() => ({ update: vi.fn() })),
+			},
+		});
+		flushSync();
+
+		expect(target.querySelectorAll('.vm-badge')).toHaveLength(2);
+	});
 });

@@ -2,9 +2,11 @@ import { describe, expect, it, vi } from 'vitest';
 import { mockApp, mockTFile, type CachedMetadata, type TFile } from '../../helpers/obsidian-mocks';
 import { explorerProps } from '../../../src/components/containers/explorerProps';
 import { DecorationManager } from '../../../src/services/serviceDecorate';
+import { ViewService } from '../../../src/services/serviceViews.svelte';
 import type { VaultmanPlugin } from '../../../src/main';
+import type { ActiveFilterEntry, QueueChange } from '../../../src/types/typeContracts';
 
-function makePlugin(): VaultmanPlugin {
+function makePlugin(overrides: Partial<VaultmanPlugin> = {}): VaultmanPlugin {
 	const a = mockTFile('a.md', { frontmatter: { status: 'draft', owner: 'vic' } });
 	const b = mockTFile('b.md', { frontmatter: { status: 'done' } });
 	const files = [a, b] as TFile[];
@@ -19,16 +21,21 @@ function makePlugin(): VaultmanPlugin {
 		owner: { type: 'text' },
 	});
 
+	const decorationManager = new DecorationManager(app);
 	return {
 		app,
 		contextMenuService: { registerAction: vi.fn() },
 		queueService: { queue: [], add: vi.fn() },
+		operationsIndex: { nodes: [], refresh: vi.fn(), subscribe: vi.fn(), byId: vi.fn() },
+		activeFiltersIndex: { nodes: [], refresh: vi.fn(), subscribe: vi.fn(), byId: vi.fn() },
 		filterService: {
 			filteredFiles: files,
 			addNode: vi.fn(),
 		},
-		decorationManager: new DecorationManager(app),
+		decorationManager,
+		viewService: new ViewService({ decorationManager }),
 		iconicService: { getIcon: vi.fn(() => null) },
+		...overrides,
 	} as unknown as VaultmanPlugin;
 }
 
@@ -51,5 +58,184 @@ describe('explorerProps search', () => {
 
 		expect(tree.map((node) => node.id)).toEqual(['status']);
 		expect(tree[0].children?.map((node) => node.label)).toEqual(['draft']);
+	});
+
+	it('projects active filter layers from ViewService onto matching value nodes', () => {
+		const activeFilters: ActiveFilterEntry[] = [
+			{
+				id: 'filter-status-draft',
+				rule: {
+					id: 'filter-status-draft',
+					type: 'rule',
+					filterType: 'specific_value',
+					property: 'status',
+					values: ['draft'],
+				},
+			},
+		];
+		const plugin = makePlugin({
+			activeFiltersIndex: {
+				nodes: activeFilters,
+				refresh: vi.fn(),
+				subscribe: vi.fn(),
+				byId: vi.fn(),
+			},
+			operationsIndex: {
+				nodes: [] as QueueChange[],
+				refresh: vi.fn(),
+				subscribe: vi.fn(),
+				byId: vi.fn(),
+			},
+		});
+		const explorer = new explorerProps(plugin);
+
+		const tree = explorer.getTree();
+		const valueNode = tree.find((node) => node.id === 'status')?.children?.find((node) => node.label === 'draft');
+
+		expect(valueNode?.cls).toContain('is-active-filter');
+		expect(valueNode?.badges).toContainEqual(
+			expect.objectContaining({
+				text: 'specific value',
+				icon: 'lucide-filter',
+				color: 'blue',
+			}),
+		);
+		expect(valueNode?.highlights).toEqual([{ start: 0, end: 5 }]);
+	});
+
+	it('queues value deletion for list values without rewriting unrelated properties', () => {
+		const file = mockTFile('list.md', {
+			frontmatter: { tags: ['project', 'archive'], owner: 'vic' },
+		});
+		const files = [file] as TFile[];
+		const meta = new Map<string, CachedMetadata>([
+			[file.path, { frontmatter: { tags: ['project', 'archive'], owner: 'vic' } }],
+		]);
+		const app = mockApp({ files, metadata: meta });
+		(app.metadataCache as unknown as { getAllPropertyInfos: () => Record<string, { type: string }> })
+			.getAllPropertyInfos = () => ({
+			tags: { type: 'list' },
+			owner: { type: 'text' },
+		});
+		const decorationManager = new DecorationManager(app);
+		const add = vi.fn();
+		const plugin = makePlugin({
+			app,
+			queueService: { queue: [], add },
+			filterService: { filteredFiles: files, addNode: vi.fn() },
+			decorationManager,
+			viewService: new ViewService({ decorationManager }),
+		});
+		const explorer = new explorerProps(plugin);
+		const valueNode = explorer
+			.getTree()
+			.find((node) => node.id === 'tags')
+			?.children?.find((node) => node.label === 'project');
+		expect(valueNode).toBeTruthy();
+
+		explorer.handleContextMenu = vi.fn();
+		// Invoke the registered action directly through the context menu mock.
+		const deleteAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
+			([action]) => action.id === 'value.delete',
+		)?.[0];
+		deleteAction.run({ node: valueNode });
+
+		expect(add).toHaveBeenCalledOnce();
+		const change = add.mock.calls[0][0];
+		expect(change.files).toEqual([file]);
+		expect(change.logicFunc(file, { tags: ['project', 'archive'], owner: 'vic' })).toEqual({
+			tags: ['archive'],
+		});
+		expect(change.logicFunc(file, { tags: ['archive'], owner: 'vic' })).toBeNull();
+	});
+
+	it('applies property delete context menu action to selected property nodes', () => {
+		const plugin = makePlugin();
+		const explorer = new explorerProps(plugin);
+		const tree = explorer.getTree();
+		const statusNode = tree.find((node) => node.id === 'status');
+		const ownerNode = tree.find((node) => node.id === 'owner');
+		const deleteAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
+			([action]) => action.id === 'prop.delete',
+		)?.[0];
+
+		deleteAction.run({
+			nodeType: 'prop',
+			node: statusNode,
+			selectedNodes: [statusNode, ownerNode],
+			surface: 'panel',
+		});
+
+		expect(plugin.queueService.add).toHaveBeenCalledTimes(2);
+		expect((plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls.map(([change]) => change.property)).toEqual([
+			'status',
+			'owner',
+		]);
+	});
+
+	it('queues ctxmenu delete for properties whose indexed name casing differs from frontmatter', () => {
+		const file = mockTFile('bench.md', { frontmatter: { pressBarBench: 1820 } });
+		const files = [file] as TFile[];
+		const meta = new Map<string, CachedMetadata>([
+			[file.path, { frontmatter: { pressBarBench: 1820 } }],
+		]);
+		const app = mockApp({ files, metadata: meta });
+		(app.metadataCache as unknown as { getAllPropertyInfos: () => Record<string, { type: string }> })
+			.getAllPropertyInfos = () => ({
+			pressbarbench: { type: 'number' },
+		});
+		const decorationManager = new DecorationManager(app);
+		const add = vi.fn();
+		const plugin = makePlugin({
+			app,
+			queueService: { queue: [], add },
+			filterService: { filteredFiles: files, addNode: vi.fn() },
+			decorationManager,
+			viewService: new ViewService({ decorationManager }),
+		});
+		const explorer = new explorerProps(plugin);
+		const propNode = explorer.getTree().find((node) => node.id === 'pressbarbench');
+		const deleteAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
+			([action]) => action.id === 'prop.delete',
+		)?.[0];
+
+		deleteAction.run({ nodeType: 'prop', node: propNode, surface: 'panel' });
+
+		expect(add).toHaveBeenCalledOnce();
+		const change = add.mock.calls[0][0];
+		expect(change.files).toEqual([file]);
+		expect(change.logicFunc(file, { pressBarBench: 1820 })).toEqual({
+			_DELETE_PROP: 'pressBarBench',
+		});
+	});
+
+	it('rebuilds property tree after Obsidian metadata changes outside the provider', () => {
+		const file = mockTFile('stale.md', { frontmatter: { pressBarBench: 1820 } });
+		const files = [file] as TFile[];
+		const meta = new Map<string, CachedMetadata>([
+			[file.path, { frontmatter: { pressBarBench: 1820 } }],
+		]);
+		let propertyInfos: Record<string, { type: string }> = {
+			pressbarbench: { type: 'number' },
+		};
+		const app = mockApp({ files, metadata: meta });
+		(app.metadataCache as unknown as { getAllPropertyInfos: () => Record<string, { type: string }> })
+			.getAllPropertyInfos = () => propertyInfos;
+		const decorationManager = new DecorationManager(app);
+		const explorer = new explorerProps(
+			makePlugin({
+				app,
+				filterService: { filteredFiles: files, addNode: vi.fn() },
+				decorationManager,
+				viewService: new ViewService({ decorationManager }),
+			}),
+		);
+
+		expect(explorer.getTree().map((node) => node.label)).toEqual(['pressbarbench']);
+
+		meta.set(file.path, { frontmatter: {} });
+		propertyInfos = {};
+
+		expect(explorer.getTree().map((node) => node.label)).toEqual([]);
 	});
 });

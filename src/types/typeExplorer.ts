@@ -1,5 +1,6 @@
 import type { TFile } from 'obsidian';
 import type { TreeNode } from './typeNode';
+import type { MenuCtx } from './typeCtxMenu';
 import type { ExplorerViewMode } from './typeViews';
 export type { ExplorerViewMode } from './typeViews';
 
@@ -8,7 +9,8 @@ export interface ExplorerProvider<TMeta = unknown> {
     getTree(): TreeNode<TMeta>[];
     getFiles?(): TFile[];
     handleNodeClick(node: TreeNode<TMeta>): void;
-    handleContextMenu(node: TreeNode<TMeta>, e: MouseEvent): void;
+    handleContextMenu(node: TreeNode<TMeta>, e: MouseEvent, selectedNodes?: TreeNode<TMeta>[]): void;
+    getNodeType?(node: TreeNode<TMeta>): MenuCtx['nodeType'];
     handleBadgeDoubleClick?(queueIndex: number): void;
     onRename?(id: string, newLabel: string): void;
     onCancelRename?(): void;

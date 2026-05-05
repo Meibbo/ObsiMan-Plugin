@@ -29,6 +29,39 @@ interface ViewServiceOptions {
 
 type Subscriber = () => void;
 
+interface SemanticContext {
+	kind?: string;
+	propName?: string;
+	property?: string;
+	value?: string;
+	rawValue?: string;
+	isValueNode?: boolean;
+	tag?: string;
+	tagPath?: string;
+	path?: string;
+	filePath?: string;
+	basename?: string;
+	folderPath?: string;
+	isFolder?: boolean;
+	file?: {
+		path?: string;
+		basename?: string;
+		name?: string;
+	};
+}
+
+interface SemanticTarget {
+	kind?: string;
+	property?: string;
+	value?: string;
+	isValueNode?: boolean;
+	tag?: string;
+	filePath?: string;
+	basename?: string;
+	folderPath?: string;
+	isFolder?: boolean;
+}
+
 export class ViewService implements IViewService {
 	private readonly decorationManager?: IDecorationManager;
 	private readonly defaultMode: ExplorerViewMode;
@@ -144,7 +177,7 @@ export class ViewService implements IViewService {
 	): ViewLayers {
 		const context = input.getDecorationContext?.(node);
 		const decoration = this.decorationManager?.decorate(node, context);
-		const semanticLayers = semanticLayersFor(node, context, label);
+		const semanticLayers = semanticLayersFor(input, node, context, label);
 		if (!decoration) return semanticLayers;
 
 		const source = iconSourceFromContext(context);
@@ -207,6 +240,7 @@ function iconSourceFromContext(context: unknown): ViewIconSource {
 }
 
 function semanticLayersFor<TNode extends NodeBase>(
+	input: ExplorerViewInput<TNode>,
 	node: TNode,
 	context: unknown,
 	label: string,
@@ -214,7 +248,10 @@ function semanticLayersFor<TNode extends NodeBase>(
 	const kind = (context as { kind?: string } | undefined)?.kind;
 	if (kind === 'operation' || isQueueChange(node)) return operationLayersFor(node);
 	if (kind === 'filter' || isActiveFilterEntry(node)) return filterLayersFor(node, label);
-	return {};
+	return mergeLayers(
+		matchedOperationLayersFor(node, context, input.operations),
+		matchedActiveFilterLayersFor(node, context, label, input.activeFilters),
+	);
 }
 
 function operationLayersFor(node: NodeBase): ViewLayers {
@@ -277,6 +314,207 @@ function filterLayersFor(node: NodeBase, label: string): ViewLayers {
 	};
 }
 
+function matchedOperationLayersFor(
+	node: NodeBase,
+	context: unknown,
+	operations: readonly QueueChange[] | undefined,
+): ViewLayers {
+	if (!operations || operations.length === 0) return {};
+	const target = semanticTargetFor(node, context);
+	const matches = operations
+		.map((operation, index) => ({ operation, index }))
+		.filter(({ operation }) => operationMatchesTarget(operation.change, target));
+	if (matches.length === 0) return {};
+
+	const badges: ViewBadge[] = matches.map(({ operation, index }) => {
+		const intent = operationIntent(operation.change, operation.group);
+		const sourceId = operation.id || operation.change.id || String(index);
+		return {
+			id: `${node.id}:op:${sourceId}`,
+			label: intent.label,
+			icon: intent.icon,
+			tone: intent.tone,
+			sourceId,
+			actionId: 'remove',
+		};
+	});
+	const hasDelete = matches.some(({ operation }) => operationIntent(operation.change, operation.group).label === 'delete');
+
+	return {
+		badges: { ops: uniqueBadges(badges) },
+		state: {
+			pending: true,
+			deleted: hasDelete || undefined,
+		},
+	};
+}
+
+function matchedActiveFilterLayersFor(
+	node: NodeBase,
+	context: unknown,
+	label: string,
+	activeFilters: readonly ActiveFilterEntry[] | undefined,
+): ViewLayers {
+	if (!activeFilters || activeFilters.length === 0) return {};
+	const target = semanticTargetFor(node, context);
+	const matches = activeFilters
+		.map((entry, index) => ({ entry, index }))
+		.filter(({ entry }) => filterMatchesTarget(entry.rule, target));
+	if (matches.length === 0) return {};
+
+	const badges: ViewBadge[] = matches.map(({ entry, index }) => {
+		const sourceId = entry.id || entry.rule.id || String(index);
+		const enabled = entry.rule.enabled !== false;
+		return {
+			id: `${node.id}:filter:${sourceId}`,
+			label: filterTypeLabel(entry.rule.filterType),
+			icon: 'lucide-filter',
+			tone: enabled ? 'info' : 'neutral',
+			sourceId,
+			actionId: 'remove',
+		};
+	});
+	const filterRanges = collapseRanges(
+		matches.flatMap(({ entry }) => filterRangesForRule(label, entry.rule) ?? []),
+	);
+	const hasEnabled = matches.some(({ entry }) => entry.rule.enabled !== false);
+
+	return {
+		badges: { filters: uniqueBadges(badges) },
+		highlights: filterRanges.length > 0 ? { filter: filterRanges } : undefined,
+		state: {
+			activeFilter: hasEnabled || undefined,
+			disabled: hasEnabled ? undefined : true,
+		},
+	};
+}
+
+function semanticTargetFor(node: NodeBase, context: unknown): SemanticTarget {
+	const ctx = (context ?? {}) as SemanticContext;
+	const candidate = node as SemanticContext & {
+		label?: string;
+		tag?: string;
+		property?: string;
+		meta?: SemanticContext;
+	};
+	const meta = candidate.meta ?? {};
+	const property = ctx.propName ?? ctx.property ?? meta.propName ?? meta.property ?? candidate.property;
+	const value = ctx.rawValue ?? ctx.value ?? meta.rawValue ?? meta.value;
+	const tag = ctx.tagPath ?? ctx.tag ?? meta.tagPath ?? meta.tag ?? candidate.tag;
+	const filePath =
+		ctx.filePath ??
+		ctx.path ??
+		ctx.file?.path ??
+		meta.filePath ??
+		meta.path ??
+		meta.file?.path ??
+		candidate.filePath ??
+		candidate.path ??
+		candidate.file?.path;
+	const basename =
+		ctx.basename ??
+		ctx.file?.basename ??
+		ctx.file?.name ??
+		meta.basename ??
+		meta.file?.basename ??
+		meta.file?.name ??
+		candidate.basename ??
+		candidate.file?.basename ??
+		candidate.file?.name;
+	const folderPath = ctx.folderPath ?? meta.folderPath ?? candidate.folderPath;
+	const isFolder = ctx.isFolder ?? meta.isFolder ?? candidate.isFolder;
+	const kind =
+		ctx.kind ??
+		(property ? 'prop' : tag ? 'tag' : filePath || basename || folderPath ? 'file' : undefined);
+
+	return {
+		kind: kind === 'folder' ? 'file' : kind,
+		property: normalizeProperty(property),
+		value: value == null ? undefined : String(value),
+		isValueNode: ctx.isValueNode ?? meta.isValueNode ?? candidate.isValueNode ?? value != null,
+		tag: normalizeTag(tag),
+		filePath: normalizePath(filePath),
+		basename: basename == null ? undefined : String(basename).toLowerCase(),
+		folderPath: normalizePath(folderPath),
+		isFolder,
+	};
+}
+
+function operationMatchesTarget(change: PendingChange, target: SemanticTarget): boolean {
+	if (change.type === 'property') {
+		if (target.kind !== 'prop') return false;
+		if (normalizeProperty(change.property) !== target.property) return false;
+		if (!target.isValueNode) return true;
+		const values = [change.value, change.oldValue].filter((value): value is string => value != null);
+		return values.some((value) => String(value) === target.value);
+	}
+
+	if (change.type === 'tag') {
+		return target.kind === 'tag' && normalizeTag(change.tag) === target.tag;
+	}
+
+	if (change.type === 'file_rename' || change.type === 'file_move' || change.type === 'template') {
+		return target.kind === 'file' && changeTargetsFile(change, target);
+	}
+
+	if (change.type === 'content_replace') {
+		return target.kind === 'file' && changeTargetsFile(change, target);
+	}
+
+	return false;
+}
+
+function filterMatchesTarget(rule: FilterRule, target: SemanticTarget): boolean {
+	switch (rule.filterType) {
+		case 'has_property':
+		case 'missing_property':
+			return target.kind === 'prop' && !target.isValueNode && normalizeProperty(rule.property) === target.property;
+		case 'specific_value':
+		case 'multiple_values':
+			return (
+				target.kind === 'prop' &&
+				Boolean(target.isValueNode) &&
+				normalizeProperty(rule.property) === target.property &&
+				rule.values.some((value) => String(value) === target.value)
+			);
+		case 'has_tag':
+			return target.kind === 'tag' && rule.values.some((value) => normalizeTag(value) === target.tag);
+		case 'folder':
+		case 'folder_exclude':
+		case 'file_folder':
+			return target.kind === 'file' && rule.values.some((value) => targetMatchesFolder(target, value));
+		case 'file_name':
+		case 'file_name_exclude':
+			return target.kind === 'file' && rule.values.some((value) => targetMatchesFileName(target, value));
+		default:
+			return false;
+	}
+}
+
+function changeTargetsFile(change: PendingChange, target: SemanticTarget): boolean {
+	if (!('files' in change)) return false;
+	return change.files.some((file) => {
+		const path = normalizePath(file.path);
+		const basename = (file.basename ?? file.name ?? '').toLowerCase();
+		return Boolean(
+			(target.filePath && path === target.filePath) ||
+				(target.basename && basename === target.basename),
+		);
+	});
+}
+
+function targetMatchesFolder(target: SemanticTarget, value: string): boolean {
+	const folder = normalizePath(value);
+	if (!folder) return false;
+	if (target.isFolder) return target.folderPath === folder || target.filePath === folder;
+	return Boolean(target.filePath && (target.filePath === folder || target.filePath.startsWith(`${folder}/`)));
+}
+
+function targetMatchesFileName(target: SemanticTarget, value: string): boolean {
+	const needle = value.toLowerCase();
+	return Boolean(needle && target.basename?.includes(needle));
+}
+
 function operationIntent(
 	change: PendingChange,
 	group: string,
@@ -299,7 +537,7 @@ function filterTypeLabel(type: FilterType): string {
 }
 
 function filterRangesForRule(label: string, rule: FilterRule): ViewTextRange[] | undefined {
-	const terms = [rule.property, ...rule.values].filter(Boolean);
+	const terms = [rule.property, ...rule.values, ...rule.values.map((value) => value.replace(/^#/, ''))].filter(Boolean);
 	const ranges = terms.flatMap((term) => rangesForTerm(label, term));
 	if (ranges.length === 0) return undefined;
 	return collapseRanges(ranges);
@@ -328,6 +566,27 @@ function collapseRanges(ranges: ViewTextRange[]): ViewTextRange[] {
 			seen.add(key);
 			return true;
 		});
+}
+
+function uniqueBadges(badges: readonly ViewBadge[]): readonly ViewBadge[] {
+	const seen = new Set<string>();
+	return badges.filter((badge) => {
+		if (seen.has(badge.id)) return false;
+		seen.add(badge.id);
+		return true;
+	});
+}
+
+function normalizeProperty(value: string | undefined): string | undefined {
+	return value?.trim().toLowerCase();
+}
+
+function normalizeTag(value: string | undefined): string | undefined {
+	return value?.trim().replace(/^#/, '').toLowerCase();
+}
+
+function normalizePath(value: string | undefined): string | undefined {
+	return value?.replaceAll('\\', '/').replace(/^\/+/, '').replace(/\/+$/, '').toLowerCase();
 }
 
 function isQueueChange(node: NodeBase): node is QueueChange {

@@ -110,4 +110,39 @@ describe('serviceOperationsIndex', () => {
 		expect(idx.nodes[0].change.type).toBe('file_rename');
 		expect(idx.nodes[0].group).toBe('rename_file');
 	});
+
+	it('collapses repeated staged ops from one logical change into one node with all touched files', async () => {
+		const files = [{ path: 'a.md' }, { path: 'b.md' }, { path: 'c.md' }];
+		const txs: VirtualFileState[] = files.map((file, index) => ({
+			file: file as never,
+			originalPath: file.path,
+			fm: {},
+			body: '',
+			ops: [
+				{
+					id: `op-${index + 1}`,
+					changeId: 'change-delete-status',
+					kind: 'delete_prop',
+					action: 'delete',
+					details: 'delete status',
+					property: 'status',
+					apply: vi.fn(),
+				},
+			],
+			fmInitial: {},
+			bodyInitial: '',
+			bodyLoaded: false,
+		}));
+		const q = Object.assign(stubQueue([]), {
+			listTransactions: () => txs,
+		});
+		const idx = createOperationsIndex(q);
+
+		await idx.refresh();
+
+		expect(idx.nodes).toHaveLength(1);
+		expect(idx.nodes[0].id).toBe('change-delete-status');
+		expect(idx.nodes[0].change.files).toEqual(files);
+		expect(idx.nodes[0].change).toMatchObject({ property: 'status' });
+	});
 });

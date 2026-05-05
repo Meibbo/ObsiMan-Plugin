@@ -52,6 +52,9 @@ export interface VirtualFileState {
 
 export interface StagedOp {
 	id: string;
+	changeId?: string;
+	property?: string;
+	tag?: string;
 	kind: OpKind;
 	action: string;
 	details: string;

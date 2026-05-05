@@ -4,7 +4,7 @@ type: agent-status
 status: active
 parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-04T18:15:57
+updated: 2026-05-04T19:49:45
 tags:
   - agent/current
 ---
@@ -63,10 +63,12 @@ Recent work:
   alias; integration tests keep real `obsidian` type imports.
 - `vite.config.ts` now sets `resolve.conditions: ['browser']` so production
   builds resolve Svelte's client export.
-- User clarified that groups make every view mode hierarchical; badge bubbling
-  is now a general hierarchy behavior, not tree-only. Parents should show a
-  compact child badge indicator that expands on hover, while parent-owned badges
-  remain separate.
+- Operations suite live handoff saved:
+  [[.agents/docs/work/hardening/backlog/regressions/operations-suite-live-handoff|operations suite live handoff]].
+- `pressBarBench` live Obsidian probe now queues as 1 logical delete operation
+  across 2 files, and props/tags explorer caches are invalidated per read.
+- Remaining hardening: badge bubbling, smart `serviceFnR`/navbar searchbox,
+  file-node selection filters, and `logicKeyboard` multi-select/navigation.
 
 Recent metric evidence:
 
@@ -81,11 +83,10 @@ Recent metric evidence:
 
 Verification focus:
 
-- Latest run: `pnpm run check`, `pnpm run build`, `pnpm run test:unit`, and
-  `pnpm run test:component` pass.
+- Latest run: `pnpm run lint`, `pnpm run check`, `pnpm run build`,
+  `pnpm run test:unit`, and `pnpm run test:component` pass.
 - Svelte autofixer on `src/services/serviceViews.svelte.ts` reported no issues;
   it suggested SvelteMap/SvelteSet for existing private maps/sets, left as
   explicit subscription state for this slice.
-- `pnpm run lint` exits 0 with 0 warnings.
 - Next session should decide whether to promote V2 over V1 before staging.
 - Timestamp updates now use `.agents/tools/pkm-ai/update-frontmatter.mjs`.

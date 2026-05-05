@@ -5,6 +5,7 @@ import type { TFile } from 'obsidian';
 export interface MenuCtx {
 	nodeType: 'file' | 'tag' | 'prop' | 'value' | 'folder';
 	node: TreeNode<unknown>;
+	selectedNodes?: TreeNode<unknown>[];
 	surface: 'panel' | 'file-menu' | 'editor-menu' | 'more-options';
 	file?: TFile;
 }

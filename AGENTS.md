@@ -1,7 +1,6 @@
 # AGENTS.md - Vaultman Agent Bootloader
 
-This branch permits AI workflow files. `main` must contain zero AI files:
-no `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`, or generated agent caches.
+This branch permits AI workflow files. `main` must contain zero AI files: no `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`, or generated agent caches.
 
 ## Start Here
 
@@ -29,8 +28,7 @@ Use the mode named by the user, or infer one:
 - **Split Caveman:** Si el modo `caveman` está activo, aplicarlo **únicamente** al chat.
 - **Documentación y Código:** Mantener siempre el máximo detalle técnico, fidelidad y contexto en archivos. La compresión de archivos de conocimiento está prohibida para evitar alucinaciones y pérdida de contexto.
 
-Micro commands are read-only and short: `skills:`, `status:`, `next:`,
-`qq:`, `question:`, `help:`.
+Micro commands are read-only and short: `skills:`, `status:`, `next:`, `qq:`, `question:`, `help:`.
 
 ## Size And Context
 
@@ -40,15 +38,12 @@ Use `task_size` when supplied:
 - `small`: brief design only if ambiguous.
 - `medium` or `large`: use spec/plan workflow before edits.
 
-If your remaining context appears below 20%, warn the user and suggest
-switching agents before starting implementation.
+If your remaining context appears below 20%, warn the user and suggest switching agents before starting implementation.
 
 ## Line Limits
 
-- Preserve source detail first. Never compress, omit, summarize away, or delete
-  technical context just to satisfy a line limit.
-- The 200-line active Markdown limit is a navigation/sharding trigger, not a
-  hard content cap. If a spec, plan, or record needs more detail, write the
+- Preserve source detail first. Never compress, omit, summarize away, or delete technical context just to satisfy a line limit.
+- The 200-line active Markdown limit is a navigation/sharding trigger, not a hard content cap. If a spec, plan, or record needs more detail, write the
   detail and shard it into a folder with a compact `index.md` manifest.
 - Shards do not have to be thematic. If one topic needs 300 lines, split it into
   continuation shards such as `01-topic.md` and `01-topic-part-2.md`, then put
