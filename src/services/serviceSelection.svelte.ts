@@ -19,7 +19,8 @@ export class NodeSelectionService implements INodeSelectionService {
 	private readonly states = new SvelteMap<string, ExplorerSelectionState>();
 
 	snapshot(explorerId: string): NodeSelectionSnapshot {
-		return snapshotOf(this.stateFor(explorerId));
+		const state = this.states.get(explorerId);
+		return state ? snapshotOf(state) : emptySnapshot();
 	}
 
 	selectPointer(
@@ -177,6 +178,16 @@ function snapshotOf(state: ExplorerSelectionState): NodeSelectionSnapshot {
 		focusedId: state.focusedId,
 		hoveredId: state.hoveredId,
 		activeId: state.focusedId ?? state.hoveredId,
+	};
+}
+
+function emptySnapshot(): NodeSelectionSnapshot {
+	return {
+		ids: new Set(),
+		anchorId: null,
+		focusedId: null,
+		hoveredId: null,
+		activeId: null,
 	};
 }
 

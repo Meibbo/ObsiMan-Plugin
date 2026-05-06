@@ -3,8 +3,9 @@ import { flushSync, mount, unmount, type Component } from 'svelte';
 import PanelExplorer from '../../src/components/containers/panelExplorer.svelte';
 import { NodeSelectionService } from '../../src/services/serviceSelection.svelte';
 import type { VaultmanPlugin } from '../../src/main';
-import type { ExplorerProvider } from '../../src/types/typeExplorer';
-import type { TreeNode } from '../../src/types/typeNode';
+import type { ExplorerProvider, ExplorerViewMode } from '../../src/types/typeExplorer';
+import type { FileMeta, TreeNode } from '../../src/types/typeNode';
+import { mockTFile } from '../helpers/obsidian-mocks';
 
 const EXPLORER_ID = 'selection-test';
 
@@ -72,6 +73,7 @@ describe('PanelExplorer tree selection adapter', () => {
 		options: {
 			selectionService?: NodeSelectionService;
 			provider?: ExplorerProvider;
+			viewMode?: ExplorerViewMode;
 		} = {},
 	) {
 		const selectionService = options.selectionService ?? new NodeSelectionService();
@@ -82,7 +84,7 @@ describe('PanelExplorer tree selection adapter', () => {
 			props: {
 				plugin: pluginStub,
 				provider: providerStub,
-				viewMode: 'tree',
+				viewMode: options.viewMode ?? 'tree',
 				icon: vi.fn(() => ({ update: vi.fn() })),
 			},
 		});
@@ -142,5 +144,45 @@ describe('PanelExplorer tree selection adapter', () => {
 		expect([...snapshot.ids]).toEqual([]);
 		expect(snapshot.anchorId).toBeNull();
 		expect(snapshot.focusedId).toBeNull();
+	});
+
+	it('grid tile click selects provider tree nodes through the same node selection service', () => {
+		const file = mockTFile('Notes/Alpha.md');
+		const fileNode: TreeNode<FileMeta> = {
+			id: file.path,
+			label: file.basename,
+			depth: 0,
+			icon: 'lucide-file',
+			meta: { file, isFolder: false, folderPath: 'Notes' },
+		};
+		const { pluginStub, selectionService } = renderPanel({
+			viewMode: 'grid',
+			provider: provider({
+				id: 'files',
+				getTree: vi.fn(() => [fileNode]),
+				getFiles: vi.fn(() => []),
+			}),
+		});
+
+		(target.querySelector('[data-id="Notes/Alpha.md"]') as HTMLElement).click();
+		flushSync();
+
+		expect([...selectionService.snapshot('files').ids]).toEqual(['Notes/Alpha.md']);
+		expect(pluginStub.viewService.select).toHaveBeenCalledWith(
+			'files',
+			'Notes/Alpha.md',
+			'add',
+		);
+		expect(pluginStub.filterService.setSelectedFiles).toHaveBeenCalledWith([file]);
+	});
+
+	it('grid mode reflects node ids already selected in the shared selection service', () => {
+		const selectionService = new NodeSelectionService();
+		selectionService.selectPointer(EXPLORER_ID, ['alpha', 'beta'], 'beta');
+
+		renderPanel({ viewMode: 'grid', selectionService });
+
+		expect(target.querySelector('[data-id="beta"]')?.getAttribute('aria-selected')).toBe('true');
+		expect(target.querySelector('[data-id="alpha"]')?.getAttribute('aria-selected')).toBe('false');
 	});
 });

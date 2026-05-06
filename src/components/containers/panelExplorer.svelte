@@ -6,7 +6,7 @@
 	import type { INodeSelectionService, NodeSelectionSnapshot } from '../../types/typeSelection';
 	import type { ViewEmptyState } from '../../types/typeViews';
 	import ViewTree from '../views/viewTree.svelte';
-	import ViewGrid from '../views/viewGrid.svelte';
+	import ViewNodeGrid from '../views/ViewNodeGrid.svelte';
 	import ViewEmptyLanding from '../views/viewEmptyLanding.svelte';
 	import { getActivePerfProbe } from '../../dev/perfProbe';
 	import { NodeSelectionService } from '../../services/serviceSelection.svelte';
@@ -67,13 +67,14 @@
 		}),
 	);
 	const displayNodes = $derived(resolveDisplayNodes(nodes, expandedIds));
+	const gridNodes = $derived(viewMode === 'grid' ? flattenTreeNodes(nodes) : []);
 	const emptyState = $derived.by(() => resolveEmptyState(viewMode, searchTerm, provider));
 	const fallbackItemCount = $derived(flatFiles.length + nodes.length);
 	const fallbackState = $derived.by(() =>
 		resolveFallbackState(viewMode, fallbackItemCount, emptyState),
 	);
 	const isTreeEmpty = $derived(viewMode === 'tree' && nodes.length === 0);
-	const isGridEmpty = $derived(viewMode === 'grid' && flatFiles.length === 0);
+	const isGridEmpty = $derived(viewMode === 'grid' && gridNodes.length === 0);
 
 	$effect(() => {
 		// React directly to prop changes
@@ -114,11 +115,14 @@
 		if (viewMode === 'tree') {
 			nodes = readProviderTree();
 			flatFiles = [];
+		} else if (viewMode === 'grid') {
+			nodes = readProviderTree();
+			flatFiles = [];
 		} else {
 			const files = provider.getFiles?.() || [];
 			getActivePerfProbe()?.count('panelExplorer.getFiles', { rows: files.length });
 			flatFiles = files;
-			nodes = files.length === 0 && viewMode !== 'grid' ? readProviderTree() : [];
+			nodes = files.length === 0 ? readProviderTree() : [];
 		}
 	}
 
@@ -245,13 +249,6 @@
 		syncFileSelectionFromNodes(snapshot.ids);
 	}
 
-	function commitFileSelection(paths: Set<string>) {
-		selectedFiles = new Set(paths);
-		const selected = filesFromPaths(selectedFiles);
-		plugin.filterService.setSelectedFiles(selected);
-		if (showSelectedOnly && provider.id === 'files') refreshData();
-	}
-
 	function syncFileSelectionFromNodes(ids: ReadonlySet<string>) {
 		if (provider.id !== 'files') return;
 		const files = [...ids]
@@ -269,13 +266,8 @@
 		return meta.file;
 	}
 
-	function filesFromPaths(paths: ReadonlySet<string>): TFile[] {
-		return [...paths]
-			.map((path) => plugin.app.vault.getFileByPath(path))
-			.filter((file): file is TFile => Boolean(file));
-	}
-
 	function visibleNodeIds(): string[] {
+		if (viewMode === 'grid') return flattenTreeNodes(nodes).map((node) => node.id);
 		const ids: string[] = [];
 		const walk = (items: TreeNode<TMeta>[]) => {
 			for (const node of items) {
@@ -285,6 +277,18 @@
 		};
 		walk(nodes);
 		return ids;
+	}
+
+	function flattenTreeNodes(items: TreeNode<TMeta>[]): TreeNode<TMeta>[] {
+		const out: TreeNode<TMeta>[] = [];
+		const walk = (list: TreeNode<TMeta>[]) => {
+			for (const node of list) {
+				out.push(node);
+				if (node.children) walk(node.children);
+			}
+		};
+		walk(items);
+		return out;
 	}
 
 	function selectedNodesForContext(node: TreeNode<TMeta>): TreeNode<TMeta>[] {
@@ -391,38 +395,17 @@
 			{#if isGridEmpty}
 				<ViewEmptyLanding state={emptyState} {icon} />
 			{:else}
-				<ViewGrid
-					files={flatFiles}
-					totalCount={plugin.propertyIndex.fileCount}
-					bind:selectedFiles
-					onSelectionChange={commitFileSelection}
-					onFileClick={(file: TFile) => {
-						const node = {
-							id: file.path,
-							label: file.basename,
-							meta: { file } as TMeta,
-							icon: '',
-							depth: 0,
-						} as TreeNode<TMeta>;
-						provider.handleNodeClick(node);
-					}}
-					onContextMenu={(file: TFile, e: MouseEvent) => {
-						const node = {
-							id: file.path,
-							label: file.basename,
-							meta: { file } as TMeta,
-							icon: '',
-							depth: 0,
-						} as TreeNode<TMeta>;
-						provider.handleContextMenu(node, e);
-					}}
-					sortColumn={sortBy as 'name' | 'props' | 'path' | 'date'}
-					{sortDirection}
-					onSortChange={(col: 'name' | 'props' | 'path' | 'date', dir: 'asc' | 'desc') => {
-						sortBy = col;
-						sortDirection = dir;
-					}}
-					app={plugin.app}
+				<ViewNodeGrid
+					nodes={gridNodes}
+					selectedIds={selectedNodeIds}
+					focusedId={focusedNodeId}
+					activeId={selectionSnapshot.activeId}
+					onTileClick={handleNodeClick}
+					onPrimaryAction={handlePrimaryAction}
+					onBoxSelect={handleBoxSelect}
+					onContextMenu={handleContextMenu}
+					onTileKeydown={handleRowKeydown}
+					{icon}
 				/>
 			{/if}
 		</div>
