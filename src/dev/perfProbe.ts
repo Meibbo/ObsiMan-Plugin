@@ -95,11 +95,16 @@ async function waitFrames(doc: Document | undefined, count = 2): Promise<void> {
 			continue;
 		}
 		await new Promise<void>((resolve) => {
+			let finished = false;
+			const finish = () => {
+				if (finished) return;
+				finished = true;
+				resolve();
+			};
 			if (win.requestAnimationFrame) {
-				win.requestAnimationFrame(() => resolve());
-				return;
+				win.requestAnimationFrame(finish);
 			}
-			win.setTimeout(resolve, 0);
+			win.setTimeout(finish, 50);
 		});
 	}
 }

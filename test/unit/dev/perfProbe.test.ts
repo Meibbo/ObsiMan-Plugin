@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
 	clearActivePerfProbe,
 	createPerfProbe,
@@ -60,5 +60,25 @@ describe('perf probe contract', () => {
 
 		clearActivePerfProbe();
 		expect(getActivePerfProbe()).toBeUndefined();
+	});
+
+	it('finishes scenarios when animation frames are not delivered', async () => {
+		const requestAnimationFrame = vi.fn();
+		const doc = {
+			defaultView: {
+				requestAnimationFrame,
+				setTimeout: (cb: () => void) => {
+					cb();
+					return 0;
+				},
+			},
+			querySelector: () => null,
+		} as unknown as Document;
+		const probe = createPerfProbe({ now: () => 0, doc });
+
+		const result = await probe.api.run('tree-scroll');
+
+		expect(requestAnimationFrame).toHaveBeenCalled();
+		expect(result.scenario).toBe('tree-scroll');
 	});
 });

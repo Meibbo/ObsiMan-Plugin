@@ -10,6 +10,7 @@ export function createNodeIndex<TNode extends NodeBase>(
   let _nodes: TNode[] = [];
   let _byId = new Map<string, TNode>();
   const subs = new Set<() => void>();
+  let refreshVersion = 0;
 
   const fire = (): void => {
     for (const cb of subs) cb();
@@ -20,7 +21,9 @@ export function createNodeIndex<TNode extends NodeBase>(
       return _nodes;
     },
     async refresh(): Promise<void> {
+      const currentVersion = ++refreshVersion;
       const built = await opts.build();
+      if (refreshVersion !== currentVersion) return;
       _nodes = built;
       _byId = new Map(built.map((n) => [n.id, n]));
       fire();

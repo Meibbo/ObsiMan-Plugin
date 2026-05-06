@@ -4,7 +4,7 @@ type: initiative-index
 status: active
 parent: "[[.agents/docs/work/pkm-ai/index|pkm-ai]]"
 created: 2026-05-04T01:44:46
-updated: 2026-05-05T20:58:26
+updated: 2026-05-05T22:34:47
 tags:
   - agent/work
   - initiative/hardening
@@ -38,3 +38,4 @@ quality work before it reaches `main`.
 - [[.agents/docs/work/hardening/plans/2026-05-04-serviceviews-implementation/index|serviceViews implementation]]
 - [[.agents/docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/index|Bases import choose mode implementation]]
 - [[.agents/docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/index|Performance diagnosis loop implementation]]
+- [[.agents/docs/work/hardening/plans/2026-05-05-badge-bubbling-optimization/index|Badge bubbling optimization]]

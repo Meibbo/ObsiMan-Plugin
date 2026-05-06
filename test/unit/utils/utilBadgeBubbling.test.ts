@@ -71,4 +71,50 @@ describe('bubbleHiddenTreeBadges', () => {
 
 		expect(bubbled[0].badges?.filter((badge) => badge.isInherited)).toHaveLength(1);
 	});
+
+	it('reuses node references when no hidden descendant badges are present', () => {
+		const child = node('status:draft');
+		const parent = node('status', [child]);
+		const tree = [parent];
+
+		const bubbled = bubbleHiddenTreeBadges(tree, new Set());
+
+		expect(bubbled[0]).toBe(parent);
+		expect(bubbled[0].children?.[0]).toBe(child);
+	});
+
+	it('reuses expanded branch references when bubbling does not change badges', () => {
+		const child = node('status:draft', [], [
+			{ text: 'delete', icon: 'lucide-trash-2', color: 'red', queueIndex: 0 },
+		]);
+		const parent = node('status', [child]);
+		const tree = [parent];
+
+		const bubbled = bubbleHiddenTreeBadges(tree, new Set(['status']));
+
+		expect(bubbled[0]).toBe(parent);
+		expect(bubbled[0].children?.[0]).toBe(child);
+	});
+
+	it('clones only collapsed ancestors that receive inherited badges', () => {
+		const child = node('status:draft', [], [
+			{ text: 'delete', icon: 'lucide-trash-2', color: 'red', queueIndex: 0 },
+		]);
+		const stableSibling = node('status:done');
+		const parent = node('status', [child, stableSibling]);
+		const tree = [parent];
+
+		const bubbled = bubbleHiddenTreeBadges(tree, new Set());
+
+		expect(bubbled[0]).not.toBe(parent);
+		expect(bubbled[0].children?.[0]).toBe(child);
+		expect(bubbled[0].children?.[1]).toBe(stableSibling);
+		expect(bubbled[0].badges).toContainEqual(
+			expect.objectContaining({
+				text: 'delete',
+				queueIndex: 0,
+				isInherited: true,
+			}),
+		);
+	});
 });

@@ -4,7 +4,7 @@ type: research
 status: active
 parent: "[[.agents/docs/work/hardening/specs/2026-05-05-performance-diagnosis-loop/index|performance-diagnosis-loop]]"
 created: 2026-05-05T20:58:26
-updated: 2026-05-05T21:45:00
+updated: 2026-05-05T22:34:47
 tags:
   - agent/research
   - performance
@@ -56,3 +56,37 @@ tags:
 
 1. `PanelExplorer` badge bubbling: optimize or cache `bubbleHiddenTreeBadges` because it had the highest total and max duration, especially during `filters-search`.
 2. `DecorationManager` / semantic row projection: reduce or cache `decoration.decorate` calls because it reached `2324` calls in `operation-badges` and `1098` calls in `filters-search`, even though individual call time was low.
+
+## Badge Bubbling Optimization Comparison
+
+Change:
+
+- `bubbleHiddenTreeBadges` now structurally shares unchanged nodes and child arrays.
+- The utility still traverses descendants to find hidden badges, but it clones only branches that gain inherited badges or contain changed children.
+- The perf probe now has a timer fallback for `requestAnimationFrame` waits so CLI scenarios do not hang when Obsidian does not deliver animation frames while the CLI is waiting.
+
+### filters-search after optimization
+
+```json
+{"startedAt":7985751.799999997,"endedAt":7985981.899999991,"counters":{"scenario.filters-search":{"count":1,"totalNodes":0,"totalRows":0,"totalVisibleRows":0},"viewTree.scroll":{"count":1,"totalNodes":0,"totalRows":12,"totalVisibleRows":12}},"timings":{"panelExplorer.bubbleHiddenTreeBadges":{"count":4,"totalNodes":416,"totalRows":0,"totalVisibleRows":0,"totalMs":50.400000005960464,"maxMs":39.79999999701977},"viewTree.flatten":{"count":4,"totalNodes":416,"totalRows":0,"totalVisibleRows":0,"totalMs":11.5,"maxMs":11.300000011920929},"decoration.decorate":{"count":1098,"totalNodes":1098,"totalRows":0,"totalVisibleRows":0,"totalMs":1.4000000208616257,"maxMs":0.20000000298023224},"viewService.getModel":{"count":12,"totalNodes":12,"totalRows":0,"totalVisibleRows":0,"totalMs":0.6000000089406967,"maxMs":0.4000000059604645},"panelExplorer.getTree":{"count":2,"totalNodes":0,"totalRows":0,"totalVisibleRows":0,"totalMs":42.50000001490116,"maxMs":31.900000005960464}},"scenario":"filters-search"}
+```
+
+### filter-select after optimization
+
+```json
+{"startedAt":7996097.899999991,"endedAt":7996179.099999994,"counters":{"scenario.filter-select":{"count":1,"totalNodes":0,"totalRows":0,"totalVisibleRows":0},"viewService.clearSelection":{"count":1,"totalNodes":0,"totalRows":0,"totalVisibleRows":0},"viewService.select":{"count":1,"totalNodes":0,"totalRows":0,"totalVisibleRows":0},"viewService.setFocused":{"count":1,"totalNodes":0,"totalRows":0,"totalVisibleRows":0}},"timings":{"decoration.decorate":{"count":324,"totalNodes":324,"totalRows":0,"totalVisibleRows":0,"totalMs":0.3999999910593033,"maxMs":0.10000000894069672},"panelExplorer.getTree":{"count":4,"totalNodes":0,"totalRows":0,"totalVisibleRows":0,"totalMs":33.19999998807907,"maxMs":21.69999998807907},"panelExplorer.bubbleHiddenTreeBadges":{"count":4,"totalNodes":22,"totalRows":0,"totalVisibleRows":0,"totalMs":1.5,"maxMs":0.7000000029802322},"viewTree.flatten":{"count":4,"totalNodes":22,"totalRows":0,"totalVisibleRows":0,"totalMs":0.10000000894069672,"maxMs":0.10000000894069672},"viewService.getModel":{"count":152,"totalNodes":152,"totalRows":0,"totalVisibleRows":0,"totalMs":5.399999991059303,"maxMs":2.2999999970197678}},"scenario":"filter-select"}
+```
+
+### operation-badges after optimization
+
+```json
+{"startedAt":8012160,"endedAt":8012360,"counters":{"scenario.operation-badges":{"count":1,"totalNodes":0,"totalRows":0,"totalVisibleRows":0},"viewService.clearSelection":{"count":1,"totalNodes":0,"totalRows":0,"totalVisibleRows":0},"viewService.select":{"count":1,"totalNodes":0,"totalRows":0,"totalVisibleRows":0},"viewService.setFocused":{"count":1,"totalNodes":0,"totalRows":0,"totalVisibleRows":0}},"timings":{"decoration.decorate":{"count":2324,"totalNodes":2324,"totalRows":0,"totalVisibleRows":0,"totalMs":0.7999999970197678,"maxMs":0.10000000894069672},"panelExplorer.getTree":{"count":4,"totalNodes":0,"totalRows":0,"totalVisibleRows":0,"totalMs":38,"maxMs":18.900000005960464},"panelExplorer.bubbleHiddenTreeBadges":{"count":4,"totalNodes":152,"totalRows":0,"totalVisibleRows":0,"totalMs":19.99999998509884,"maxMs":13.899999991059303},"viewTree.flatten":{"count":4,"totalNodes":152,"totalRows":0,"totalVisibleRows":0,"totalMs":0.30000001192092896,"maxMs":0.20000000298023224},"viewService.getModel":{"count":152,"totalNodes":152,"totalRows":0,"totalVisibleRows":0,"totalMs":1.5000000298023224,"maxMs":0.19999998807907104}},"scenario":"operation-badges"}
+```
+
+### Comparison Findings
+
+1. `filters-search` `panelExplorer.bubbleHiddenTreeBadges.totalMs` improved from `309.8999999910593` ms to `50.400000005960464` ms, about an `83.7%` reduction.
+2. `filters-search` `panelExplorer.bubbleHiddenTreeBadges.maxMs` improved from `204.59999999403954` ms to `39.79999999701977` ms, about an `80.5%` reduction.
+3. `filter-select` `panelExplorer.bubbleHiddenTreeBadges.totalMs` improved from `24.200000002980232` ms to `1.5` ms, about a `93.8%` reduction.
+4. `operation-badges` `panelExplorer.bubbleHiddenTreeBadges.totalMs` improved from `113.30000001192093` ms to `19.99999998509884` ms, about an `82.3%` reduction.
+5. Next candidate remains `panelExplorer.getTree` or upstream provider rebuild frequency. After the badge optimization, `panelExplorer.getTree` is now comparable to or larger than badge bubbling in the measured scenarios.
