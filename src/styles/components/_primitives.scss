@@ -175,7 +175,7 @@
 
 // HighlightText
 .vm-highlight {
-	background: var(--text-highlight-bg, rgba(255, 208, 0, 0.35));
+	@include highlight-accent-border(15%, false);
 	border-radius: 2px;
-	padding: 0 1px;
+	padding: 0 2px !important;
 }

@@ -1,4 +1,4 @@
-﻿import type { TFile } from 'obsidian';
+import type { TFile } from 'obsidian';
 import { PropsLogic } from '../../logic/logicProps';
 import type { TreeNode, PropMeta, NodeBadge } from '../../types/typeNode';
 import { DELETE_PROP, NATIVE_RENAME_PROP } from '../../types/typeOps';
@@ -14,6 +14,7 @@ import {
 	nodeBadgesFromViewLayers,
 	withViewStateClasses,
 } from '../../utils/utilViewLayers';
+import { getActivePerfProbe } from '../../dev/perfProbe';
 import type { VaultmanPlugin } from '../../main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
 import type { MenuCtx } from '../../types/typeCtxMenu';
@@ -42,12 +43,21 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 	private sortBy: string = 'name';
 	private sortDir: 'asc' | 'desc' = 'asc';
 	private addMode = false;
+	private unsubscribePropsIndex: () => void;
 
 	constructor(plugin: VaultmanPlugin, options: ExplorerPropsOptions = {}) {
 		this.plugin = plugin;
 		this.options = options;
 		this.logic = new PropsLogic(plugin.app);
+		this.unsubscribePropsIndex = this.plugin.propsIndex.subscribe(() => {
+			getActivePerfProbe()?.count('explorerProps.invalidate');
+			this.logic.invalidate();
+		});
 		this.registerActions();
+	}
+
+	destroy(): void {
+		this.unsubscribePropsIndex();
 	}
 
 	private registerActions() {
@@ -126,13 +136,28 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 	}
 
 	getTree(): TreeNode<PropMeta>[] {
-		this.logic.invalidate();
-		let tree = this.logic.getTree();
+		const probe = getActivePerfProbe();
+		let tree =
+			probe?.measure('explorerProps.logicTree', undefined, () => this.logic.getTree()) ??
+			this.logic.getTree();
 		if (this.searchTerm) {
-			tree = this.logic.filterTree(tree, this.searchTerm, this.searchMode === 'leaf' ? 1 : 0);
+			const filterTree = () =>
+				this.logic.filterTree(tree, this.searchTerm, this.searchMode === 'leaf' ? 1 : 0);
+			tree =
+				probe?.measure('explorerProps.filterTree', { nodes: tree.length }, filterTree) ??
+				filterTree();
 		}
-		const sorted = this._applySort(tree);
-		return this._decorateTree(sorted);
+		const sortTree = () => this._applySort(tree);
+		const sorted =
+			probe?.measure('explorerProps.sort', { nodes: tree.length }, sortTree) ?? sortTree();
+		const decorateTree = () => this._decorateTree(sorted);
+		return (
+			probe?.measure(
+				'explorerProps.decorateTree',
+				{ nodes: probe ? countTreeNodes(sorted) : 0 },
+				decorateTree,
+			) ?? decorateTree()
+		);
 	}
 
 	private _decorateTree(nodes: TreeNode<PropMeta>[], parentDeleted = false): TreeNode<PropMeta>[] {
@@ -511,6 +536,17 @@ function deleteValueUpdate(
 	}
 	if (valueToString(current) !== oldValue) return null;
 	return { [DELETE_PROP]: propName };
+}
+
+function countTreeNodes(nodes: TreeNode<PropMeta>[]): number {
+	let count = 0;
+	const stack = [...nodes];
+	while (stack.length > 0) {
+		const node = stack.pop()!;
+		count += 1;
+		if (node.children) stack.push(...node.children);
+	}
+	return count;
 }
 
 function valueToString(value: unknown): string {

@@ -36,6 +36,25 @@ describe('perf probe contract', () => {
 		});
 	});
 
+	it('measures async work duration', async () => {
+		let now = 0;
+		const probe = createPerfProbe({ now: () => now });
+		const result = await probe.api.measureAsync('queue.ingest', { files: 2 }, async () => {
+			now = 5;
+			await Promise.resolve();
+			now = 17;
+			return 'done';
+		});
+
+		expect(result).toBe('done');
+		expect(probe.snapshot().timings['queue.ingest']).toMatchObject({
+			count: 1,
+			totalMs: 17,
+			maxMs: 17,
+			totalFiles: 2,
+		});
+	});
+
 	it('installs and restores a global hook', () => {
 		const target = {} as { __vaultmanPerfProbe?: unknown };
 		const probe = createPerfProbe({ now: () => 0 });

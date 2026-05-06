@@ -19,6 +19,7 @@ import {
 } from '../types/typeOps';
 import type { IOperationQueue } from '../types/typeContracts';
 import { translate } from '../index/i18n/lang';
+import { getActivePerfProbe } from '../dev/perfProbe';
 
 /**
  * Split a markdown file's raw content into its frontmatter object and body string.
@@ -179,7 +180,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 			return existing;
 		}
 
-		const promise = (async () => {
+		const promise = Promise.resolve().then(async () => {
 			try {
 				let vfs: VirtualFileState;
 				if (!requireBody) {
@@ -218,7 +219,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 			} finally {
 				this.loadingLocks.delete(key);
 			}
-		})();
+		});
 
 		this.loadingLocks.set(key, promise);
 		return promise;
@@ -229,14 +230,14 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		const activeLock = this.loadingLocks.get(key);
 		if (activeLock) return activeLock;
 
-		const promise = (async () => {
+		const promise = Promise.resolve().then(async () => {
 			try {
 				await this.hydrateBody(vfs);
 				return vfs;
 			} finally {
 				this.loadingLocks.delete(key);
 			}
-		})();
+		});
 
 		this.loadingLocks.set(key, promise);
 		return promise;
@@ -269,20 +270,52 @@ export class OperationQueueService extends Component implements IOperationQueue 
 	}
 
 	private async ingest(change: PendingChange, emit = true): Promise<void> {
+		const probe = getActivePerfProbe();
+		if (probe) {
+			await probe.measureAsync('queue.ingest', { files: change.files.length }, () =>
+				this.ingestInner(change, emit),
+			);
+			return;
+		}
+		await this.ingestInner(change, emit);
+	}
+
+	private async ingestInner(change: PendingChange, emit = true): Promise<void> {
 		const changeId = change.id ?? `change-${++this.changeCounter}`;
 		const probe = this.probeForNativeRename(change);
 		if (probe) {
-			await this.expandNativeRename(change, probe.oldName, probe.newName, changeId);
+			const activeProbe = getActivePerfProbe();
+			if (activeProbe) {
+				await activeProbe.measureAsync(
+					'queue.expandNativeRename',
+					{ files: change.files.length },
+					() => this.expandNativeRename(change, probe.oldName, probe.newName, changeId),
+				);
+			} else {
+				await this.expandNativeRename(change, probe.oldName, probe.newName, changeId);
+			}
 			if (emit) this.emitChanged();
 			return;
 		}
 
 		for (const file of change.files) {
 			const needsBody = this.opNeedsBody(change);
-			const vfs = await this.getOrCreateVFS(file, needsBody);
-			const updates = change.logicFunc(file, vfs.fm);
+			const activeProbe = getActivePerfProbe();
+			const vfs =
+				(await activeProbe?.measureAsync('queue.getOrCreateVFS', { files: 1 }, () =>
+					this.getOrCreateVFS(file, needsBody),
+				)) ?? (await this.getOrCreateVFS(file, needsBody));
+			const updates = activeProbe
+				? activeProbe.measure('queue.logicFunc', { files: 1 }, () => change.logicFunc(file, vfs.fm))
+				: change.logicFunc(file, vfs.fm);
 			if (!updates) continue;
-			this.applyUpdates(vfs, change, updates, changeId);
+			if (activeProbe) {
+				activeProbe.measure('queue.applyUpdates', { files: 1 }, () =>
+					this.applyUpdates(vfs, change, updates, changeId),
+				);
+			} else {
+				this.applyUpdates(vfs, change, updates, changeId);
+			}
 		}
 		if (emit) this.emitChanged();
 	}

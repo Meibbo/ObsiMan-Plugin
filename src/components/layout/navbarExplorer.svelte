@@ -23,6 +23,7 @@
 		viewMode = $bindable('tree'),
 		addMode = $bindable(false),
 		operationScope = $bindable('auto'),
+		filesShowSelectedOnly = $bindable(false),
 		onOperationScopeChange,
 		fnrState,
 		onRenameReplacementChange,
@@ -42,6 +43,7 @@
 		viewMode: any;
 		addMode: boolean;
 		operationScope: 'auto' | 'selected' | 'filtered' | 'all';
+		filesShowSelectedOnly?: boolean;
 		onOperationScopeChange?: (value: 'auto' | 'selected' | 'filtered' | 'all') => void;
 		tagsExplorer: explorerTags | null | undefined;
 		propExplorer: explorerProps | undefined;
@@ -278,6 +280,7 @@
 					bind:sortBy
 					bind:sortDir={sortDirection}
 					bind:operationScope
+					bind:filesShowSelectedOnly
 					{onOperationScopeChange}
 					{icon}
 				/>

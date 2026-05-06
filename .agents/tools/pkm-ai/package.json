@@ -13,6 +13,7 @@
     "test": "node --test \"test/*.test.mjs\""
   },
   "bin": {
+    "pkm": "./pkm.mjs",
     "pkm-ai-health": "./check-doc-health.mjs",
     "pkm-ai-index": "./index-docs.mjs",
     "pkm-ai-query": "./query-docs.mjs",

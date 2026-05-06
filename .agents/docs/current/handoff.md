@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/inde
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-handoff.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-06T06:00:25
+updated: 2026-05-06T06:24:11
 tags:
   - agent/current
 ---
@@ -20,7 +20,9 @@ Archived completed/superseded handoff:
 
 - Continue [[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|User-facing recovery wave A]].
 - A3 navbar badges and quick actions is implemented and verified.
-- Next slice: deeper Obsidian/Bases/Dataview parser compatibility.
+- Bases parser compatibility resumed after wave A; safe file `.contains(...)`
+  expressions are now supported.
+- Next slice: continue deeper Obsidian/Bases/Dataview parser compatibility.
 - Do not base `viewTable.svelte` on current `viewGrid.svelte`; it is failed
   table debt.
 - Do not commit without explicit user request.
@@ -40,6 +42,11 @@ Archived completed/superseded handoff:
 - A3: tree badge clicks stop row activation; existing queue badges still remove
   staged operations by `queueIndex`, and quick-action badges are excluded from
   descendant badge bubbling.
+- Bases parser: `serviceBasesInterop` now imports
+  `file.name.contains("...")` as `file_name`,
+  `file.folder.contains("...")` as `file_folder`, and
+  `file.path.contains("...")` as the existing full-path contains rule
+  `folder`.
 - FnR rename island no longer renders an inline context label; context remains
   available through hover/title on the island and input so the input has space.
 - `current/status.md` and `current/handoff.md` rule changed from 100 to 200
@@ -52,16 +59,23 @@ Archived completed/superseded handoff:
 - `pnpm exec vp test run --project component --config vitest.config.ts test/component/pageFiltersRenameHandoff.test.ts`
 - `pnpm exec vp test run --project component --config vitest.config.ts test/component/navbarPillFabBadges.test.ts test/component/viewTreeDecorations.test.ts`
 - `pnpm exec vp test run --project unit --config vitest.config.ts test/unit/components/explorerTags.test.ts test/unit/components/explorerProps.test.ts test/unit/utils/utilBadgeBubbling.test.ts`
+- `pnpm exec vp test run --project unit --config vitest.config.ts test/unit/services/serviceBasesInterop.test.ts`
+- `pnpm exec vp test run --project unit --config vitest.config.ts test/unit/services/serviceBasesInterop.test.ts test/unit/utils/filter-evaluator.test.ts test/unit/index/indexBasesImportTargets.test.ts test/unit/services/serviceFilter.test.ts`
 - `pnpm run check`
 - `pnpm run lint`
 - `pnpm run build`
-- `git diff --check`
+- `git diff --check -- src/services/serviceBasesInterop.ts test/unit/services/serviceBasesInterop.test.ts`
 
 ## Known Residuals
 
-- `pnpm run lint` exits 0 with two pre-existing unused-import warnings:
-  `test/unit/services/serviceQueueRace.test.ts` imports unused `vi`, and
-  `tools/pkm-ai/analyze-code.mjs` imports unused `path`.
+- `pnpm run lint` exits 0 with six warnings: the two known unused imports
+  (`test/unit/services/serviceQueueRace.test.ts` and
+  `.agents/tools/pkm-ai/analyze-code.mjs`) plus four BOM/irregular-whitespace
+  warnings in `vitest.config.ts`, `explorerTags.ts`, `explorerProps.ts`, and
+  `explorerFiles.ts`.
+- Full `git diff --check` currently fails on unrelated
+  `.agents/tools/pkm-ai/shard-index.mjs` trailing whitespace; parser-slice
+  diff check passes when scoped to touched parser files.
 - Full doc health still fails on pre-existing active `docs/superpowers` and
   oversized `docs/superpowers/plans/*` files.
 - Combined component and Vite/Svelte runs can still hit the known transient

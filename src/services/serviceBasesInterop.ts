@@ -181,6 +181,22 @@ function convertExpression(
 		});
 	}
 
+	const fileContains = /^file\.(name|folder|path)\.contains\(\s*(?:"([^"]+)"|'([^']+)')\s*\)$/.exec(
+		trimmed,
+	);
+	if (fileContains) {
+		const [, fileProperty, doubleQuoted, singleQuoted] = fileContains;
+		const filterType =
+			fileProperty === 'name' ? 'file_name' : fileProperty === 'folder' ? 'file_folder' : 'folder';
+		return appliedRule(trimmed, source, report, {
+			type: 'rule',
+			filterType,
+			property: `file.${fileProperty}`,
+			values: [doubleQuoted ?? singleQuoted ?? ''],
+			enabled: true,
+		});
+	}
+
 	const hasTag = /^file\.hasTag\(\s*(?:"([^"]+)"|'([^']+)')\s*\)$/.exec(trimmed);
 	if (hasTag) {
 		return appliedRule(trimmed, source, report, {

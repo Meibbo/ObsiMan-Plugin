@@ -1,4 +1,4 @@
-﻿import type { TFile } from 'obsidian';
+import type { TFile } from 'obsidian';
 import type { VaultmanPlugin } from '../../main';
 import { FilesLogic } from '../../logic/logicsFiles';
 import type { TreeNode, FileMeta } from '../../types/typeNode';
@@ -10,6 +10,8 @@ import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplore
 import { buildFileDeleteChange } from '../../services/serviceFileQueue';
 import { createFnRState, startFileRenameHandoff } from '@services/serviceFnR';
 import type { FnRRenameHandoff } from '../../types/typeFnR';
+import { getActivePerfProbe } from '../../dev/perfProbe';
+import { highlightsFromViewLayers, withViewStateClasses } from '../../utils/utilViewLayers';
 
 interface ExplorerFilesOptions {
 	startRenameHandoff?: (handoff: FnRRenameHandoff) => void;
@@ -23,6 +25,7 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 	private sortBy: string = 'name';
 	private sortDir: 'asc' | 'desc' = 'asc';
 	private addMode = false;
+	private showSelectedOnly = false;
 	private searchName = '';
 	private searchFolder = '';
 
@@ -94,38 +97,62 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 	}
 
 	getTree(): TreeNode<FileMeta>[] {
-		const filtered = this.logic.filterFlat(
-			this.plugin.filterService.filteredFiles,
-			this.searchName,
-			this.searchFolder,
-		);
-		const sorted = this._sortFiles(filtered);
-		const tree = this.logic.buildFileTree(sorted);
-		this._decorateTree(tree);
+		const probe = getActivePerfProbe();
+		const source = this.sourceFiles();
+		const filterFlat = () => this.logic.filterFlat(source, this.searchName, this.searchFolder);
+		const filtered =
+			probe?.measure('explorerFiles.filterFlat', { files: source.length }, filterFlat) ??
+			filterFlat();
+		const sortFiles = () => this._sortFiles(filtered);
+		const sorted =
+			probe?.measure('explorerFiles.sort', { files: filtered.length }, sortFiles) ?? sortFiles();
+		const buildTree = () => this.logic.buildFileTree(sorted);
+		const tree =
+			probe?.measure('explorerFiles.buildTree', { files: sorted.length }, buildTree) ?? buildTree();
+		if (probe) {
+			probe.measure('explorerFiles.decorateTree', { nodes: countTreeNodes(tree) }, () =>
+				this._decorateTree(tree),
+			);
+		} else {
+			this._decorateTree(tree);
+		}
 		return tree;
 	}
 
 	private _decorateTree(nodes: TreeNode<FileMeta>[]): void {
+		const operations = [...this.plugin.operationsIndex.nodes];
+		const activeFilters = [...this.plugin.activeFiltersIndex.nodes];
+
 		for (const n of nodes) {
-			const decoration = this.plugin.decorationManager.decorate(n, {
-				kind: 'file',
-				highlightQuery: n.meta.isFolder ? this.searchFolder : this.searchName,
-				isFolder: n.meta.isFolder,
-			});
-			n.icon = decoration.icons[0];
-			n.highlights = decoration.highlights;
-			if (decoration.highlights.length > 0 && !n.cls?.includes('vm-search-highlight')) {
-				n.cls = `${n.cls ?? ''} vm-search-highlight`.trim();
-			}
+			const viewRow = this.plugin.viewService.getModel({
+				explorerId: 'files',
+				mode: 'tree',
+				nodes: [n],
+				operations,
+				activeFilters,
+				getLabel: (item) => item.label,
+				getDecorationContext: () => ({
+					kind: 'file',
+					highlightQuery: n.meta.isFolder ? this.searchFolder : this.searchName,
+					isFolder: n.meta.isFolder,
+				}),
+			}).rows[0];
+
+			n.icon = viewRow.icon;
+			n.highlights = highlightsFromViewLayers(viewRow.layers);
+			n.cls = withViewStateClasses(n.cls, viewRow.layers);
+
 			if (n.children?.length) this._decorateTree(n.children);
 		}
 	}
 
 	getFiles(): TFile[] {
-		return this.logic.filterFlat(
-			this.plugin.filterService.filteredFiles,
-			this.searchName,
-			this.searchFolder,
+		const probe = getActivePerfProbe();
+		const source = this.sourceFiles();
+		const filterFlat = () => this.logic.filterFlat(source, this.searchName, this.searchFolder);
+		return (
+			probe?.measure('explorerFiles.getFiles.filterFlat', { files: source.length }, filterFlat) ??
+			filterFlat()
 		);
 	}
 
@@ -148,7 +175,7 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 			).open();
 			return;
 		}
-		this.setSelectedFilesFilter(files);
+		this.setSelectedFiles(files);
 	}
 
 	handleContextMenu(
@@ -183,6 +210,14 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 	setAddMode(active: boolean): void {
 		this.addMode = active;
 	}
+	setShowSelectedOnly(active: boolean): void {
+		this.showSelectedOnly = active;
+	}
+
+	private sourceFiles(): TFile[] {
+		if (this.showSelectedOnly) return [...(this.plugin.filterService.selectedFiles ?? [])];
+		return this.plugin.filterService.filteredFiles;
+	}
 
 	private _sortFiles(files: TFile[]): TFile[] {
 		const dir = this.sortDir === 'asc' ? 1 : -1;
@@ -201,15 +236,8 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 		});
 	}
 
-	private setSelectedFilesFilter(files: TFile[]): void {
-		const filterService = this.plugin.filterService as typeof this.plugin.filterService & {
-			setSelectedFileFilter?: (selected: TFile[]) => void;
-		};
-		if (filterService.setSelectedFileFilter) {
-			filterService.setSelectedFileFilter(files);
-			return;
-		}
-		filterService.setSelectedFiles(files);
+	private setSelectedFiles(files: TFile[]): void {
+		this.plugin.filterService.setSelectedFiles(files);
 	}
 
 	private contextFiles(ctx: MenuCtx): TFile[] {
@@ -220,4 +248,15 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 			.filter((meta) => !meta.isFolder && Boolean(meta.file))
 			.map((meta) => meta.file!);
 	}
+}
+
+function countTreeNodes(nodes: TreeNode<FileMeta>[]): number {
+	let count = 0;
+	const stack = [...nodes];
+	while (stack.length > 0) {
+		const node = stack.pop()!;
+		count += 1;
+		if (node.children) stack.push(...node.children);
+	}
+	return count;
 }

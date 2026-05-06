@@ -3,6 +3,42 @@ import { OperationQueueService } from '../../../src/services/serviceQueue.svelte
 import { mockApp, mockTFile, type CachedMetadata } from '../../helpers/obsidian-mocks';
 
 describe('OperationQueueService Race Condition Audit', () => {
+	it('cleans frontmatter-only loading locks after cache hydration', async () => {
+		const file = mockTFile('frontmatter.md', { frontmatter: { x: 1 } });
+		const meta = new Map<string, CachedMetadata>([['frontmatter.md', { frontmatter: { x: 1 } }]]);
+		const app = mockApp({ files: [file], metadata: meta });
+		const svc = new OperationQueueService(app);
+		const locks = (svc as unknown as { loadingLocks: Map<string, Promise<unknown>> }).loadingLocks;
+
+		await svc.addAsync({
+			type: 'property',
+			files: [file],
+			action: 'add',
+			details: 'add y',
+			customLogic: true,
+			logicFunc: () => ({ y: 2 }),
+		} as any);
+
+		expect(locks.size).toBe(0);
+		expect(svc.fileCount).toBe(1);
+		expect(svc.opCount).toBe(1);
+
+		svc.clear();
+		await svc.addAsync({
+			type: 'property',
+			files: [file],
+			action: 'add',
+			details: 'add z',
+			customLogic: true,
+			logicFunc: () => ({ z: 3 }),
+		} as any);
+
+		expect(locks.size).toBe(0);
+		expect(svc.fileCount).toBe(1);
+		expect(svc.opCount).toBe(1);
+		expect(svc.getTransaction('frontmatter.md')?.ops[0]?.property).toBe('z');
+	});
+
 	it('potentially duplicates VFS or loses data if two adds happen before body is loaded', async () => {
 		const file = mockTFile('race.md', { frontmatter: { x: 1 } });
 		const adapterFiles = new Map([['race.md', '---\nx: 1\n---\nbody']]);

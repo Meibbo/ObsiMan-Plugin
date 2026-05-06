@@ -10,7 +10,7 @@ function makePlugin(): {
 	plugin: VaultmanPlugin;
 	files: TFile[];
 	openLinkText: ReturnType<typeof vi.fn>;
-	setSelectedFileFilter: ReturnType<typeof vi.fn>;
+	setSelectedFiles: ReturnType<typeof vi.fn>;
 } {
 	const a = mockTFile('Notes/a.md', { frontmatter: { status: 'draft' } });
 	const b = mockTFile('Notes/b.md', { frontmatter: { status: 'done' } });
@@ -22,20 +22,21 @@ function makePlugin(): {
 	const app = mockApp({ files, metadata: meta });
 	const openLinkText = vi.fn();
 	(app.workspace as unknown as { openLinkText: typeof openLinkText }).openLinkText = openLinkText;
-	const setSelectedFileFilter = vi.fn();
+	const setSelectedFiles = vi.fn();
 	const decorationManager = new DecorationManager(app);
 
 	return {
 		files,
 		openLinkText,
-		setSelectedFileFilter,
+		setSelectedFiles,
 		plugin: {
 			app,
 			contextMenuService: { registerAction: vi.fn(), openPanelMenu: vi.fn() },
 			queueService: { add: vi.fn() },
 			filterService: {
 				filteredFiles: files,
-				setSelectedFileFilter,
+				selectedFiles: [],
+				setSelectedFiles,
 			},
 			decorationManager,
 			viewService: new ViewService({ decorationManager }),
@@ -45,8 +46,8 @@ function makePlugin(): {
 }
 
 describe('explorerFiles interactions', () => {
-	it('turns a file node click into a selected-files filter instead of opening the note', () => {
-		const { plugin, files, openLinkText, setSelectedFileFilter } = makePlugin();
+	it('turns a file node click into selected files instead of filtering or opening the note', () => {
+		const { plugin, files, openLinkText, setSelectedFiles } = makePlugin();
 		const explorer = new explorerFiles(plugin);
 		const fileNode = explorer.getTree()[0].children?.find((node) => node.meta.file === files[0]);
 
@@ -54,7 +55,7 @@ describe('explorerFiles interactions', () => {
 
 		explorer.handleNodeClick(fileNode!);
 
-		expect(setSelectedFileFilter).toHaveBeenCalledWith([files[0]]);
+		expect(setSelectedFiles).toHaveBeenCalledWith([files[0]]);
 		expect(openLinkText).not.toHaveBeenCalled();
 	});
 
@@ -82,6 +83,17 @@ describe('explorerFiles interactions', () => {
 		expect(change.type).toBe('file_delete');
 		expect(change.action).toBe('delete');
 		expect(change.files).toEqual([files[0]]);
+	});
+
+	it('can show only the selected files without changing the active filter', () => {
+		const { plugin, files, setSelectedFiles } = makePlugin();
+		(plugin.filterService as unknown as { selectedFiles: TFile[] }).selectedFiles = [files[1]];
+		const explorer = new explorerFiles(plugin);
+
+		explorer.setShowSelectedOnly(true);
+
+		expect(explorer.getFiles()).toEqual([files[1]]);
+		expect(setSelectedFiles).not.toHaveBeenCalled();
 	});
 
 	it('starts a file rename handoff from selected registered context menu nodes', async () => {

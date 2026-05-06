@@ -2,6 +2,7 @@ export interface SelectionGestureInput {
 	orderedIds: readonly string[];
 	selectedIds: ReadonlySet<string>;
 	anchorId?: string | null;
+	focusedId?: string | null;
 	targetId: string;
 	additive?: boolean;
 	range?: boolean;
@@ -13,6 +14,7 @@ export interface KeyboardMoveInput {
 	anchorId?: string | null;
 	focusedId?: string | null;
 	direction: -1 | 1;
+	additive?: boolean;
 	range?: boolean;
 }
 
@@ -22,13 +24,33 @@ export interface SelectionGestureResult {
 	focusedId: string | null;
 }
 
+export interface BoxSelectionInput {
+	orderedIds: readonly string[];
+	selectedIds: ReadonlySet<string>;
+	targetIds: readonly string[];
+	additive?: boolean;
+}
+
 export function applyPointerSelection(input: SelectionGestureInput): SelectionGestureResult {
-	const anchorId =
-		input.anchorId && input.orderedIds.includes(input.anchorId) ? input.anchorId : input.targetId;
+	const anchorId = resolveKnownId(input.orderedIds, input.anchorId) ?? input.targetId;
+	const additiveRangeAnchorId =
+		resolveKnownId(input.orderedIds, input.focusedId) ?? anchorId ?? input.targetId;
 
 	if (input.range) {
+		const rangeIds = idsInRange(
+			input.orderedIds,
+			input.additive ? additiveRangeAnchorId : anchorId,
+			input.targetId,
+		);
+		if (input.additive) {
+			return {
+				ids: unionSets(input.selectedIds, rangeIds),
+				anchorId,
+				focusedId: input.targetId,
+			};
+		}
 		return {
-			ids: idsInRange(input.orderedIds, anchorId, input.targetId),
+			ids: rangeIds,
 			anchorId,
 			focusedId: input.targetId,
 		};
@@ -67,8 +89,16 @@ export function applyKeyboardMove(input: KeyboardMoveInput): SelectionGestureRes
 	const anchorId =
 		input.anchorId && input.orderedIds.includes(input.anchorId) ? input.anchorId : focusedId;
 	if (input.range) {
+		const rangeIds = idsInRange(input.orderedIds, anchorId, focusedId);
+		if (input.additive) {
+			return {
+				ids: unionSets(input.selectedIds, rangeIds),
+				anchorId,
+				focusedId,
+			};
+		}
 		return {
-			ids: idsInRange(input.orderedIds, anchorId, focusedId),
+			ids: rangeIds,
 			anchorId,
 			focusedId,
 		};
@@ -81,6 +111,19 @@ export function applyKeyboardMove(input: KeyboardMoveInput): SelectionGestureRes
 	};
 }
 
+export function applyBoxSelection(input: BoxSelectionInput): SelectionGestureResult {
+	const targetSet = new Set(input.targetIds);
+	const orderedTargets = input.orderedIds.filter((id) => targetSet.has(id));
+	const ids = input.additive ? new Set(input.selectedIds) : new Set<string>();
+	for (const id of orderedTargets) ids.add(id);
+	const focusedId = orderedTargets.at(-1) ?? null;
+	return {
+		ids,
+		anchorId: focusedId,
+		focusedId,
+	};
+}
+
 function idsInRange(orderedIds: readonly string[], a: string, b: string): Set<string> {
 	const aIndex = orderedIds.indexOf(a);
 	const bIndex = orderedIds.indexOf(b);
@@ -88,6 +131,16 @@ function idsInRange(orderedIds: readonly string[], a: string, b: string): Set<st
 	const start = Math.min(aIndex, bIndex);
 	const end = Math.max(aIndex, bIndex);
 	return new Set(orderedIds.slice(start, end + 1));
+}
+
+function resolveKnownId(orderedIds: readonly string[], id: string | null | undefined): string | null {
+	return id && orderedIds.includes(id) ? id : null;
+}
+
+function unionSets(left: ReadonlySet<string>, right: ReadonlySet<string>): Set<string> {
+	const out = new Set(left);
+	for (const id of right) out.add(id);
+	return out;
 }
 
 function clamp(value: number, min: number, max: number): number {

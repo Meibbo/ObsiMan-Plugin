@@ -8,7 +8,11 @@
 	import ViewGrid from '../views/viewGrid.svelte';
 	import ViewEmptyLanding from '../views/viewEmptyLanding.svelte';
 	import { getActivePerfProbe } from '../../dev/perfProbe';
-	import { applyKeyboardMove, applyPointerSelection } from '../../logic/logicKeyboard';
+	import {
+		applyBoxSelection,
+		applyKeyboardMove,
+		applyPointerSelection,
+	} from '../../logic/logicKeyboard';
 	import type { TreeNode } from '../../types/typeNode';
 	import { bubbleHiddenTreeBadges } from '../../utils/utilBadgeBubbling';
 	import { collectAutoExpandedIds, resolveExpandedIds } from '../../utils/utilExplorerExpansion';
@@ -22,6 +26,8 @@
 		sortBy = $bindable('name'),
 		sortDirection = $bindable('asc'),
 		addMode = false,
+		active = true,
+		showSelectedOnly = false,
 		selectedFiles = $bindable(new Set<string>()),
 		icon,
 	}: {
@@ -33,6 +39,8 @@
 		sortBy?: string;
 		sortDirection?: 'asc' | 'desc';
 		addMode?: boolean;
+		active?: boolean;
+		showSelectedOnly?: boolean;
 		selectedFiles?: Set<string>;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	} = $props();
@@ -71,7 +79,8 @@
 		provider.setSortBy?.(sortBy, sortDirection);
 		provider.setViewMode?.(viewMode);
 		provider.setAddMode?.(addMode);
-		refreshData();
+		provider.setShowSelectedOnly?.(showSelectedOnly);
+		if (active) refreshData();
 	});
 
 	$effect(() => {
@@ -83,6 +92,7 @@
 	});
 
 	$effect(() => {
+		if (!active) return;
 		const refresh = () => refreshData();
 		const unsubscribeOperations = plugin.operationsIndex.subscribe(refresh);
 		const unsubscribeActiveFilters = plugin.activeFiltersIndex.subscribe(refresh);
@@ -151,12 +161,16 @@
 				anchorId: selectionAnchorId,
 				focusedId: focusedNodeId ?? id,
 				direction: e.key === 'ArrowDown' ? 1 : -1,
+				additive: e.ctrlKey || e.metaKey,
 				range: e.shiftKey,
 			});
 			commitSelection(next.ids, next.anchorId, next.focusedId);
 		} else if (e.key === ' ' || e.key === 'Spacebar') {
 			e.preventDefault();
-			applySelection(id, { additive: true });
+			applySelection(id, {
+				additive: e.ctrlKey || e.metaKey,
+				range: e.shiftKey,
+			});
 		} else if (e.key === 'Enter') {
 			const node = findNodeById(nodes, id);
 			if (node) activateNode(node);
@@ -203,9 +217,20 @@
 			orderedIds: visibleNodeIds(),
 			selectedIds: selectedNodeIds,
 			anchorId: selectionAnchorId,
+			focusedId: focusedNodeId,
 			targetId: id,
 			additive: opts.additive,
 			range: opts.range,
+		});
+		commitSelection(next.ids, next.anchorId, next.focusedId);
+	}
+
+	function handleBoxSelect(ids: string[], e: PointerEvent) {
+		const next = applyBoxSelection({
+			orderedIds: visibleNodeIds(),
+			selectedIds: selectedNodeIds,
+			targetIds: ids,
+			additive: e.ctrlKey || e.metaKey,
 		});
 		commitSelection(next.ids, next.anchorId, next.focusedId);
 	}
@@ -217,6 +242,37 @@
 		plugin.viewService.clearSelection(provider.id);
 		for (const id of selectedNodeIds) plugin.viewService.select(provider.id, id, 'add');
 		plugin.viewService.setFocused(provider.id, focusedId);
+		syncFileSelectionFromNodes(selectedNodeIds);
+	}
+
+	function commitFileSelection(paths: Set<string>) {
+		selectedFiles = new Set(paths);
+		const selected = filesFromPaths(selectedFiles);
+		plugin.filterService.setSelectedFiles(selected);
+		if (showSelectedOnly && provider.id === 'files') refreshData();
+	}
+
+	function syncFileSelectionFromNodes(ids: Set<string>) {
+		if (provider.id !== 'files') return;
+		const files = [...ids]
+			.map((id) => findNodeById(nodes, id))
+			.map((node) => (node ? nodeFile(node) : null))
+			.filter((file): file is TFile => Boolean(file));
+		selectedFiles = new Set(files.map((file) => file.path));
+		plugin.filterService.setSelectedFiles(files);
+		if (showSelectedOnly) refreshData();
+	}
+
+	function nodeFile(node: TreeNode<TMeta>): TFile | null {
+		const meta = node.meta as { file?: TFile; isFolder?: boolean } | undefined;
+		if (!meta?.file || meta.isFolder) return null;
+		return meta.file;
+	}
+
+	function filesFromPaths(paths: ReadonlySet<string>): TFile[] {
+		return [...paths]
+			.map((path) => plugin.app.vault.getFileByPath(path))
+			.filter((file): file is TFile => Boolean(file));
 	}
 
 	function visibleNodeIds(): string[] {
@@ -302,6 +358,7 @@
 					focusedId={focusedNodeId}
 					onToggle={toggleExpand}
 					onRowClick={handleNodeClick}
+					onBoxSelect={handleBoxSelect}
 					onContextMenu={handleContextMenu}
 					onRowKeydown={handleRowKeydown}
 					onBadgeDoubleClick={handleBadgeClick}
@@ -318,7 +375,7 @@
 					files={flatFiles}
 					totalCount={plugin.propertyIndex.fileCount}
 					bind:selectedFiles
-					onSelectionChange={() => {}}
+					onSelectionChange={commitFileSelection}
 					onFileClick={(file: TFile) => {
 						const node = {
 							id: file.path,

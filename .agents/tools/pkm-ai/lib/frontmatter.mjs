@@ -14,19 +14,15 @@ export function relativePath(root, filePath) {
 }
 
 export function parseMarkdown(markdown) {
-  if (!markdown.startsWith("---\n")) {
+  const match = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
+  if (!match) {
     return { frontmatter: {}, body: markdown, rawFrontmatter: "" };
   }
 
-  const end = markdown.indexOf("\n---", 4);
-  if (end === -1) {
-    return { frontmatter: {}, body: markdown, rawFrontmatter: "" };
-  }
-
-  const rawFrontmatter = markdown.slice(4, end);
-  const bodyStart = markdown[end + 4] === "\r" ? end + 6 : end + 5;
+  const rawFrontmatter = match[1];
+  const body = markdown.slice(match[0].length);
   const frontmatter = yaml.load(rawFrontmatter, { schema: yaml.JSON_SCHEMA }) ?? {};
-  return { frontmatter, body: markdown.slice(bodyStart), rawFrontmatter };
+  return { frontmatter, body, rawFrontmatter };
 }
 
 export function readMarkdown(filePath) {

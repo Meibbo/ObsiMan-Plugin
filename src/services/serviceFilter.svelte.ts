@@ -3,6 +3,7 @@ import { normalizeGroupLogic } from '../types/typeFilter';
 import type { FilterGroup, FilterNode, FilterRule, FilterTemplate } from '../types/typeFilter';
 import type { IFilterService, IFilesIndex } from '../types/typeContracts';
 import { evalNode } from '../utils/filter-evaluator';
+import { getActivePerfProbe } from '../dev/perfProbe';
 
 /**
  * Manages the active filter tree and computes the filtered file set.
@@ -37,10 +38,32 @@ export class FilterService implements IFilterService {
 	}
 
 	private fire(): void {
-		for (const cb of this.subs) cb();
+		const probe = getActivePerfProbe();
+		const run = () => {
+			for (const cb of this.subs) cb();
+		};
+		if (probe) {
+			probe.measure('filterService.fire', { filters: this.activeFilter.children.length }, run);
+		} else {
+			run();
+		}
 	}
 
 	private computeFiltered(): TFile[] {
+		const probe = getActivePerfProbe();
+		return (
+			probe?.measure(
+				'filterService.computeFiltered',
+				{
+					files: this.filesIndex.nodes.length,
+					filters: this.activeFilter.children.length,
+				},
+				() => this.computeFilteredInner(),
+			) ?? this.computeFilteredInner()
+		);
+	}
+
+	private computeFilteredInner(): TFile[] {
 		const allFiles = this.filesIndex.nodes.map((n) => n.file);
 		const getMeta = (file: TFile) => this.app.metadataCache.getFileCache(file);
 
@@ -83,6 +106,9 @@ export class FilterService implements IFilterService {
 
 	/** Add a child node to the root group (or a given parent) */
 	addNode(node: FilterNode, parent?: FilterGroup): void {
+		getActivePerfProbe()?.count('filterService.addNode', {
+			filters: (parent ?? this.activeFilter).children.length + 1,
+		});
 		const target = parent ?? this.activeFilter;
 		node.id = node.id ?? Math.random().toString(36).substring(2, 11);
 		node.enabled = node.enabled ?? true;

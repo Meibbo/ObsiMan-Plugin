@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { applyKeyboardMove, applyPointerSelection } from '../../../src/logic/logicKeyboard';
+import {
+	applyBoxSelection,
+	applyKeyboardMove,
+	applyPointerSelection,
+} from '../../../src/logic/logicKeyboard';
 
 describe('logicKeyboard', () => {
 	it('replaces selection on a plain row click', () => {
@@ -43,6 +47,22 @@ describe('logicKeyboard', () => {
 		expect(next.focusedId).toBe('b');
 	});
 
+	it('adds a second range from the last focused row on ctrl shift click', () => {
+		const next = applyPointerSelection({
+			orderedIds: ['a', 'b', 'c', 'd', 'e', 'f'],
+			selectedIds: new Set(['a', 'b']),
+			anchorId: 'a',
+			focusedId: 'b',
+			targetId: 'e',
+			additive: true,
+			range: true,
+		});
+
+		expect([...next.ids]).toEqual(['a', 'b', 'c', 'd', 'e']);
+		expect(next.anchorId).toBe('a');
+		expect(next.focusedId).toBe('e');
+	});
+
 	it('moves keyboard focus and extends selection with shift arrows', () => {
 		const next = applyKeyboardMove({
 			orderedIds: ['a', 'b', 'c', 'd'],
@@ -56,5 +76,18 @@ describe('logicKeyboard', () => {
 		expect(next.focusedId).toBe('c');
 		expect([...next.ids]).toEqual(['b', 'c']);
 		expect(next.anchorId).toBe('b');
+	});
+
+	it('adds box-selected rows to the existing selection with ctrl', () => {
+		const next = applyBoxSelection({
+			orderedIds: ['a', 'b', 'c', 'd'],
+			selectedIds: new Set(['a']),
+			targetIds: ['c', 'b'],
+			additive: true,
+		});
+
+		expect([...next.ids]).toEqual(['a', 'b', 'c']);
+		expect(next.anchorId).toBe('c');
+		expect(next.focusedId).toBe('c');
 	});
 });

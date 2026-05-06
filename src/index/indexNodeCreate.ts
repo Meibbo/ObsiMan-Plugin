@@ -1,7 +1,9 @@
 import type { INodeIndex, NodeBase } from '../types/typeContracts';
+import { getActivePerfProbe } from '../dev/perfProbe';
 
 export interface NodeIndexOptions<TNode extends NodeBase> {
 	build: () => TNode[] | Promise<TNode[]>;
+	debugName?: string;
 }
 
 export function createNodeIndex<TNode extends NodeBase>(
@@ -22,11 +24,20 @@ export function createNodeIndex<TNode extends NodeBase>(
 		},
 		async refresh(): Promise<void> {
 			const currentVersion = ++refreshVersion;
-			const built = await opts.build();
+			const probe = getActivePerfProbe();
+			const debugName = opts.debugName ?? 'node';
+			const built =
+				(await probe?.measureAsync(`index.${debugName}.build`, undefined, async () =>
+					opts.build(),
+				)) ?? (await opts.build());
 			if (refreshVersion !== currentVersion) return;
 			_nodes = built;
 			_byId = new Map(built.map((n) => [n.id, n]));
-			fire();
+			if (probe) {
+				probe.measure(`index.${debugName}.fire`, { nodes: built.length }, fire);
+			} else {
+				fire();
+			}
 		},
 		subscribe(cb: () => void): () => void {
 			subs.add(cb);

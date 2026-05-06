@@ -41,6 +41,7 @@ function flatten(group: FilterGroup): ActiveFilterEntry[] {
 
 export function createActiveFiltersIndex(filter: IFilterService): IActiveFiltersIndex {
 	const base = createNodeIndex<ActiveFilterEntry>({
+		debugName: 'activeFilters',
 		build: () => {
 			const treeRules = flatten(filter.activeFilter);
 			const searchRules = getSearchRules(filter).map((rule, i) => ({

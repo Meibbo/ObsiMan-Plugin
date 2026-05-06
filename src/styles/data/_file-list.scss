@@ -100,6 +100,15 @@
 			background: $vm-bg-modifier-hover;
 		}
 
+		&.is-selected {
+			background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
+			color: var(--text-normal);
+		}
+
+		&.is-focused {
+			box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--interactive-accent) 55%, transparent);
+		}
+
 		.vm-files-virtual-inner & {
 			position: absolute;
 			top: 0;

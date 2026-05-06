@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/inde
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-status.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-06T06:00:25
+updated: 2026-05-06T06:24:11
 tags:
   - agent/current
 ---
@@ -39,7 +39,10 @@ Archived completed/superseded status:
   A0 CMenu queue repair, A1 prop/value rename handoff, A2 tag/file rename
   handoff with prop queue ingestion follow-up, and A3 navbar badges and quick
   actions.
-- Next slice: deeper Obsidian/Bases/Dataview parser compatibility.
+- Bases parser compatibility has resumed after wave A: `file.name.contains`,
+  `file.folder.contains`, and `file.path.contains` now import as supported
+  Vaultman file rules.
+- Next slice: continue deeper Obsidian/Bases/Dataview parser compatibility.
 
 ## Current Verification
 
@@ -50,9 +53,12 @@ Archived completed/superseded status:
   `viewTreeDecorations`.
 - A3 focused unit tests pass for `explorerTags`, `explorerProps`, and
   `utilBadgeBubbling`.
+- Bases parser focused unit tests pass for `serviceBasesInterop`,
+  `filter-evaluator`, `indexBasesImportTargets`, and `serviceFilter`.
 - `pnpm run check`, `pnpm run lint`, and `pnpm run build` pass.
-- `pnpm run lint` still reports two pre-existing unused-import warnings outside
-  the current slice.
+- `pnpm run lint` currently reports six warnings outside the parser slice: the
+  two known unused imports plus four BOM/irregular-whitespace warnings in
+  files already present in the worktree.
 - `pnpm run build` hit the known transient `svelte` resolver issue once, then
   passed on immediate sequential rerun.
 - Combined component and Vite/Svelte runs can still hit the known transient
@@ -61,6 +67,7 @@ Archived completed/superseded status:
 ## Source Links
 
 - [[docs/current/handoff|current handoff]]
+- [[docs/work/hardening/specs/2026-05-05-bases-interop-slice-1/index|Bases interop slice 1]]
 - [[docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|CMenu queue repair plan]]
 - [[docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/index|prop/value rename handoff plan]]
 - [[docs/work/hardening/research/2026-05-05-bases-interop-research/index|Bases interop research]]

@@ -51,6 +51,7 @@ function stagedOps(queue: IOperationQueue): QueueChange[] | null {
 export function createOperationsIndex(queue: IOperationQueue): IOperationsIndex {
 	let counter = 0;
 	const base = createNodeIndex<QueueChange>({
+		debugName: 'operations',
 		build: () => {
 			const staged = stagedOps(queue);
 			if (staged) return staged;

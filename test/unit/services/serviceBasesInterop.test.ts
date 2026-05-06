@@ -24,28 +24,79 @@ describe('serviceBasesInterop', () => {
 
 		expect(preview.source.kind).toBe('base-view');
 		expect(preview.rawConfig).toMatchObject({ views: [{ name: 'Open' }] });
-		expect(preview.filter?.logic).toBe('and');
-		expect(preview.filter?.children).toContainEqual(
-			expect.objectContaining({
-				type: 'rule',
-				filterType: 'specific_value',
-				property: 'status',
-				values: ['open'],
-			}),
-		);
+		expect(preview.filter).toMatchObject({
+			type: 'group',
+			logic: 'and',
+			children: [
+				expect.objectContaining({ type: 'group', logic: 'and' }),
+				expect.objectContaining({ type: 'group', logic: 'or' }),
+			],
+		});
 		expect(preview.report.applied).toContainEqual(
 			expect.objectContaining({
 				expression: 'status == "open"',
 				filterType: 'specific_value',
 			}),
 		);
-		expect(preview.report.unsupported).toContainEqual(
+		expect(preview.report.applied).toContainEqual(
 			expect.objectContaining({
 				expression: 'file.name.contains("Project")',
-				reason: expect.stringContaining('unsupported'),
-				preserved: true,
+				filterType: 'file_name',
 			}),
 		);
+		expect(preview.report.unsupported).not.toContainEqual(
+			expect.objectContaining({ expression: 'file.name.contains("Project")' }),
+		);
+	});
+
+	it('maps safe file contains expressions to Vaultman file rules', () => {
+		const preview = previewBasesImport({
+			sourcePath: 'Files.base',
+			content: [
+				'filters:',
+				'  and:',
+				'    - file.name.contains("Project")',
+				'    - file.folder.contains("Archive")',
+				'    - file.path.contains("Clients/Acme.md")',
+			].join('\n'),
+		});
+
+		expect(preview.filter).toMatchObject({
+			type: 'group',
+			logic: 'and',
+			children: [
+				expect.objectContaining({
+					type: 'rule',
+					filterType: 'file_name',
+					property: 'file.name',
+					values: ['Project'],
+				}),
+				expect.objectContaining({
+					type: 'rule',
+					filterType: 'file_folder',
+					property: 'file.folder',
+					values: ['Archive'],
+				}),
+				expect.objectContaining({
+					type: 'rule',
+					filterType: 'folder',
+					property: 'file.path',
+					values: ['Clients/Acme.md'],
+				}),
+			],
+		});
+		expect(preview.report.applied).toEqual([
+			expect.objectContaining({ expression: 'file.name.contains("Project")', filterType: 'file_name' }),
+			expect.objectContaining({
+				expression: 'file.folder.contains("Archive")',
+				filterType: 'file_folder',
+			}),
+			expect.objectContaining({
+				expression: 'file.path.contains("Clients/Acme.md")',
+				filterType: 'folder',
+			}),
+		]);
+		expect(preview.report.unsupported).toEqual([]);
 	});
 
 	it('combines supported global and supported view filters under a new and group', () => {

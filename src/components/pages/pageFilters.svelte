@@ -51,6 +51,7 @@
 		filtersViewMode = $bindable('tree'),
 		filtersBaseChooseMode = $bindable(false),
 		addMode = $bindable(false),
+		filesShowSelectedOnly = $bindable(false),
 		tagsExplorer = $bindable(),
 		propExplorer = $bindable(),
 		fileList = $bindable(),
@@ -70,6 +71,7 @@
 		filtersViewMode?: any;
 		filtersBaseChooseMode?: boolean;
 		addMode?: boolean;
+		filesShowSelectedOnly?: boolean;
 		tagsExplorer?: explorerTags | undefined;
 		propExplorer?: explorerProps | undefined;
 		fileList?: explorerFiles | undefined;
@@ -214,6 +216,7 @@
 	bind:viewMode={filtersViewMode}
 	bind:addMode
 	bind:operationScope={filtersOperationScope}
+	bind:filesShowSelectedOnly
 	{onOperationScopeChange}
 	{tagsExplorer}
 	{propExplorer}
@@ -237,6 +240,7 @@
 				<PanelExplorer
 					{plugin}
 					provider={basesImportProvider}
+					active={filtersBaseChooseMode}
 					bind:viewMode={filtersViewMode}
 					searchTerm={filtersSearchByTab.files}
 					searchMode={filtersSearchCategory.files}
@@ -256,6 +260,7 @@
 				bind:sortDirection={filtersSortDir}
 				bind:viewMode={filtersViewMode}
 				bind:explorer={propExplorer}
+				active={filtersActiveTab === 'props'}
 				{startRenameHandoff}
 			/>
 		</div>
@@ -269,7 +274,9 @@
 				bind:viewMode={filtersViewMode}
 				bind:fileList
 				bind:selectedFilePaths
+				showSelectedOnly={filesShowSelectedOnly}
 				onSelectionChange={(c) => (selectedCount = c)}
+				active={filtersActiveTab === 'files'}
 				{startRenameHandoff}
 			/>
 		</div>
@@ -282,6 +289,7 @@
 				bind:sortDirection={filtersSortDir}
 				bind:viewMode={filtersViewMode}
 				bind:explorer={tagsExplorer}
+				active={filtersActiveTab === 'tags'}
 				{startRenameHandoff}
 			/>
 		</div>
@@ -295,6 +303,7 @@
 				bind:sortBy={filtersSortBy}
 				bind:sortDirection={filtersSortDir}
 				bind:viewMode={filtersViewMode}
+				active={filtersActiveTab === 'content'}
 				{icon}
 			/>
 		</div>

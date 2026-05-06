@@ -73,7 +73,7 @@
 			{@const iconName = rowIcon(row)}
 			{@const badges = allBadges(row)}
 			<div
-				class="vm-view-list-row vm-explorer-popup-row"
+				class="vm-view-list-row vm-explorer-popup-row {row.cls ?? ''}"
 				class:is-selected={row.layers.state?.selected}
 				class:is-disabled={row.disabled || row.layers.state?.disabled}
 				class:is-group={isGroupRow(row)}

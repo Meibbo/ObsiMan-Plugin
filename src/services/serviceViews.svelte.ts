@@ -23,6 +23,7 @@ import type {
 	ViewTone,
 } from '../types/typeViews';
 import { getActivePerfProbe } from '../dev/perfProbe';
+import { withViewStateClasses } from '../utils/utilViewLayers';
 
 interface ViewServiceOptions {
 	decorationManager?: IDecorationManager;
@@ -163,6 +164,11 @@ export class ViewService implements IViewService {
 		const label = input.getLabel?.(node) ?? labelFromNode(node);
 		const layers = this.layersFor(input, node, label);
 		const isSelected = selected.has(node.id);
+		const rowLayers: ViewLayers = {
+			...layers,
+			state: { ...layers.state, selected: isSelected || undefined },
+		};
+
 		return {
 			id: node.id,
 			node,
@@ -171,10 +177,8 @@ export class ViewService implements IViewService {
 			icon: layers.icons?.[0]?.icon,
 			depth: (node as { depth?: number }).depth,
 			cells: [],
-			layers: {
-				...layers,
-				state: { ...layers.state, selected: isSelected || undefined },
-			},
+			cls: withViewStateClasses((node as { cls?: string }).cls, rowLayers),
+			layers: rowLayers,
 			actions: input.getActions?.(node) ?? input.actions ?? [],
 		};
 	}

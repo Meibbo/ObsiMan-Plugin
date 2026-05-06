@@ -91,6 +91,7 @@
 		sortBy = $bindable('name'),
 		sortDir = $bindable('asc'),
 		operationScope = $bindable('auto'),
+		filesShowSelectedOnly = $bindable(false),
 		onOperationScopeChange,
 		icon,
 	}: {
@@ -99,6 +100,7 @@
 		sortBy: string;
 		sortDir: 'asc' | 'desc';
 		operationScope: 'auto' | 'selected' | 'filtered' | 'all';
+		filesShowSelectedOnly?: boolean;
 		onOperationScopeChange?: (value: 'auto' | 'selected' | 'filtered' | 'all') => void;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	} = $props();
@@ -139,8 +141,20 @@
 	);
 
 	const vertBotIcon = $derived(
-		activeTab === 'files' ? 'lucide-circle-dot' : 'lucide-chevrons-down',
+		activeTab === 'files'
+			? filesShowSelectedOnly
+				? 'lucide-list-checks'
+				: 'lucide-list'
+			: 'lucide-chevrons-down',
 	);
+
+	function toggleVertBottom() {
+		if (activeTab === 'files') {
+			filesShowSelectedOnly = !filesShowSelectedOnly;
+			return;
+		}
+		drawerOpen = !drawerOpen;
+	}
 </script>
 
 <div class="vm-sort-popup">
@@ -166,15 +180,15 @@
 		{/if}
 		<div
 			class="vm-sort-vertcol-btn"
-			class:is-active={drawerOpen}
+			class:is-active={activeTab === 'files' ? filesShowSelectedOnly : drawerOpen}
 			aria-label={activeTab === 'files'
-				? translate('sort.vertcol.direct_toggle')
+				? filesShowSelectedOnly
+					? translate('sort.scope.all')
+					: translate('header.show_selected')
 				: translate('sort.vertcol.scope_drawer')}
-			onclick={() => {
-				drawerOpen = !drawerOpen;
-			}}
+			onclick={toggleVertBottom}
 			onkeydown={(e: KeyboardEvent) => {
-				if (e.key === 'Enter' || e.key === ' ') drawerOpen = !drawerOpen;
+				if (e.key === 'Enter' || e.key === ' ') toggleVertBottom();
 			}}
 			role="button"
 			tabindex="0"

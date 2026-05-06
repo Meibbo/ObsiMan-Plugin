@@ -14,6 +14,8 @@
 		sortBy = $bindable('name'),
 		sortDirection = $bindable('asc'),
 		viewMode = $bindable('grid'),
+		active = true,
+		showSelectedOnly = false,
 		selectedFilePaths = $bindable(new Set<string>()),
 		onSelectionChange,
 		startRenameHandoff,
@@ -25,6 +27,8 @@
 		sortBy?: string;
 		sortDirection?: 'asc' | 'desc';
 		viewMode?: any;
+		active?: boolean;
+		showSelectedOnly?: boolean;
 		selectedFilePaths: Set<string>;
 		onSelectionChange?: (count: number) => void;
 		startRenameHandoff?: (handoff: FnRRenameHandoff) => void;
@@ -58,6 +62,8 @@
 			{searchMode}
 			bind:sortBy
 			bind:sortDirection
+			{active}
+			{showSelectedOnly}
 			{icon}
 			bind:selectedFiles={selectedFilePaths}
 		/>

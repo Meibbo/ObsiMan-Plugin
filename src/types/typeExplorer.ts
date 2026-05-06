@@ -20,10 +20,12 @@ export interface ExplorerProvider<TMeta = unknown> {
 	handleBadgeDoubleClick?(queueIndex: number): void;
 	onRename?(id: string, newLabel: string): void;
 	onCancelRename?(): void;
+	destroy?(): void;
 
 	// Sort and Search hooks
 	setSearchTerm?(term: string, mode?: 'all' | 'leaf'): void;
 	setViewMode?(mode: ExplorerViewMode): void;
 	setSortBy?(sortBy: string, direction: 'asc' | 'desc'): void;
 	setAddMode?(active: boolean): void;
+	setShowSelectedOnly?(active: boolean): void;
 }

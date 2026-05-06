@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import type { VaultmanPlugin } from '../../main';
 	import { explorerTags } from '../containers/explorerTags';
 	import PanelExplorer from '../containers/panelExplorer.svelte';
@@ -13,6 +13,7 @@
 		sortBy = $bindable('name'),
 		sortDirection = $bindable('asc'),
 		viewMode = $bindable('tree'),
+		active = true,
 		explorer = $bindable(),
 		startRenameHandoff,
 	}: {
@@ -22,12 +23,17 @@
 		sortBy?: string;
 		sortDirection?: 'asc' | 'desc';
 		viewMode?: any;
+		active?: boolean;
 		explorer: explorerTags | undefined;
 		startRenameHandoff?: (handoff: FnRRenameHandoff) => void;
 	} = $props();
 
 	onMount(() => {
 		explorer = new explorerTags(plugin, { startRenameHandoff });
+	});
+
+	onDestroy(() => {
+		explorer?.destroy();
 	});
 
 	function icon(el: HTMLElement, name: string) {
@@ -50,6 +56,7 @@
 			{searchMode}
 			bind:sortBy
 			bind:sortDirection
+			{active}
 			{icon}
 		/>
 	{/if}

@@ -2,6 +2,9 @@ export interface PerfProbeMetricInput {
 	nodes?: number;
 	rows?: number;
 	visibleRows?: number;
+	files?: number;
+	operations?: number;
+	filters?: number;
 }
 
 export interface PerfProbeCounter {
@@ -9,6 +12,9 @@ export interface PerfProbeCounter {
 	totalNodes: number;
 	totalRows: number;
 	totalVisibleRows: number;
+	totalFiles: number;
+	totalOperations: number;
+	totalFilters: number;
 }
 
 export interface PerfProbeTiming extends PerfProbeCounter {
@@ -38,6 +44,11 @@ export interface PerfProbeSnapshot {
 export interface PerfProbeApi {
 	count(name: string, input?: PerfProbeMetricInput): void;
 	measure<T>(name: string, input: PerfProbeMetricInput | undefined, fn: () => T): T;
+	measureAsync<T>(
+		name: string,
+		input: PerfProbeMetricInput | undefined,
+		fn: () => Promise<T>,
+	): Promise<T>;
 	reset(): void;
 	snapshot(): PerfProbeSnapshot;
 	run(name: PerfScenarioName, options?: PerfScenarioOptions): Promise<PerfProbeSnapshot>;
@@ -77,6 +88,9 @@ function createCounter(): PerfProbeCounter {
 		totalNodes: 0,
 		totalRows: 0,
 		totalVisibleRows: 0,
+		totalFiles: 0,
+		totalOperations: 0,
+		totalFilters: 0,
 	};
 }
 
@@ -85,6 +99,9 @@ function addMetricInput(target: PerfProbeCounter, input?: PerfProbeMetricInput):
 	target.totalNodes += input?.nodes ?? 0;
 	target.totalRows += input?.rows ?? 0;
 	target.totalVisibleRows += input?.visibleRows ?? 0;
+	target.totalFiles += input?.files ?? 0;
+	target.totalOperations += input?.operations ?? 0;
+	target.totalFilters += input?.filters ?? 0;
 }
 
 async function waitFrames(doc: Document | undefined, count = 2): Promise<void> {
@@ -159,6 +176,27 @@ export function createPerfProbe({ now, doc }: PerfProbeOptions): PerfProbe {
 		return result;
 	}
 
+	async function measureAsync<T>(
+		name: string,
+		input: PerfProbeMetricInput | undefined,
+		fn: () => Promise<T>,
+	): Promise<T> {
+		const start = now();
+		try {
+			return await fn();
+		} finally {
+			const duration = now() - start;
+			timings[name] ??= {
+				...createCounter(),
+				totalMs: 0,
+				maxMs: 0,
+			};
+			addMetricInput(timings[name], input);
+			timings[name].totalMs += duration;
+			timings[name].maxMs = Math.max(timings[name].maxMs, duration);
+		}
+	}
+
 	function reset(): void {
 		startedAt = now();
 		counters = {};
@@ -202,6 +240,7 @@ export function createPerfProbe({ now, doc }: PerfProbeOptions): PerfProbe {
 	const api: PerfProbeApi = {
 		count,
 		measure,
+		measureAsync,
 		reset,
 		snapshot,
 		run,

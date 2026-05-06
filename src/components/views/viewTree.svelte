@@ -11,6 +11,7 @@
 		focusedId?: string | null;
 		onToggle: (id: string) => void;
 		onRowClick: (id: string, e: MouseEvent) => void;
+		onBoxSelect?: (ids: string[], e: PointerEvent) => void;
 		onContextMenu: (id: string, e: MouseEvent) => void;
 		onRowKeydown?: (id: string, e: KeyboardEvent) => void;
 		activeFilterIds?: Set<string>;
@@ -30,6 +31,7 @@
 		focusedId,
 		onToggle,
 		onRowClick,
+		onBoxSelect,
 		onContextMenu,
 		onRowKeydown,
 		activeFilterIds,
@@ -45,6 +47,14 @@
 	const virtualizer = new TreeVirtualizer();
 
 	let outerEl: HTMLDivElement | undefined = $state();
+	let dragStart = $state<{ x: number; y: number; pointerId: number } | null>(null);
+	let selectionBox = $state<{
+		left: number;
+		top: number;
+		width: number;
+		height: number;
+	} | null>(null);
+	let suppressNextClick = false;
 
 	const flatArray = $derived(flattenMeasured(nodes, expandedIds));
 	const totalH = $derived(flatArray.length * virtualizer.rowHeight);
@@ -99,6 +109,105 @@
 		} else if (e.key === 'Escape') {
 			onCancelRename?.();
 		}
+	}
+
+	function handleRowClick(e: MouseEvent, id: string) {
+		if (suppressNextClick) {
+			suppressNextClick = false;
+			e.preventDefault();
+			e.stopPropagation();
+			return;
+		}
+		onRowClick(id, e);
+	}
+
+	function handlePointerDown(e: PointerEvent) {
+		if (e.button !== 0 || !outerEl || shouldIgnoreBoxStart(e.target)) return;
+		dragStart = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
+		selectionBox = null;
+		outerEl.setPointerCapture(e.pointerId);
+	}
+
+	function handlePointerMove(e: PointerEvent) {
+		if (!dragStart || !outerEl || e.pointerId !== dragStart.pointerId) return;
+		const dx = e.clientX - dragStart.x;
+		const dy = e.clientY - dragStart.y;
+		if (!selectionBox && Math.hypot(dx, dy) < 4) return;
+		e.preventDefault();
+		selectionBox = makeSelectionBox(dragStart.x, dragStart.y, e.clientX, e.clientY);
+	}
+
+	function handlePointerUp(e: PointerEvent) {
+		if (!dragStart || e.pointerId !== dragStart.pointerId) return;
+		const box = selectionBox;
+		releasePointer(e.pointerId);
+		dragStart = null;
+		selectionBox = null;
+		if (!box) return;
+		const ids = intersectingRowIds(box);
+		suppressNextClick = true;
+		if (ids.length > 0) onBoxSelect?.(ids, e);
+	}
+
+	function handlePointerCancel() {
+		if (dragStart) releasePointer(dragStart.pointerId);
+		dragStart = null;
+		selectionBox = null;
+	}
+
+	function releasePointer(pointerId: number) {
+		if (!outerEl?.hasPointerCapture(pointerId)) return;
+		outerEl.releasePointerCapture(pointerId);
+	}
+
+	function shouldIgnoreBoxStart(target: EventTarget | null): boolean {
+		const el = target instanceof HTMLElement ? target : null;
+		return Boolean(
+			el?.closest(
+				'input, textarea, select, button, .vm-tree-toggle, .vm-badge, .vm-tree-child-badge-indicator, [role="button"]',
+			),
+		);
+	}
+
+	function makeSelectionBox(startX: number, startY: number, endX: number, endY: number) {
+		const outerRect = outerEl!.getBoundingClientRect();
+		const startLeft = startX - outerRect.left + outerEl!.scrollLeft;
+		const startTop = startY - outerRect.top + outerEl!.scrollTop;
+		const endLeft = endX - outerRect.left + outerEl!.scrollLeft;
+		const endTop = endY - outerRect.top + outerEl!.scrollTop;
+		return {
+			left: Math.min(startLeft, endLeft),
+			top: Math.min(startTop, endTop),
+			width: Math.abs(endLeft - startLeft),
+			height: Math.abs(endTop - startTop),
+		};
+	}
+
+	function intersectingRowIds(box: NonNullable<typeof selectionBox>): string[] {
+		if (!outerEl) return [];
+		const boxRect = selectionBoxViewportRect(box);
+		const ids: string[] = [];
+		for (const row of outerEl.querySelectorAll<HTMLElement>('.vm-tree-virtual-row[data-id]')) {
+			if (rectsIntersect(boxRect, row.getBoundingClientRect())) {
+				const id = row.dataset.id;
+				if (id) ids.push(id);
+			}
+		}
+		return ids;
+	}
+
+	function selectionBoxViewportRect(box: NonNullable<typeof selectionBox>): DOMRect {
+		const outerRect = outerEl!.getBoundingClientRect();
+		return new DOMRect(
+			outerRect.left + box.left - outerEl!.scrollLeft,
+			outerRect.top + box.top - outerEl!.scrollTop,
+			box.width,
+			box.height,
+		);
+	}
+
+	function rectsIntersect(a: DOMRect, b: DOMRect): boolean {
+		return a.left <= b.right && a.right >= b.left && a.top <= b.bottom && a.bottom >= b.top;
 	}
 
 	function ownBadges(node: TreeNode): NodeBadge[] {
@@ -156,7 +265,17 @@
 	}
 </script>
 
-<div bind:this={outerEl} class="vm-tree-virtual-outer" onscroll={onScroll}>
+<div
+	bind:this={outerEl}
+	class="vm-tree-virtual-outer"
+	onscroll={onScroll}
+	onpointerdown={handlePointerDown}
+	onpointermove={handlePointerMove}
+	onpointerup={handlePointerUp}
+	onpointercancel={handlePointerCancel}
+	role="tree"
+	tabindex="-1"
+>
 	<div class="vm-tree-virtual-inner" style="--vm-tree-total-h: {totalH}px">
 		{#each visibleSlice as flat, i (flat.node.id)}
 			{@const absIdx = win.startIndex + i}
@@ -180,7 +299,7 @@
 				class:is-editing={isEditing}
 				style="--vm-tree-y: {absIdx * virtualizer.rowHeight}px; --depth: {flat.depth}"
 				data-id={node.id}
-				onclick={(e) => onRowClick(node.id, e)}
+				onclick={(e) => handleRowClick(e, node.id)}
 				oncontextmenu={(e) => onContextMenu(node.id, e)}
 				onkeydown={(e) => handleKeydown(e, node.id)}
 				role="treeitem"
@@ -297,4 +416,10 @@
 			</div>
 		{/each}
 	</div>
+	{#if selectionBox}
+		<div
+			class="vm-selection-box"
+			style="left: {selectionBox.left}px; top: {selectionBox.top}px; width: {selectionBox.width}px; height: {selectionBox.height}px"
+		></div>
+	{/if}
 </div>

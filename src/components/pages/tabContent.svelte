@@ -19,6 +19,7 @@
 		sortBy = $bindable('name'),
 		sortDirection = $bindable('asc'),
 		viewMode = $bindable('tree'),
+		active = true,
 		icon = defaultIcon,
 	}: {
 		plugin: VaultmanPlugin;
@@ -29,6 +30,7 @@
 		sortBy?: string;
 		sortDirection?: 'asc' | 'desc';
 		viewMode?: ExplorerViewMode;
+		active?: boolean;
 		icon?: (node: HTMLElement, name: string) => { update(n: string): void };
 	} = $props();
 
@@ -210,6 +212,7 @@
 				bind:sortBy
 				bind:sortDirection
 				bind:viewMode
+				{active}
 				{icon}
 			/>
 		{/key}

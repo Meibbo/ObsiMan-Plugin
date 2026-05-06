@@ -453,9 +453,12 @@
 }
 
 .vm-search-highlight {
-	background-color: color-mix(in srgb, var(--color-accent) 12%, transparent) !important;
-	color: var(--text-normal) !important;
+	@include highlight-accent-border(12%, false); // Solo fondo para search
 	animation: vm-fade-in-simple 0.2s ease;
+}
+
+.vm-explorer-popup-row {
+	@include highlight-accent-border(8%); // Borde premium para los filtros activos del popup
 }
 
 // View panel sub-components

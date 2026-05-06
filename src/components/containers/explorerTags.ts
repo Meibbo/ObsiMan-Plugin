@@ -1,4 +1,4 @@
-﻿import { TagsLogic } from '../../logic/logicTags';
+import { TagsLogic } from '../../logic/logicTags';
 import type { TFile } from 'obsidian';
 import type { TreeNode, TagMeta, NodeBadge } from '../../types/typeNode';
 import type { VaultmanPlugin } from '../../main';
@@ -18,6 +18,7 @@ import {
 	nodeBadgesFromViewLayers,
 	withViewStateClasses,
 } from '../../utils/utilViewLayers';
+import { getActivePerfProbe } from '../../dev/perfProbe';
 
 interface ExplorerTagsOptions {
 	startRenameHandoff?: (handoff: FnRRenameHandoff) => void;
@@ -33,12 +34,21 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 	private sortBy: string = 'name';
 	private sortDir: 'asc' | 'desc' = 'asc';
 	private addMode = false;
+	private unsubscribeTagsIndex: () => void;
 
 	constructor(plugin: VaultmanPlugin, options: ExplorerTagsOptions = {}) {
 		this.plugin = plugin;
 		this.options = options;
 		this.logic = new TagsLogic(plugin.app);
+		this.unsubscribeTagsIndex = this.plugin.tagsIndex.subscribe(() => {
+			getActivePerfProbe()?.count('explorerTags.invalidate');
+			this.logic.invalidate();
+		});
 		this.registerActions();
+	}
+
+	destroy(): void {
+		this.unsubscribeTagsIndex();
 	}
 
 	private registerActions() {
@@ -86,13 +96,33 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 	}
 
 	getTree(): TreeNode<TagMeta>[] {
-		this.logic.invalidate();
-		let tree = this.logic.getTree();
-		if (this.searchMode === 'leaf') tree = this._collectLeaves(tree);
-		if (this.searchTerm) tree = this.logic.filterTree(tree, this.searchTerm);
-		tree = this._applySort(tree);
+		const probe = getActivePerfProbe();
+		let tree =
+			probe?.measure('explorerTags.logicTree', undefined, () => this.logic.getTree()) ??
+			this.logic.getTree();
+		if (this.searchMode === 'leaf') {
+			const collectLeaves = () => this._collectLeaves(tree);
+			tree =
+				probe?.measure('explorerTags.collectLeaves', { nodes: tree.length }, collectLeaves) ??
+				collectLeaves();
+		}
+		if (this.searchTerm) {
+			const filterTree = () => this.logic.filterTree(tree, this.searchTerm);
+			tree =
+				probe?.measure('explorerTags.filterTree', { nodes: tree.length }, filterTree) ??
+				filterTree();
+		}
+		const sortTree = () => this._applySort(tree);
+		tree = probe?.measure('explorerTags.sort', { nodes: tree.length }, sortTree) ?? sortTree();
 
-		return this._decorateTree(tree);
+		const decorateTree = () => this._decorateTree(tree);
+		return (
+			probe?.measure(
+				'explorerTags.decorateTree',
+				{ nodes: probe ? countTreeNodes(tree) : 0 },
+				decorateTree,
+			) ?? decorateTree()
+		);
 	}
 
 	private _decorateTree(nodes: TreeNode<TagMeta>[], parentDeleted = false): TreeNode<TagMeta>[] {
@@ -273,4 +303,15 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 			return tagListContains(fm.tags, tagPath);
 		});
 	}
+}
+
+function countTreeNodes(nodes: TreeNode<TagMeta>[]): number {
+	let count = 0;
+	const stack = [...nodes];
+	while (stack.length > 0) {
+		const node = stack.pop()!;
+		count += 1;
+		if (node.children) stack.push(...node.children);
+	}
+	return count;
 }

@@ -138,6 +138,7 @@ export interface ViewRow<TNode extends NodeBase = NodeBase> {
 	label: string;
 	detail?: string;
 	icon?: string;
+	cls?: string;
 	depth?: number;
 	cells: readonly ViewCell[];
 	layers: ViewLayers;
