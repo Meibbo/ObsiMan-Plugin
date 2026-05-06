@@ -23,7 +23,7 @@
 
   &-group {
     margin-left: 8px;
-    border-left: 2px solid $border;
+    border-left: 2px solid $vm-border-color;
     padding-left: 8px;
     margin-bottom: 4px;
 
@@ -40,9 +40,9 @@
     font-weight: 600;
     text-transform: uppercase;
     padding: 1px 6px;
-    border-radius: var(--radius-s);
-    background: $badge-bg;
-    color: $accent;
+    border-radius: $vm-radius-s;
+    background: $vm-bg-modifier-hover;
+    color: $vm-color-accent;
   }
 
   &-children {
@@ -51,7 +51,7 @@
 
   &-empty {
     font-size: 0.75em;
-    color: $faint;
+    color: $vm-text-faint;
     font-style: italic;
     padding: 2px 0;
   }
@@ -65,11 +65,11 @@
 
     &-type {
       font-weight: 500;
-      color: $muted;
+      color: $vm-text-muted;
     }
 
     &-detail {
-      color: var(--text-normal);
+      color: $vm-text-normal;
       flex: 1;
       white-space: nowrap;
       overflow: hidden;
@@ -83,7 +83,7 @@
     line-height: 1;
     border: none;
     background: transparent;
-    color: $faint;
+    color: $vm-text-faint;
     cursor: pointer;
 
     &:hover {
@@ -125,15 +125,15 @@
     flex-shrink: 0;
     border: none;
     background: transparent;
-    border-radius: var(--radius-s);
-    color: $muted;
+    border-radius: $vm-radius-s;
+    color: $vm-text-muted;
     cursor: pointer;
     padding: 0;
     transition: background 0.12s, color 0.12s;
 
     &:hover {
-      background: $bg-hover;
-      color: var(--text-normal);
+      background: $vm-bg-modifier-hover;
+      color: $vm-text-normal;
     }
 
     svg {
@@ -147,8 +147,8 @@
     min-width: 0;
     display: flex;
     align-items: center;
-    background: var(--background-modifier-form-field);
-    border: 1px solid $border;
+    background: $vm-bg-secondary;
+    border: $vm-border-width solid $vm-border-color;
     border-radius: 999px;
     padding: 0 6px 0 10px;
     height: 26px;
@@ -156,7 +156,7 @@
     transition: border-color 0.12s;
 
     &:focus-within {
-      border-color: $accent;
+      border-color: $vm-color-accent;
     }
   }
 }
@@ -169,7 +169,7 @@
     box-shadow: none !important;
     outline: none !important;
     font-size: var(--font-ui-smaller);
-    color: var(--text-normal);
+    color: $vm-text-normal;
     min-width: 0;
     height: 100%;
     padding: 0;
@@ -189,7 +189,7 @@
     }
 
     &::placeholder {
-      color: $faint;
+      color: $vm-text-faint;
     }
   }
 
@@ -203,7 +203,7 @@
     flex-shrink: 0;
     border: none;
     background: transparent;
-    color: $muted;
+    color: $vm-text-muted;
     opacity: 0.7;
     cursor: pointer;
     padding: 0;
@@ -211,7 +211,7 @@
 
     &:hover {
       opacity: 1;
-      color: var(--text-normal);
+      color: $vm-text-normal;
     }
 
     svg {
@@ -233,15 +233,15 @@
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  background: var(--background-primary);
-  border: 1px solid $border;
-  border-radius: var(--radius-m);
+  background: $vm-bg-primary;
+  border: $vm-border-width solid $vm-border-color;
+  border-radius: $vm-radius-m;
   padding: 10px;
   z-index: 100;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: $vm-shadow-l;
 }
 
 .vm-view-panel {
@@ -253,24 +253,24 @@
 
   &-label {
     font-size: var(--font-ui-small);
-    color: $muted;
+    color: $vm-text-muted;
     font-weight: 600;
   }
 
   &-option {
     padding: 4px 8px;
-    border-radius: var(--radius-s);
+    border-radius: $vm-radius-s;
     cursor: pointer;
     font-size: var(--font-ui-small);
-    color: $muted;
+    color: $vm-text-muted;
 
     &:hover {
-      background: $bg-hover;
-      color: var(--text-normal);
+      background: $vm-bg-modifier-hover;
+      color: $vm-text-normal;
     }
 
     &.is-active {
-      color: $accent;
+      color: $vm-color-accent;
       font-weight: 600;
     }
   }

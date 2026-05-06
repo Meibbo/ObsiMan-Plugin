@@ -39,7 +39,7 @@
 
   &-count {
     font-size: 0.75em;
-    color: $muted;
+    color: $vm-text-muted;
     display: block;
     margin-bottom: 4px;
   }
@@ -48,10 +48,10 @@
     width: 100%;
     font-size: 0.8em;
     padding: 4px 8px;
-    border: 1px solid $border;
-    border-radius: var(--radius-s);
-    background: var(--background-primary);
-    color: var(--text-normal);
+    border: $vm-border-width solid $vm-border-color;
+    border-radius: $vm-radius-s;
+    background: $vm-bg-primary;
+    color: $vm-text-normal;
     margin-bottom: 4px;
   }
 
@@ -65,7 +65,7 @@
     display: grid;
     grid-template-columns: 18px 1fr 50px 50px;
     gap: 4px;
-    border-bottom: 1px solid $border;
+    border-bottom: $vm-border-width solid $vm-border-color;
     padding-bottom: 2px;
     margin-bottom: 2px;
   }
@@ -75,7 +75,7 @@
   font-size: 0.7em;
   font-weight: 600;
   text-transform: uppercase;
-  color: $muted;
+  color: $vm-text-muted;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -84,7 +84,7 @@
 
   &:hover,
   &.active {
-    color: var(--text-normal);
+    color: $vm-text-normal;
   }
 }
 
@@ -96,12 +96,12 @@
     align-items: center;
     padding: 2px 4px;
     font-size: 0.8em;
-    border-radius: var(--radius-s);
+    border-radius: $vm-radius-s;
     box-sizing: border-box;
     width: 100%;
 
     &:hover {
-      background: $bg-hover;
+      background: $vm-bg-modifier-hover;
     }
 
     .vm-files-virtual-inner & {
@@ -127,26 +127,25 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: var(--text-normal);
+    color: $vm-text-normal;
 
     &:hover {
-      color: $accent;
+      color: $vm-color-accent;
       text-decoration: underline;
     }
   }
 
   &-props {
     text-align: center;
-    color: $muted;
+    color: $vm-text-muted;
     font-size: 0.9em;
   }
 
   &-path {
-    color: $faint;
+    color: $vm-text-faint;
     font-size: 0.85em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 }
-

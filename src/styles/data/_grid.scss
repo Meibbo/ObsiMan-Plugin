@@ -19,7 +19,7 @@
     justify-content: flex-start;
     gap: 8px;
     padding: 6px 12px;
-    border-bottom: 1px solid var(--vm-border);
+    border-bottom: $vm-border-width solid $vm-border-color;
     flex-shrink: 0;
   }
 
@@ -28,21 +28,21 @@
     max-width: 300px;
     font-size: 0.85em;
     padding: 4px 8px;
-    border: 1px solid var(--vm-border);
-    border-radius: var(--radius-s);
-    background: var(--background-primary);
-    color: var(--text-normal);
+    border: $vm-border-width solid $vm-border-color;
+    border-radius: $vm-radius-s;
+    background: $vm-bg-primary;
+    color: $vm-text-normal;
   }
 
   &-filter-toggle {
     padding: 4px;
-    border-radius: var(--radius-s);
-    color: var(--text-muted);
+    border-radius: $vm-radius-s;
+    color: $vm-text-muted;
     transition: color 0.15s ease, background 0.15s ease;
 
     &.is-active {
-      color: var(--vm-accent);
-      background: color-mix(in srgb, var(--vm-accent) 12%, transparent);
+      color: $vm-color-accent;
+      background: color-mix(in srgb, $vm-color-accent 12%, transparent);
     }
   }
 
@@ -59,7 +59,7 @@
       position: sticky;
       top: 0;
       z-index: 2;
-      background: var(--background-secondary);
+      background: $vm-bg-secondary;
     }
   }
 
@@ -72,7 +72,7 @@
       width: 30px;
       text-align: center;
       padding: 6px 4px;
-      border-bottom: 2px solid var(--vm-border);
+      border-bottom: 2px solid $vm-border-color;
       transition: border-color 0.15s ease;
 
       input[type="checkbox"] {
@@ -81,11 +81,11 @@
       }
 
       &.is-indeterminate {
-        border-color: var(--vm-accent);
+        border-color: $vm-color-accent;
 
         input[type="checkbox"] {
-          border-color: var(--vm-accent);
-          box-shadow: 0 0 0 1px var(--vm-accent);
+          border-color: $vm-color-accent;
+          box-shadow: 0 0 0 1px $vm-color-accent;
         }
       }
     }
@@ -96,15 +96,15 @@
       text-align: left;
       font-weight: 600;
       font-size: 0.9em;
-      color: var(--vm-text-muted);
+      color: $vm-text-muted;
       white-space: nowrap;
-      border-bottom: 2px solid var(--vm-border);
+      border-bottom: 2px solid $vm-border-color;
       user-select: none;
       @include text-ellipsis;
 
       &:hover {
-        color: var(--text-normal);
-        background: var(--vm-bg-hover);
+        color: $vm-text-normal;
+        background: $vm-bg-modifier-hover;
       }
     }
 
@@ -113,7 +113,7 @@
     }
 
     &-active {
-      color: var(--text-normal);
+      color: $vm-text-normal;
     }
   }
 
@@ -127,30 +127,30 @@
     z-index: 3;
 
     &:hover {
-      background: var(--vm-accent);
+      background: $vm-color-accent;
       opacity: 0.4;
     }
 
     body.vm-resizing & {
-      background: var(--vm-accent);
+      background: $vm-color-accent;
       opacity: 0.4;
     }
   }
 
   &-row {
-    border-bottom: 1px solid var(--vm-border);
+    border-bottom: $vm-border-width solid $vm-border-color;
     cursor: default;
     user-select: none;
 
     &:hover {
-      background: var(--vm-bg-hover);
+      background: $vm-bg-modifier-hover;
     }
 
     &.is-selected {
-      background: color-mix(in srgb, var(--vm-accent) 12%, transparent);
+      background: color-mix(in srgb, $vm-color-accent 12%, transparent);
 
       &:hover {
-        background: color-mix(in srgb, var(--vm-accent) 18%, transparent);
+        background: color-mix(in srgb, $vm-color-accent 18%, transparent);
       }
     }
 
@@ -178,22 +178,22 @@
 
     &-prop {
       padding: 4px 8px;
-      color: var(--text-normal);
+      color: $vm-text-normal;
       cursor: default;
       @include text-ellipsis;
 
       &:hover {
-        background: var(--background-modifier-hover);
+        background: $vm-bg-modifier-hover;
       }
     }
   }
 
   &-name-link {
     cursor: pointer;
-    color: var(--text-normal);
+    color: $vm-text-normal;
 
     &:hover {
-      color: var(--vm-accent);
+      color: $vm-color-accent;
       text-decoration: underline;
     }
   }
@@ -206,10 +206,10 @@
     width: 100%;
     font-size: 1em;
     padding: 2px 4px;
-    border: 2px solid var(--vm-accent);
-    border-radius: var(--radius-s);
-    background: var(--background-primary);
-    color: var(--text-normal);
+    border: 2px solid $vm-color-accent;
+    border-radius: $vm-radius-s;
+    background: $vm-bg-primary;
+    color: $vm-text-normal;
     outline: none;
   }
 

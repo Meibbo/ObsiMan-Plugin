@@ -32,7 +32,7 @@
     justify-content: flex-start;
     gap: 8px;
     padding: 6px 8px;
-    border-bottom: 1px solid var(--background-modifier-border);
+    border-bottom: $vm-border-width solid $vm-border-color;
     margin-bottom: 6px;
   }
 
@@ -43,11 +43,11 @@
     border-radius: 4px;
     cursor: pointer;
     flex-shrink: 0;
-    color: var(--text-muted);
+    color: $vm-text-muted;
 
     &:hover {
-      background: var(--background-modifier-hover);
-      color: var(--text-normal);
+      background: $vm-bg-modifier-hover;
+      color: $vm-text-normal;
     }
   }
 
@@ -55,7 +55,7 @@
     @include flex-center;
     width: 22px;
     height: 22px;
-    color: var(--color-accent);
+    color: $vm-color-accent;
     flex-shrink: 0;
 
     svg {
@@ -67,7 +67,7 @@
   &-drill-title {
     font-weight: 600;
     font-size: var(--font-ui-small);
-    color: var(--text-normal);
+    color: $vm-text-normal;
     flex: 1;
     @include text-ellipsis;
   }
@@ -79,8 +79,8 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
+  background: $vm-bg-secondary;
+  border: $vm-border-width solid $vm-border-color;
   border-radius: 8px;
   padding: 12px 8px 10px;
   cursor: pointer;
@@ -89,20 +89,20 @@
   text-align: center;
 
   &:hover {
-    border-color: var(--interactive-accent);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    border-color: $vm-color-accent;
+    box-shadow: $vm-shadow-s;
   }
 
   &.is-active-filter {
-    border-color: var(--interactive-accent);
-    background: var(--background-modifier-active-hover);
+    border-color: $vm-color-accent;
+    background: $vm-bg-modifier-active-hover;
   }
 
   &-icon {
     @include flex-center;
     width: 28px;
     height: 28px;
-    color: var(--color-accent);
+    color: $vm-color-accent;
     flex-shrink: 0;
 
     svg {
@@ -115,27 +115,27 @@
     font-weight: 600;
     font-size: var(--font-ui-small);
     width: 100%;
-    color: var(--text-normal);
+    color: $vm-text-normal;
     @include text-ellipsis;
   }
 
   &-stats {
     @include flex-center;
     gap: 5px;
-    color: var(--text-muted);
+    color: $vm-text-muted;
     font-size: var(--font-ui-smaller);
     margin-top: 2px;
   }
 
   &-stat-count {
-    color: var(--text-muted);
+    color: $vm-text-muted;
   }
 
   &-stat-type {
     @include flex-center;
     width: 14px;
     height: 14px;
-    color: var(--text-faint);
+    color: $vm-text-faint;
 
     svg {
       width: 12px;
@@ -158,19 +158,19 @@
   align-items: center;
   gap: 4px;
   padding: 8px 4px 6px;
-  border-radius: var(--radius-m);
-  background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
+  border-radius: $vm-radius-m;
+  background: $vm-bg-secondary;
+  border: $vm-border-width solid $vm-border-color;
   cursor: pointer;
   text-align: center;
   overflow: hidden;
   transition: background 0.12s;
 
-  &:hover { background: var(--background-modifier-hover); }
+  &:hover { background: $vm-bg-modifier-hover; }
 
   &-icon {
     @include flex-center;
-    color: var(--text-muted);
+    color: $vm-text-muted;
 
     svg {
       width: 16px;
@@ -180,21 +180,21 @@
 
   &-name {
     font-size: var(--font-ui-smaller);
-    color: var(--text-normal);
+    color: $vm-text-normal;
     max-width: 100%;
     @include text-ellipsis;
   }
 
   &-count {
     font-size: 10px;
-    color: var(--text-faint);
+    color: $vm-text-faint;
   }
 }
 
 // Grid value chips
 .vm-grid {
   &-td {
-    border-bottom: 1px solid var(--background-modifier-border);
+    border-bottom: $vm-border-width solid $vm-border-color;
     padding: 5px 8px;
     vertical-align: middle;
 
@@ -227,25 +227,25 @@
     gap: 4px;
     padding: 2px 8px;
     border-radius: 999px;
-    background: var(--background-modifier-hover);
-    border: 1px solid var(--background-modifier-border);
+    background: $vm-bg-modifier-hover;
+    border: $vm-border-width solid $vm-border-color;
     margin: 2px 3px;
     cursor: pointer;
     font-size: var(--font-ui-smaller);
     transition: background 0.1s, border-color 0.1s;
 
     &:hover {
-      background: var(--interactive-hover);
-      border-color: var(--interactive-accent);
+      background: $vm-interactive-hover;
+      border-color: $vm-color-accent;
     }
 
     &.is-active-filter {
-      background: var(--interactive-accent);
-      color: var(--text-on-accent);
-      border-color: var(--interactive-accent);
+      background: $vm-color-accent;
+      color: $vm-text-on-accent;
+      border-color: $vm-color-accent;
 
       .vm-grid-chip-count {
-        color: var(--text-on-accent);
+        color: $vm-text-on-accent;
         opacity: 0.8;
       }
     }
@@ -257,7 +257,7 @@
   }
 
   &-chip-count {
-    color: var(--text-muted);
+    color: $vm-text-muted;
     font-size: 0.85em;
   }
 }
