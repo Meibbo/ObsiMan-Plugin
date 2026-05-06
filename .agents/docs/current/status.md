@@ -2,24 +2,27 @@
 title: Current status
 type: agent-status
 status: active
-parent: "[[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|user-facing-recovery-wave-a]]"
+parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|node-selection-service]]"
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-status.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-06T06:24:11
+updated: 2026-05-06T16:28:20
 tags:
   - agent/current
 ---
 
 # Current Status
 
-Initiative: hardening, user-facing recovery wave A.
+Initiative: hardening, node selection service and viewgrid.
 
 Archived completed/superseded status:
 [[docs/archive/hardening/active-docs/2026-05-06T050935-current-status|2026-05-06 current status archive]].
 
 ## Active Rules
 
+- User explicitly waived the no-commit rule and active-doc compactness rule for
+  this task on 2026-05-06. Preserve detail first. Commits are allowed if useful
+  for this work.
 - Active agent Markdown files, including `current/status.md` and
   `current/handoff.md`, stay under 200 lines.
 - If current files fill with completed or superseded work, archive that material
@@ -33,6 +36,19 @@ Archived completed/superseded status:
 
 ## Active Work
 
+- Current active design:
+  [[docs/work/hardening/specs/2026-05-06-node-selection-service/index|Node selection service and viewgrid spec]].
+- Current active plan:
+  [[docs/work/hardening/plans/2026-05-06-node-selection-service/index|Node selection service implementation plan]].
+- Standing engineering context:
+  [[docs/current/engineering-context|Engineering context]], now linked from
+  `start.md` so future sessions read it with status and handoff.
+- Read-only exploration found that selection is split across
+  `panelExplorer.svelte`, `viewTree.svelte`, current file-specific
+  `viewGrid.svelte`, `logicKeyboard.ts`, and partial `ViewService` mirroring.
+- Recommended implementation direction: service-first node selection, tree/grid
+  adapters, and a generic node-grid adapter. The old file-specific grid should
+  be renamed or isolated if compatibility is needed during transition.
 - Current wave source:
   [[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|User-facing recovery wave A]].
 - Completed in wave A:
@@ -42,10 +58,14 @@ Archived completed/superseded status:
 - Bases parser compatibility has resumed after wave A: `file.name.contains`,
   `file.folder.contains`, and `file.path.contains` now import as supported
   Vaultman file rules.
-- Next slice: continue deeper Obsidian/Bases/Dataview parser compatibility.
+- Previous next slice was deeper Obsidian/Bases/Dataview parser compatibility.
+  The user's latest request supersedes that with node selection service and
+  viewgrid planning.
 
 ## Current Verification
 
+- No product code was changed for the node selection service yet.
+- No product tests were run for this planning-only update.
 - Focused unit tests pass for `serviceFnR`, `serviceQueue`,
   `explorerTags`, and `explorerFiles`.
 - Focused component test passes for `pageFiltersRenameHandoff`.
@@ -67,6 +87,9 @@ Archived completed/superseded status:
 ## Source Links
 
 - [[docs/current/handoff|current handoff]]
+- [[docs/current/engineering-context|engineering context]]
+- [[docs/work/hardening/specs/2026-05-06-node-selection-service/index|Node selection service and viewgrid spec]]
+- [[docs/work/hardening/plans/2026-05-06-node-selection-service/index|Node selection service plan]]
 - [[docs/work/hardening/specs/2026-05-05-bases-interop-slice-1/index|Bases interop slice 1]]
 - [[docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|CMenu queue repair plan]]
 - [[docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/index|prop/value rename handoff plan]]

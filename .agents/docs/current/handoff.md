@@ -2,11 +2,11 @@
 title: Current handoff
 type: agent-handoff
 status: active
-parent: "[[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|user-facing-recovery-wave-a]]"
+parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|node-selection-service]]"
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-handoff.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-06T06:24:11
+updated: 2026-05-06T16:28:20
 tags:
   - agent/current
 ---
@@ -18,18 +18,42 @@ Archived completed/superseded handoff:
 
 ## Where To Resume
 
-- Continue [[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|User-facing recovery wave A]].
+- Continue [[docs/work/hardening/specs/2026-05-06-node-selection-service/index|Node selection service and viewgrid spec]] and
+  [[docs/work/hardening/plans/2026-05-06-node-selection-service/index|Node selection service implementation plan]].
+- Read [[docs/current/engineering-context|engineering context]] with this file
+  and status; `start.md` now links it explicitly.
+- User explicitly said to ignore the no-commit rule and active-doc compactness
+  rule for this task.
+- Next implementation slice, if approved: Phase 1 selection service from the
+  plan, using TDD.
 - A3 navbar badges and quick actions is implemented and verified.
 - Bases parser compatibility resumed after wave A; safe file `.contains(...)`
   expressions are now supported.
-- Next slice: continue deeper Obsidian/Bases/Dataview parser compatibility.
+- Previous next slice was deeper Obsidian/Bases/Dataview parser compatibility;
+  latest user request supersedes it.
 - Do not base `viewTable.svelte` on current `viewGrid.svelte`; it is failed
   table debt.
-- Do not commit without explicit user request.
 - Do not move AI files into `main`.
 
 ## Fresh Changes To Preserve
 
+- Added active engineering context at `docs/current/engineering-context.md` and
+  linked it from `docs/start.md`.
+- Added node selection service spec shards under
+  `docs/work/hardening/specs/2026-05-06-node-selection-service/`.
+- Added subagent-ready implementation plan shards under
+  `docs/work/hardening/plans/2026-05-06-node-selection-service/`.
+- Read-only exploration found current tree flow:
+  plain click selects then activates, modifier clicks select without activation,
+  box select selects without activation, chevron and badges stop propagation,
+  and context menu preserves same-type selected nodes.
+- Read-only exploration found current grid flow:
+  `viewGrid.svelte` is file-specific (`TFile[]`, `selectedFiles`, `file.path`,
+  hardcoded columns, `app.metadataCache`) and should not be the foundation for
+  generic node grid behavior.
+- Plan allows creating `ViewNodeGrid.svelte` first or moving old file behavior
+  to `ViewFileGrid.svelte` to avoid losing file workflows while final `grid`
+  semantics become node/tile based.
 - A1 follow-up: FnR prop rename now emits `NATIVE_RENAME_PROP`, so
   `OperationQueueService` expands it into queued property rename operations.
 - A2: `serviceFnR` starts/builds tag and file handoffs; tags queue frontmatter
@@ -54,6 +78,7 @@ Archived completed/superseded handoff:
 
 ## Verified Commands
 
+- None for product code in the node selection planning update.
 - `pnpm exec vp test run --project unit --config vitest.config.ts test/unit/services/serviceQueue.test.ts`
 - `pnpm exec vp test run --project unit --config vitest.config.ts test/unit/services/serviceFnR.test.ts test/unit/services/serviceQueue.test.ts`
 - `pnpm exec vp test run --project component --config vitest.config.ts test/component/pageFiltersRenameHandoff.test.ts`

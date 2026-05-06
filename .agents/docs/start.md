@@ -15,6 +15,7 @@ Always read:
 
 1. [[docs/current/status|status]]
 2. [[docs/current/handoff|handoff]]
+3. [[docs/current/engineering-context|engineering context]]
 
 - For large code files, use `tools/pkm-ai/analyze-code.mjs` instead of reading the whole file.
 - To archive long context, use `tools/pkm-ai/manage-memory.mjs archive`.
