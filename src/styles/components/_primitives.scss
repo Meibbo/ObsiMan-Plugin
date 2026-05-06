@@ -10,25 +10,25 @@
 .vm-btn-squircle {
   pointer-events: auto;
   border-radius: 12px;
-  background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
+  background: $vm-bg-secondary;
+  border: $vm-border-width solid $vm-border-color;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: $vm-shadow-l;
   cursor: pointer;
-  color: var(--text-muted);
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s;
+  color: $vm-text-muted;
+  transition: transform $vm-transition-speed $vm-transition-bounce, background $vm-transition-speed;
 
   &:hover {
     transform: scale(1.1);
-    background: var(--background-modifier-hover);
-    color: var(--text-normal);
+    background: $vm-bg-modifier-hover;
+    color: $vm-text-normal;
   }
 
   &.is-active {
-    background: var(--color-accent);
-    color: var(--text-on-accent);
+    background: $vm-color-accent;
+    color: $vm-text-on-accent;
     border-color: transparent;
   }
 
@@ -58,12 +58,12 @@
   display: inline-flex;
   align-items: center;
   padding: 1px 6px;
-  border-radius: var(--radius-s);
+  border-radius: $vm-radius-s;
   font-size: 0.75em;
   font-weight: 500;
-  background: var(--badge-accent, var(--background-secondary));
-  color: var(--text-normal);
-  border: 1px solid var(--background-modifier-border);
+  background: var(--badge-accent, $vm-bg-secondary);
+  color: $vm-text-normal;
+  border: $vm-border-width solid $vm-border-color;
 }
 
 // Toggle
@@ -91,13 +91,13 @@
   width: 32px;
   height: 18px;
   border-radius: 9px;
-  background: var(--background-modifier-border);
+  background: $vm-border-color;
   position: relative;
-  transition: background 0.2s;
+  transition: background $vm-transition-speed;
   flex-shrink: 0;
 
   .vm-toggle input:checked~& {
-    background: var(--color-accent);
+    background: $vm-color-accent;
   }
 
   &::after {
@@ -109,7 +109,7 @@
     height: 14px;
     border-radius: 50%;
     background: #fff;
-    transition: transform 0.2s;
+    transition: transform $vm-transition-speed;
   }
 
   .vm-toggle input:checked~&::after {
@@ -119,7 +119,7 @@
 
 .vm-toggle-label {
   font-size: 0.85em;
-  color: var(--text-normal);
+  color: $vm-text-normal;
 }
 
 // Dropdown
@@ -131,15 +131,15 @@
 
 .vm-dropdown-label {
   font-size: 0.8em;
-  color: var(--text-muted);
+  color: $vm-text-muted;
 }
 
 .vm-dropdown select {
   font-size: 0.85em;
-  background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-s);
-  color: var(--text-normal);
+  background: $vm-bg-secondary;
+  border: $vm-border-width solid $vm-border-color;
+  border-radius: $vm-radius-s;
+  color: $vm-text-normal;
   padding: 2px 6px;
   cursor: pointer;
 }
@@ -153,20 +153,20 @@
 
 .vm-text-input-label {
   font-size: 0.75em;
-  color: var(--text-muted);
+  color: $vm-text-muted;
 }
 
 .vm-text-input input {
   font-size: 0.85em;
-  background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-s);
-  color: var(--text-normal);
+  background: $vm-bg-secondary;
+  border: $vm-border-width solid $vm-border-color;
+  border-radius: $vm-radius-s;
+  color: $vm-text-normal;
   padding: 4px 8px;
   width: 100%;
 
   &:focus {
-    border-color: var(--color-accent);
+    border-color: $vm-color-accent;
     outline: none;
   }
 }
