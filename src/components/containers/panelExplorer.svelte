@@ -3,16 +3,13 @@
 	import { SvelteSet } from 'svelte/reactivity';
 	import type { VaultmanPlugin } from '../../main';
 	import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
+	import type { INodeSelectionService, NodeSelectionSnapshot } from '../../types/typeSelection';
 	import type { ViewEmptyState } from '../../types/typeViews';
 	import ViewTree from '../views/viewTree.svelte';
 	import ViewGrid from '../views/viewGrid.svelte';
 	import ViewEmptyLanding from '../views/viewEmptyLanding.svelte';
 	import { getActivePerfProbe } from '../../dev/perfProbe';
-	import {
-		applyBoxSelection,
-		applyKeyboardMove,
-		applyPointerSelection,
-	} from '../../logic/logicKeyboard';
+	import { NodeSelectionService } from '../../services/serviceSelection.svelte';
 	import type { TreeNode } from '../../types/typeNode';
 	import { bubbleHiddenTreeBadges } from '../../utils/utilBadgeBubbling';
 	import { collectAutoExpandedIds, resolveExpandedIds } from '../../utils/utilExplorerExpansion';
@@ -47,11 +44,17 @@
 
 	let nodes = $state<TreeNode<TMeta>[]>([]);
 	let flatFiles = $state<TFile[]>([]);
+	let rootEl: HTMLDivElement | undefined = $state();
 	const manualExpandedIds = new SvelteSet<string>();
 	const manualCollapsedIds = new SvelteSet<string>();
-	let selectedNodeIds = $state(new Set<string>());
-	let selectionAnchorId = $state<string | null>(null);
-	let focusedNodeId = $state<string | null>(null);
+	const fallbackSelectionService = new NodeSelectionService();
+	const selectionService = $derived(
+		((plugin as VaultmanPlugin & { selectionService?: INodeSelectionService }).selectionService ??
+			fallbackSelectionService) as INodeSelectionService,
+	);
+	const selectionSnapshot = $derived(selectionService.snapshot(provider.id));
+	const selectedNodeIds = $derived(new Set(selectionSnapshot.ids));
+	const focusedNodeId = $derived(selectionSnapshot.focusedId);
 	let previousSearchTerm = '';
 	const autoExpandedIds = $derived(
 		collectAutoExpandedIds(nodes, { searchTerm, smallTreeThreshold: 8 }),
@@ -102,6 +105,11 @@
 		};
 	});
 
+	$effect(() => {
+		if (!active) return;
+		commitSelection(selectionService.prune(provider.id, visibleNodeIds()));
+	});
+
 	function refreshData() {
 		if (viewMode === 'tree') {
 			nodes = readProviderTree();
@@ -140,40 +148,50 @@
 
 		const additive = e.ctrlKey || e.metaKey;
 		const range = e.shiftKey;
-		applySelection(id, { additive, range });
-		if (!additive && !range) activateNode(node);
+		commitSelection(selectionService.selectPointer(provider.id, visibleNodeIds(), id, { additive, range }));
+	}
+
+	function handlePrimaryAction(id: string, e: MouseEvent) {
+		const node = findNodeById(nodes, id);
+		if (!node) return;
+		const additive = e.ctrlKey || e.metaKey;
+		const range = e.shiftKey;
+		commitSelection(selectionService.selectPointer(provider.id, visibleNodeIds(), id, { additive, range }));
+		activateNode(node);
 	}
 
 	function handleContextMenu(id: string, e: MouseEvent) {
 		e.preventDefault();
 		const node = findNodeById(nodes, id);
 		if (!node) return;
-		if (!selectedNodeIds.has(id)) applySelection(id, {});
+		if (!selectedNodeIds.has(id)) {
+			commitSelection(selectionService.selectPointer(provider.id, visibleNodeIds(), id));
+		}
 		provider.handleContextMenu(node, e, selectedNodesForContext(node));
 	}
 
 	function handleRowKeydown(id: string, e: KeyboardEvent) {
 		if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
 			e.preventDefault();
-			const next = applyKeyboardMove({
-				orderedIds: visibleNodeIds(),
-				selectedIds: selectedNodeIds,
-				anchorId: selectionAnchorId,
-				focusedId: focusedNodeId ?? id,
-				direction: e.key === 'ArrowDown' ? 1 : -1,
-				additive: e.ctrlKey || e.metaKey,
-				range: e.shiftKey,
-			});
-			commitSelection(next.ids, next.anchorId, next.focusedId);
+			if (!focusedNodeId) selectionService.setFocused(provider.id, id);
+			commitSelection(
+				selectionService.moveFocus(provider.id, visibleNodeIds(), e.key === 'ArrowDown' ? 1 : -1, {
+					additive: e.ctrlKey || e.metaKey,
+					range: e.shiftKey,
+				}),
+			);
 		} else if (e.key === ' ' || e.key === 'Spacebar') {
 			e.preventDefault();
-			applySelection(id, {
-				additive: e.ctrlKey || e.metaKey,
-				range: e.shiftKey,
-			});
+			if (!focusedNodeId) selectionService.setFocused(provider.id, id);
+			commitSelection(
+				selectionService.toggleFocused(provider.id, visibleNodeIds(), {
+					additive: e.ctrlKey || e.metaKey,
+					range: e.shiftKey,
+				}),
+			);
 		} else if (e.key === 'Enter') {
 			const node = findNodeById(nodes, id);
-			if (node) activateNode(node);
+			if (node) handlePrimaryAction(id, e as unknown as MouseEvent);
 		}
 	}
 
@@ -212,37 +230,19 @@
 		}
 	}
 
-	function applySelection(id: string, opts: { additive?: boolean; range?: boolean }) {
-		const next = applyPointerSelection({
-			orderedIds: visibleNodeIds(),
-			selectedIds: selectedNodeIds,
-			anchorId: selectionAnchorId,
-			focusedId: focusedNodeId,
-			targetId: id,
-			additive: opts.additive,
-			range: opts.range,
-		});
-		commitSelection(next.ids, next.anchorId, next.focusedId);
-	}
-
 	function handleBoxSelect(ids: string[], e: PointerEvent) {
-		const next = applyBoxSelection({
-			orderedIds: visibleNodeIds(),
-			selectedIds: selectedNodeIds,
-			targetIds: ids,
-			additive: e.ctrlKey || e.metaKey,
-		});
-		commitSelection(next.ids, next.anchorId, next.focusedId);
+		commitSelection(
+			selectionService.selectBox(provider.id, visibleNodeIds(), ids, {
+				additive: e.ctrlKey || e.metaKey,
+			}),
+		);
 	}
 
-	function commitSelection(ids: Set<string>, anchorId: string | null, focusedId: string | null) {
-		selectedNodeIds = new Set(ids);
-		selectionAnchorId = anchorId;
-		focusedNodeId = focusedId;
+	function commitSelection(snapshot: NodeSelectionSnapshot) {
 		plugin.viewService.clearSelection(provider.id);
-		for (const id of selectedNodeIds) plugin.viewService.select(provider.id, id, 'add');
-		plugin.viewService.setFocused(provider.id, focusedId);
-		syncFileSelectionFromNodes(selectedNodeIds);
+		for (const id of snapshot.ids) plugin.viewService.select(provider.id, id, 'add');
+		plugin.viewService.setFocused(provider.id, snapshot.focusedId);
+		syncFileSelectionFromNodes(snapshot.ids);
 	}
 
 	function commitFileSelection(paths: Set<string>) {
@@ -252,7 +252,7 @@
 		if (showSelectedOnly && provider.id === 'files') refreshData();
 	}
 
-	function syncFileSelectionFromNodes(ids: Set<string>) {
+	function syncFileSelectionFromNodes(ids: ReadonlySet<string>) {
 		if (provider.id !== 'files') return;
 		const files = [...ids]
 			.map((id) => findNodeById(nodes, id))
@@ -297,6 +297,22 @@
 			(candidate) => provider.getNodeType?.(candidate) === clickedType,
 		);
 		return sameType.length > 0 ? sameType : [node];
+	}
+
+	function clearNodeSelection() {
+		commitSelection(selectionService.clear(provider.id));
+	}
+
+	function handleDocumentClick(e: MouseEvent) {
+		if (!active || !rootEl) return;
+		const target = e.target instanceof Node ? e.target : null;
+		if (target && rootEl.contains(target)) return;
+		clearNodeSelection();
+	}
+
+	function handleWindowKeydown(e: KeyboardEvent) {
+		if (!active || e.key !== 'Escape') return;
+		clearNodeSelection();
 	}
 
 	function resolveEmptyState(
@@ -345,7 +361,10 @@
 	}
 </script>
 
-<div class="vm-panel-explorer">
+<svelte:document onclick={handleDocumentClick} />
+<svelte:window onkeydown={handleWindowKeydown} />
+
+<div class="vm-panel-explorer" bind:this={rootEl}>
 	{#if viewMode === 'tree'}
 		<div class="vm-tree-container">
 			{#if isTreeEmpty}
@@ -358,6 +377,7 @@
 					focusedId={focusedNodeId}
 					onToggle={toggleExpand}
 					onRowClick={handleNodeClick}
+					onPrimaryAction={handlePrimaryAction}
 					onBoxSelect={handleBoxSelect}
 					onContextMenu={handleContextMenu}
 					onRowKeydown={handleRowKeydown}

@@ -243,6 +243,37 @@
 	}
 }
 
+.vm-tree-row-surface {
+	&.is-active-filter {
+		background-color: color-mix(in srgb, $vm-color-accent 8%, transparent);
+		color: $vm-text-normal;
+		box-shadow: inset 2px 0 0 0 $vm-color-accent;
+
+		:is(
+			.vm-tree-toggle,
+			.vm-tree-icon,
+			.vm-tree-label,
+			.vm-tree-count,
+			.vm-tree-badge,
+			.vm-badge-icon
+		) {
+			opacity: 1;
+		}
+
+		.vm-tree-count {
+			font-weight: 600;
+		}
+	}
+
+	&.is-editing {
+		background: $vm-bg-modifier-hover;
+	}
+
+	&.vm-badge-warning {
+		outline: 1px solid var(--color-yellow);
+	}
+}
+
 // Modifying native tree elements
 .tree-item-icon.collapse-icon svg {
 	width: 12px;

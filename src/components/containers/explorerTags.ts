@@ -10,7 +10,7 @@ import {
 	buildTagRenameChange,
 	tagListContains,
 } from '../../services/serviceTagQueue';
-import { createFnRState, startTagRenameHandoff } from '@services/serviceFnR';
+import { createFnRState, startTagRenameHandoff } from '../../services/serviceFnR';
 import type { FnRRenameHandoff, FnRScope } from '../../types/typeFnR';
 import { showInputModal } from '../../utils/inputModal';
 import {

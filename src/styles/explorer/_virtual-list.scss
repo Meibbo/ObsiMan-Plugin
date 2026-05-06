@@ -30,22 +30,31 @@
 		right: 0;
 		height: var(--vm-tree-row-h);
 		transform: translateY(var(--vm-tree-y, 0));
-		@include flex-center;
-		justify-content: flex-start;
-		gap: 4px;
-		padding-left: calc(var(--depth, 0) * 16px + 4px);
-		padding-right: 8px;
-		white-space: nowrap;
-		overflow: hidden;
 		box-sizing: border-box;
 		will-change: transform;
+		cursor: pointer;
 
-		&.is-selected {
+		.vm-tree-row-surface {
+			@include flex-center;
+			justify-content: flex-start;
+			gap: 4px;
+			height: calc(var(--vm-tree-row-h) - 1px);
+			width: 100%;
+			margin-bottom: 1px;
+			padding-left: calc(var(--depth, 0) * 16px + 4px);
+			padding-right: 8px;
+			white-space: nowrap;
+			overflow: hidden;
+			box-sizing: border-box;
+			color: inherit;
+		}
+
+		.vm-tree-row-surface.is-selected {
 			background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
 			color: var(--text-normal);
 		}
 
-		&.is-focused {
+		.vm-tree-row-surface.is-focused {
 			box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--interactive-accent) 55%, transparent);
 		}
 
@@ -68,8 +77,8 @@
 			transform: scale(0.85);
 		}
 
-		&:hover,
-		&:focus-within {
+		&:hover .vm-tree-row-surface,
+		&:focus-within .vm-tree-row-surface {
 			.vm-badge.is-quick-action {
 				opacity: 1;
 				pointer-events: auto;

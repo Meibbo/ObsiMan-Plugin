@@ -11,6 +11,7 @@
 		focusedId?: string | null;
 		onToggle: (id: string) => void;
 		onRowClick: (id: string, e: MouseEvent) => void;
+		onPrimaryAction?: (id: string, e: MouseEvent) => void;
 		onBoxSelect?: (ids: string[], e: PointerEvent) => void;
 		onContextMenu: (id: string, e: MouseEvent) => void;
 		onRowKeydown?: (id: string, e: KeyboardEvent) => void;
@@ -31,6 +32,7 @@
 		focusedId,
 		onToggle,
 		onRowClick,
+		onPrimaryAction,
 		onBoxSelect,
 		onContextMenu,
 		onRowKeydown,
@@ -100,13 +102,15 @@
 			onRowKeydown(id, e);
 			return;
 		}
-		if (e.key === 'Enter') onRowClick(id, e as unknown as MouseEvent);
+		if (e.key === 'Enter') onPrimaryAction?.(id, e as unknown as MouseEvent);
 	}
 
 	function handleInputKeydown(e: KeyboardEvent, id: string, inputEl: HTMLInputElement) {
 		if (e.key === 'Enter') {
+			e.stopPropagation();
 			onRename?.(id, inputEl.value);
 		} else if (e.key === 'Escape') {
+			e.stopPropagation();
 			onCancelRename?.();
 		}
 	}
@@ -119,6 +123,18 @@
 			return;
 		}
 		onRowClick(id, e);
+	}
+
+	function handlePrimaryAction(e: MouseEvent, id: string) {
+		e.stopPropagation();
+		onPrimaryAction?.(id, e);
+	}
+
+	function handlePrimaryActionKeydown(e: KeyboardEvent, id: string) {
+		if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+		e.stopPropagation();
+		e.preventDefault();
+		onPrimaryAction?.(id, e as unknown as MouseEvent);
 	}
 
 	function handlePointerDown(e: PointerEvent) {
@@ -274,6 +290,7 @@
 	onpointerup={handlePointerUp}
 	onpointercancel={handlePointerCancel}
 	role="tree"
+	aria-multiselectable="true"
 	tabindex="-1"
 >
 	<div class="vm-tree-virtual-inner" style="--vm-tree-total-h: {totalH}px">
@@ -303,116 +320,132 @@
 				oncontextmenu={(e) => onContextMenu(node.id, e)}
 				onkeydown={(e) => handleKeydown(e, node.id)}
 				role="treeitem"
-				aria-selected={isActive || isSelected}
+				aria-selected={isSelected}
 				tabindex="0"
 				aria-expanded={flat.hasChildren ? flat.isExpanded : undefined}
 			>
-				<!-- Chevron / Spacer -->
 				<div
-					class="vm-tree-toggle"
-					onclick={(e) => {
-						e.stopPropagation();
-						if (flat.hasChildren) onToggle(node.id);
-					}}
-					onkeydown={() => {}}
-					role="button"
-					tabindex="-1"
+					class="vm-tree-row-surface"
+					class:is-active-filter={isActive}
+					class:is-selected={isSelected}
+					class:is-focused={isFocused}
+					class:vm-badge-warning={isWarning}
+					class:vm-search-highlight={isHighlighted}
+					class:is-editing={isEditing}
 				>
-					{#if flat.hasChildren}
-						<span use:icon={flat.isExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right'}
-						></span>
-					{/if}
-				</div>
-
-				<!-- Icon -->
-				{#if node.icon}
-					<span class="vm-tree-icon" use:icon={node.icon}></span>
-				{/if}
-
-				<!-- Label / Input -->
-				{#if isEditing}
-					<input
-						class="vm-tree-input"
-						value={node.label}
-						onclick={(e) => e.stopPropagation()}
-						onkeydown={(e) => handleInputKeydown(e, node.id, e.currentTarget)}
-						onblur={() => onCancelRename?.()}
-						use:focus
-					/>
-				{:else}
-					<span class="vm-tree-label">
-						<HighlightText text={node.label} ranges={node.highlights ?? []} />
-					</span>
-				{/if}
-
-				<!-- Badges / Counts -->
-				{#if (node.count != null && node.count > 0) || directBadges.length > 0 || childBadges.length > 0}
-					<div class="vm-tree-badge-zone">
-						{#if directBadges.length > 0}
-							{#each directBadges as badge, badgeIndex (badgeKey(badge, badgeIndex))}
-								<div
-									class="vm-badge"
-									role="button"
-									class:is-solid={badge.solid}
-									class:is-undoable={badge.queueIndex !== undefined}
-									class:is-actionable={badgeIsActionable(badge)}
-									class:is-quick-action={badge.quickAction}
-									class:vm-badge--red={badge.solid && badge.color === 'red'}
-									class:vm-badge--blue={badge.solid && badge.color === 'blue'}
-									class:vm-badge--purple={badge.solid && badge.color === 'purple'}
-									class:vm-badge--orange={badge.solid && badge.color === 'orange'}
-									class:vm-badge--green={badge.solid && badge.color === 'green'}
-									title={badgeTitle(badge)}
-									aria-label={badgeAriaLabel(badge)}
-									tabindex={badgeIsActionable(badge) ? 0 : -1}
-									onclick={(e) => handleBadgePress(e, badge)}
-									onkeydown={(e) => handleBadgeKeydown(e, badge)}
-								>
-									{#if badge.icon}
-										<span class="vm-badge-icon" use:icon={badge.icon}></span>
-									{/if}
-								</div>
-							{/each}
-						{/if}
-
-						{#if childBadges.length > 0}
-							<div class="vm-tree-child-badge-indicator" title={inheritedBadgeTitle(childBadges)}>
-								<span class="vm-tree-child-badge-dot"></span>
-								<div class="vm-tree-child-badge-pill">
-									{#each childBadges as badge, badgeIndex (badgeKey(badge, badgeIndex))}
-										<div
-											class="vm-badge"
-											role="button"
-											class:is-solid={badge.solid}
-											class:is-inherited={badge.isInherited}
-											class:is-undoable={badge.queueIndex !== undefined}
-											class:is-actionable={badgeIsActionable(badge)}
-											class:is-quick-action={badge.quickAction}
-											class:vm-badge--red={badge.solid && badge.color === 'red'}
-											class:vm-badge--blue={badge.solid && badge.color === 'blue'}
-											class:vm-badge--purple={badge.solid && badge.color === 'purple'}
-											class:vm-badge--orange={badge.solid && badge.color === 'orange'}
-											class:vm-badge--green={badge.solid && badge.color === 'green'}
-											title={badgeTitle(badge, true)}
-											aria-label={badgeAriaLabel(badge, true)}
-											tabindex={badgeIsActionable(badge) ? 0 : -1}
-											onclick={(e) => handleBadgePress(e, badge)}
-											onkeydown={(e) => handleBadgeKeydown(e, badge)}
-										>
-											{#if badge.icon}
-												<span class="vm-badge-icon" use:icon={badge.icon}></span>
-											{/if}
-										</div>
-									{/each}
-								</div>
-							</div>
-						{/if}
-
-						{#if node.count != null && node.count > 0}
-							<span class="vm-tree-count">{node.count}</span>
+					<!-- Chevron / Spacer -->
+					<div
+						class="vm-tree-toggle"
+						onclick={(e) => {
+							e.stopPropagation();
+							if (flat.hasChildren) onToggle(node.id);
+						}}
+						onkeydown={() => {}}
+						role="button"
+						tabindex="-1"
+					>
+						{#if flat.hasChildren}
+							<span use:icon={flat.isExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right'}
+							></span>
 						{/if}
 					</div>
-				{/if}
+
+					<!-- Icon -->
+					{#if node.icon}
+						<span class="vm-tree-icon" use:icon={node.icon}></span>
+					{/if}
+
+					<!-- Label / Input -->
+					{#if isEditing}
+						<input
+							class="vm-tree-input"
+							value={node.label}
+							onclick={(e) => e.stopPropagation()}
+							onkeydown={(e) => handleInputKeydown(e, node.id, e.currentTarget)}
+							onblur={() => onCancelRename?.()}
+							use:focus
+						/>
+					{:else}
+						<span
+							class="vm-tree-label"
+							role="button"
+							tabindex="-1"
+							onclick={(e) => handlePrimaryAction(e, node.id)}
+							onkeydown={(e) => handlePrimaryActionKeydown(e, node.id)}
+						>
+							<HighlightText text={node.label} ranges={node.highlights ?? []} />
+						</span>
+					{/if}
+
+					<!-- Badges / Counts -->
+					{#if (node.count != null && node.count > 0) || directBadges.length > 0 || childBadges.length > 0}
+						<div class="vm-tree-badge-zone">
+							{#if directBadges.length > 0}
+								{#each directBadges as badge, badgeIndex (badgeKey(badge, badgeIndex))}
+									<div
+										class="vm-badge"
+										role="button"
+										class:is-solid={badge.solid}
+										class:is-undoable={badge.queueIndex !== undefined}
+										class:is-actionable={badgeIsActionable(badge)}
+										class:is-quick-action={badge.quickAction}
+										class:vm-badge--red={badge.solid && badge.color === 'red'}
+										class:vm-badge--blue={badge.solid && badge.color === 'blue'}
+										class:vm-badge--purple={badge.solid && badge.color === 'purple'}
+										class:vm-badge--orange={badge.solid && badge.color === 'orange'}
+										class:vm-badge--green={badge.solid && badge.color === 'green'}
+										title={badgeTitle(badge)}
+										aria-label={badgeAriaLabel(badge)}
+										tabindex={badgeIsActionable(badge) ? 0 : -1}
+										onclick={(e) => handleBadgePress(e, badge)}
+										onkeydown={(e) => handleBadgeKeydown(e, badge)}
+									>
+										{#if badge.icon}
+											<span class="vm-badge-icon" use:icon={badge.icon}></span>
+										{/if}
+									</div>
+								{/each}
+							{/if}
+
+							{#if childBadges.length > 0}
+								<div class="vm-tree-child-badge-indicator" title={inheritedBadgeTitle(childBadges)}>
+									<span class="vm-tree-child-badge-dot"></span>
+									<div class="vm-tree-child-badge-pill">
+										{#each childBadges as badge, badgeIndex (badgeKey(badge, badgeIndex))}
+											<div
+												class="vm-badge"
+												role="button"
+												class:is-solid={badge.solid}
+												class:is-inherited={badge.isInherited}
+												class:is-undoable={badge.queueIndex !== undefined}
+												class:is-actionable={badgeIsActionable(badge)}
+												class:is-quick-action={badge.quickAction}
+												class:vm-badge--red={badge.solid && badge.color === 'red'}
+												class:vm-badge--blue={badge.solid && badge.color === 'blue'}
+												class:vm-badge--purple={badge.solid && badge.color === 'purple'}
+												class:vm-badge--orange={badge.solid && badge.color === 'orange'}
+												class:vm-badge--green={badge.solid && badge.color === 'green'}
+												title={badgeTitle(badge, true)}
+												aria-label={badgeAriaLabel(badge, true)}
+												tabindex={badgeIsActionable(badge) ? 0 : -1}
+												onclick={(e) => handleBadgePress(e, badge)}
+												onkeydown={(e) => handleBadgeKeydown(e, badge)}
+											>
+												{#if badge.icon}
+													<span class="vm-badge-icon" use:icon={badge.icon}></span>
+												{/if}
+											</div>
+										{/each}
+									</div>
+								</div>
+							{/if}
+
+							{#if node.count != null && node.count > 0}
+								<span class="vm-tree-count">{node.count}</span>
+							{/if}
+						</div>
+					{/if}
+				</div>
 			</div>
 		{/each}
 	</div>

@@ -7,7 +7,7 @@ import {
 	createFnRState,
 	startPropRenameHandoff,
 	startValueRenameHandoff,
-} from '@services/serviceFnR';
+} from '../../services/serviceFnR';
 import type { FnRRenameHandoff, FnRScope } from '../../types/typeFnR';
 import {
 	highlightsFromViewLayers,

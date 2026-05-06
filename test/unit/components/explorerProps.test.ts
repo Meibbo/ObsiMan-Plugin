@@ -46,6 +46,7 @@ function makePlugin(overrides: Partial<VaultmanPlugin> = {}): VaultmanPlugin {
 		decorationManager,
 		viewService: new ViewService({ decorationManager }),
 		iconicService: { getIcon: vi.fn(() => null) },
+		propsIndex: { refresh: vi.fn(), subscribe: vi.fn(() => vi.fn()), byId: vi.fn() },
 		...overrides,
 	} as unknown as VaultmanPlugin;
 }
@@ -243,6 +244,81 @@ describe('explorerProps search', () => {
 		).toEqual(['status', 'owner']);
 	});
 
+	it('applies property type changes to selected property nodes', () => {
+		const plugin = makePlugin();
+		const explorer = new explorerProps(plugin);
+		const tree = explorer.getTree();
+		const statusNode = tree.find((node) => node.id === 'status');
+		const ownerNode = tree.find((node) => node.id === 'owner');
+		const typeAction = (
+			plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'prop.type-number')?.[0];
+
+		typeAction.run({
+			nodeType: 'prop',
+			node: statusNode,
+			selectedNodes: [statusNode, ownerNode],
+			surface: 'panel',
+		});
+
+		expect(plugin.queueService.add).toHaveBeenCalledTimes(2);
+		expect(
+			(plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls.map(
+				([change]) => [change.property, change.action],
+			),
+		).toEqual([
+			['status', 'change_type'],
+			['owner', 'change_type'],
+		]);
+	});
+
+	it('applies value delete context menu action to selected value nodes', () => {
+		const plugin = makePlugin();
+		const explorer = new explorerProps(plugin);
+		const statusValues =
+			explorer.getTree().find((node) => node.id === 'status')?.children ?? [];
+		const draftNode = statusValues.find((node) => node.label === 'draft');
+		const doneNode = statusValues.find((node) => node.label === 'done');
+		const deleteAction = (
+			plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'value.delete')?.[0];
+
+		deleteAction.run({
+			nodeType: 'value',
+			node: draftNode,
+			selectedNodes: [draftNode, doneNode],
+			surface: 'panel',
+		});
+
+		expect(plugin.queueService.add).toHaveBeenCalledTimes(2);
+		expect(
+			(plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls.map(
+				([change]) => change.details,
+			),
+		).toEqual(['Delete value "draft" from "status"', 'Delete value "done" from "status"']);
+	});
+
+	it('adds an add-mode quick-action badge that queues a property add operation', () => {
+		const plugin = makePlugin();
+		const explorer = new explorerProps(plugin);
+		explorer.setAddMode(true);
+
+		const ownerNode = explorer.getTree().find((node) => node.id === 'owner');
+		const addBadge = ownerNode?.badges?.find(
+			(badge) => badge.quickAction && badge.icon === 'lucide-plus',
+		);
+
+		expect(addBadge).toBeTruthy();
+		addBadge?.onClick?.();
+
+		expect(plugin.queueService.add).toHaveBeenCalledOnce();
+		expect((plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls[0][0]).toMatchObject({
+			type: 'property',
+			property: 'owner',
+			action: 'add',
+		});
+	});
+
 	it('queues ctxmenu delete for properties whose indexed name casing differs from frontmatter', () => {
 		const file = mockTFile('bench.md', { frontmatter: { pressBarBench: 1820 } });
 		const files = [file] as TFile[];
@@ -298,9 +374,18 @@ describe('explorerProps search', () => {
 			}
 		).getAllPropertyInfos = () => propertyInfos;
 		const decorationManager = new DecorationManager(app);
+		let notifyPropsChanged: (() => void) | undefined;
 		const explorer = new explorerProps(
 			makePlugin({
 				app,
+				propsIndex: {
+					refresh: vi.fn(),
+					subscribe: vi.fn((callback: () => void) => {
+						notifyPropsChanged = callback;
+						return vi.fn();
+					}),
+					byId: vi.fn(),
+				},
 				filterService: { filteredFiles: files, addNode: vi.fn() },
 				decorationManager,
 				viewService: new ViewService({ decorationManager }),
@@ -313,6 +398,7 @@ describe('explorerProps search', () => {
 		propertyInfos = {
 			pressbarbench: { type: 'number' },
 		};
+		notifyPropsChanged?.();
 
 		expect(explorer.getTree().map((node) => node.label)).toEqual([]);
 	});

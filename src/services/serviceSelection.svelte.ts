@@ -151,7 +151,7 @@ export class NodeSelectionService implements INodeSelectionService {
 	prune(explorerId: string, orderedIds: readonly string[]): NodeSelectionSnapshot {
 		const state = this.stateFor(explorerId);
 		const visibleIds = new Set(orderedIds);
-		for (const id of [...state.ids]) {
+		for (const id of state.ids) {
 			if (!visibleIds.has(id)) state.ids.delete(id);
 		}
 		if (state.anchorId && !visibleIds.has(state.anchorId)) state.anchorId = null;

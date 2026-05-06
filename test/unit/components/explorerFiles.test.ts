@@ -33,6 +33,8 @@ function makePlugin(): {
 			app,
 			contextMenuService: { registerAction: vi.fn(), openPanelMenu: vi.fn() },
 			queueService: { add: vi.fn() },
+			operationsIndex: { nodes: [], refresh: vi.fn(), subscribe: vi.fn(), byId: vi.fn() },
+			activeFiltersIndex: { nodes: [], refresh: vi.fn(), subscribe: vi.fn(), byId: vi.fn() },
 			filterService: {
 				filteredFiles: files,
 				selectedFiles: [],
@@ -83,6 +85,33 @@ describe('explorerFiles interactions', () => {
 		expect(change.type).toBe('file_delete');
 		expect(change.action).toBe('delete');
 		expect(change.files).toEqual([files[0]]);
+	});
+
+	it('queues file deletion for all selected file context nodes', async () => {
+		const { plugin, files } = makePlugin();
+		const explorer = new explorerFiles(plugin);
+		const fileNodes = explorer.getTree()[0].children?.filter((node) => node.meta.file) ?? [];
+		const deleteAction = (
+			plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'file.delete')?.[0];
+
+		expect(fileNodes.length).toBe(2);
+		expect(deleteAction).toBeTruthy();
+
+		await deleteAction.run({
+			nodeType: 'file',
+			node: fileNodes[0],
+			selectedNodes: fileNodes,
+			surface: 'panel',
+			file: files[0],
+		});
+
+		expect(plugin.queueService.add).toHaveBeenCalledTimes(2);
+		expect(
+			(plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls.map(
+				([change]) => change.files[0],
+			),
+		).toEqual(files);
 	});
 
 	it('can show only the selected files without changing the active filter', () => {

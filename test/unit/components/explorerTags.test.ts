@@ -28,6 +28,7 @@ function makePlugin(
 		app,
 		contextMenuService: { registerAction: vi.fn(), openPanelMenu: vi.fn() },
 		queueService: { queue: [], add: vi.fn() },
+		tagsIndex: { refresh: vi.fn(), subscribe: vi.fn(() => vi.fn()), byId: vi.fn() },
 		operationsIndex: {
 			nodes: [] as QueueChange[],
 			refresh: vi.fn(),
@@ -135,6 +136,17 @@ describe('explorerTags', () => {
 		});
 	});
 
+	it('direct tag action still toggles the tag filter', () => {
+		const plugin = makePlugin([], ['project']);
+		const explorer = new explorerTags(plugin);
+		const projectNode = explorer.getTree().find((node) => node.meta.tagPath === 'project');
+
+		explorer.handleNodeClick(projectNode!);
+
+		expect(plugin.filterService.removeNodeByTag).toHaveBeenCalledWith('#project');
+		expect(plugin.filterService.addNode).not.toHaveBeenCalled();
+	});
+
 	it('applies tag delete context menu action to selected tag nodes', async () => {
 		const plugin = makePlugin([], ['project', 'archive']);
 		const explorer = new explorerTags(plugin);
@@ -194,9 +206,18 @@ describe('explorerTags', () => {
 		(app.metadataCache as unknown as { getTags: () => Record<string, number> }).getTags = () =>
 			tagInfos;
 		const decorationManager = new DecorationManager(app);
+		let notifyTagsChanged: (() => void) | undefined;
 		const plugin = makePlugin();
 		Object.assign(plugin, {
 			app,
+			tagsIndex: {
+				refresh: vi.fn(),
+				subscribe: vi.fn((callback: () => void) => {
+					notifyTagsChanged = callback;
+					return vi.fn();
+				}),
+				byId: vi.fn(),
+			},
 			filterService: {
 				filteredFiles: files,
 				hasTagFilter: vi.fn(() => false),
@@ -211,6 +232,7 @@ describe('explorerTags', () => {
 		expect(explorer.getTree().map((node) => node.meta.tagPath)).toEqual(['project']);
 
 		tagInfos = {};
+		notifyTagsChanged?.();
 
 		expect(explorer.getTree().map((node) => node.meta.tagPath)).toEqual([]);
 	});

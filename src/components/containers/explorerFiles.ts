@@ -8,7 +8,7 @@ import { FileMoveModal } from '../../modals/modalFileMove';
 import { PropertyManagerModal } from '../../modals/modalPropertyManager';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
 import { buildFileDeleteChange } from '../../services/serviceFileQueue';
-import { createFnRState, startFileRenameHandoff } from '@services/serviceFnR';
+import { createFnRState, startFileRenameHandoff } from '../../services/serviceFnR';
 import type { FnRRenameHandoff } from '../../types/typeFnR';
 import { getActivePerfProbe } from '../../dev/perfProbe';
 import { highlightsFromViewLayers, withViewStateClasses } from '../../utils/utilViewLayers';
@@ -72,9 +72,9 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 			label: 'Delete',
 			icon: 'lucide-trash',
 			run: (ctx: MenuCtx) => {
-				const meta = ctx.node.meta as FileMeta;
-				if (!meta.file) return;
-				void this.plugin.queueService.add(buildFileDeleteChange(meta.file));
+				for (const file of this.contextFiles(ctx)) {
+					void this.plugin.queueService.add(buildFileDeleteChange(file));
+				}
 			},
 		});
 
