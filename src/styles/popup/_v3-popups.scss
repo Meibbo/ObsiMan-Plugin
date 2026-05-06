@@ -8,13 +8,13 @@
 
 %vm-popover-base {
   position: absolute;
-  z-index: 10;
+  z-index: $vm-z-index-island;
   max-height: 400px;
   overflow-y: auto;
-  background: var(--background-primary);
-  border: 1px solid var(--vm-border);
-  border-radius: var(--radius-m);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  background: $vm-bg-primary;
+  border: $vm-border-width solid $vm-border-color;
+  border-radius: $vm-radius-m;
+  box-shadow: $vm-shadow-l;
   padding: 10px;
 }
 
@@ -34,7 +34,7 @@
       font-size: 0.85em;
       font-weight: 600;
       text-transform: uppercase;
-      color: var(--vm-text-muted);
+      color: $vm-text-muted;
     }
   }
 
@@ -50,7 +50,7 @@
     top: calc(100% + 4px);
     left: 0;
     right: 0;
-    z-index: 100;
+    z-index: $vm-z-index-popup;
     display: flex;
     flex-direction: column;
   }

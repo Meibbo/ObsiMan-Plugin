@@ -17,7 +17,7 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    z-index: 100;
+    z-index: $vm-z-index-popup;
     opacity: 0;
     transition: opacity 0.2s ease;
 
@@ -35,9 +35,9 @@
   }
 
   &-content {
-    background: var(--background-primary);
-    border-radius: var(--radius-m) var(--radius-m) 0 0;
-    border: 1px solid var(--vm-border);
+    background: $vm-bg-primary;
+    border-radius: $vm-radius-m $vm-radius-m 0 0;
+    border: $vm-border-width solid $vm-border-color;
     border-bottom: none;
     position: absolute;
     bottom: 0;
@@ -86,7 +86,7 @@
 
   &-empty {
     font-size: var(--font-ui-small);
-    color: var(--text-muted);
+    color: $vm-text-muted;
     padding: 8px;
     text-align: center;
   }
@@ -98,8 +98,8 @@
     justify-content: flex-start;
     gap: 6px;
     padding: 6px 8px;
-    border-radius: var(--radius-s);
-    background: var(--background-secondary);
+    border-radius: $vm-radius-s;
+    background: $vm-bg-secondary;
 
     &.is-disabled {
       opacity: 0.45;
@@ -116,26 +116,26 @@
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    border: 2px solid var(--color-accent);
+    border: 2px solid $vm-color-accent;
     flex-shrink: 0;
     cursor: pointer;
   }
 
   &-delete {
     flex-shrink: 0;
-    color: var(--text-muted);
+    color: $vm-text-muted;
   }
 }
 
 .vm-active-filter-rule:not(.is-disabled) .vm-active-filter-toggle {
-  background: var(--color-accent);
+  background: $vm-color-accent;
 }
 
 // Scope items
 .vm-scope {
   &-desc {
     font-size: var(--font-ui-smaller);
-    color: var(--text-muted);
+    color: $vm-text-muted;
     margin-bottom: 8px;
     flex-shrink: 0;
   }
@@ -151,19 +151,19 @@
     justify-content: flex-start;
     gap: 8px;
     padding: 8px 10px;
-    border-radius: var(--radius-s);
+    border-radius: $vm-radius-s;
     cursor: pointer;
     font-size: var(--font-ui-small);
-    border: 1px solid transparent;
+    border: $vm-border-width solid transparent;
     transition: background 0.1s, border-color 0.1s;
 
     &:hover {
-      background: var(--background-modifier-hover);
+      background: $vm-bg-modifier-hover;
     }
 
     &.is-active {
-      border-color: var(--color-accent);
-      background: var(--background-modifier-hover);
+      border-color: $vm-color-accent;
+      background: $vm-bg-modifier-hover;
     }
 
     &.is-disabled {
@@ -175,7 +175,7 @@
 
   &-icon {
     display: inline-flex;
-    color: var(--text-muted);
+    color: $vm-text-muted;
 
     svg {
       width: 15px;
@@ -196,16 +196,16 @@
   &-input {
     width: 100%;
     padding: 6px 8px;
-    border-radius: var(--radius-s);
-    border: 1px solid var(--background-modifier-border);
-    background: var(--background-primary-alt);
-    color: var(--text-normal);
+    border-radius: $vm-radius-s;
+    border: $vm-border-width solid $vm-border-color;
+    background: $vm-bg-primary;
+    color: $vm-text-normal;
     font-size: var(--font-ui-small);
     box-sizing: border-box;
 
     &:focus {
       outline: none;
-      border-color: var(--color-accent);
+      border-color: $vm-color-accent;
     }
   }
 }
@@ -232,7 +232,7 @@
 
   &-scope-hint {
     font-size: var(--font-ui-smaller);
-    color: var(--text-muted);
+    color: $vm-text-muted;
     margin: 4px 0 8px;
   }
 
@@ -254,24 +254,24 @@
       justify-content: flex-start;
       gap: 4px;
       cursor: pointer;
-      color: var(--text-normal);
+      color: $vm-text-normal;
       margin-bottom: 4px;
       user-select: none;
     }
 
     &-file {
-      color: var(--color-accent);
+      color: $vm-text-accent;
       margin-top: 4px;
     }
 
     &-snippet {
-      color: var(--text-muted);
+      color: $vm-text-muted;
       padding-left: 10px;
       word-break: break-word;
 
       mark {
         background: var(--text-highlight-bg);
-        color: var(--text-normal);
+        color: $vm-text-normal;
         border-radius: 2px;
         padding: 0 1px;
       }
@@ -280,15 +280,15 @@
 }
 
 .vm-preview-chevron {
-  color: var(--text-muted);
+  color: $vm-text-muted;
   font-size: 10px;
 }
 
 .vm-icon-toggle {
   background: var(--background-modifier-form-field);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: var(--radius-s);
-  color: var(--text-muted);
+  border: $vm-border-width solid $vm-border-color;
+  border-radius: $vm-radius-s;
+  color: $vm-text-muted;
   padding: 4px 7px;
   font-size: var(--font-ui-smaller);
   cursor: pointer;
@@ -298,9 +298,9 @@
   line-height: 1.4;
 
   &.is-active {
-    background: var(--color-accent);
-    color: var(--text-on-accent);
-    border-color: var(--color-accent);
+    background: $vm-color-accent;
+    color: $vm-text-on-accent;
+    border-color: $vm-color-accent;
   }
 }
 
@@ -315,7 +315,7 @@
   min-height: 0;
 
   &-empty {
-    color: var(--text-muted);
+    color: $vm-text-muted;
     font-size: var(--font-smallest);
     padding: 8px 4px;
   }
@@ -330,7 +330,7 @@
     min-height: 28px;
 
     &:hover {
-      background: var(--background-modifier-hover);
+      background: $vm-bg-modifier-hover;
     }
   }
 
@@ -341,28 +341,28 @@
     width: 16px;
     height: 16px;
     font-size: 10px;
-    color: var(--text-muted);
+    color: $vm-text-muted;
     cursor: pointer;
     flex-shrink: 0;
     @include flex-center;
     border-radius: 2px;
 
     &:hover {
-      color: var(--text-normal);
-      background: var(--background-modifier-hover);
+      color: $vm-text-normal;
+      background: $vm-bg-modifier-hover;
     }
   }
 
   &-name {
     flex: 1;
     font-size: var(--font-ui-small);
-    color: var(--text-normal);
+    color: $vm-text-normal;
     @include text-ellipsis;
   }
 
   &-count {
     font-size: var(--font-smallest);
-    color: var(--text-muted);
+    color: $vm-text-muted;
     flex-shrink: 0;
   }
 
@@ -376,7 +376,7 @@
   &-value {
     padding: 3px 6px;
     font-size: var(--font-ui-small);
-    color: var(--text-muted);
+    color: $vm-text-muted;
     border-radius: 3px;
     cursor: pointer;
     min-height: 24px;
@@ -384,8 +384,8 @@
     justify-content: flex-start;
 
     &:hover {
-      background: var(--background-modifier-hover);
-      color: var(--text-normal);
+      background: $vm-bg-modifier-hover;
+      color: $vm-text-normal;
     }
   }
 }
@@ -420,7 +420,7 @@
 // Linter tab
 .vm-linter-desc {
   font-size: var(--font-ui-smaller);
-  color: var(--text-muted);
+  color: $vm-text-muted;
   margin-bottom: 10px;
   line-height: 1.5;
 }
@@ -428,7 +428,7 @@
 // Coming soon stub
 .vm-coming-soon {
   font-size: var(--font-ui-smaller);
-  color: var(--text-faint);
+  color: $vm-text-faint;
   padding: 24px 0;
   text-align: center;
   font-style: italic;

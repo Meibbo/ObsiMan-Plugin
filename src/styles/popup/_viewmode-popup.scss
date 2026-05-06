@@ -30,15 +30,15 @@
     border-radius: 50%;
     @include flex-center;
     cursor: pointer;
-    background: var(--background-secondary);
-    border: 1px solid var(--background-modifier-border);
-    color: var(--text-muted);
+    background: $vm-bg-secondary;
+    border: $vm-border-width solid $vm-border-color;
+    color: $vm-text-muted;
     flex-shrink: 0;
     transition: background 150ms ease, color 150ms ease;
 
     &:hover {
-      background: var(--background-modifier-hover);
-      color: var(--text-normal);
+      background: $vm-bg-modifier-hover;
+      color: $vm-text-normal;
     }
 
     svg {
@@ -69,21 +69,21 @@
     font-size: 11px;
     white-space: nowrap;
     cursor: pointer;
-    background: var(--background-secondary);
-    border: 1px solid var(--background-modifier-border);
-    color: var(--text-muted);
+    background: $vm-bg-secondary;
+    border: $vm-border-width solid $vm-border-color;
+    color: $vm-text-muted;
     transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
     flex-shrink: 0;
 
     &.is-active {
-      background: #7b5ea740;
-      border-color: #7b5ea7;
-      color: #c4a0f8;
+      background: color-mix(in srgb, $vm-color-accent 25%, transparent);
+      border-color: $vm-color-accent;
+      color: $vm-text-normal;
     }
 
     &:hover {
-      background: var(--background-modifier-hover);
-      color: var(--text-normal);
+      background: $vm-bg-modifier-hover;
+      color: $vm-text-normal;
     }
   }
 }

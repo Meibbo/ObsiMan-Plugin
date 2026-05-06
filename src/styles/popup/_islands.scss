@@ -16,7 +16,7 @@
   right: 0;
   bottom: calc(var(--vm-nav-height, 64px) + 8px);
   pointer-events: none;
-  z-index: 40;
+  z-index: $vm-z-index-island;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -66,10 +66,10 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--background-primary);
-  border: 1px solid var(--background-modifier-border);
+  background: $vm-bg-primary;
+  border: $vm-border-width solid $vm-border-color;
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  box-shadow: $vm-shadow-l;
 }
 
 .vm-explorer-popup-header {
@@ -77,7 +77,7 @@
   align-items: center;
   justify-content: center;
   padding: 16px 12px 8px;
-  border-bottom: 1px solid var(--background-modifier-border);
+  border-bottom: $vm-border-width solid $vm-border-color;
   flex-shrink: 0;
 }
 
@@ -108,7 +108,7 @@
   will-change: transform;
 
   &:nth-child(odd) {
-    background: var(--background-modifier-hover);
+    background: $vm-bg-modifier-hover;
   }
 
   &.is-group {
@@ -118,14 +118,14 @@
 
 .vm-explorer-popup-empty {
   padding: 18px 12px;
-  color: var(--text-muted);
+  color: $vm-text-muted;
   font-size: var(--font-ui-small);
   text-align: center;
 }
 
 .vm-queue-item-type {
   flex-shrink: 0;
-  color: var(--text-accent);
+  color: $vm-text-accent;
   font-size: 0.85em;
   font-weight: 700;
   min-width: 60px;
@@ -139,7 +139,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--text-muted);
+  color: $vm-text-muted;
 }
 
 @keyframes vm-popup-island-enter {
@@ -160,7 +160,7 @@
   left: 0;
   right: 0;
   pointer-events: none;
-  z-index: 40;
+  z-index: $vm-z-index-island;
 }
 
 %vm-island-body {
@@ -168,12 +168,12 @@
   margin: 0 auto;
   width: calc(100% - 24px);
   max-width: 420px;
-  background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
+  background: $vm-bg-secondary;
+  border: $vm-border-width solid $vm-border-color;
   border-radius: 16px;
   padding: 12px;
   padding-top: 36px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  box-shadow: $vm-shadow-l;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -193,13 +193,13 @@
 %vm-island-header {
   font-size: var(--font-ui-smaller);
   font-weight: 700;
-  color: var(--text-faint);
+  color: $vm-text-faint;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 8px;
   text-align: center;
   padding-bottom: 4px;
-  border-bottom: 1px solid var(--background-modifier-border);
+  border-bottom: $vm-border-width solid $vm-border-color;
 }
 
 %vm-island-list {
@@ -231,24 +231,24 @@
     font-size: var(--font-ui-smaller);
 
     &:nth-child(odd) {
-      background: var(--background-modifier-hover);
+      background: $vm-bg-modifier-hover;
     }
 
     &-files {
       flex-shrink: 0;
-      color: var(--color-accent);
+      color: $vm-color-accent;
       font-weight: 500;
     }
 
     &-detail {
       flex: 1;
-      color: var(--text-muted);
+      color: $vm-text-muted;
       @include text-ellipsis;
     }
   }
 
   &-empty {
-    color: var(--text-faint);
+    color: $vm-text-faint;
     font-size: var(--font-ui-small);
     text-align: center;
     padding: 12px 0;
@@ -277,7 +277,7 @@
   &-header { @extend %vm-island-header; }
   &-list   { @extend %vm-island-list; }
   &-empty  {
-    color: var(--text-faint);
+    color: $vm-text-faint;
     font-size: var(--font-ui-small);
     text-align: center;
     padding: 12px 0;
@@ -307,14 +307,14 @@
 
 .vm-active-filters-island-list {
   .vm-active-filter-island-row:nth-child(odd) {
-    background: var(--background-modifier-hover);
+    background: $vm-bg-modifier-hover;
   }
 }
 
 .vm-active-filter {
   &-row-text {
     flex: 1;
-    color: var(--text-muted);
+    color: $vm-text-muted;
     @include text-ellipsis;
   }
 
@@ -330,12 +330,12 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
+  background: $vm-bg-secondary;
+  border: $vm-border-width solid $vm-border-color;
   @include flex-center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: $vm-shadow-s;
   cursor: pointer;
-  color: var(--text-muted);
+  color: $vm-text-muted;
   padding: 0;
   transition:
     transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -343,18 +343,18 @@
 
   &:hover {
     transform: scale(1.1);
-    background: var(--background-modifier-hover);
-    color: var(--text-normal);
+    background: $vm-bg-modifier-hover;
+    color: $vm-text-normal;
   }
 
   &.is-accent {
-    background: var(--color-accent);
-    color: var(--text-on-accent);
+    background: $vm-color-accent;
+    color: $vm-text-on-accent;
     border-color: transparent;
   }
 
   &.is-toggle.is-active {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid $vm-color-accent;
     outline-offset: -2px;
   }
 
@@ -388,14 +388,14 @@
 
 .vm-theme-native {
   .vm-explorer-popup {
-    background: var(--background-primary);
-    border-radius: var(--radius-m);
+    background: $vm-bg-primary;
+    border-radius: $vm-radius-m;
     box-shadow: none;
   }
 
   .vm-squircle {
-    background: var(--background-primary);
-    border-radius: var(--radius-m);
+    background: $vm-bg-primary;
+    border-radius: $vm-radius-m;
     box-shadow: none;
   }
 }
@@ -403,14 +403,14 @@
 .vm-theme-polish {
   .vm-explorer-popup,
   .vm-squircle {
-    background: color-mix(in srgb, var(--background-secondary) 92%, transparent);
+    background: color-mix(in srgb, $vm-bg-secondary 92%, transparent);
   }
 }
 
 .vm-theme-glass {
   .vm-explorer-popup,
   .vm-squircle {
-    background: color-mix(in srgb, var(--background-secondary) 62%, transparent);
+    background: color-mix(in srgb, $vm-bg-secondary 62%, transparent);
     backdrop-filter: blur(var(--vm-glass-blur, 12px));
     -webkit-backdrop-filter: blur(var(--vm-glass-blur, 12px));
   }
@@ -429,11 +429,11 @@
   min-width: 14px;
   height: 14px;
   padding: 0 4px;
-  background: var(--background-modifier-hover);
+  background: $vm-bg-modifier-hover;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  color: var(--text-normal);
-  border: 1px solid var(--background-modifier-border);
+  color: $vm-text-normal;
+  border: $vm-border-width solid $vm-border-color;
   border-radius: 10px;
   font-size: 8px;
   font-weight: 700;

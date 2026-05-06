@@ -7,12 +7,16 @@
 //...----------—————————————( OPERATIONS )————————————------------...\\
 
 .vm-ops {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
   &-column {
     display: flex;
     flex-direction: column;
     width: 280px;
     flex-shrink: 0;
-    border-right: 1px solid var(--vm-border);
+    border-right: $vm-border-width solid $vm-border-color;
     transition: width 0.2s ease;
     overflow: hidden;
 
@@ -35,21 +39,21 @@
       width: 28px;
       height: 28px;
       @include flex-center;
-      border-radius: var(--radius-s);
-      color: var(--text-muted);
+      border-radius: $vm-radius-s;
+      color: $vm-text-muted;
       cursor: pointer;
 
       @include hover-bg-accent;
 
       &.is-active {
-        color: var(--vm-accent);
+        color: $vm-color-accent;
       }
     }
 
     &-toggle {
       margin-bottom: 4px;
       padding-bottom: 4px;
-      border-bottom: 1px solid var(--vm-border);
+      border-bottom: $vm-border-width solid $vm-border-color;
     }
   }
 
@@ -64,8 +68,8 @@
     display: flex;
     align-items: center;
     gap: 0;
-    border-bottom: 1px solid var(--vm-border);
-    background: var(--vm-bg-section);
+    border-bottom: $vm-border-width solid $vm-border-color;
+    background: $vm-bg-secondary;
     flex-shrink: 0;
     overflow-x: auto;
 
@@ -73,8 +77,8 @@
       width: 28px;
       height: 28px;
       @include flex-center;
-      border-radius: var(--radius-s);
-      color: var(--text-muted);
+      border-radius: $vm-radius-s;
+      color: $vm-text-muted;
       cursor: pointer;
       flex-shrink: 0;
       margin: 2px 4px;
@@ -93,8 +97,8 @@
   &-tabs {
     display: flex;
     gap: 0;
-    border-bottom: 1px solid var(--vm-border);
-    background: var(--vm-bg-section);
+    border-bottom: $vm-border-width solid $vm-border-color;
+    background: $vm-bg-secondary;
     flex-shrink: 0;
     overflow-x: auto;
   }
@@ -107,17 +111,17 @@
     font-size: 0.8em;
     cursor: pointer;
     border-bottom: 2px solid transparent;
-    color: var(--text-muted);
+    color: $vm-text-muted;
     white-space: nowrap;
 
     &:hover {
-      color: var(--text-normal);
-      background: var(--vm-bg-hover);
+      color: $vm-text-normal;
+      background: $vm-bg-modifier-hover;
     }
 
     &.is-active {
-      border-bottom-color: var(--vm-accent);
-      color: var(--text-normal);
+      border-bottom-color: $vm-color-accent;
+      color: $vm-text-normal;
     }
 
     svg {
@@ -156,9 +160,9 @@
     flex-shrink: 0;
     max-height: 45%;
     overflow-y: auto;
-    border-top: 1px solid var(--vm-border);
+    border-top: $vm-border-width solid $vm-border-color;
     padding: 6px 8px;
-    background: var(--vm-bg-section);
+    background: $vm-bg-secondary;
   }
 }
 
@@ -174,14 +178,14 @@
     font-size: 0.8em;
     font-weight: 600;
     text-transform: uppercase;
-    color: var(--vm-text-muted);
+    color: $vm-text-muted;
   }
 
   &-badge {
     font-size: 0.75em;
     font-weight: 600;
-    color: var(--text-on-accent);
-    background: var(--vm-accent);
+    color: $vm-text-on-accent;
+    background: $vm-color-accent;
     border-radius: 8px;
     padding: 0 5px;
     min-width: 16px;
@@ -200,7 +204,6 @@
   }
 }
 
-// Additional minor components found here
 .vm-template {
   &-list {
     display: flex;
@@ -214,14 +217,10 @@
     justify-content: flex-start;
     gap: 8px;
     padding: 4px;
-    border-radius: var(--radius-s);
+    border-radius: $vm-radius-s;
 
     &:hover {
-      background: var(--vm-bg-hover);
+      background: $vm-bg-modifier-hover;
     }
   }
-}
-
-.vm-text-muted {
-  color: var(--text-muted);
 }

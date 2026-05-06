@@ -24,12 +24,12 @@
   &-title {
     font-size: 0.8em;
     font-weight: 500;
-    color: $muted;
+    color: $vm-text-muted;
   }
 
   &-empty {
     font-size: 0.8em;
-    color: $faint;
+    color: $vm-text-faint;
     font-style: italic;
   }
 
@@ -48,12 +48,12 @@
       gap: 8px;
       padding: 6px 8px;
       border-radius: 10px;
-      background: color-mix(in srgb, var(--color-accent) 10%, transparent);
-      color: var(--text-normal);
+      background: color-mix(in srgb, $vm-color-accent 10%, transparent);
+      color: $vm-text-normal;
       cursor: pointer;
 
       &:hover {
-        background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+        background: color-mix(in srgb, $vm-color-accent 14%, transparent);
       }
     }
 
@@ -68,12 +68,12 @@
       align-items: center;
       gap: 6px;
       margin-left: auto;
-      color: $faint;
+      color: $vm-text-faint;
       font-size: 0.75em;
     }
 
     &-chevron {
-      color: $muted;
+      color: $vm-text-muted;
       font-size: 0.8em;
       min-width: 14px;
       text-align: center;
@@ -91,16 +91,16 @@
     gap: 8px;
     padding: 5px 8px;
     font-size: 0.8em;
-    border-bottom: 1px solid $border;
+    border-bottom: $vm-border-width solid $vm-border-color;
     cursor: pointer;
     border-radius: 8px;
 
     &:hover {
-      background: $bg-hover;
+      background: $vm-bg-modifier-hover;
     }
 
     &.is-expanded {
-      background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+      background: color-mix(in srgb, $vm-color-accent 8%, transparent);
     }
   }
 
@@ -119,7 +119,7 @@
   }
 
   &-index {
-    color: $accent;
+    color: $vm-color-accent;
     font-size: 0.9em;
     font-weight: 600;
     min-width: 18px;
@@ -132,11 +132,11 @@
 
   &-action {
     font-weight: 500;
-    color: $accent;
+    color: $vm-color-accent;
   }
 
   &-file-count {
-    color: $faint;
+    color: $vm-text-faint;
     font-size: 0.85em;
     white-space: nowrap;
     min-width: 14px;
@@ -156,11 +156,11 @@
 .vm-stats {
   margin-top: 8px;
   padding-top: 6px;
-  border-top: 1px solid $border;
+  border-top: $vm-border-width solid $vm-border-color;
 
   &-text {
     font-size: 0.75em;
-    color: $faint;
+    color: $vm-text-faint;
   }
 }
 
@@ -174,8 +174,8 @@
 
   &-file {
     margin-bottom: 12px;
-    border: 1px solid $border;
-    border-radius: var(--radius-s);
+    border: $vm-border-width solid $vm-border-color;
+    border-radius: $vm-radius-s;
     padding: 8px;
 
     &-header {
@@ -184,16 +184,16 @@
       gap: 6px;
       cursor: pointer;
       padding: 4px;
-      border-radius: var(--radius-s);
+      border-radius: $vm-radius-s;
 
       &:hover {
-        background: $bg-hover;
+        background: $vm-bg-modifier-hover;
       }
     }
 
     &-toggle {
       font-size: 0.7em;
-      color: $faint;
+      color: $vm-text-faint;
       width: 12px;
     }
   }
@@ -216,28 +216,28 @@
 
   &-key {
     font-weight: 600;
-    color: var(--text-normal);
+    color: $vm-text-normal;
   }
 
   &-added {
-    background: $diff-added;
+    background: $vm-diff-added-bg;
     padding: 1px 4px;
     border-radius: 2px;
   }
 
   &-deleted {
-    background: $diff-deleted;
+    background: $vm-diff-deleted-bg;
     padding: 1px 4px;
     border-radius: 2px;
   }
 
   &-summary {
     font-size: 0.85em;
-    color: $muted;
+    color: $vm-text-muted;
     margin-bottom: 8px;
     padding: 4px 8px;
-    background: $bg-section;
-    border-radius: var(--radius-s);
+    background: $vm-bg-secondary;
+    border-radius: $vm-radius-s;
   }
 
   &-ops {
@@ -251,13 +251,13 @@
     padding: 2px 0;
 
     &-index {
-      color: $faint;
+      color: $vm-text-faint;
       min-width: 20px;
     }
 
     &-action {
       font-weight: 600;
-      color: $accent;
+      color: $vm-color-accent;
       text-transform: uppercase;
     }
 
@@ -269,7 +269,7 @@
     }
 
     &-files {
-      color: $faint;
+      color: $vm-text-faint;
       white-space: nowrap;
     }
   }
@@ -281,12 +281,12 @@
 
   &-toggle {
     cursor: pointer;
-    color: $muted;
+    color: $vm-text-muted;
   }
 
   &-change-count {
     font-size: 0.85em;
-    color: $faint;
+    color: $vm-text-faint;
     margin-left: auto;
   }
 
@@ -299,7 +299,7 @@
   }
 
   &-same {
-    color: $faint;
+    color: $vm-text-faint;
     padding: 1px 4px;
   }
 }

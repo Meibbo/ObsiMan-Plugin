@@ -18,13 +18,13 @@
     flex-direction: column;
     gap: 8px;
     padding-bottom: 8px;
-    border-bottom: 1px solid var(--background-modifier-border);
+    border-bottom: $vm-border-width solid $vm-border-color;
   }
 
   &-title {
     font-size: var(--font-ui-small);
     font-weight: 600;
-    color: var(--text-normal);
+    color: $vm-text-normal;
     word-break: break-word;
   }
 
@@ -38,16 +38,16 @@
     min-height: 32px;
     padding: 4px 10px;
     border-radius: 999px;
-    border: 1px solid var(--background-modifier-border);
-    background: var(--background-secondary);
-    color: var(--text-muted);
+    border: $vm-border-width solid $vm-border-color;
+    background: $vm-bg-secondary;
+    color: $vm-text-muted;
     cursor: pointer;
   }
 
   &-toggle.is-active {
-    background: color-mix(in srgb, var(--color-accent) 12%, transparent);
-    border-color: var(--color-accent);
-    color: var(--text-normal);
+    background: color-mix(in srgb, $vm-color-accent 12%, transparent);
+    border-color: $vm-color-accent;
+    color: $vm-text-normal;
   }
 
   &-more:disabled {
@@ -71,14 +71,14 @@
     &-title {
       font-size: var(--font-ui-smaller);
       font-weight: 700;
-      color: var(--text-faint);
+      color: $vm-text-faint;
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
   }
 
   &-empty, &-empty-row {
-    color: var(--text-faint);
+    color: $vm-text-faint;
     font-size: var(--font-ui-small);
   }
 
@@ -88,12 +88,12 @@
     gap: 2px;
     padding: 6px 8px;
     border-radius: 8px;
-    background: var(--background-modifier-hover);
+    background: $vm-bg-modifier-hover;
 
     &-key {
       font-size: var(--font-ui-smaller);
       font-weight: 600;
-      color: var(--text-normal);
+      color: $vm-text-normal;
     }
 
     &-values {
@@ -106,20 +106,20 @@
   }
 
   &-add {
-    background: var(--vm-diff-added);
+    background: $vm-diff-added-bg;
     padding: 1px 4px;
     border-radius: 4px;
   }
 
   &-del {
-    background: var(--vm-diff-deleted);
+    background: $vm-diff-deleted-bg;
     padding: 1px 4px;
     border-radius: 4px;
     text-decoration: line-through;
   }
 
   &-arrow {
-    color: var(--text-faint);
+    color: $vm-text-faint;
   }
 
   &-hunk {
@@ -130,7 +130,7 @@
     &-header {
       font-family: var(--font-monospace);
       font-size: var(--font-ui-smaller);
-      color: var(--text-faint);
+      color: $vm-text-faint;
     }
   }
 
@@ -144,11 +144,11 @@
     white-space: pre-wrap;
     word-break: break-word;
 
-    &.is-add { background: var(--vm-diff-added); }
-    &.is-del { background: var(--vm-diff-deleted); }
+    &.is-add { background: $vm-diff-added-bg; }
+    &.is-del { background: $vm-diff-deleted-bg; }
 
     &-prefix {
-      color: var(--text-faint);
+      color: $vm-text-faint;
     }
   }
 
@@ -156,8 +156,8 @@
     margin: 0;
     padding: 10px;
     border-radius: 10px;
-    background: var(--background-primary);
-    border: 1px solid var(--background-modifier-border);
+    background: $vm-bg-primary;
+    border: $vm-border-width solid $vm-border-color;
     font-family: var(--font-monospace);
     font-size: var(--font-ui-small);
     white-space: pre-wrap;
@@ -170,13 +170,13 @@
 .vm-diff-content {
   &-section {
     margin-top: 12px;
-    border-top: 1px solid var(--background-modifier-border);
+    border-top: $vm-border-width solid $vm-border-color;
     padding-top: 8px;
 
     &-title {
       font-size: var(--font-ui-small);
       font-weight: 600;
-      color: var(--text-muted);
+      color: $vm-text-muted;
       margin-bottom: 8px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -188,14 +188,14 @@
 
     &-path {
       font-size: var(--font-ui-small);
-      color: var(--text-muted);
+      color: $vm-text-muted;
       margin-bottom: 4px;
       font-style: italic;
     }
   }
 
   &-no-matches {
-    color: var(--text-muted);
+    color: $vm-text-muted;
     font-size: var(--font-ui-small);
     padding: 2px 8px;
   }
@@ -205,14 +205,14 @@
   font-family: var(--font-monospace);
   font-size: var(--font-ui-smaller);
   padding: 4px 8px;
-  background: var(--background-secondary);
+  background: $vm-bg-secondary;
   border-radius: 4px;
   margin-bottom: 2px;
   line-height: 1.5;
   word-break: break-all;
 
   mark {
-    background: var(--vm-diff-deleted);
+    background: $vm-diff-deleted-bg;
     color: inherit;
     border-radius: 2px;
   }
@@ -220,12 +220,12 @@
 
 .vm-diff-replace {
   &-arrow {
-    color: var(--text-muted);
+    color: $vm-text-muted;
     margin: 0 4px;
   }
 
   &-new {
-    background: var(--vm-diff-added);
+    background: $vm-diff-added-bg;
     border-radius: 2px;
     padding: 0 2px;
   }
