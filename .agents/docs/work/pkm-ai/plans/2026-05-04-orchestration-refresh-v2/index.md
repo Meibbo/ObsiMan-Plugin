@@ -3,7 +3,7 @@ title: PKM-AI orchestration refresh v2 implementation plan
 type: plan
 status: draft
 initiative: pkm-ai
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh-v2/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh-v2/index|pkm-ai]]"
 created: 2026-05-04T08:50:28
 updated: 2026-05-04T08:50:28
 tags:
@@ -18,11 +18,11 @@ without rereading this chat.
 
 ## Read Order
 
-1. [[.agents/docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/01-promote-v2|promote v2]]
-2. [[.agents/docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/02-policy-repairs|policy repairs]]
-3. [[.agents/docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/03-source-ledger|source ledger]]
-4. [[.agents/docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/04-health-rules|health rules]]
-5. [[.agents/docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/05-verification|verification]]
+1. [[docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/01-promote-v2|promote v2]]
+2. [[docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/02-policy-repairs|policy repairs]]
+3. [[docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/03-source-ledger|source ledger]]
+4. [[docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/04-health-rules|health rules]]
+5. [[docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/05-verification|verification]]
 
 ## Execution Rule
 

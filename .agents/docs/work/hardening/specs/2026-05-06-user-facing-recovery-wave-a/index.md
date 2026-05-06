@@ -2,7 +2,7 @@
 title: User-facing recovery wave A
 type: spec-index
 status: draft
-parent: "[[.agents/docs/work/hardening/index|hardening]]"
+parent: "[[docs/work/hardening/index|hardening]]"
 created: 2026-05-06T02:46:22
 updated: 2026-05-06T02:46:22
 tags:
@@ -41,20 +41,20 @@ path.
 
 ## Shards
 
-1. [[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/01-scope-and-slice-order|Scope and slice order]]
-2. [[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/02-cmenu-queue-repair|CMenu queue repair]]
-3. [[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/03-fnr-rename-handoff|FnR rename handoff]]
-4. [[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/04-badges-and-navbar|Badges and navbar visibility]]
-5. [[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/05-testing-and-exit-criteria|Testing and exit criteria]]
+1. [[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/01-scope-and-slice-order|Scope and slice order]]
+2. [[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/02-cmenu-queue-repair|CMenu queue repair]]
+3. [[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/03-fnr-rename-handoff|FnR rename handoff]]
+4. [[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/04-badges-and-navbar|Badges and navbar visibility]]
+5. [[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/05-testing-and-exit-criteria|Testing and exit criteria]]
 
 ## Source Records
 
-- [[.agents/docs/current/status|current status]]
-- [[.agents/docs/current/handoff|current handoff]]
-- [[.agents/docs/work/hardening/backlog/regressions/operations-suite-live-handoff|operations suite live handoff]]
-- [[.agents/docs/work/hardening/backlog/regressions/navbar|navbar regression]]
-- [[.agents/docs/work/hardening/backlog/regressions/file-ops|file ops regression]]
-- [[.agents/docs/work/hardening/backlog/regressions/grid-view|grid view regression]]
+- [[docs/current/status|current status]]
+- [[docs/current/handoff|current handoff]]
+- [[docs/work/hardening/backlog/regressions/operations-suite-live-handoff|operations suite live handoff]]
+- [[docs/work/hardening/backlog/regressions/navbar|navbar regression]]
+- [[docs/work/hardening/backlog/regressions/file-ops|file ops regression]]
+- [[docs/work/hardening/backlog/regressions/grid-view|grid view regression]]
 
 ## Non-Goals
 

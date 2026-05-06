@@ -2,7 +2,7 @@
 title: Polish index
 type: initiative-index
 status: active
-parent: "[[.agents/docs/work/pkm-ai/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/index|pkm-ai]]"
 created: 2026-05-04T01:44:46
 updated: 2026-05-04T01:44:46
 tags:
@@ -23,7 +23,7 @@ and non-blocking UX improvements.
 
 ## Related Routes
 
-- Stabilization: [[.agents/docs/work/hardening/index|hardening]]
-- Release readiness: [[.agents/docs/work/v1-stable/index|v1-stable]]
-- Draft ideas: [[.agents/docs/work/draft/index|draft]]
+- Stabilization: [[docs/work/hardening/index|hardening]]
+- Release readiness: [[docs/work/v1-stable/index|v1-stable]]
+- Draft ideas: [[docs/work/draft/index|draft]]
 

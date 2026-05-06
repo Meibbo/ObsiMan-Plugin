@@ -2,7 +2,7 @@
 title: FnR rename handoff
 type: spec-shard
 status: draft
-parent: "[[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|user-facing-recovery-wave-a]]"
+parent: "[[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|user-facing-recovery-wave-a]]"
 created: 2026-05-06T02:46:22
 updated: 2026-05-06T02:46:22
 tags:

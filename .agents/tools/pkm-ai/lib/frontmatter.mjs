@@ -45,6 +45,7 @@ export function listMarkdownFiles(root = process.cwd(), docsRoot = DOCS_ROOT, op
       const fullPath = path.join(dir, entry.name);
       const rel = relativePath(root, fullPath);
       if (entry.isDirectory()) {
+        if (options.excludeArchive && /(^|\/)archive(\/|$)/.test(rel)) continue;
         if (excludeArchiveRaw && /(^|\/)archive\/.*\/raw(\/|$)/.test(rel)) continue;
         if (options.excludeTemplates && /(^|\/)templates(\/|$)/.test(rel)) continue;
         walk(fullPath);

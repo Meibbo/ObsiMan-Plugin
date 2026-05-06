@@ -1,7 +1,7 @@
 ---
 title: Authoring policies
 type: spec-slice
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 status: approved-draft
 created: 2026-05-04T00:00:00
 updated: 2026-05-04T00:00:00
@@ -30,7 +30,7 @@ Use one `parent` property. Put the full path inside an Obsidian wikilink and
 use the initiative as alias:
 
 ```yaml
-parent: "[[.agents/docs/work/pkm-ai/specs/topic/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/topic/index|pkm-ai]]"
 ```
 
 Do not add a second verbose parent path field.

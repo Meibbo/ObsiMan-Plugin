@@ -2,7 +2,7 @@
 title: Behavior
 type: architecture
 status: active
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
 updated: 2026-05-04T16:35:00
 tags:
@@ -13,7 +13,7 @@ tags:
 
 Agents should act as route-following collaborators:
 
-- Start from `AGENTS.md`, then `.agents/docs/start.md`.
+- Start from `AGENTS.md`, then `docs/start.md`.
 - Always read current status and handoff before work.
 - On greetings, `continue`, or vague startup requests, run the standard route;
   do not ask the user to paste a bootstrap prompt unless current docs are absent.

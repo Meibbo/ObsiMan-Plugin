@@ -52,8 +52,11 @@ If your remaining context appears below 20%, warn the user and suggest switching
   oversized source file is allowed. Add or queue a follow-up shard/manifest pass
   instead of asking the user to restate that detail must be preserved.
 - `.agents/docs/current/status.md` and `.agents/docs/current/handoff.md`
-  should stay under 100 lines by linking to shards or archives, not by losing
+  should stay under 200 lines by linking to shards or archives, not by losing
   information.
+- When current status or handoff is filling with completed or superseded work,
+  archive that material first and link the archive instead of micro-compressing
+  lines to fit the limit.
 - Shard large specs, plans, histories, indexes, and manuals into folders with
   compact `index.md` manifests.
 

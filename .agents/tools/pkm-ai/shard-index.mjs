@@ -7,9 +7,9 @@ const root = process.cwd();
 const write = process.argv.includes("--write");
 const oversized = [];
 
-for (const file of listMarkdownFiles(root, ".agents/docs", { excludeArchiveRaw: true })) {
+for (const file of listMarkdownFiles(root, ".agents/docs", { excludeArchive: true })) {
   const rel = relativePath(root, file);
-  const limit = rel === ".agents/docs/current/status.md" || rel === ".agents/docs/current/handoff.md" ? 100 : 200;
+  const limit = 200;
   const lines = lineCount(fs.readFileSync(file, "utf8"));
   if (lines > limit) {
     const parsed = path.parse(rel);

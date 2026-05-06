@@ -3,7 +3,7 @@ title: Source preservation
 type: spec-slice
 status: draft
 initiative: pkm-ai
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh-v2/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh-v2/index|pkm-ai]]"
 created: 2026-05-04T08:50:28
 updated: 2026-05-04T08:50:28
 tags:
@@ -30,7 +30,7 @@ raw source or sharded successor.
 If a doc contains old plans, handoffs, or memory, move it under:
 
 ```text
-.agents/docs/archive/<initiative>/...
+docs/archive/<initiative>/...
 ```
 
 If it is unclear whether the material is public, agent-facing, or historical,

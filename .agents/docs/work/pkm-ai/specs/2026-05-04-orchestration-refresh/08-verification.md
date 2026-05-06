@@ -1,10 +1,10 @@
 ---
 title: Verification
 type: spec-slice
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 status: approved-draft
 created: 2026-05-04T00:00:00
-updated: 2026-05-04T00:00:00
+updated: 2026-05-06T05:12:35
 tags:
   - agent/spec
 ---
@@ -14,7 +14,7 @@ tags:
 ## Required Checks
 
 - No active agent Markdown file exceeds 200 lines.
-- `current/status.md` and `current/handoff.md` do not exceed 100 lines.
+- `current/status.md` and `current/handoff.md` do not exceed 200 lines.
 - No active specs or plans are giant single files.
 - `docs/**` contains only public user or developer docs.
 - `main` release path excludes AI files.

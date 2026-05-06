@@ -3,7 +3,7 @@ title: Routing attention
 type: spec-slice
 status: draft
 initiative: pkm-ai
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh-v2/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh-v2/index|pkm-ai]]"
 created: 2026-05-04T08:50:28
 updated: 2026-05-04T08:50:28
 tags:
@@ -22,9 +22,9 @@ cost. The solution is not more indexes. The solution is routed attention.
 Every new session reads:
 
 1. `AGENTS.md`
-2. `.agents/docs/start.md`
-3. `.agents/docs/current/status.md`
-4. `.agents/docs/current/handoff.md`
+2. `docs/start.md`
+3. `docs/current/status.md`
+4. `docs/current/handoff.md`
 
 Then it chooses one route. It does not browse all initiatives.
 

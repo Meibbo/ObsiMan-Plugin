@@ -3,7 +3,7 @@ title: "Auditoría: File Transaction Queue (Plan vs Implementación)"
 type: audit-report
 status: completed
 initiative: hardening
-parent: "[[.agents/docs/work/hardening/index|hardening]]"
+parent: "[[docs/work/hardening/index|hardening]]"
 created: 2026-05-04T15:45:00
 updated: 2026-05-04T15:45:00
 tags:

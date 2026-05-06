@@ -36,17 +36,20 @@ tags:
   assert.match(updated, /tags:\n  - agent\/current/);
 });
 
-test("update-frontmatter --all updates active docs and skips archive raw files", () => {
+test("update-frontmatter --all updates active docs and skips archive files", () => {
   const root = makeTempRoot();
   const activePath = path.join(root, ".agents", "docs", "current", "status.md");
+  const archivePath = path.join(root, ".agents", "docs", "archive", "pkm-ai", "active-docs", "status.md");
   const rawPath = path.join(root, ".agents", "docs", "archive", "pkm-ai", "migration", "raw", "old.md");
   writeFile(activePath, "# Status\n");
+  writeFile(archivePath, "# Archived\n");
   writeFile(rawPath, "# Old\n");
 
   execFileSync(process.execPath, [toolPath, "--all", "--now", "2026-05-04T08:09:10"], { cwd: root });
 
   assert.match(fs.readFileSync(activePath, "utf8"), /^created: 2026-05-04T08:09:10$/m);
   assert.match(fs.readFileSync(activePath, "utf8"), /^updated: 2026-05-04T08:09:10$/m);
+  assert.equal(fs.readFileSync(archivePath, "utf8"), "# Archived\n");
   assert.equal(fs.readFileSync(rawPath, "utf8"), "# Old\n");
 });
 

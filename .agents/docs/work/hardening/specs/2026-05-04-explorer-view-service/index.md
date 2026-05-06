@@ -2,7 +2,7 @@
 title: Explorer view service spec
 type: spec-index
 status: draft
-parent: "[[.agents/docs/work/hardening/index|hardening]]"
+parent: "[[docs/work/hardening/index|hardening]]"
 created: 2026-05-04T15:25:00
 updated: 2026-05-04T18:15:57
 tags:
@@ -32,19 +32,19 @@ single short note.
 
 ## Shards
 
-1. [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/01-background-current-state|Background and current state]]
-2. [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/02-research-and-taxonomy|Research and view taxonomy]]
-3. [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/03-architecture-principles|Architecture principles]]
-4. [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/04-serviceviews-contract|serviceViews contract]]
-5. [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/05-render-model-layers|Render model layers]]
-6. [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/06-view-projections|View projections]]
-7. [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/07-decorations-and-marks|Decorations and marks]]
-8. [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/08-interactions|Interactions]]
-9. [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/09-groups-sorting-templates|Groups, sorting, templates]]
-10. [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/10-migration-plan|Migration plan]]
-11. [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/11-testing-and-verification|Testing and verification]]
-12. [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/12-open-questions-risks|Open questions and risks]]
-13. [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/13-hierarchical-badge-bubbling|Hierarchical badge bubbling]]
+1. [[docs/work/hardening/specs/2026-05-04-explorer-view-service/01-background-current-state|Background and current state]]
+2. [[docs/work/hardening/specs/2026-05-04-explorer-view-service/02-research-and-taxonomy|Research and view taxonomy]]
+3. [[docs/work/hardening/specs/2026-05-04-explorer-view-service/03-architecture-principles|Architecture principles]]
+4. [[docs/work/hardening/specs/2026-05-04-explorer-view-service/04-serviceviews-contract|serviceViews contract]]
+5. [[docs/work/hardening/specs/2026-05-04-explorer-view-service/05-render-model-layers|Render model layers]]
+6. [[docs/work/hardening/specs/2026-05-04-explorer-view-service/06-view-projections|View projections]]
+7. [[docs/work/hardening/specs/2026-05-04-explorer-view-service/07-decorations-and-marks|Decorations and marks]]
+8. [[docs/work/hardening/specs/2026-05-04-explorer-view-service/08-interactions|Interactions]]
+9. [[docs/work/hardening/specs/2026-05-04-explorer-view-service/09-groups-sorting-templates|Groups, sorting, templates]]
+10. [[docs/work/hardening/specs/2026-05-04-explorer-view-service/10-migration-plan|Migration plan]]
+11. [[docs/work/hardening/specs/2026-05-04-explorer-view-service/11-testing-and-verification|Testing and verification]]
+12. [[docs/work/hardening/specs/2026-05-04-explorer-view-service/12-open-questions-risks|Open questions and risks]]
+13. [[docs/work/hardening/specs/2026-05-04-explorer-view-service/13-hierarchical-badge-bubbling|Hierarchical badge bubbling]]
 
 ## Non-Goals
 

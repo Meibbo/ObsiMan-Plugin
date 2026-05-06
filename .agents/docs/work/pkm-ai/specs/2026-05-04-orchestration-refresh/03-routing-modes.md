@@ -1,7 +1,7 @@
 ---
 title: Routing and modes
 type: spec-slice
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 status: approved-draft
 created: 2026-05-04T00:00:00
 updated: 2026-05-04T16:12:00
@@ -13,7 +13,7 @@ tags:
 
 ## Startup Route
 
-`AGENTS.md` points to `.agents/docs/start.md`. `start.md` always routes through:
+`AGENTS.md` points to `docs/start.md`. `start.md` always routes through:
 
 - `current/status.md`
 - `current/handoff.md`

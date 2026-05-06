@@ -3,7 +3,7 @@ title: Verification
 type: plan-slice
 status: draft
 initiative: pkm-ai
-parent: "[[.agents/docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T00:00:00
 updated: 2026-05-04T00:00:00
 tags:
@@ -15,7 +15,7 @@ tags:
 ## Task 1: Run Doc Health
 
 **Files:**
-- Run: `.agents/tools/pkm-ai/check-doc-health.mjs`
+- Run: `tools/pkm-ai/check-doc-health.mjs`
 
 - [ ] Expected: no line limit failures.
 - [ ] Expected: no timezone-offset timestamps.
@@ -25,7 +25,7 @@ tags:
 ## Task 2: Run Git Visibility Check
 
 **Files:**
-- Check: `.gitignore`, `.agents/docs/**`, `.agents/skills/**`, `.agents/tools/**`
+- Check: `.gitignore`, `docs/**`, `skills/**`, `tools/**`
 
 - [ ] Run:
 

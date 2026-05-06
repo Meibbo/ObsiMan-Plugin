@@ -3,7 +3,7 @@ title: "Propuesta: Optimización del Sistema PKM-AI y Comportamiento de Agentes"
 type: architecture-proposal
 status: draft
 initiative: hardening
-parent: "[[.agents/docs/architecture/index|architecture]]"
+parent: "[[docs/architecture/index|architecture]]"
 created: 2026-05-04T16:50:00
 updated: 2026-05-04T16:50:00
 tags:
@@ -32,7 +32,7 @@ La documentación técnica NO debe contener resúmenes narrativos si existe cód
 
 ### C. Shunting Automático al Disco
 Si una explicación técnica en el chat requiere más de 5 líneas o incluye un fragmento de código, el agente debe:
-1. Crear/Actualizar un archivo de notas (`.agents/docs/work/research_notes.md`).
+1. Crear/Actualizar un archivo de notas (`docs/work/research_notes.md`).
 2. Referenciar el archivo en el chat.
 3. Borrar la explicación del chat (o no escribirla).
 

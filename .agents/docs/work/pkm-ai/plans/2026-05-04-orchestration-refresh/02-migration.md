@@ -3,7 +3,7 @@ title: Migration
 type: plan-slice
 status: draft
 initiative: pkm-ai
-parent: "[[.agents/docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T00:00:00
 updated: 2026-05-04T00:00:00
 tags:
@@ -15,8 +15,8 @@ tags:
 ## Task 1: Create Migration Archive
 
 **Files:**
-- Create: `.agents/docs/archive/pkm-ai/migration-2026-05-04/index.md`
-- Create folder: `.agents/docs/archive/pkm-ai/migration-2026-05-04/raw/`
+- Create: `docs/archive/pkm-ai/migration-2026-05-04/index.md`
+- Create folder: `docs/archive/pkm-ai/migration-2026-05-04/raw/`
 
 - [ ] The index lists source paths, target paths, and migration rationale.
 
@@ -34,7 +34,7 @@ tags:
 ## Task 3: Rebuild Active Knowledge From Current Truth
 
 **Files:**
-- Create active indexes under `.agents/docs/work/*/index.md`.
+- Create active indexes under `docs/work/*/index.md`.
 - Create knowledge notes only for current references.
 
 - [ ] Prioritize current codebase truth and accepted review decisions.

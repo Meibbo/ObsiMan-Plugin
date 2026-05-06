@@ -2,7 +2,7 @@
 title: Slice 1 service
 type: plan-shard
 status: active
-parent: "[[.agents/docs/work/hardening/plans/2026-05-04-serviceviews-implementation/index|serviceviews-plan]]"
+parent: "[[docs/work/hardening/plans/2026-05-04-serviceviews-implementation/index|serviceviews-plan]]"
 created: 2026-05-04T16:40:00
 updated: 2026-05-04T16:40:00
 tags:

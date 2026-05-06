@@ -1,7 +1,7 @@
 ---
 title: Folder model
 type: spec-slice
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 status: approved-draft
 created: 2026-05-04T00:00:00
 updated: 2026-05-04T00:00:00
@@ -20,7 +20,7 @@ main
 hardening / dev
   AGENTS.md
   CLAUDE.md
-  .agents/
+  
     docs/
     skills/
     tools/
@@ -30,7 +30,7 @@ hardening / dev
 ## Agent Docs
 
 ```text
-.agents/docs/
+docs/
   start.md
   index.md
   current/

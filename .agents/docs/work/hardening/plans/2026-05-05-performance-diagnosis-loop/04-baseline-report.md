@@ -2,7 +2,7 @@
 title: Baseline report
 type: plan-shard
 status: completed
-parent: "[[.agents/docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/index|performance-diagnosis-loop-plan]]"
+parent: "[[docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/index|performance-diagnosis-loop-plan]]"
 created: 2026-05-05T20:58:26
 updated: 2026-05-05T21:45:00
 tags:
@@ -16,7 +16,7 @@ tags:
 
 **Files:**
 
-- Create: `.agents/docs/work/hardening/research/2026-05-05-performance-baseline/index.md`
+- Create: `docs/work/hardening/research/2026-05-05-performance-baseline/index.md`
 
 - [x] **Step 1: Run the four baseline scenarios**
 
@@ -33,14 +33,14 @@ Expected: each command returns JSON with `startedAt`, `endedAt`, `counters`, and
 
 - [x] **Step 2: Create the baseline report**
 
-Create `.agents/docs/work/hardening/research/2026-05-05-performance-baseline/index.md` only after Step 1 returns JSON for all scenarios. The final file must contain:
+Create `docs/work/hardening/research/2026-05-05-performance-baseline/index.md` only after Step 1 returns JSON for all scenarios. The final file must contain:
 
 ```markdown
 ---
 title: Performance baseline
 type: research
 status: active
-parent: "[[.agents/docs/work/hardening/specs/2026-05-05-performance-diagnosis-loop/index|performance-diagnosis-loop]]"
+parent: "[[docs/work/hardening/specs/2026-05-05-performance-diagnosis-loop/index|performance-diagnosis-loop]]"
 created: 2026-05-05T20:58:26
 updated: 2026-05-05T20:58:26
 tags:
@@ -104,6 +104,6 @@ Use these rules:
 
 - [x] **Step 4: Verify doc health**
 
-Run: `node .agents/tools/pkm-ai/check-doc-health.mjs`
+Run: `node tools/pkm-ai/check-doc-health.mjs`
 
 Expected: `doc health: OK`. Glossary warnings for new terms are acceptable only if the terms remain listed in `glossary_candidates`.

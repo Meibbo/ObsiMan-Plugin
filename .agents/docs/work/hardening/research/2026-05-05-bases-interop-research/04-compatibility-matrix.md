@@ -2,7 +2,7 @@
 title: Bases interop compatibility matrix
 type: research-shard
 status: draft
-parent: "[[.agents/docs/work/hardening/research/2026-05-05-bases-interop-research/index|bases-interop-research]]"
+parent: "[[docs/work/hardening/research/2026-05-05-bases-interop-research/index|bases-interop-research]]"
 created: 2026-05-05T01:11:52
 updated: 2026-05-05T01:11:52
 tags:

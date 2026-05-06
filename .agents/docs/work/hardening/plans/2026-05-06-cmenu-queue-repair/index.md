@@ -2,7 +2,7 @@
 title: CMenu queue repair implementation
 type: implementation-plan-index
 status: completed
-parent: "[[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|user-facing-recovery-wave-a]]"
+parent: "[[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|user-facing-recovery-wave-a]]"
 created: 2026-05-06T03:00:09
 updated: 2026-05-06T03:18:00
 tags:
@@ -38,17 +38,17 @@ rename handoff, Vitest unit tests, existing `OperationQueueService`,
 
 ## Source Records
 
-- [[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/02-cmenu-queue-repair|CMenu queue repair spec]]
-- [[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/05-testing-and-exit-criteria|Wave A testing criteria]]
-- [[.agents/docs/work/hardening/backlog/regressions/file-ops|file ops regression]]
-- [[.agents/docs/current/handoff|current handoff]]
+- [[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/02-cmenu-queue-repair|CMenu queue repair spec]]
+- [[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/05-testing-and-exit-criteria|Wave A testing criteria]]
+- [[docs/work/hardening/backlog/regressions/file-ops|file ops regression]]
+- [[docs/current/handoff|current handoff]]
 
 ## Shards
 
-1. [[.agents/docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/01-tag-queue-contract|Tag queue contract]]
-2. [[.agents/docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/02-file-queue-contract|File queue contract]]
-3. [[.agents/docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/03-cmenu-provider-integration|CMenu provider integration]]
-4. [[.agents/docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/04-verification-and-slice-close|Verification and slice close]]
+1. [[docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/01-tag-queue-contract|Tag queue contract]]
+2. [[docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/02-file-queue-contract|File queue contract]]
+3. [[docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/03-cmenu-provider-integration|CMenu provider integration]]
+4. [[docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/04-verification-and-slice-close|Verification and slice close]]
 
 ## Execution Order
 

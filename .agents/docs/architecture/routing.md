@@ -2,7 +2,7 @@
 title: Routing
 type: architecture
 status: active
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
 updated: 2026-05-04T16:12:00
 tags:
@@ -14,9 +14,9 @@ tags:
 Required route:
 
 1. `AGENTS.md`
-2. `.agents/docs/start.md`
-3. `.agents/docs/current/status.md`
-4. `.agents/docs/current/handoff.md`
+2. `docs/start.md`
+3. `docs/current/status.md`
+4. `docs/current/handoff.md`
 5. mode-specific docs
 
 Mode routes:

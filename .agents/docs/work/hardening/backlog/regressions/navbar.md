@@ -3,7 +3,7 @@ title: "Reporte de Regresión: Navbar (Arquitectura Dual y Gestión de Badges)"
 type: regression-report
 status: draft
 initiative: hardening
-parent: "[[.agents/docs/work/hardening/index|hardening]]"
+parent: "[[docs/work/hardening/index|hardening]]"
 created: 2026-05-04T15:00:00
 updated: 2026-05-04T15:55:00
 tags:

@@ -3,7 +3,7 @@ title: Agent Memory Systems Research
 type: research
 status: active
 initiative: pkm-ai
-parent: "[[.agents/docs/work/pkm-ai/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/index|pkm-ai]]"
 created: 2026-05-05T21:20:00
 updated: 2026-05-05T21:20:00
 tags:
@@ -16,7 +16,7 @@ tags:
 
 Este documento resume la investigación sobre arquitecturas modernas de memoria para agentes LLM, con foco en **sistemas de memoria a corto y largo plazo**, **GraphRAG** (recorrido de grafos) y el patrón de **archivar en lugar de borrar**. 
 
-Esta investigación busca expandir el alcance de [[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh-v2/10-tools-indexing|Tools And Indexing]], donde actualmente dependemos de scripts locales (`query-docs.mjs`, `index-docs.mjs`) para que la PC asuma la carga de indexación.
+Esta investigación busca expandir el alcance de [[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh-v2/10-tools-indexing|Tools And Indexing]], donde actualmente dependemos de scripts locales (`query-docs.mjs`, `index-docs.mjs`) para que la PC asuma la carga de indexación.
 
 ---
 

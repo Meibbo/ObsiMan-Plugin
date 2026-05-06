@@ -3,7 +3,7 @@ title: Tools and indexing
 type: spec-slice
 status: draft
 initiative: pkm-ai
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh-v2/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh-v2/index|pkm-ai]]"
 created: 2026-05-04T08:50:28
 updated: 2026-05-04T08:50:28
 tags:
@@ -28,7 +28,7 @@ the scanning, parsing, and indexing load. Let the agent consume compact outputs.
 
 ## Phase 1 Indexing
 
-Index `.agents/docs` frontmatter and paths. This supports routing, backlog
+Index `docs` frontmatter and paths. This supports routing, backlog
 queries, health checks, and current-memory repair.
 
 ## Phase 2 Indexing

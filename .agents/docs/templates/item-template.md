@@ -12,7 +12,7 @@ agents_used: []
 verification: []
 tokens_used:
 context_window:
-parent: "[[.agents/docs/work/pkm-ai/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/index|pkm-ai]]"
 created: 2026-05-04T01:48:51
 updated: 2026-05-04T01:48:51
 tags:

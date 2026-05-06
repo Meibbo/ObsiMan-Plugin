@@ -2,7 +2,7 @@
 title: Verification and close
 type: implementation-plan-shard
 status: active
-parent: "[[.agents/docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/index|prop-value-rename-handoff]]"
+parent: "[[docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/index|prop-value-rename-handoff]]"
 created: 2026-05-06T03:30:00
 updated: 2026-05-06T03:30:00
 tags:

@@ -2,7 +2,7 @@
 title: Draft index
 type: initiative-index
 status: active
-parent: "[[.agents/docs/work/pkm-ai/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/index|pkm-ai]]"
 created: 2026-05-04T01:44:46
 updated: 2026-05-04T01:44:46
 tags:
@@ -23,7 +23,7 @@ to hardening, polish, v1-stable, or PKM-AI.
 
 ## Related Routes
 
-- Hardening: [[.agents/docs/work/hardening/index|hardening]]
-- Polish: [[.agents/docs/work/polish/index|polish]]
-- PKM-AI: [[.agents/docs/work/pkm-ai/index|pkm-ai]]
+- Hardening: [[docs/work/hardening/index|hardening]]
+- Polish: [[docs/work/polish/index|polish]]
+- PKM-AI: [[docs/work/pkm-ai/index|pkm-ai]]
 

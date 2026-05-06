@@ -2,7 +2,7 @@
 title: Bases import choose mode UI flow
 type: spec-shard
 status: draft
-parent: "[[.agents/docs/work/hardening/specs/2026-05-05-bases-import-choose-mode/index|bases-import-choose-mode]]"
+parent: "[[docs/work/hardening/specs/2026-05-05-bases-import-choose-mode/index|bases-import-choose-mode]]"
 created: 2026-05-05T02:31:25
 updated: 2026-05-05T02:33:30
 tags:

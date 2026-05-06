@@ -2,7 +2,7 @@
 title: Bases import choose mode implementation plan
 type: plan-index
 status: completed
-parent: "[[.agents/docs/work/hardening/specs/2026-05-05-bases-import-choose-mode/index|bases-import-choose-mode]]"
+parent: "[[docs/work/hardening/specs/2026-05-05-bases-import-choose-mode/index|bases-import-choose-mode]]"
 created: 2026-05-05T02:36:37
 updated: 2026-05-05T16:11:11
 tags:
@@ -42,12 +42,12 @@ tags:
 
 ## Shards
 
-1. [[.agents/docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/01-filter-logic-rename|Filter logic rename]]
-2. [[.agents/docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/02-bases-interop-service|Bases interop service]]
-3. [[.agents/docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/03-import-target-discovery|Import target discovery]]
-4. [[.agents/docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/04-empty-loading-landing|Empty/loading landing]]
-5. [[.agents/docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/05-ui-integration|UI integration]]
-6. [[.agents/docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/06-final-verification|Final verification]]
+1. [[docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/01-filter-logic-rename|Filter logic rename]]
+2. [[docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/02-bases-interop-service|Bases interop service]]
+3. [[docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/03-import-target-discovery|Import target discovery]]
+4. [[docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/04-empty-loading-landing|Empty/loading landing]]
+5. [[docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/05-ui-integration|UI integration]]
+6. [[docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/06-final-verification|Final verification]]
 
 ## Guardrails
 

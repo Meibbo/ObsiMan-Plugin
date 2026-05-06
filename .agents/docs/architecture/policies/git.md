@@ -2,7 +2,7 @@
 title: Git policy
 type: policy
 status: active
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
 updated: 2026-05-04T01:36:20
 tags:
@@ -23,7 +23,7 @@ tags:
 
 - Editing `.gitignore`.
 - Preparing commits, branches, PRs, releases, or merges.
-- Resolving conflicts involving `.agents/`, `AGENTS.md`, or `CLAUDE.md`.
+- Resolving conflicts involving ``, `AGENTS.md`, or `CLAUDE.md`.
 
 ## Do Not Read When
 
@@ -36,5 +36,5 @@ tags:
 ## Repair Triggers
 
 - AI files appear staged for `main`.
-- `.agents/docs`, `.agents/skills`, or `.agents/tools` are ignored on AI branches.
+- `docs`, `skills`, or `tools` are ignored on AI branches.
 - Generated caches are accidentally tracked.

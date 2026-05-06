@@ -2,7 +2,7 @@
 title: Open questions and risks
 type: spec-shard
 status: draft
-parent: "[[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
+parent: "[[docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
 created: 2026-05-04T15:25:00
 updated: 2026-05-04T15:25:00
 tags:

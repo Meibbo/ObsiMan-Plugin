@@ -2,7 +2,7 @@
 title: Bases interop research
 type: research-index
 status: draft
-parent: "[[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
+parent: "[[docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
 created: 2026-05-05T00:00:00
 updated: 2026-05-05T01:11:52
 tags:
@@ -17,10 +17,10 @@ Obsidian Bases `.base` files and Vaultman filter/view services.
 
 ## Shards
 
-- [[.agents/docs/work/hardening/research/2026-05-05-bases-interop-research/01-sources-api|01 - Sources and API]]
-- [[.agents/docs/work/hardening/research/2026-05-05-bases-interop-research/02-local-fixtures|02 - Local Fixtures]]
-- [[.agents/docs/work/hardening/research/2026-05-05-bases-interop-research/03-compat-design|03 - Compatibility Design]]
-- [[.agents/docs/work/hardening/research/2026-05-05-bases-interop-research/04-compatibility-matrix|04 - Compatibility Matrix]]
+- [[docs/work/hardening/research/2026-05-05-bases-interop-research/01-sources-api|01 - Sources and API]]
+- [[docs/work/hardening/research/2026-05-05-bases-interop-research/02-local-fixtures|02 - Local Fixtures]]
+- [[docs/work/hardening/research/2026-05-05-bases-interop-research/03-compat-design|03 - Compatibility Design]]
+- [[docs/work/hardening/research/2026-05-05-bases-interop-research/04-compatibility-matrix|04 - Compatibility Matrix]]
 
 ## Confirmed Direction
 

@@ -2,7 +2,7 @@
 title: Decorations and marks
 type: spec-shard
 status: draft
-parent: "[[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
+parent: "[[docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
 created: 2026-05-04T15:25:00
 updated: 2026-05-04T18:15:57
 tags:
@@ -107,7 +107,7 @@ to attach those ranges.
 
 Badge bubbling is a general hierarchy need based on semantic badge data, not a
 tree-only behavior. Full rules and the `childBadgeIndicator` projection are in
-[[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/13-hierarchical-badge-bubbling|Hierarchical badge bubbling]].
+[[docs/work/hardening/specs/2026-05-04-explorer-view-service/13-hierarchical-badge-bubbling|Hierarchical badge bubbling]].
 
 ## Marks
 

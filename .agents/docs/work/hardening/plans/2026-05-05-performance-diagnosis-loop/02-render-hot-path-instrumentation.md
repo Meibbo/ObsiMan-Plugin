@@ -2,7 +2,7 @@
 title: Render hot path instrumentation
 type: plan-shard
 status: completed
-parent: "[[.agents/docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/index|performance-diagnosis-loop-plan]]"
+parent: "[[docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/index|performance-diagnosis-loop-plan]]"
 created: 2026-05-05T20:58:26
 updated: 2026-05-05T21:45:00
 tags:
@@ -26,7 +26,7 @@ tags:
 - Test: `test/unit/services/serviceViews.test.ts`
 - Test: `test/component/reactiveExplorers.test.ts`
 
-Continuation shard: [[.agents/docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/02-render-hot-path-instrumentation-part-2|Render hot path instrumentation part 2]].
+Continuation shard: [[docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/02-render-hot-path-instrumentation-part-2|Render hot path instrumentation part 2]].
 
 - [x] **Step 1: Extend the failing test for a module-level active probe**
 

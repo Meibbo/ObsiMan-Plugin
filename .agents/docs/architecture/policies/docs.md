@@ -2,9 +2,9 @@
 title: Docs policy
 type: policy
 status: active
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-04T16:55:00
+updated: 2026-05-06T05:12:35
 tags:
   - agent/policy
 ---
@@ -17,8 +17,11 @@ tags:
   instruction to remove detail.
 - Preserve source detail first. Never compress, omit, summarize away, or delete
   technical context just to satisfy line limits.
-- `current/status.md` and `current/handoff.md` stay under 100 lines by linking
+- `current/status.md` and `current/handoff.md` stay under 200 lines by linking
   to shards or archives, not by losing information.
+- When current docs approach their limit, archive completed or superseded
+  material first and link the archive. Do not waste time micro-compressing
+  current files line-by-line just to satisfy the limit.
 - Line limits protect navigation. They do not authorize lossy summaries.
 - If a user asks for exhaustive capture, write the full detail without requiring
   them to separately say "do not omit detail".
@@ -37,12 +40,12 @@ tags:
 - Keep `current/handoff.md` compact; shard long handoff history into archive
   handoff files and link them from the current handoff.
 - Do not delete agent working memory when the user asked for archive; move it to
-  `.agents/docs/archive/<initiative>/...` or record the replacement path.
+  `docs/archive/<initiative>/...` or record the replacement path.
 - When replacing a long active file, preserve the full source record first, then
   create a route summary or shard manifest that links to the preserved detail.
 - Before replacing `current/status.md`, `current/handoff.md`, specs, plans, or
   policies in a way that removes substantial content, run
-  `.agents/tools/pkm-ai/archive-active-doc.mjs` and link the archive from the
+  `tools/pkm-ai/archive-active-doc.mjs` and link the archive from the
   replacement with `archive_source` or an explicit archive wikilink/path.
 - Compacting or rewriting away detail without an archive source is a health
   failure, even if the active file satisfies line limits.
@@ -52,8 +55,8 @@ tags:
   plan, design rationale, domain model, regression report, or implementation
   handoff.
 - Before answering about an unfamiliar domain term, consult
-  `.agents/docs/architecture/glossary.md` or
-  `.agents/tools/pkm-ai/query-docs.mjs --glossary <term>`.
+  `docs/architecture/glossary.md` or
+  `tools/pkm-ai/query-docs.mjs --glossary <term>`.
 - If a term is missing from the glossary, say it is not in the glossary and
   propose adding it or marking it as an external/test term.
 - New docs that intentionally introduce glossary candidates should list them in

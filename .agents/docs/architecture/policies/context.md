@@ -2,7 +2,7 @@
 title: Context policy
 type: policy
 status: active
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
 updated: 2026-05-04T08:40:55
 tags:

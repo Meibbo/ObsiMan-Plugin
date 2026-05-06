@@ -2,7 +2,7 @@
 title: Groups sorting templates
 type: spec-shard
 status: draft
-parent: "[[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
+parent: "[[docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
 created: 2026-05-04T15:25:00
 updated: 2026-05-04T18:16:34
 tags:
@@ -17,7 +17,7 @@ tags:
 Groups should be semantic parent structures in the render model.
 
 Because groups are being added to every view mode, all views should treat their render model as hierarchical even when the projection looks flat. See
-[[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/13-hierarchical-badge-bubbling|Hierarchical badge bubbling]]
+[[docs/work/hardening/specs/2026-05-04-explorer-view-service/13-hierarchical-badge-bubbling|Hierarchical badge bubbling]]
 for shared descendant-layer behavior.
 
 Group kinds:

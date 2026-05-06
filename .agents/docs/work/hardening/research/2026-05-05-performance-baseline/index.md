@@ -2,7 +2,7 @@
 title: Performance baseline
 type: research
 status: active
-parent: "[[.agents/docs/work/hardening/specs/2026-05-05-performance-diagnosis-loop/index|performance-diagnosis-loop]]"
+parent: "[[docs/work/hardening/specs/2026-05-05-performance-diagnosis-loop/index|performance-diagnosis-loop]]"
 created: 2026-05-05T20:58:26
 updated: 2026-05-05T22:34:47
 tags:

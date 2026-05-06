@@ -15,23 +15,23 @@
 This refactor is divided into 5 sequential phases. **You must execute them in order.**
 
 - [ ] **Phase 1: Base, Tokens & Mixins**
-  - **Spec:** `[[.agents/docs/superpowers/plans/2026-05-06-scss-phase1-base.md]]`
+  - **Spec:** `[[docs/superpowers/plans/2026-05-06-scss-phase1-base.md]]`
   - **Scope:** Creates the single source of truth for all variables by mapping them to Obsidian's `--var` API, standardizes `_mixins.scss`, and refactors global primitives.
 
 - [ ] **Phase 2: Svelte Components Extraction**
-  - **Spec:** `[[.agents/docs/superpowers/plans/2026-05-06-scss-phase2-svelte.md]]`
+  - **Spec:** `[[docs/superpowers/plans/2026-05-06-scss-phase2-svelte.md]]`
   - **Scope:** Exhaustively extracts all `<style>` blocks from 10 Svelte components (Tabs, Navbar, Explorer) into dedicated BEM-compliant SCSS modules in `src/styles/components/`.
 
 - [ ] **Phase 3: Panels and Popups Refactoring**
-  - **Spec:** `[[.agents/docs/superpowers/plans/2026-05-06-scss-phase3-panels.md]]`
+  - **Spec:** `[[docs/superpowers/plans/2026-05-06-scss-phase3-panels.md]]`
   - **Scope:** Translates `src/styles/panel/` and `src/styles/popup/` to use the Phase 1 tokens. Replaces all hardcoded z-indexes and background shadows with native variables.
 
 - [ ] **Phase 4: Explorer and Data Visualization**
-  - **Spec:** `[[.agents/docs/superpowers/plans/2026-05-06-scss-phase4-explorer.md]]`
+  - **Spec:** `[[docs/superpowers/plans/2026-05-06-scss-phase4-explorer.md]]`
   - **Scope:** Modernizes `_tree.scss`, `_grid.scss`, and filters. Converts legacy flex hacks to CSS Grid and flattens deep nesting into strict BEM.
 
 - [ ] **Phase 5: Nav, Animations & Final ITCSS Pass**
-  - **Spec:** `[[.agents/docs/superpowers/plans/2026-05-06-scss-phase5-nav.md]]`
+  - **Spec:** `[[docs/superpowers/plans/2026-05-06-scss-phase5-nav.md]]`
   - **Scope:** Finishes `nav/` styles, reorders `main.scss` imports to strictly follow the 7-1 pattern, and runs the final `stylelint-scss` quality gate.
 
 ---

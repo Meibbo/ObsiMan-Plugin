@@ -2,7 +2,7 @@
 title: Current backlog
 type: backlog-index
 status: active
-parent: "[[.agents/docs/work/pkm-ai/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/index|pkm-ai]]"
 created: 2026-05-04T01:48:51
 updated: 2026-05-04T01:48:51
 tags:
@@ -12,11 +12,11 @@ tags:
 # Current Backlog
 
 All active backlog items. Canonical records live under
-`.agents/docs/work/<initiative>/items/`.
+`docs/work/<initiative>/items/`.
 
 ## Items
 
-- [[.agents/docs/work/pkm-ai/items/vm-0001-pkm-ai-orchestration-refresh|VM-0001]] - PKM-AI orchestration refresh; verify; large.
+- [[docs/work/pkm-ai/items/vm-0001-pkm-ai-orchestration-refresh|VM-0001]] - PKM-AI orchestration refresh; verify; large.
 
 ## Shard Trigger
 

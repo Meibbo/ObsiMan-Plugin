@@ -23,10 +23,10 @@ if (fs.existsSync(superpowersPath)) {
   failures.push({ code: "forbidden-path", path: "docs/superpowers", detail: "active public docs/superpowers must not exist" });
 }
 
-for (const file of listMarkdownFiles(root, ".agents/docs", { excludeArchiveRaw: true })) {
+for (const file of listMarkdownFiles(root, ".agents/docs", { excludeArchive: true })) {
   const rel = relativePath(root, file);
   const text = fs.readFileSync(file, "utf8");
-  const limit = rel === ".agents/docs/current/status.md" || rel === ".agents/docs/current/handoff.md" ? 100 : 200;
+  const limit = 200;
   const lines = lineCount(text);
   if (lines > limit) {
     failures.push({ code: "line-limit", path: rel, detail: `${lines} > ${limit}` });

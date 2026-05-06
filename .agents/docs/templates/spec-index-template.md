@@ -2,7 +2,7 @@
 title: Spec index
 type: spec-index
 status: draft
-parent: "[[.agents/docs/work/pkm-ai/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/index|pkm-ai]]"
 created: 2026-05-04T01:48:51
 updated: 2026-05-04T01:48:51
 tags:

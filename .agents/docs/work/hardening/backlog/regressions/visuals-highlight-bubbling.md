@@ -3,7 +3,7 @@ title: "Reporte de Regresión: Feedback Visual (Highlight y Bubbling)"
 type: regression-report
 status: draft
 initiative: hardening
-parent: "[[.agents/docs/work/hardening/index|hardening]]"
+parent: "[[docs/work/hardening/index|hardening]]"
 created: 2026-05-04T14:55:00
 updated: 2026-05-04T15:50:00
 tags:

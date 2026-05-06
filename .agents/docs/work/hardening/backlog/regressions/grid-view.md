@@ -3,7 +3,7 @@ title: "Reporte de Regresión: Grid View (Densidad Tabular y Selección Masiva)"
 type: regression-report
 status: draft
 initiative: hardening
-parent: "[[.agents/docs/work/hardening/index|hardening]]"
+parent: "[[docs/work/hardening/index|hardening]]"
 created: 2026-05-04T15:00:00
 updated: 2026-05-04T16:05:00
 tags:

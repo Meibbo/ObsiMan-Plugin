@@ -2,7 +2,7 @@
 title: Memory tools plan task 3 - Implement `traverse-graph.mjs`
 type: plan-shard
 status: active
-parent: "[[.agents/docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/2026-05-05-memory-tools-plan|memory-tools-plan]]"
+parent: "[[docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/2026-05-05-memory-tools-plan|memory-tools-plan]]"
 created: 2026-05-05T22:06:42
 updated: 2026-05-05T22:34:47
 tags:
@@ -13,7 +13,7 @@ tags:
 ### Task 3: Implement `traverse-graph.mjs`
 
 **Files:**
-- Create: `.agents/tools/pkm-ai/traverse-graph.mjs`
+- Create: `tools/pkm-ai/traverse-graph.mjs`
 
 - [ ] **Step 1: Write the tool script**
 
@@ -36,12 +36,12 @@ imports.forEach(i => console.log(i));
 
 - [ ] **Step 2: Run to verify it works**
 
-Run: `node .agents/tools/pkm-ai/traverse-graph.mjs src/components/pages/pageFilters.svelte`
+Run: `node tools/pkm-ai/traverse-graph.mjs src/components/pages/pageFilters.svelte`
 Expected: Prints the import statements found in the file.
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add .agents/tools/pkm-ai/traverse-graph.mjs
+git add tools/pkm-ai/traverse-graph.mjs
 git commit -m "feat(pkm-ai): add traverse-graph tool for dependency tracking"
 ```

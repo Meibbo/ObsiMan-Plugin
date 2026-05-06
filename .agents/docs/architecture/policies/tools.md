@@ -2,7 +2,7 @@
 title: Tools policy
 type: policy
 status: active
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
 updated: 2026-05-04T16:35:00
 tags:
@@ -22,14 +22,14 @@ tags:
 - Keep hypotheses compact; if they need work, promote them to backlog items.
 - Preserve human-in-the-loop control: do not automate staging, commits, merges,
   or destructive edits without explicit user approval.
-- Use `.agents/tools/pkm-ai/archive-active-doc.mjs` before substantial rewrites
+- Use `tools/pkm-ai/archive-active-doc.mjs` before substantial rewrites
   of active current docs, specs, plans, or policies that remove source detail.
-- Use `.agents/tools/pkm-ai/record-metric.mjs` or tool-integrated metrics for
+- Use `tools/pkm-ai/record-metric.mjs` or tool-integrated metrics for
   evidence-bearing workflow events: `glossary_checked`, `glossary_miss`,
   `archive_created`, `line_limit_sharded`, `health_failed`, and `health_passed`.
 - Status and handoff claims should cite recent metric evidence when the claim is
   about applied process, health, archives, glossary checks, or sharding.
-- Use `.agents/tools/pkm-ai/query-docs.mjs --glossary <term>` as the fast
+- Use `tools/pkm-ai/query-docs.mjs --glossary <term>` as the fast
   glossary gate before explaining unfamiliar project/domain terms.
 
 ## Current Hypotheses

@@ -2,7 +2,7 @@
 title: Import target discovery
 type: plan-shard
 status: completed
-parent: "[[.agents/docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/index|bases-import-plan]]"
+parent: "[[docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/index|bases-import-plan]]"
 created: 2026-05-05T02:36:37
 updated: 2026-05-05T16:11:11
 tags:

@@ -3,7 +3,7 @@ title: Memory and Tools Design
 type: spec-slice
 status: draft
 initiative: pkm-ai
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh-v2/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh-v2/index|pkm-ai]]"
 created: 2026-05-05T21:38:00
 updated: 2026-05-05T21:38:00
 tags:
@@ -22,7 +22,7 @@ Hemos adoptado una combinación del **Enfoque A (Archivo basado en Shards)** y e
 
 ### Archivo Persistente (Enfoque A)
 El contexto activo del agente (la "Memoria de Trabajo") debe mantenerse pequeño. Cuando un ciclo termina o el contexto crece demasiado, el agente delegará el almacenamiento usando herramientas de compresión.
-- **Carpeta de Archivo:** `.agents/docs/archive/` (o un subdirectorio dedicado `memory/`).
+- **Carpeta de Archivo:** `docs/archive/` (o un subdirectorio dedicado `memory/`).
 - **Mecanismo:** El agente genera un resumen técnico, y usa una tool para guardar el detalle extenso en un _shard_ Markdown estático. 
 - **Recuperación:** La herramienta de búsqueda incluirá estos manifiestos para restaurar el contexto solo cuando sea relevante.
 
@@ -35,7 +35,7 @@ En lugar de que el agente gaste _tokens_ abriendo múltiples archivos para enten
 
 ## 2. Nuevas Tools de Delegación a la PC
 
-Para mejorar los resultados y liberar la carga cognitiva del agente, se implementarán los siguientes scripts (`.mjs`) dentro de `.agents/tools/pkm-ai/` o `.agents/tools/dev/`:
+Para mejorar los resultados y liberar la carga cognitiva del agente, se implementarán los siguientes scripts (`.mjs`) dentro de `tools/pkm-ai/` o `tools/dev/`:
 
 1. **Análisis de Memoria (`manage-memory.mjs`):**
    - **Propósito:** Permite al agente archivar proactivamente (escribir a _cold storage_) o buscar recuerdos específicos sin necesidad de leer todos los _shards_.
@@ -52,7 +52,7 @@ Para mejorar los resultados y liberar la carga cognitiva del agente, se implemen
    - **Propósito:** Parsea de forma inteligente los errores del terminal de Obsidian (`obsidian dev:errors`) o salidas de Vitest, agrupando _stack traces_ repetidos y devolviendo solo el origen del fallo.
 
 5. **Análisis de Métricas (`analyze-metrics.mjs`):**
-   - **Propósito:** Lee `.agents/metrics/pkm-ai.jsonl` y reporta tendencias (ej. alertas de salud documental, recurrencia de bugs).
+   - **Propósito:** Lee `metrics/pkm-ai.jsonl` y reporta tendencias (ej. alertas de salud documental, recurrencia de bugs).
 
 ## 3. Flujo de Trabajo (Data Flow)
 

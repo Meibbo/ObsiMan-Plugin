@@ -2,7 +2,7 @@
 title: Prop value rename handoff implementation
 type: implementation-plan-index
 status: active
-parent: "[[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|user-facing-recovery-wave-a]]"
+parent: "[[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|user-facing-recovery-wave-a]]"
 created: 2026-05-06T03:30:00
 updated: 2026-05-06T03:30:00
 tags:
@@ -36,9 +36,9 @@ scope helpers.
 
 ## Shards
 
-1. [[.agents/docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/01-state-and-builders|State and builders]]
-2. [[.agents/docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/02-provider-and-navbar-integration|Provider and navbar integration]]
-3. [[.agents/docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/03-verification-and-close|Verification and close]]
+1. [[docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/01-state-and-builders|State and builders]]
+2. [[docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/02-provider-and-navbar-integration|Provider and navbar integration]]
+3. [[docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/03-verification-and-close|Verification and close]]
 
 ## Execution Order
 

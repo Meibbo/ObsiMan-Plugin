@@ -2,7 +2,7 @@
 title: PKM-AI migration archive 2026-05-04
 type: archive-index
 status: active
-parent: "[[.agents/docs/work/pkm-ai/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/index|pkm-ai]]"
 created: 2026-05-04T01:44:46
 updated: 2026-05-04T01:44:46
 tags:

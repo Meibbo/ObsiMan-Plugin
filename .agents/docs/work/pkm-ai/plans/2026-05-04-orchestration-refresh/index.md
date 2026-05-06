@@ -3,9 +3,9 @@ title: PKM-AI orchestration refresh implementation plan
 type: plan
 status: draft
 initiative: pkm-ai
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T00:00:00
-updated: 2026-05-04T00:00:00
+updated: 2026-05-06T05:12:35
 tags:
   - agent/plan
   - pkm-ai/orchestration
@@ -17,7 +17,7 @@ tags:
 > or `executing-plans` to implement this plan task-by-task. Steps use checkbox
 > syntax for tracking.
 
-**Goal:** Build the PKM-AI agent workspace under `.agents/` and migrate old
+**Goal:** Build the PKM-AI agent workspace under `` and migrate old
 agent docs out of active public docs.
 
 **Architecture:** Markdown/frontmatter remains canonical. TypeScript/Node
@@ -42,6 +42,5 @@ Bases, TypeScript/Node scripts, PowerShell commands.
 
 - Implement in order.
 - Keep every active `.md` under 200 lines.
-- Keep `current/status.md` and `current/handoff.md` under 100 lines.
+- Keep `current/status.md` and `current/handoff.md` under 200 lines.
 - Do not commit until verification passes and the developer asks.
-

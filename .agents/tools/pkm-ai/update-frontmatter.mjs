@@ -59,7 +59,7 @@ function parseArgs(argv) {
 
 function resolveFiles(root, args) {
   const files = args.all
-    ? listMarkdownFiles(root, ".agents/docs", { excludeArchiveRaw: true, excludeTemplates: true })
+    ? listMarkdownFiles(root, ".agents/docs", { excludeArchive: true, excludeTemplates: true })
     : args.paths.map((filePath) => resolveDocPath(root, filePath));
   return [...new Set(files)].sort((a, b) => relativePath(root, a).localeCompare(relativePath(root, b)));
 }

@@ -3,7 +3,7 @@ title: Health rules
 type: plan-slice
 status: draft
 initiative: pkm-ai
-parent: "[[.agents/docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/index|pkm-ai]]"
 created: 2026-05-04T08:50:28
 updated: 2026-05-04T08:50:28
 tags:
@@ -26,6 +26,6 @@ Teach scripts to catch the failure mode that created V1 compression.
 
 ## Verification
 
-- [ ] `node --test ".agents/tools/pkm-ai/test/*.test.mjs"`
-- [ ] `node .agents/tools/pkm-ai/check-doc-health.mjs`
+- [ ] `node --test "tools/pkm-ai/test/*.test.mjs"`
+- [ ] `node tools/pkm-ai/check-doc-health.mjs`
 

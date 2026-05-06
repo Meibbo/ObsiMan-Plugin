@@ -2,7 +2,7 @@
 title: v1 stable index
 type: initiative-index
 status: active
-parent: "[[.agents/docs/work/pkm-ai/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/index|pkm-ai]]"
 created: 2026-05-04T01:44:46
 updated: 2026-05-04T01:44:46
 tags:
@@ -23,7 +23,7 @@ decisions about what is allowed into `main`.
 
 ## Related Routes
 
-- Stabilization: [[.agents/docs/work/hardening/index|hardening]]
-- UX polish: [[.agents/docs/work/polish/index|polish]]
-- PKM-AI branch rules: [[.agents/docs/work/pkm-ai/index|pkm-ai]]
+- Stabilization: [[docs/work/hardening/index|hardening]]
+- UX polish: [[docs/work/polish/index|polish]]
+- PKM-AI branch rules: [[docs/work/pkm-ai/index|pkm-ai]]
 

@@ -2,7 +2,7 @@
 title: Glossary
 type: architecture
 status: active
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
 updated: 2026-05-05T02:33:30
 tags:
@@ -11,7 +11,7 @@ tags:
 
 # Glossary
 
-- Active agent doc: current operational Markdown under `.agents/docs` that agents
+- Active agent doc: current operational Markdown under `docs` that agents
   may route through today.
 - Archive: non-current records kept for history, attempts, superseded work, or
   discarded drafts.
@@ -34,14 +34,14 @@ tags:
   glossary, usually because it belongs to another chat, source, or validation
   probe.
 - Glossary gate: required lookup before explaining unfamiliar domain terms.
-- Initiative: a named workstream under `.agents/docs/work/`.
+- Initiative: a named workstream under `docs/work/`.
 - Lossy summary: compressed rewrite that replaces detailed source material
   without preserving a path back to the source. This is a regression.
 - Long-term agent memory: compact specs, policies, plans, archive records, and
   skills that survive across sessions.
 - Main: release branch/path that must contain zero AI files.
 - Micro command: read-only short command such as `status:` or `next:`.
-- Metric event: JSONL record under `.agents/metrics/` used as evidence that a
+- Metric event: JSONL record under `metrics/` used as evidence that a
   workflow action or verification actually happened.
 - Operational observation: environment or workflow fact noticed during a session;
   starts as a hypothesis until repeated or approved.

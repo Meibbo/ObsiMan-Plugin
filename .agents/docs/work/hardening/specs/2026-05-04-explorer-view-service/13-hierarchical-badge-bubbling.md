@@ -2,7 +2,7 @@
 title: Hierarchical badge bubbling
 type: spec-shard
 status: draft
-parent: "[[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
+parent: "[[docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
 created: 2026-05-04T18:05:00
 updated: 2026-05-04T18:15:57
 tags:

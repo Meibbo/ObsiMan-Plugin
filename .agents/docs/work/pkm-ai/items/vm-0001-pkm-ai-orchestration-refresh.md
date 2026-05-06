@@ -10,12 +10,12 @@ actual_size: large
 skills_used: []
 agents_used: []
 verification:
-  - node .agents/tools/pkm-ai/check-doc-health.mjs
-  - node --test ".agents/tools/pkm-ai/test/*.test.mjs"
+  - node tools/pkm-ai/check-doc-health.mjs
+  - node --test "tools/pkm-ai/test/*.test.mjs"
   - pnpm run build
 tokens_used:
 context_window:
-parent: "[[.agents/docs/work/pkm-ai/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/index|pkm-ai]]"
 created: 2026-05-04T01:48:51
 updated: 2026-05-04T07:26:01
 tags:
@@ -31,8 +31,8 @@ handoff system so agents can coordinate safely on AI-docs branches.
 
 ## Links
 
-- Spec: [[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|orchestration refresh spec]]
-- Plan: [[.agents/docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh/index|orchestration refresh plan]]
+- Spec: [[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|orchestration refresh spec]]
+- Plan: [[docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh/index|orchestration refresh plan]]
 
 ## Acceptance
 
@@ -49,8 +49,8 @@ handoff system so agents can coordinate safely on AI-docs branches.
   - subagent-driven-development
 - agents_used: []
 - verification:
-  - node .agents/tools/pkm-ai/check-doc-health.mjs
-  - node --test ".agents/tools/pkm-ai/test/*.test.mjs"
+  - node tools/pkm-ai/check-doc-health.mjs
+  - node --test "tools/pkm-ai/test/*.test.mjs"
   - pnpm run build
 - tokens_used:
 - context_window:
@@ -60,4 +60,4 @@ handoff system so agents can coordinate safely on AI-docs branches.
 - This item tracks the whole orchestration refresh initiative; individual
   workers own scoped plan slices.
 - Raw migration archive files are allowed to exceed active line limits.
-- Timestamp updates now use `.agents/tools/pkm-ai/update-frontmatter.mjs`.
+- Timestamp updates now use `tools/pkm-ai/update-frontmatter.mjs`.

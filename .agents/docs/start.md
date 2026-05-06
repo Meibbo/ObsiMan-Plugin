@@ -2,7 +2,7 @@
 title: Agent start router
 type: agent-router
 status: active
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
 updated: 2026-05-04T16:12:00
 tags:
@@ -13,11 +13,11 @@ tags:
 
 Always read:
 
-1. [[.agents/docs/current/status|status]]
-2. [[.agents/docs/current/handoff|handoff]]
+1. [[docs/current/status|status]]
+2. [[docs/current/handoff|handoff]]
 
-- For large code files, use `.agents/tools/pkm-ai/analyze-code.mjs` instead of reading the whole file.
-- To archive long context, use `.agents/tools/pkm-ai/manage-memory.mjs archive`.
+- For large code files, use `tools/pkm-ai/analyze-code.mjs` instead of reading the whole file.
+- To archive long context, use `tools/pkm-ai/manage-memory.mjs archive`.
 
 Then choose the smallest route that fits the user's intent. A quick side
 question can be answered directly without changing mode.

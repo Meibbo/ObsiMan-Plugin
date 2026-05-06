@@ -2,7 +2,7 @@
 title: serviceViews implementation plan
 type: plan-index
 status: active
-parent: "[[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
+parent: "[[docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
 created: 2026-05-04T16:40:00
 updated: 2026-05-04T16:40:00
 tags:
@@ -28,9 +28,9 @@ Tech stack: TypeScript, Svelte 5 runes, Vitest unit/component tests, existing
 
 ## Shards
 
-1. [[.agents/docs/work/hardening/plans/2026-05-04-serviceviews-implementation/01-slice-0-contracts|Slice 0 contracts]]
-2. [[.agents/docs/work/hardening/plans/2026-05-04-serviceviews-implementation/02-slice-1-service|Slice 1 service]]
-3. [[.agents/docs/work/hardening/plans/2026-05-04-serviceviews-implementation/03-slice-2-viewlist-migration|Slice 2 viewList migration]]
+1. [[docs/work/hardening/plans/2026-05-04-serviceviews-implementation/01-slice-0-contracts|Slice 0 contracts]]
+2. [[docs/work/hardening/plans/2026-05-04-serviceviews-implementation/02-slice-1-service|Slice 1 service]]
+3. [[docs/work/hardening/plans/2026-05-04-serviceviews-implementation/03-slice-2-viewlist-migration|Slice 2 viewList migration]]
 
 ## Guardrails
 
@@ -44,7 +44,7 @@ Tech stack: TypeScript, Svelte 5 runes, Vitest unit/component tests, existing
 
 ## Verification
 
-- Tooling: `node --test ".agents/tools/pkm-ai/test/*.test.mjs"`.
+- Tooling: `node --test "tools/pkm-ai/test/*.test.mjs"`.
 - Contracts/service: `pnpm run test:unit -- --run test/unit/services/serviceViews.test.ts`.
 - Component migration: `pnpm run test:component -- --run test/component/viewList.test.ts`.
 - Type/Svelte check when Svelte files change: `pnpm run check`.

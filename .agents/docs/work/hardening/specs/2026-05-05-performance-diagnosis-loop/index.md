@@ -2,7 +2,7 @@
 title: Performance diagnosis loop
 type: spec-index
 status: draft
-parent: "[[.agents/docs/work/hardening/index|hardening]]"
+parent: "[[docs/work/hardening/index|hardening]]"
 created: 2026-05-05T20:51:26
 updated: 2026-05-05T20:51:26
 tags:

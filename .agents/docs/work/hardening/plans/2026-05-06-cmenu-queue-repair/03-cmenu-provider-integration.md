@@ -2,7 +2,7 @@
 title: CMenu provider integration
 type: implementation-plan-shard
 status: completed
-parent: "[[.agents/docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|cmenu-queue-repair]]"
+parent: "[[docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|cmenu-queue-repair]]"
 created: 2026-05-06T03:00:09
 updated: 2026-05-06T03:18:00
 tags:

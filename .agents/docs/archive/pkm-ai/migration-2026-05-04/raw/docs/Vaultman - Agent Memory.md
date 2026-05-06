@@ -164,7 +164,7 @@ Next:
   - `oxfmt` via Vite+ `vp fmt` scripts.
   - Prettier + `prettier-plugin-svelte` for `.svelte` files unsupported by Oxfmt.
   - `.prettierrc.json`, `.prettierignore`, `fmt` config in `vite.config.ts`.
-  - `eslint.config.mts` now ignores local `.agents/` skill files.
+  - `eslint.config.mts` now ignores local `` skill files.
 - Formatting-only commit:
   - Formatted only `src/components/frameVaultman.svelte` before refactor.
 - SOLID frame split:

@@ -2,7 +2,7 @@
 title: Memory tools plan task 4 - Implement `analyze-logs.mjs` and `analyze-metrics.mjs`
 type: plan-shard
 status: active
-parent: "[[.agents/docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/2026-05-05-memory-tools-plan|memory-tools-plan]]"
+parent: "[[docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/2026-05-05-memory-tools-plan|memory-tools-plan]]"
 created: 2026-05-05T22:06:42
 updated: 2026-05-05T22:34:47
 tags:
@@ -13,8 +13,8 @@ tags:
 ### Task 4: Implement `analyze-logs.mjs` and `analyze-metrics.mjs`
 
 **Files:**
-- Create: `.agents/tools/pkm-ai/analyze-logs.mjs`
-- Create: `.agents/tools/pkm-ai/analyze-metrics.mjs`
+- Create: `tools/pkm-ai/analyze-logs.mjs`
+- Create: `tools/pkm-ai/analyze-metrics.mjs`
 
 - [ ] **Step 1: Write the `analyze-logs.mjs` tool**
 
@@ -41,7 +41,7 @@ if(errorLines.length > 10) console.log('... (truncated)');
 ```javascript
 import fs from 'fs';
 
-const metricsFile = '.agents/metrics/pkm-ai.jsonl';
+const metricsFile = 'metrics/pkm-ai.jsonl';
 
 if (!fs.existsSync(metricsFile)) {
     console.error('Metrics file not found.');
@@ -57,12 +57,12 @@ lines.slice(-5).forEach(l => console.log(l));
 
 - [ ] **Step 3: Verify the tools**
 
-Run: `node .agents/tools/pkm-ai/analyze-metrics.mjs`
+Run: `node tools/pkm-ai/analyze-metrics.mjs`
 Expected: Prints total metrics and the last 5 events.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add .agents/tools/pkm-ai/analyze-logs.mjs .agents/tools/pkm-ai/analyze-metrics.mjs
+git add tools/pkm-ai/analyze-logs.mjs tools/pkm-ai/analyze-metrics.mjs
 git commit -m "feat(pkm-ai): add logs and metrics analysis tools"
 ```

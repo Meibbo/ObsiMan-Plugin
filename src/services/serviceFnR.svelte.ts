@@ -265,12 +265,10 @@ function buildPropRenameChange(handoff: ActiveFnRRenameHandoff, replacement: str
 		details: `Rename property "${propName}" to "${replacement}"`,
 		files,
 		customLogic: true,
-		logicFunc: (_file, fm) => {
-			const actualKey = frontmatterKey(fm, propName);
-			if (!actualKey) return null;
+		logicFunc: () => {
 			return {
 				[NATIVE_RENAME_PROP]: {
-					oldName: actualKey,
+					oldName: propName,
 					newName: replacement,
 				},
 			};

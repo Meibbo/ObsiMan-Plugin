@@ -2,7 +2,7 @@
 title: Current regressions
 type: backlog-index
 status: active
-parent: "[[.agents/docs/work/pkm-ai/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/index|pkm-ai]]"
 created: 2026-05-04T01:48:51
 updated: 2026-05-04T01:48:51
 tags:
@@ -12,7 +12,7 @@ tags:
 # Current Regressions
 
 Regression items only. Canonical records live under
-`.agents/docs/work/<initiative>/items/`.
+`docs/work/<initiative>/items/`.
 
 ## Items
 

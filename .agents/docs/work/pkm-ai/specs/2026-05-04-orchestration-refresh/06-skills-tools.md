@@ -1,7 +1,7 @@
 ---
 title: Skills tools and automation
 type: spec-slice
-parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 status: approved-draft
 created: 2026-05-04T00:00:00
 updated: 2026-05-04T07:14:09
@@ -14,7 +14,7 @@ tags:
 ## Initial Skills
 
 ```text
-.agents/skills/
+skills/
   vm-start-session/
   vm-backlog-manager/
   vm-pkm-ai-guide/
@@ -40,7 +40,7 @@ scopes. Sub-agents do not update long-term memory directly.
 ## Automation
 
 ```text
-.agents/tools/pkm-ai/
+tools/pkm-ai/
   index-docs.mjs
   query-docs.mjs
   update-indexes.mjs
@@ -54,7 +54,7 @@ scopes. Sub-agents do not update long-term memory directly.
 as an accurate last-edit value.
 
 ```text
-.agents/cache/
+cache/
   pkm-ai.sqlite
   search-index.json
   doc-health.json
@@ -72,7 +72,7 @@ spreadsheet, statistical, or heavy text-processing work.
 
 ## Normalization
 
-Third-party skill doc output is normalized into `.agents/docs` on agent
+Third-party skill doc output is normalized into `docs` on agent
 branches. This applies to agent docs only. Code outputs and intentionally public
 developer/user docs are not moved unless the user asks.
 

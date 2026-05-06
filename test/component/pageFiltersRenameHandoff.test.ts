@@ -137,6 +137,7 @@ describe('PageFilters rename handoff', () => {
 		expect(showInputModal).not.toHaveBeenCalled();
 		const replacement = target.querySelector<HTMLInputElement>('[aria-label="Rename replacement"]');
 		expect(replacement).toBeTruthy();
+		expect(target.querySelector('.vm-fnr-label')).toBeNull();
 
 		replacement!.value = 'state';
 		replacement!.dispatchEvent(new Event('input', { bubbles: true }));

@@ -2,7 +2,7 @@
 title: Performance diagnosis loop implementation plan
 type: plan-index
 status: completed
-parent: "[[.agents/docs/work/hardening/specs/2026-05-05-performance-diagnosis-loop/index|performance-diagnosis-loop]]"
+parent: "[[docs/work/hardening/specs/2026-05-05-performance-diagnosis-loop/index|performance-diagnosis-loop]]"
 created: 2026-05-05T20:58:26
 updated: 2026-05-05T21:45:00
 tags:
@@ -20,7 +20,7 @@ tags:
 
 **Architecture:** Add a dev-facing perf probe service with no product UI. Instrument only the render and service boundaries needed to count hot-path work, then expose `window.__vaultmanPerfProbe.run(...)` from `main.ts` for Obsidian CLI/manual execution. Record a baseline report before deciding whether to optimize `serviceViews`, `serviceDecorate`, virtual scrolling, or context menu.
 
-**Tech Stack:** TypeScript, Svelte 5 runes, Vitest unit/component tests, Obsidian CLI `obsidian eval`, existing `ViewService`, `DecorationManager`, `PanelExplorer`, `ViewTree`, and `.agents/docs` research notes.
+**Tech Stack:** TypeScript, Svelte 5 runes, Vitest unit/component tests, Obsidian CLI `obsidian eval`, existing `ViewService`, `DecorationManager`, `PanelExplorer`, `ViewTree`, and `docs` research notes.
 
 ---
 
@@ -34,16 +34,16 @@ tags:
 - Modify `src/components/views/viewTree.svelte`: record flattening, visible windows, and scroll bursts.
 - Create `test/unit/dev/perfProbe.test.ts`: pure counter/timer and installer tests.
 - Create `test/component/perfProbeDom.test.ts`: DOM scenario runner tests in jsdom.
-- Create `.agents/docs/work/hardening/research/2026-05-05-performance-baseline/index.md`: baseline report populated after probe runs.
+- Create `docs/work/hardening/research/2026-05-05-performance-baseline/index.md`: baseline report populated after probe runs.
 
 ## Shards
 
-1. [[.agents/docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/01-perf-probe-contract|Perf probe contract]]
-2. [[.agents/docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/02-render-hot-path-instrumentation|Render hot path instrumentation]]
-3. [[.agents/docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/02-render-hot-path-instrumentation-part-2|Render hot path instrumentation part 2]]
-4. [[.agents/docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/03-obsidian-scenario-runner|Obsidian scenario runner]]
-5. [[.agents/docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/04-baseline-report|Baseline report]]
-6. [[.agents/docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/05-final-verification|Final verification]]
+1. [[docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/01-perf-probe-contract|Perf probe contract]]
+2. [[docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/02-render-hot-path-instrumentation|Render hot path instrumentation]]
+3. [[docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/02-render-hot-path-instrumentation-part-2|Render hot path instrumentation part 2]]
+4. [[docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/03-obsidian-scenario-runner|Obsidian scenario runner]]
+5. [[docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/04-baseline-report|Baseline report]]
+6. [[docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/05-final-verification|Final verification]]
 
 ## Guardrails
 

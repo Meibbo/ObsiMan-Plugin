@@ -281,17 +281,10 @@
     min-width: 0;
   }
 
-  &-label,
   &-scope-label {
     color: var(--text-muted);
     font-size: var(--font-ui-smaller);
     white-space: nowrap;
-  }
-
-  &-label {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   &-select,

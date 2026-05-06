@@ -2,7 +2,7 @@
 title: Bases import choose mode
 type: spec-index
 status: draft
-parent: "[[.agents/docs/work/hardening/index|hardening]]"
+parent: "[[docs/work/hardening/index|hardening]]"
 created: 2026-05-05T02:31:25
 updated: 2026-05-05T02:33:30
 tags:
@@ -17,9 +17,9 @@ tags:
 
 This spec continues:
 
-- [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/index|Explorer view service]]
-- [[.agents/docs/work/hardening/research/2026-05-05-bases-interop-research/index|Bases interop research]]
-- [[.agents/docs/work/hardening/research/2026-05-05-bases-interop-research/04-compatibility-matrix|Bases compatibility matrix]]
+- [[docs/work/hardening/specs/2026-05-04-explorer-view-service/index|Explorer view service]]
+- [[docs/work/hardening/research/2026-05-05-bases-interop-research/index|Bases interop research]]
+- [[docs/work/hardening/research/2026-05-05-bases-interop-research/04-compatibility-matrix|Bases compatibility matrix]]
 
 The first implementation slice imports compatible Obsidian Bases filters into
 Vaultman active filters through a constrained chooser UI. It does not export or
@@ -45,8 +45,8 @@ mutate `.base` files yet.
 
 ## Shards
 
-1. [[.agents/docs/work/hardening/specs/2026-05-05-bases-import-choose-mode/01-ui-flow|UI flow]]
-2. [[.agents/docs/work/hardening/specs/2026-05-05-bases-import-choose-mode/02-filter-interop|Filter interop]]
+1. [[docs/work/hardening/specs/2026-05-05-bases-import-choose-mode/01-ui-flow|UI flow]]
+2. [[docs/work/hardening/specs/2026-05-05-bases-import-choose-mode/02-filter-interop|Filter interop]]
 
 ## Non-Goals
 

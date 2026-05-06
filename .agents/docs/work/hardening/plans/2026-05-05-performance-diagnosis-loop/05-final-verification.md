@@ -2,7 +2,7 @@
 title: Final verification
 type: plan-shard
 status: completed
-parent: "[[.agents/docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/index|performance-diagnosis-loop-plan]]"
+parent: "[[docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/index|performance-diagnosis-loop-plan]]"
 created: 2026-05-05T20:58:26
 updated: 2026-05-05T21:45:00
 tags:
@@ -16,7 +16,7 @@ tags:
 
 **Files:**
 
-- Modify: `.agents/docs/current/handoff.md` only if the user asks for handoff.
+- Modify: `docs/current/handoff.md` only if the user asks for handoff.
 
 - [x] **Step 1: Run focused tests**
 

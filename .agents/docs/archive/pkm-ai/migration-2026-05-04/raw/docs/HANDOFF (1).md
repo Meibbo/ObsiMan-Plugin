@@ -95,5 +95,5 @@ Then follow the normal AGENTS.md checklist (section 0).
 - Build: ✅ 0 errors, 0 Svelte warnings
 - Last iteration: **Iter.12** — Unified Tab System, Search Pill, Category Filtering
 - `data.json` has `filtersShowTabLabels: true` and `filtersTabLabelsMigrated: true`
-- Untracked files: `.agents/`, `screenshot-check.png`, `scripts/`, `test/`, `vitest.config.ts`, `wdio.conf.mts`
+- Untracked files: ``, `screenshot-check.png`, `scripts/`, `test/`, `vitest.config.ts`, `wdio.conf.mts`
 - Unstaged changes: `main.ts`, `package.json`, `src/components/PropertyExplorerComponent.ts`, `src/components/TagsExplorerComponent.ts`, `src/i18n/en.ts`, `src/types/settings.ts`, `src/views/ObsiManView.svelte`, `src/views/pages/StatisticsPage.svelte`, `styles.css`, `data.json`

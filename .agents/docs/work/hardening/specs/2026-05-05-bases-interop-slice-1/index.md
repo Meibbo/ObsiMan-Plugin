@@ -2,7 +2,7 @@
 title: Bases interop slice 1 (Read-only Import Preview)
 type: spec-index
 status: draft
-parent: "[[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
+parent: "[[docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
 created: 2026-05-05T22:20:00
 updated: 2026-05-05T22:20:00
 tags:
@@ -15,7 +15,7 @@ tags:
 
 This specification defines the first implementation slice for Obsidian Bases (`.base`) interoperability within Vaultman. 
 
-As determined in the [[.agents/docs/work/hardening/research/2026-05-05-bases-interop-research/index|Bases interop research]], a direct evaluation or export would cause silent data loss due to Vaultman's current model gap. Therefore, the first slice is strictly a **read-only import preview**.
+As determined in the [[docs/work/hardening/research/2026-05-05-bases-interop-research/index|Bases interop research]], a direct evaluation or export would cause silent data loss due to Vaultman's current model gap. Therefore, the first slice is strictly a **read-only import preview**.
 
 ## Decision Summary
 

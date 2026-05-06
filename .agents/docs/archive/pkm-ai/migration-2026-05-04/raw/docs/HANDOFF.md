@@ -48,7 +48,7 @@
 
 ### ✅ Fixed in this turn
 
-1. **Formatter tooling installed** — Added Vite+ `vp fmt`/Oxfmt scripts plus Prettier fallback for `.svelte` files through `prettier-plugin-svelte`. Added `.prettierrc.json`, `.prettierignore`, and `fmt` config in `vite.config.ts`. `eslint.config.mts` now ignores local `.agents/` skill files.
+1. **Formatter tooling installed** — Added Vite+ `vp fmt`/Oxfmt scripts plus Prettier fallback for `.svelte` files through `prettier-plugin-svelte`. Added `.prettierrc.json`, `.prettierignore`, and `fmt` config in `vite.config.ts`. `eslint.config.mts` now ignores local `` skill files.
 2. **Formatting-only baseline commit** — Formatted `src/components/frameVaultman.svelte` before semantic edits to keep refactor diff readable.
 3. **`frameVaultman.svelte` decomposed surgically** — Reduced frame shell from 738 LOC to 409 LOC by extracting:
    - `src/components/frame/framePages.ts`

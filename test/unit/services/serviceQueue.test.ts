@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { OperationQueueService, serializeFile } from '../../../src/services/serviceQueue.svelte';
 import {
+	buildRenameHandoffChange,
+	createFnRState,
+	startPropRenameHandoff,
+	updateRenameHandoffReplacement,
+} from '../../../src/services/serviceFnR.svelte';
+import {
 	DELETE_PROP,
 	NATIVE_RENAME_PROP,
 	RENAME_FILE,
@@ -323,6 +329,35 @@ describe('OperationQueueService op kinds', () => {
 		expect(bTx?.fm.state).toBe('done');
 		expect(bTx?.fm.status).toBeUndefined();
 		expect(cTx).toBeUndefined();
+	});
+
+	it('queues prop rename handoff changes through native rename expansion', async () => {
+		const fileA = mockTFile('a.md', { frontmatter: { status: 'draft' } });
+		const fileB = mockTFile('b.md', { frontmatter: { status: 'done' } });
+		const fileC = mockTFile('c.md', { frontmatter: { other: 'x' } });
+		const meta = new Map<string, CachedMetadata>([
+			[fileA.path, { frontmatter: { status: 'draft' } }],
+			[fileB.path, { frontmatter: { status: 'done' } }],
+			[fileC.path, { frontmatter: { other: 'x' } }],
+		]);
+		const app = mockApp({ files: [fileA, fileB, fileC], metadata: meta });
+		const svc = new OperationQueueService(app);
+		let state = startPropRenameHandoff(createFnRState(), {
+			propName: 'status',
+			files: [fileA, fileB],
+			scope: 'filtered',
+		});
+		state = updateRenameHandoffReplacement(state, 'state');
+		const change = buildRenameHandoffChange(state.rename);
+
+		expect(change).toBeTruthy();
+		await svc.addAsync(change!);
+
+		expect(svc.getTransaction(fileA.path)?.fm).toMatchObject({ state: 'draft' });
+		expect(svc.getTransaction(fileA.path)?.fm.status).toBeUndefined();
+		expect(svc.getTransaction(fileB.path)?.fm).toMatchObject({ state: 'done' });
+		expect(svc.getTransaction(fileB.path)?.fm.status).toBeUndefined();
+		expect(svc.getTransaction(fileC.path)).toBeUndefined();
 	});
 });
 

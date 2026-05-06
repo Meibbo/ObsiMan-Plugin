@@ -2,7 +2,7 @@
 title: Memory tools plan task 2 - Implement `analyze-code.mjs`
 type: plan-shard
 status: active
-parent: "[[.agents/docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/2026-05-05-memory-tools-plan|memory-tools-plan]]"
+parent: "[[docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/2026-05-05-memory-tools-plan|memory-tools-plan]]"
 created: 2026-05-05T22:06:42
 updated: 2026-05-05T22:34:47
 tags:
@@ -13,7 +13,7 @@ tags:
 ### Task 2: Implement `analyze-code.mjs`
 
 **Files:**
-- Create: `.agents/tools/pkm-ai/analyze-code.mjs`
+- Create: `tools/pkm-ai/analyze-code.mjs`
 
 - [ ] **Step 1: Write the tool script**
 
@@ -43,5 +43,5 @@ propMatches.forEach(m => console.log(`- ${m}`));
 
 - [ ] **Step 2: Run to verify it works**
 
-Run: `node .agents/tools/pkm-ai/analyze-code.mjs src/components/pages/pageFilters.svelte` (or any existing file)
+Run: `node tools/pkm-ai/analyze-code.mjs src/components/pages/pageFilters.svelte` (or any existing file)
 Expected: Prints the exports and props found.

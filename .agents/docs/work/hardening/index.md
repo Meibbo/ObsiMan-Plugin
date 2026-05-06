@@ -2,7 +2,7 @@
 title: Hardening index
 type: initiative-index
 status: active
-parent: "[[.agents/docs/work/pkm-ai/index|pkm-ai]]"
+parent: "[[docs/work/pkm-ai/index|pkm-ai]]"
 created: 2026-05-04T01:44:46
 updated: 2026-05-06T02:46:22
 tags:
@@ -17,28 +17,28 @@ quality work before it reaches `main`.
 
 ## Start Here
 
-- Check [[.agents/docs/current/status|status]] and [[.agents/docs/current/handoff|handoff]].
+- Check [[docs/current/status|status]] and [[docs/current/handoff|handoff]].
 - Read the relevant architecture policy before editing product code.
 - Prefer focused verification for the touched surface.
 
 ## Related Routes
 
-- PKM-AI orchestration docs: [[.agents/docs/work/pkm-ai/index|pkm-ai]]
-- Release readiness: [[.agents/docs/work/v1-stable/index|v1-stable]]
-- Unscoped ideas: [[.agents/docs/work/draft/index|draft]]
+- PKM-AI orchestration docs: [[docs/work/pkm-ai/index|pkm-ai]]
+- Release readiness: [[docs/work/v1-stable/index|v1-stable]]
+- Unscoped ideas: [[docs/work/draft/index|draft]]
 
 ## Active Specs
 
-- [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/index|Explorer view service]]
-- [[.agents/docs/work/hardening/specs/2026-05-05-bases-import-choose-mode/index|Bases import choose mode]]
-- [[.agents/docs/work/hardening/specs/2026-05-05-performance-diagnosis-loop/index|Performance diagnosis loop]]
-- [[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|User-facing recovery wave A]]
+- [[docs/work/hardening/specs/2026-05-04-explorer-view-service/index|Explorer view service]]
+- [[docs/work/hardening/specs/2026-05-05-bases-import-choose-mode/index|Bases import choose mode]]
+- [[docs/work/hardening/specs/2026-05-05-performance-diagnosis-loop/index|Performance diagnosis loop]]
+- [[docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|User-facing recovery wave A]]
 
 ## Active Plans
 
-- [[.agents/docs/work/hardening/plans/2026-05-04-serviceviews-implementation/index|serviceViews implementation]]
-- [[.agents/docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/index|Bases import choose mode implementation]]
-- [[.agents/docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/index|Performance diagnosis loop implementation]]
-- [[.agents/docs/work/hardening/plans/2026-05-05-badge-bubbling-optimization/index|Badge bubbling optimization]]
-- [[.agents/docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|CMenu queue repair implementation]]
-- [[.agents/docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/index|Prop value rename handoff implementation]]
+- [[docs/work/hardening/plans/2026-05-04-serviceviews-implementation/index|serviceViews implementation]]
+- [[docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/index|Bases import choose mode implementation]]
+- [[docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/index|Performance diagnosis loop implementation]]
+- [[docs/work/hardening/plans/2026-05-05-badge-bubbling-optimization/index|Badge bubbling optimization]]
+- [[docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|CMenu queue repair implementation]]
+- [[docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/index|Prop value rename handoff implementation]]

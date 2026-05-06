@@ -3,7 +3,7 @@ title: "Operations suite live handoff"
 type: implementation-handoff
 status: active
 initiative: hardening
-parent: "[[.agents/docs/work/hardening/index|hardening]]"
+parent: "[[docs/work/hardening/index|hardening]]"
 created: 2026-05-04T19:49:00
 updated: 2026-05-04T21:00:23
 tags:

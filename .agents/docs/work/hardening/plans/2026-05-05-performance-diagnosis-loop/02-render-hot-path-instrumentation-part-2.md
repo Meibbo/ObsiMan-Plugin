@@ -2,7 +2,7 @@
 title: Render hot path instrumentation part 2
 type: plan-shard
 status: completed
-parent: "[[.agents/docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/index|performance-diagnosis-loop-plan]]"
+parent: "[[docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/index|performance-diagnosis-loop-plan]]"
 created: 2026-05-05T21:06:00
 updated: 2026-05-05T21:45:00
 tags:
@@ -12,7 +12,7 @@ tags:
 
 # Render Hot Path Instrumentation Part 2
 
-Continuation of [[.agents/docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/02-render-hot-path-instrumentation|Render hot path instrumentation]].
+Continuation of [[docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/02-render-hot-path-instrumentation|Render hot path instrumentation]].
 
 - [x] **Step 5: Instrument `ViewService`**
 

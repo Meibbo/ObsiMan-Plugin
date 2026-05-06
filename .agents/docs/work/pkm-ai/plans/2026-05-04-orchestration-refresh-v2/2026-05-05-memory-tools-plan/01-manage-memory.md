@@ -2,7 +2,7 @@
 title: Memory tools plan task 1 - Implement `manage-memory.mjs`
 type: plan-shard
 status: active
-parent: "[[.agents/docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/2026-05-05-memory-tools-plan|memory-tools-plan]]"
+parent: "[[docs/work/pkm-ai/plans/2026-05-04-orchestration-refresh-v2/2026-05-05-memory-tools-plan|memory-tools-plan]]"
 created: 2026-05-05T22:06:42
 updated: 2026-05-05T22:34:47
 tags:
@@ -13,7 +13,7 @@ tags:
 ### Task 1: Implement `manage-memory.mjs`
 
 **Files:**
-- Create: `.agents/tools/pkm-ai/manage-memory.mjs`
+- Create: `tools/pkm-ai/manage-memory.mjs`
 
 - [ ] **Step 1: Write the tool script**
 
@@ -22,7 +22,7 @@ import fs from 'fs';
 import path from 'path';
 
 const action = process.argv[2];
-const archiveDir = '.agents/docs/archive';
+const archiveDir = 'docs/archive';
 
 if (!fs.existsSync(archiveDir)) {
     fs.mkdirSync(archiveDir, { recursive: true });
@@ -49,12 +49,12 @@ if (action === 'archive') {
 
 - [ ] **Step 2: Run to verify it works**
 
-Run: `node .agents/tools/pkm-ai/manage-memory.mjs archive "Test summary" "Test content"`
-Expected: Prints `Archived to .agents/docs/archive/archive-[timestamp].md` and creates the file.
+Run: `node tools/pkm-ai/manage-memory.mjs archive "Test summary" "Test content"`
+Expected: Prints `Archived to docs/archive/archive-[timestamp].md` and creates the file.
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add .agents/tools/pkm-ai/manage-memory.mjs
+git add tools/pkm-ai/manage-memory.mjs
 git commit -m "feat(pkm-ai): add manage-memory tool for archiving context"
 ```

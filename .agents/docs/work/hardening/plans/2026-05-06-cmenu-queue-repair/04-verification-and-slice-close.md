@@ -2,9 +2,9 @@
 title: Verification and slice close
 type: implementation-plan-shard
 status: completed
-parent: "[[.agents/docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|cmenu-queue-repair]]"
+parent: "[[docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|cmenu-queue-repair]]"
 created: 2026-05-06T03:00:09
-updated: 2026-05-06T03:18:00
+updated: 2026-05-06T05:12:35
 tags:
   - agent/plan
   - initiative/hardening
@@ -43,17 +43,17 @@ component before `pnpm run check`.
 ## Documentation Closeout
 
 1. Mark this plan `status: completed` only after focused tests pass.
-2. Update `.agents/docs/current/handoff.md` with:
+2. Update `docs/current/handoff.md` with:
    - files changed;
    - tests run;
    - A0 result;
    - next slice named as A1 prop/value rename handoff.
-3. Keep `.agents/docs/current/status.md` under 100 lines by linking to this
+3. Keep `docs/current/status.md` under 200 lines by linking to this
    plan if more detail is needed.
 4. Run:
 
 ```powershell
-node .agents/tools/pkm-ai/check-doc-health.mjs
+node tools/pkm-ai/check-doc-health.mjs
 ```
 
 ## Slice Completion Message

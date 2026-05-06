@@ -2,7 +2,7 @@
 title: Badge bubbling optimization implementation plan
 type: plan-index
 status: completed
-parent: "[[.agents/docs/work/hardening/research/2026-05-05-performance-baseline/index|performance-baseline]]"
+parent: "[[docs/work/hardening/research/2026-05-05-performance-baseline/index|performance-baseline]]"
 created: 2026-05-05T22:06:42
 updated: 2026-05-05T22:34:47
 tags:
@@ -29,7 +29,7 @@ tags:
 - Modify `src/utils/utilBadgeBubbling.ts`: add structural sharing and avoid cloning unchanged leaf/expanded branches.
 - Modify `test/unit/utils/utilBadgeBubbling.test.ts`: pin semantic behavior and reference reuse.
 - Test `test/component/panelExplorerEmpty.test.ts`: ensure instrumentation still records bubbling.
-- Update `.agents/docs/work/hardening/research/2026-05-05-performance-baseline/index.md`: append comparison notes after live rerun.
+- Update `docs/work/hardening/research/2026-05-05-performance-baseline/index.md`: append comparison notes after live rerun.
 
 ## Task 1: Structural Sharing In Badge Bubbling
 
@@ -128,7 +128,7 @@ obsidian plugin:reload id=vaultman
 obsidian command id=vaultman:open
 obsidian dev:console level=error
 obsidian dev:errors
-node .agents/tools/pkm-ai/check-doc-health.mjs
+node tools/pkm-ai/check-doc-health.mjs
 ```
 
 Expected: all commands pass; only known ResizeObserver loop noise may remain in `obsidian dev:errors`.

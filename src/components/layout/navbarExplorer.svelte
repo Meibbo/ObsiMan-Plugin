@@ -322,11 +322,12 @@
       </div>
     {/if}
     {#if activeRename}
-      <div class="vm-fnr-island vm-fnr-rename" aria-label={translate("fnr.rename.title")}>
+      <div
+        class="vm-fnr-island vm-fnr-rename"
+        aria-label={translate("fnr.rename.title")}
+        title={renameContext(activeRename)}
+      >
         <div class="vm-fnr-row">
-          <span class="vm-fnr-label" title={renameContext(activeRename)}>
-            {renameContext(activeRename)}
-          </span>
           <input
             bind:this={renameInput}
             class="vm-fnr-input"
@@ -336,6 +337,7 @@
             autocapitalize="off"
             spellcheck="false"
             aria-label={translate("fnr.rename.replacement")}
+            title={renameContext(activeRename)}
             placeholder={translate("prop.new_name")}
             value={activeRename.replacement}
             onkeydown={handleRenameKeydown}
