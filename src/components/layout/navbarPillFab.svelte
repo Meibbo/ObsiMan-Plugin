@@ -165,27 +165,3 @@
     <div class="vm-nav-fab-placeholder"></div>
   {/if}
 </div>
-
-<style>
-  .vm-nav-expand-trigger {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin: 0;
-    cursor: pointer;
-    pointer-events: auto;
-    z-index: 100;
-  }
-
-  /* Prevent the button from blocking FABs if they were somehow visible,
-	   though the CSS currently hides them in collapsed state. */
-  .vm-nav-expand-trigger:focus-visible {
-    outline: 2px solid var(--interactive-accent);
-    outline-offset: -2px;
-    border-radius: var(--radius-m);
-  }
-</style>

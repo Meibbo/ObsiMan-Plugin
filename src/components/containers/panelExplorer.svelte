@@ -361,15 +361,6 @@
 </div>
 
 <style>
-  .vm-panel-explorer {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    flex: 1;
-    min-height: 0;
-  }
   .vm-tree-container {
     flex: 1;
     display: flex;

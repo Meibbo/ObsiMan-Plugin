@@ -57,7 +57,12 @@
 
 // Data Views
 @use "./styles/data/grid";
-@use "./styles/data/filters";
+@use "styles/data/filters";
+
+// Newly extracted components from Svelte
+@use "styles/components/navbar";
+@use "styles/components/tabs";
+@use "styles/components/explorer-ui";
 @use "./styles/data/filters-page";
 @use "./styles/data/file-list";
 

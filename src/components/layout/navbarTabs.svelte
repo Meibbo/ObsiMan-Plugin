@@ -58,14 +58,3 @@
     </div>
   {/each}
 </div>
-
-<style>
-  .vm-tab.is-disabled {
-    cursor: default;
-    pointer-events: none;
-  }
-
-  .vm-tab.is-faint {
-    opacity: 0.45;
-  }
-</style>
