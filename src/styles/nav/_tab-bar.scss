@@ -10,7 +10,7 @@
   &-bar {
     @include flex-center;
     gap: 0;
-    border-bottom: 1px solid var(--background-modifier-border);
+    border-bottom: $vm-border-width solid $vm-border-color;
     flex-shrink: 0;
     overflow-x: auto;
 
@@ -26,19 +26,19 @@
   padding: 5px 9px;
   cursor: pointer;
   font-size: var(--font-ui-smaller);
-  color: var(--text-muted);
+  color: $vm-text-muted;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
   user-select: none;
   transition: color 0.12s, border-color 0.12s;
 
   &:hover {
-    color: var(--text-normal);
+    color: $vm-text-normal;
   }
 
   &.is-active {
-    color: var(--text-normal);
-    border-bottom-color: var(--color-accent);
+    color: $vm-text-normal;
+    border-bottom-color: $vm-color-accent;
     font-weight: 500;
   }
 

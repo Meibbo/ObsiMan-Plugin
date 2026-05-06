@@ -10,8 +10,8 @@
   @include flex-center;
   justify-content: space-between;
   padding: 6px 12px;
-  border-bottom: 1px solid var(--vm-border);
-  background: var(--vm-bg-section);
+  border-bottom: $vm-border-width solid $vm-border-color;
+  background: $vm-bg-secondary;
   flex-shrink: 0;
   flex-wrap: wrap;
   gap: 6px;
@@ -31,20 +31,20 @@
   &-btn {
     font-size: 0.8em;
     padding: 4px 10px;
-    border-radius: var(--radius-s);
+    border-radius: $vm-radius-s;
     cursor: pointer;
     background: var(--interactive-normal);
-    border: 1px solid var(--vm-border);
-    color: var(--text-normal);
+    border: $vm-border-width solid $vm-border-color;
+    color: $vm-text-normal;
 
     &:hover {
-      background: var(--vm-bg-hover);
+      background: $vm-bg-modifier-hover;
     }
   }
 
   &-badge {
     font-size: 0.85em;
-    color: var(--vm-accent);
+    color: $vm-color-accent;
     font-weight: 600;
   }
 }

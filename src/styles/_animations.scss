@@ -2,7 +2,6 @@
 //*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
 //********************************************************************\\
 @use 'tokens' as *;
-@use 'mixins' as *;
 
 //...----------—————————————( ANIMATIONS )————————————------------...\\
 
@@ -11,7 +10,7 @@
     background-color: transparent;
   }
   20% {
-    background-color: var(--background-modifier-active-hover);
+    background-color: $vm-bg-modifier-active-hover;
   }
   100% {
     background-color: transparent;

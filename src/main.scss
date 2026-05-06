@@ -7,78 +7,30 @@
 //*                                                                  *\\
 //*     (づ￣ 3￣)づ    ☆*: .｡. o(≧▽≦)o .｡.:*☆     ╰(*°▽°*)╯      *\\
 //********************************************************************\\
-//     This project is a gift for the community of Obsidian.md,       \\
-//     a note-taking app that has helped me organize my thoughts.     \\
-//                                                                    \\
-//     Specially for those who invest their time and energy           \\
-//     making tools and systems that multiply the extension and       \\
-//     value of the work made in this app. For sharing it with        \\
-//     others, and letting me experience the joy of tools that        \\
-//     are made with passion and care.                                \\
-//********************************************************************\\
 
 /*------------------————————————————————————————————-------------------/
 /########|||-------|                                |------|||#########/
 /#===°°===°°===°°==|    Vaultman — General Style    |==°°===°°===°°===#/
 /########|||-------|                                |------|||#########/
 /-------------------————————————————————————————————------------------*/
-//       This file works like an Index, here will be defined and      \\
-//   connected the different groups of styles that will be used in    \\
-//   the plugin. With some general parameters that will stablish the  \\
-//   visual design of Vaultman, which is mostly based in the use of   \\
-//   glassmorphism and neumorphism over the classic appearance of     \\
-//   the Obsidian app.                                                \\
-//--------------------------------------------------------------------//
 
 //...----------—————————————(   IMPORTS   )————————————------------...\\
 
-// Foundation, main declarations
+// 1. Settings & Tools (ITCSS: Settings -> Tools)
 @use "./styles/tokens" as *;
 @use "./styles/mixins" as *;
+
+// 2. Generic (ITCSS: Generic)
 @use "./styles/global";
 @use "./styles/animations";
 
-// Layout & Structure
+// 3. Elements & Objects (ITCSS: Elements -> Objects)
 @use "./styles/layout/layout";
 @use "./styles/layout/v3-layout";
 @use "./styles/layout/glass";
 
-// Navigation
-@use "./styles/nav/v3-nav";
-@use "./styles/nav/tab-bar";
-@use "./styles/nav/toolbar";
-
-// Explorers & Trees
-@use "./styles/explorer/explorer";
-@use "./styles/explorer/tree";
-@use "./styles/explorer/virtual-list";
-@use "./styles/explorer/tags";
-@use "./styles/explorer/cards";
-
-// Data Views
-@use "./styles/data/grid";
-@use "styles/data/filters";
-
-// Newly extracted components from Svelte
-@use "styles/components/navbar";
-@use "styles/components/tabs";
-@use "styles/components/explorer-ui";
-@use "./styles/data/filters-page";
-@use "./styles/data/file-list";
-
-// Operations & Panels
-@use "./styles/panel/ops";
-@use "./styles/panel/queue";
-@use "./styles/panel/content-ops";
-@use "./styles/panel/diff-view";
-
-// Islands & Popups
-@use "./styles/popup/islands";
-@use "./styles/popup/v3-popups";
-@use "./styles/popup/sort-popup";
-@use "./styles/popup/viewmode-popup";
-
-// Components
+// 4. Components (ITCSS: Components)
+// Base Components
 @use "./styles/components/badges";
 @use "./styles/components/primitives";
 @use "./styles/components/modals";
@@ -86,3 +38,36 @@
 @use "./styles/components/curator";
 @use "./styles/components/statistics";
 @use "./styles/components/settings";
+
+// Nav Components
+@use "./styles/nav/v3-nav";
+@use "./styles/nav/tab-bar";
+@use "./styles/nav/toolbar";
+@use "styles/components/navbar";
+@use "styles/components/tabs";
+
+// Explorer Components
+@use "./styles/explorer/explorer";
+@use "./styles/explorer/tree";
+@use "./styles/explorer/virtual-list";
+@use "./styles/explorer/tags";
+@use "./styles/explorer/cards";
+@use "styles/components/explorer-ui";
+
+// Data Components
+@use "./styles/data/grid";
+@use "styles/data/filters";
+@use "./styles/data/filters-page";
+@use "./styles/data/file-list";
+
+// Panel Components
+@use "./styles/panel/ops";
+@use "./styles/panel/queue";
+@use "./styles/panel/content-ops";
+@use "./styles/panel/diff-view";
+
+// Popup Components
+@use "./styles/popup/islands";
+@use "./styles/popup/v3-popups";
+@use "./styles/popup/sort-popup";
+@use "./styles/popup/viewmode-popup";
