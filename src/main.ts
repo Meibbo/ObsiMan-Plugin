@@ -43,6 +43,7 @@ import { createTemplatesIndex } from './services/serviceTemplatesIndex';
 import { OverlayStateService } from './services/serviceOverlayState.svelte';
 import { DecorationManager } from './services/serviceDecorate';
 import { ViewService } from './services/serviceViews.svelte';
+import { createPerfProbe } from './dev/perfProbe';
 import type {
 	IFilesIndex,
 	ITagsIndex,
@@ -83,6 +84,7 @@ export class VaultmanPlugin extends Plugin {
 
 	// Native status bar element
 	private statusBarEl!: HTMLElement;
+	private uninstallPerfProbe?: () => void;
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
@@ -126,6 +128,13 @@ export class VaultmanPlugin extends Plugin {
 		this.overlayState = new OverlayStateService();
 		this.decorationManager = new DecorationManager(this.app);
 		this.viewService = new ViewService({ decorationManager: this.decorationManager });
+		const perfProbe = createPerfProbe({
+			now: () => activeWindow.performance.now(),
+			doc: activeDocument,
+		});
+		this.uninstallPerfProbe = perfProbe.installGlobal(
+			activeWindow as unknown as { __vaultmanPerfProbe?: unknown },
+		);
 		this.iconicService = new IconicService(this.app);
 		this.propertyTypeService = new PropertyTypeService(this.app);
 		this.contextMenuService = new ContextMenuService(this);
@@ -175,6 +184,8 @@ export class VaultmanPlugin extends Plugin {
 	}
 
 	onunload(): void {
+		this.uninstallPerfProbe?.();
+		this.uninstallPerfProbe = undefined;
 		this.filterService.destroy();
 	}
 

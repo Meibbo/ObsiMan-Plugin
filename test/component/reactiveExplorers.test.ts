@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushSync, mount, unmount, type Component } from 'svelte';
 import ContentTab from '../../src/components/pages/tabContent.svelte';
@@ -273,5 +274,15 @@ describe('reactive explorer components', () => {
 		flushSync();
 
 		expect(onImportBases).toHaveBeenCalledOnce();
+	});
+
+	it('declares active filters import actions pointer-clickable inside popup chrome', () => {
+		const source = readFileSync(
+			'src/components/explorers/explorerActiveFilters.svelte',
+			'utf8',
+		);
+		expect(source).toMatch(
+			/\.vm-import-export-flyout-action\s*\{[\s\S]*?pointer-events:\s*auto;/,
+		);
 	});
 });

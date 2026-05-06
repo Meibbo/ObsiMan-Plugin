@@ -1,8 +1,17 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect } from 'vitest';
+import {
+	clearActivePerfProbe,
+	createPerfProbe,
+	setActivePerfProbe,
+} from '../../../src/dev/perfProbe';
 import { mockApp } from '../../helpers/obsidian-mocks';
 import { DecorationManager } from '../../../src/services/serviceDecorate';
 
 describe('DecorationManager', () => {
+	afterEach(() => {
+		clearActivePerfProbe();
+	});
+
 	it('returns empty highlights when query is empty', () => {
 		const dm = new DecorationManager(mockApp());
 		const out = dm.decorate({ id: 'a', label: 'hello world' } as never);
@@ -54,5 +63,18 @@ describe('DecorationManager', () => {
 		expect(
 			dm.decorate({ id: 'f', label: 'Notes' } as never, { kind: 'file', isFolder: true }).icons[0],
 		).toBe('lucide-folder');
+	});
+
+	it('records active probe metrics for decoration calls', () => {
+		const probe = createPerfProbe({ now: () => 0 });
+		const dm = new DecorationManager(mockApp());
+
+		setActivePerfProbe(probe.api);
+		dm.decorate({ id: 'p', label: 'status' } as never, { kind: 'prop' });
+
+		expect(probe.snapshot().timings['decoration.decorate']).toMatchObject({
+			count: 1,
+			totalNodes: 1,
+		});
 	});
 });

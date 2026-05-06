@@ -21,6 +21,7 @@ import type {
 	ViewRow,
 	ViewTone,
 } from '../types/typeViews';
+import { getActivePerfProbe } from '../dev/perfProbe';
 
 interface ViewServiceOptions {
 	decorationManager?: IDecorationManager;
@@ -77,6 +78,14 @@ export class ViewService implements IViewService {
 	}
 
 	getModel<TNode extends NodeBase>(input: ExplorerViewInput<TNode>): ExplorerRenderModel<TNode> {
+		return getActivePerfProbe()?.measure(
+			'viewService.getModel',
+			{ nodes: input.nodes.length },
+			() => this.buildModel(input),
+		) ?? this.buildModel(input);
+	}
+
+	private buildModel<TNode extends NodeBase>(input: ExplorerViewInput<TNode>): ExplorerRenderModel<TNode> {
 		const selected = this.selectionFor(input.explorerId);
 		const rows = input.nodes.map((node) => this.toRow(input, node, selected));
 
@@ -107,6 +116,7 @@ export class ViewService implements IViewService {
 	}
 
 	select(explorerId: string, id: string, mode: 'replace' | 'toggle' | 'add' = 'replace'): void {
+		getActivePerfProbe()?.count('viewService.select');
 		const selected = this.selectionFor(explorerId);
 		if (mode === 'replace') {
 			selected.clear();
@@ -121,6 +131,7 @@ export class ViewService implements IViewService {
 	}
 
 	clearSelection(explorerId: string): void {
+		getActivePerfProbe()?.count('viewService.clearSelection');
 		this.selectionFor(explorerId).clear();
 		this.notify(explorerId);
 	}
@@ -133,6 +144,7 @@ export class ViewService implements IViewService {
 	}
 
 	setFocused(explorerId: string, id: string | null): void {
+		getActivePerfProbe()?.count('viewService.setFocused');
 		this.focused.set(explorerId, id);
 		this.notify(explorerId);
 	}

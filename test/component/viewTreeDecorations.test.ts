@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushSync, mount, unmount, type Component } from 'svelte';
+import {
+	clearActivePerfProbe,
+	createPerfProbe,
+	setActivePerfProbe,
+} from '../../src/dev/perfProbe';
 import ViewTree from '../../src/components/views/viewTree.svelte';
 import type { TreeNode } from '../../src/types/typeTree';
 
@@ -25,6 +30,7 @@ describe('ViewTree decorations', () => {
 			app = null;
 		}
 		target.remove();
+		clearActivePerfProbe();
 		vi.unstubAllGlobals();
 	});
 
@@ -152,5 +158,47 @@ describe('ViewTree decorations', () => {
 
 		expect(onBadgeClick).toHaveBeenCalledWith(3);
 		expect(onRowClick).not.toHaveBeenCalled();
+	});
+
+	it('records active probe metrics for flattening and scroll bursts', () => {
+		const probe = createPerfProbe({ now: () => 0 });
+		const nodes: TreeNode[] = Array.from({ length: 20 }, (_, index) => ({
+			id: `node-${index}`,
+			label: `Node ${index}`,
+			depth: 0,
+			meta: {},
+		}));
+		setActivePerfProbe(probe.api);
+
+		app = mount(ViewTree as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: {
+				nodes,
+				expandedIds: new Set<string>(),
+				onToggle: vi.fn(),
+				onRowClick: vi.fn(),
+				onContextMenu: vi.fn(),
+				icon: vi.fn(() => ({ update: vi.fn() })),
+			},
+		});
+		flushSync();
+
+		const outer = target.querySelector<HTMLDivElement>('.vm-tree-virtual-outer');
+		expect(outer).toBeTruthy();
+		outer!.scrollTop = 32;
+		outer!.dispatchEvent(new Event('scroll'));
+		flushSync();
+
+		const snapshot = probe.snapshot();
+		expect(snapshot.timings['viewTree.flatten']).toMatchObject({
+			count: expect.any(Number),
+			totalNodes: expect.any(Number),
+		});
+		expect(snapshot.timings['viewTree.flatten'].totalNodes).toBeGreaterThan(0);
+		expect(snapshot.counters['viewTree.scroll']).toMatchObject({
+			count: 1,
+			totalRows: expect.any(Number),
+			totalVisibleRows: expect.any(Number),
+		});
 	});
 });

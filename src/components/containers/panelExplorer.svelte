@@ -10,6 +10,7 @@
   import ViewTree from "../views/viewTree.svelte";
   import ViewGrid from "../views/viewGrid.svelte";
   import ViewEmptyLanding from "../views/viewEmptyLanding.svelte";
+  import { getActivePerfProbe } from "../../dev/perfProbe";
   import { applyKeyboardMove, applyPointerSelection } from "../../logic/logicKeyboard";
   import type { TreeNode } from "../../types/typeNode";
   import { bubbleHiddenTreeBadges } from "../../utils/utilBadgeBubbling";
@@ -60,7 +61,7 @@
       autoExpandedIds,
     }),
   );
-  const displayNodes = $derived(bubbleHiddenTreeBadges(nodes, expandedIds));
+  const displayNodes = $derived(resolveDisplayNodes(nodes, expandedIds));
   const emptyState = $derived.by(() => resolveEmptyState(viewMode, searchTerm, provider));
   const fallbackItemCount = $derived(flatFiles.length + nodes.length);
   const fallbackState = $derived.by(() => resolveFallbackState(viewMode, fallbackItemCount, emptyState));
@@ -97,13 +98,33 @@
 
   function refreshData() {
     if (viewMode === "tree") {
-      nodes = provider.getTree();
+      nodes = readProviderTree();
       flatFiles = [];
     } else {
       const files = provider.getFiles?.() || [];
+      getActivePerfProbe()?.count("panelExplorer.getFiles", { rows: files.length });
       flatFiles = files;
-      nodes = files.length === 0 && viewMode !== "grid" ? provider.getTree() : [];
+      nodes = files.length === 0 && viewMode !== "grid" ? readProviderTree() : [];
     }
+  }
+
+  function readProviderTree(): TreeNode<TMeta>[] {
+    return getActivePerfProbe()?.measure(
+      "panelExplorer.getTree",
+      undefined,
+      () => provider.getTree(),
+    ) ?? provider.getTree();
+  }
+
+  function resolveDisplayNodes(
+    items: TreeNode<TMeta>[],
+    expanded: ReadonlySet<string>,
+  ): TreeNode<TMeta>[] {
+    return getActivePerfProbe()?.measure(
+      "panelExplorer.bubbleHiddenTreeBadges",
+      { nodes: items.length },
+      () => bubbleHiddenTreeBadges(items, expanded),
+    ) ?? bubbleHiddenTreeBadges(items, expanded);
   }
 
   function handleNodeClick(id: string, e: MouseEvent) {

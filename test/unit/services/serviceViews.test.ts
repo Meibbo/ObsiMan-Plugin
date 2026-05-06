@@ -1,4 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import {
+	clearActivePerfProbe,
+	createPerfProbe,
+	setActivePerfProbe,
+} from '../../../src/dev/perfProbe';
 import { ViewService } from '../../../src/services/serviceViews.svelte';
 import { EXPLORER_VIEW_MODES, isExplorerViewMode } from '../../../src/types/typeViews';
 import type { ActiveFilterEntry, NodeBase, QueueChange } from '../../../src/types/typeContracts';
@@ -98,6 +103,10 @@ describe('view service contracts', () => {
 });
 
 describe('ViewService', () => {
+	afterEach(() => {
+		clearActivePerfProbe();
+	});
+
 	it('stores view mode per explorer and notifies subscribers', () => {
 		const service = new ViewService();
 		let calls = 0;
@@ -493,5 +502,30 @@ describe('ViewService', () => {
 			tone: 'info',
 		});
 		expect(model.rows[0].layers.highlights?.filter).toEqual([{ start: 0, end: 4 }]);
+	});
+
+	it('records active probe metrics for model builds and selection mutations', () => {
+		const probe = createPerfProbe({ now: () => 0 });
+		const service = new ViewService();
+		const nodes: TestNode[] = [
+			{ id: 'a', label: 'Alpha' },
+			{ id: 'b', label: 'Beta' },
+		];
+
+		setActivePerfProbe(probe.api);
+
+		service.select('filters', 'a');
+		service.clearSelection('filters');
+		service.setFocused('filters', 'b');
+		service.getModel({ explorerId: 'filters', mode: 'list', nodes });
+
+		const snapshot = probe.snapshot();
+		expect(snapshot.counters['viewService.select'].count).toBe(1);
+		expect(snapshot.counters['viewService.clearSelection'].count).toBe(1);
+		expect(snapshot.counters['viewService.setFocused'].count).toBe(1);
+		expect(snapshot.timings['viewService.getModel']).toMatchObject({
+			count: 1,
+			totalNodes: 2,
+		});
 	});
 });

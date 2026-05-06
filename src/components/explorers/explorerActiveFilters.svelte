@@ -259,6 +259,7 @@
 	.vm-import-export-wrap {
 		position: relative;
 		display: inline-flex;
+		pointer-events: auto;
 	}
 
 	.vm-import-export-flyout {
@@ -275,6 +276,7 @@
 		background: var(--background-primary);
 		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 		transform: translateX(-50%);
+		pointer-events: auto;
 	}
 
 	.vm-import-export-flyout-action {
@@ -289,6 +291,7 @@
 		background: transparent;
 		color: var(--text-normal);
 		font-size: 12px;
+		pointer-events: auto;
 		text-align: left;
 	}
 

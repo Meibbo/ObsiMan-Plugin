@@ -1,8 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushSync, mount, unmount, type Component } from 'svelte';
+import {
+	clearActivePerfProbe,
+	createPerfProbe,
+	setActivePerfProbe,
+} from '../../src/dev/perfProbe';
 import PanelExplorer from '../../src/components/containers/panelExplorer.svelte';
 import type { VaultmanPlugin } from '../../src/main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../src/types/typeExplorer';
+import type { TreeNode } from '../../src/types/typeNode';
 import type { ViewEmptyState } from '../../src/types/typeViews';
 import { mockTFile } from '../helpers/obsidian-mocks';
 
@@ -59,6 +65,13 @@ describe('PanelExplorer empty landing', () => {
 	beforeEach(() => {
 		target = document.createElement('div');
 		document.body.appendChild(target);
+		vi.stubGlobal(
+			'ResizeObserver',
+			class {
+				observe(): void {}
+				disconnect(): void {}
+			},
+		);
 	});
 
 	afterEach(() => {
@@ -67,6 +80,8 @@ describe('PanelExplorer empty landing', () => {
 			app = null;
 		}
 		target.remove();
+		clearActivePerfProbe();
+		vi.unstubAllGlobals();
 	});
 
 	it('renders the default empty landing for an empty tree', () => {
@@ -150,5 +165,39 @@ describe('PanelExplorer empty landing', () => {
 		expect(target.textContent).toContain('No matches');
 		expect(target.textContent).toContain('Try a different search term.');
 		expect(target.querySelector('[data-empty-kind="search"]')).not.toBeNull();
+	});
+
+	it('records active probe metrics for tree refresh and badge bubbling', () => {
+		const probe = createPerfProbe({ now: () => 0 });
+		const nodes: TreeNode[] = [{ id: 'status', label: 'status', depth: 0, meta: {} }];
+		setActivePerfProbe(probe.api);
+
+		app = render(target, {
+			viewMode: 'tree',
+			provider: provider({ getTree: vi.fn(() => nodes) }),
+		});
+		flushSync();
+
+		const snapshot = probe.snapshot();
+		expect(snapshot.timings['panelExplorer.getTree'].count).toBeGreaterThan(0);
+		expect(snapshot.timings['panelExplorer.bubbleHiddenTreeBadges'].count).toBeGreaterThan(0);
+		expect(snapshot.timings['panelExplorer.bubbleHiddenTreeBadges'].totalNodes).toBeGreaterThan(0);
+	});
+
+	it('records active probe metrics for file refreshes', () => {
+		const probe = createPerfProbe({ now: () => 0 });
+		setActivePerfProbe(probe.api);
+
+		app = render(target, {
+			viewMode: 'list',
+			provider: provider({ getFiles: vi.fn(() => [mockTFile('Notes/A.md')]) }),
+		});
+		flushSync();
+
+		expect(probe.snapshot().counters['panelExplorer.getFiles']).toMatchObject({
+			count: expect.any(Number),
+			totalRows: expect.any(Number),
+		});
+		expect(probe.snapshot().counters['panelExplorer.getFiles'].totalRows).toBeGreaterThan(0);
 	});
 });

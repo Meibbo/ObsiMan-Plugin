@@ -1,5 +1,6 @@
 import type { App } from 'obsidian';
 import type { IDecorationManager, DecorationOutput, NodeBase } from '../types/typeContracts';
+import { getActivePerfProbe } from '../dev/perfProbe';
 
 const TYPE_ICON_MAP: Record<string, string> = {
 	text: 'lucide-text-align-start',
@@ -40,6 +41,14 @@ export class DecorationManager implements IDecorationManager {
 	}
 
 	decorate<TNode extends NodeBase>(node: TNode, context?: unknown): DecorationOutput {
+		return getActivePerfProbe()?.measure(
+			'decoration.decorate',
+			{ nodes: 1 },
+			() => this.decorateNode(node, context),
+		) ?? this.decorateNode(node, context);
+	}
+
+	private decorateNode<TNode extends NodeBase>(node: TNode, context?: unknown): DecorationOutput {
 		const ctx = (context ?? {}) as DecorationContext;
 		const out: DecorationOutput = { icons: [], badges: [], highlights: [] };
 		const label =

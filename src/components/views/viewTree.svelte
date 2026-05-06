@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { NodeBadge, TreeNode } from "../../types/typeNode";
+  import { getActivePerfProbe } from "../../dev/perfProbe";
   import { TreeVirtualizer } from "../../services/serviceVirtualizer.svelte";
   import HighlightText from "../primitives/HighlightText.svelte";
 
@@ -45,7 +46,7 @@
 
   let outerEl: HTMLDivElement | undefined = $state();
 
-  const flatArray = $derived(virtualizer.flatten(nodes, expandedIds));
+  const flatArray = $derived(flattenMeasured(nodes, expandedIds));
   const totalH = $derived(flatArray.length * virtualizer.rowHeight);
 
   $effect(() => {
@@ -57,6 +58,18 @@
 
   function onScroll(e: Event) {
     virtualizer.scrollTop = (e.currentTarget as HTMLDivElement).scrollTop;
+    getActivePerfProbe()?.count("viewTree.scroll", {
+      rows: flatArray.length,
+      visibleRows: visibleSlice.length,
+    });
+  }
+
+  function flattenMeasured(items: TreeNode[], expanded: ReadonlySet<string>) {
+    return getActivePerfProbe()?.measure(
+      "viewTree.flatten",
+      { nodes: items.length },
+      () => virtualizer.flatten(items, expanded),
+    ) ?? virtualizer.flatten(items, expanded);
   }
 
   $effect(() => {
