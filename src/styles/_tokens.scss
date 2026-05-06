@@ -2,21 +2,47 @@
 //*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
 //********************************************************************\\
 
-// same as obsidian accent color, user chosen or defined by theme
-$accent: var(--interactive-accent);
-$muted: var(--text-muted);
-$faint: var(--text-faint);
+// --- 1. THEME & BACKGROUNDS ---
+$vm-bg-primary: var(--background-primary);
+$vm-bg-secondary: var(--background-secondary);
+$vm-bg-modifier-hover: var(--background-modifier-hover);
+$vm-bg-modifier-active-hover: var(--background-modifier-active-hover);
+$vm-bg-modifier-border: var(--background-modifier-border);
 
-// backgrounds, defined by themes
-$bg-section: var(--background-secondary);
-$bg-hover: var(--background-modifier-hover);
+// --- 2. TYPOGRAPHY & COLORS ---
+$vm-text-normal: var(--text-normal);
+$vm-text-muted: var(--text-muted);
+$vm-text-faint: var(--text-faint);
+$vm-text-accent: var(--text-accent);
+$vm-text-on-accent: var(--text-on-accent);
 
-// borders, defined by themes
-$border: var(--background-modifier-border);
+// --- 3. INTERACTIVE & ACCENTS ---
+$vm-color-accent: var(--interactive-accent);
+$vm-color-accent-hover: var(--interactive-accent-hover);
+$vm-interactive-normal: var(--interactive-normal);
+$vm-interactive-hover: var(--interactive-hover);
 
-// badge available colors, differnt by action or following themes.
-$badge-bg: var(--background-modifier-hover);
+// --- 4. BORDERS & SHADOWS ---
+$vm-border-width: var(--border-width);
+$vm-border-color: var(--background-modifier-border);
+$vm-shadow-s: var(--shadow-s);
+$vm-shadow-l: var(--shadow-l);
+$vm-radius-s: var(--radius-s);
+$vm-radius-m: var(--radius-m);
 
-// diff highlightning colors, for user visual comparison of an operation.
-$diff-added: #2ea04366;
-$diff-deleted: #f8514966;
+// --- 5. VAULTMAN SPECIFIC EXTENSIONS ---
+$vm-diff-added-bg: rgba(46, 160, 67, 0.4);   // #2ea04366 equivalent
+$vm-diff-deleted-bg: rgba(248, 81, 73, 0.4); // #f8514966 equivalent
+$vm-z-index-island: 50;
+$vm-z-index-popup: 100;
+
+// --- 6. TEMPORARY FALLBACKS (To be removed in Phase 5) ---
+$accent: $vm-color-accent;
+$muted: $vm-text-muted;
+$faint: $vm-text-faint;
+$bg-section: $vm-bg-secondary;
+$bg-hover: $vm-bg-modifier-hover;
+$border: $vm-border-color;
+$badge-bg: $vm-bg-modifier-hover;
+$diff-added: $vm-diff-added-bg;
+$diff-deleted: $vm-diff-deleted-bg;

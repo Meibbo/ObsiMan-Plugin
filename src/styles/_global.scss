@@ -3,10 +3,11 @@
 //********************************************************************\\
 
 @use 'tokens' as *;
+@use 'mixins' as *;
 
 /*---------------------------------SECTIONS------------------------------------*/
 .vm-section {
-  border-bottom: 1px solid $border;
+  border-bottom: $vm-border-width solid $vm-border-color;
   padding: 8px 12px;
 
   &-header h4 {
@@ -14,44 +15,48 @@
     font-size: 0.85em;
     font-weight: 600;
     text-transform: uppercase;
-    color: $muted;
+    color: $vm-text-muted;
     letter-spacing: 0.05em;
   }
 }
 
 /*----------------------------------BUTTONS------------------------------------*/
 .vm-btn {
+  @include flex-center;
   font-size: 0.8em;
   padding: 4px 10px;
-  border-radius: var(--radius-s);
+  border-radius: $vm-radius-s;
   cursor: pointer;
-  background: var(--interactive-normal);
-  border: 1px solid $border;
-  color: var(--text-normal);
+  background: $vm-interactive-normal;
+  border: $vm-border-width solid $vm-border-color;
+  color: $vm-text-normal;
+  transition: background-color 0.15s ease;
 
   &:hover {
-    background: $bg-hover;
+    background: $vm-bg-modifier-hover;
   }
 
   &.mod-cta {
-    background: $accent;
-    color: var(--text-on-accent);
-    border-color: $accent;
+    background: $vm-color-accent;
+    color: $vm-text-on-accent;
+    border-color: $vm-color-accent;
 
     &:hover {
+      background: $vm-color-accent-hover;
       opacity: 0.9;
     }
   }
 
   &-small {
-    @extend .vm-btn;
     font-size: 0.75em;
     padding: 2px 8px;
     background: transparent;
-    color: $muted;
+    color: $vm-text-muted;
+    border: none;
 
     &:hover {
-      background: $bg-hover;
+      background: $vm-bg-modifier-hover;
+      color: $vm-text-normal;
     }
   }
 }

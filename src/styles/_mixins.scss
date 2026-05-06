@@ -2,6 +2,8 @@
 //*   .-/Made by Meibbo\-.  .-|Vaultman v1.0.0|-.  .-/April 2026\-.  *\\
 //********************************************************************\\
 
+@use "tokens" as *;
+
 //...----------—————————————(   MIXINS Y EXTENDS  )————————————------------...\\
 
 // Text Truncation
@@ -18,17 +20,21 @@
   justify-content: center;
 }
 
-// Hover Glass effect
+// Hover Glass effect for interactive items
 @mixin hover-bg-accent {
-  background: var(--vm-bg-hover);
+  background: $vm-bg-modifier-hover;
+  transition: background-color 0.15s ease-in-out;
+  
   &:hover {
-    background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+    // Uses native CSS color-mix to blend the token
+    background: color-mix(in srgb, $vm-color-accent 15%, transparent);
+    color: $vm-text-normal;
   }
 }
 
 // Border rules for lists
 @mixin border-separator {
-  border-bottom: 1px solid var(--vm-border);
+  border-bottom: $vm-border-width solid $vm-border-color;
   &:last-child {
     border-bottom: none;
   }
@@ -36,8 +42,8 @@
 
 // Base structural component
 %vm-component-base {
-  background: var(--background-primary);
-  border: 1px solid var(--vm-border);
-  border-radius: var(--radius-s);
+  background: $vm-bg-primary;
+  border: $vm-border-width solid $vm-border-color;
+  border-radius: $vm-radius-s;
   padding: 4px 8px;
 }
