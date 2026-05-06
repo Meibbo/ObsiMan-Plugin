@@ -73,8 +73,9 @@ export class explorerBasesImport implements ExplorerProvider<BasesImportExplorer
 	handleNodeSelection(nodes: TreeNode<BasesImportExplorerMeta>[]): void {
 		const target = nodes
 			.map((node) => node.meta)
-			.find((meta): meta is Extract<BasesImportExplorerMeta, { kind: 'target' }> =>
-				meta.kind === 'target'
+			.find(
+				(meta): meta is Extract<BasesImportExplorerMeta, { kind: 'target' }> =>
+					meta.kind === 'target',
 			)?.target;
 		if (target) this.onImportTarget(target);
 	}
@@ -91,8 +92,10 @@ export class explorerBasesImport implements ExplorerProvider<BasesImportExplorer
 }
 
 function targetId(sourcePath: string, target: BasesImportTarget): string {
-	if (target.kind === 'base-view') return `bases-import:target:${sourcePath}:view:${target.targetViewName}`;
-	if (target.kind === 'markdown-fence') return `bases-import:target:${sourcePath}:block:${target.blockIndex}`;
+	if (target.kind === 'base-view')
+		return `bases-import:target:${sourcePath}:view:${target.targetViewName}`;
+	if (target.kind === 'markdown-fence')
+		return `bases-import:target:${sourcePath}:block:${target.blockIndex}`;
 	return `bases-import:target:${sourcePath}:file`;
 }
 

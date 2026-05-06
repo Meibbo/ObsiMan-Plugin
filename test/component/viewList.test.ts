@@ -25,7 +25,12 @@ function model(rows: ViewRow<ListNode>[]): ExplorerRenderModel<ListNode> {
 	};
 }
 
-function row(id: string, label: string, detail: string, actions: ViewAction<ListNode>[]): ViewRow<ListNode> {
+function row(
+	id: string,
+	label: string,
+	detail: string,
+	actions: ViewAction<ListNode>[],
+): ViewRow<ListNode> {
 	const node = { id, label, detail };
 	return {
 		id,

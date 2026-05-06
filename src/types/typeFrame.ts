@@ -16,19 +16,28 @@ export class VaultmanFrame extends ItemView {
 		this.plugin = plugin;
 	}
 
-	getViewType(): string { return TYPE_FRAME_VM; }
-	getDisplayText(): string { return translate('plugin.frame_name'); }
-	getIcon(): string { return 'lucide-dessert'; }
+	getViewType(): string {
+		return TYPE_FRAME_VM;
+	}
+	getDisplayText(): string {
+		return translate('plugin.frame_name');
+	}
+	getIcon(): string {
+		return 'lucide-dessert';
+	}
 
 	async onOpen(): Promise<void> {
 		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.addClass('vm-frame');
 
-		this.svelteApp = mount(VaultmanFrameSvelte as unknown as Component<{ plugin: VaultmanPlugin }>, {
-			target: contentEl,
-			props: { plugin: this.plugin },
-		});
+		this.svelteApp = mount(
+			VaultmanFrameSvelte as unknown as Component<{ plugin: VaultmanPlugin }>,
+			{
+				target: contentEl,
+				props: { plugin: this.plugin },
+			},
+		);
 	}
 
 	async onClose(): Promise<void> {

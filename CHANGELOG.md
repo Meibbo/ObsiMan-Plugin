@@ -17,13 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > Property browser, queue snippet diffs, and content replace UX polish.
 
 ### Added
+
 - **Filters → Property Browser**: the Rules tab now shows a live, scrollable list of all vault properties directly in the Filters page. Click a property name to immediately add a `has_property` filter; expand any property with ▶ to see its known values and click one to add a `specific_value` filter — no modal required. The filter tree (active rules) moved exclusively to the Active Filters popup (FAB).
 - **Queue Details → Content Snippet Diff**: when a Find & Replace Content operation is queued, opening Queue Details now shows a dedicated "Content changes" section below the property diffs. Each affected file renders async snippets: `…before context [MATCH → replacement] after context…` with the original match highlighted in red and the replacement in green.
 
 ### Fixed
+
 - `simulateChanges()` no longer stores `MOVE_FILE` and `FIND_REPLACE_CONTENT` signal keys as fake property entries in the diff — this was causing `[object Object]` to appear in the Queue Details property diff table for content-replace and move operations.
 
 ### Internal
+
 - `src/services/OperationQueueService.ts`: `simulateChanges()` now skips `MOVE_FILE` and `FIND_REPLACE_CONTENT` alongside the existing `RENAME_FILE` skip
 - `src/modals/QueueDetailsModal.ts`: new async `renderContentOps()` method reads files via `vault.read()` and renders snippet-style diffs for `find_replace_content` ops
 - `src/views/VaultmanView.svelte`: `propBrowserItems` reactive state + `refreshPropBrowser()` reads from `PropertyIndexService`; refreshes on mount and `metadataCache.resolved`
@@ -36,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > Find & Replace in file content, Move to folder, batch queue performance, UI navigation overhaul.
 
 ### Added
+
 - **Find & Replace Content tab**: search and replace raw file content (including frontmatter) using plain text or regex. Features case-sensitive toggle (`Aa`), regex toggle (`.*`), inline Preview (shows match count + collapsible per-file snippet list), and Queue Replace to stage the operation. Scope adapts to selected files or filtered files automatically.
 - **Move to folder**: in-frame slide-up popup (following wireframe UX) to move selected/filtered files to a target folder with folder autocomplete
 - **Scope tab inside Filters page**: sub-tab bar (Rules | Scope) in the Filters page — scope selection (All vault / Filtered files / Selected files) is now inline in the Filters page instead of a popup
@@ -46,12 +50,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Chunked execution in `OperationQueueService.execute()` (20 files/tick, `setTimeout(0)` yield) + live progress Notice
 
 ### Fixed
+
 - Ribbon icon now opens the sidebar (was incorrectly calling the bases picker)
 - Navbar click navigation (was broken after pointer-capture refactor in Iter.3)
 - Blank pages 2 & 3 — root cause: `overflow: hidden` was on the same element as `translateX`, clipping pages in local space. Fixed by adding `.vaultman-pages-viewport` wrapper
 - `addClass('class1 class2')` → `addClasses(['class1', 'class2'])` in all 4 modals
 
 ### Internal
+
 - `FIND_REPLACE_CONTENT` and `MOVE_FILE` signal constants in `src/types/operation.ts`
 - `FolderSuggest` added to `src/utils/autocomplete.ts`
 - Svelte 5 `$state` + `$derived` for all reactive UI — no framework bindings
@@ -64,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > Full Svelte 5 migration, redesigned navigation, major layout fixes.
 
 ### Added
+
 - **Svelte 5 sidebar**: `VaultmanView.svelte` replaces the old imperative TypeScript view — 3-page horizontal slide navigation (Ops | Files | Filters) with CSS `translateX` and `transitionend` guard
 - **Frosted glass pill nav**: Lucide icons per page, active glow via `color-mix`, `backdrop-filter: blur`, per-page FABs on outer edges following the wireframe spec
 - **Per-page FABs**: Files page always gets both FABs (View mode popup, Search popup); Ops page gets left FAB (Queue Details modal); Filters page gets right FAB (Active Filters popup)
@@ -73,11 +80,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **File Move modal** (`FileMoveModal`): folder autocomplete via `FolderSuggest`
 
 ### Fixed
+
 - Empty Files/Filters pages — `refreshFilterTree()` now called in `onMount`; `metadataCache.on('resolved')` triggers file re-render after vault indexes
 - Page order default corrected to `['ops', 'files', 'filters']` (matches wireframe)
 - HTML5 drag-and-drop replaced with pointer events (Obsidian intercepted native drag events and created tab groups)
 
 ### Internal
+
 - `esbuild.config.mjs` updated with `esbuild-svelte@0.9.4` plugin (`css: "injected"`)
 - `src/svelte.d.ts` created for TypeScript `.svelte` module declarations
 
@@ -88,6 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > Bug-fix release addressing four known regressions from v0.9.0.
 
 ### Fixed
+
 - **Inline rename**: double-clicking a name cell in the property grid now correctly opens the inline edit input
 - **Header checkbox CSS**: "select all" checkbox in the grid header restored to accent/indeterminate styling
 - **Grid re-render flash**: `MarkdownRenderer` cell updates no longer produce a visible rebuild flash on each click
@@ -100,15 +110,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > First public beta. Core features are functional but several known regressions exist. Not recommended for production vaults.
 
 ### Added
+
 - Nothing new since 0.9.0 — this release packages the current state for BRAT beta testing
 
 ### Known issues in this release
+
 - Inline rename (double-click on name cell) is broken
 - Header checkbox lost its CSS styling
 - Grid re-render flash on click (chunked render mode)
 - Tags don't render exactly like Obsidian reading view
 
 ### Placeholder / not yet implemented
+
 - File diff view for pending changes
 - File move operation
 - Linter tab
@@ -119,8 +132,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.9.0] — 2026-03-27
 
 ### Added
-- **Inline file rename**: double-click a name cell in the grid (configurable via `gridEditableColumns` setting) — *note: currently has a bug, see Known Issues*
-- **Live preview rendering**: property values render with Obsidian formatting (tags, wikilinks, dates) via `MarkdownRenderer` — supports plain, chunked, and full render modes — *note: tags still don't render exactly like reading view; chunked mode shows a visible re-render flash*
+
+- **Inline file rename**: double-click a name cell in the grid (configurable via `gridEditableColumns` setting) — _note: currently has a bug, see Known Issues_
+- **Live preview rendering**: property values render with Obsidian formatting (tags, wikilinks, dates) via `MarkdownRenderer` — supports plain, chunked, and full render modes — _note: tags still don't render exactly like reading view; chunked mode shows a visible re-render flash_
 - **.base file integration**: bidirectional sync between the plugin grid and Obsidian Bases `.base` YAML files — columns, sort, column widths, and filters
 - **Base filter parser**: full expression parser for Obsidian Bases query syntax (comparisons, `.contains()`, `.containsAny()`, `file.hasTag()`, `link()`, `date()`, nested AND/OR)
 - New settings: `gridRenderMode`, `gridRenderChunkSize`, `gridLivePreviewColumns`, `gridEditableColumns`, `baseFilePath`
@@ -128,6 +142,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - i18n keys for all new settings (English and Spanish)
 
 ### Fixed
+
 - **Checkbox toggle**: clicking a checkbox now correctly toggles selection (was always clearing and re-adding, making uncheck impossible)
 - **Show only checked**: now correctly shows all selected files (was showing only the last due to checkbox bug)
 - **Select all**: header checkbox now immediately updates all row checkboxes without requiring a column sort
@@ -136,6 +151,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Ctrl/Shift selection**: separated checkbox click logic from row click logic so modifier keys work correctly on both paths
 
 ### Known regressions in this version
+
 - Inline rename (double-click on name cell) is broken
 - Header checkbox lost its CSS styling
 
@@ -144,6 +160,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.8.0] — 2026-03-26
 
 ### Added
+
 - Custom SVG plugin icon registered via `addIcon()` — replaces generic `settings-2` icon on ribbon, view tabs, and sidebar
 - **Operations panel**: split layout with a pinned queue section always visible at the bottom, independent of active tab
 - **Operations panel**: "Clear selected" button to deselect all files from the grid
@@ -152,6 +169,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Minimal session row replacing the colored header bar — session picker and show-selected toggle in a compact row
 
 ### Changed
+
 - **Property explorer**: triangle toggle icons (▶/▼) replaced with Lucide chevron icons
 - **Navbar**: hidden when the explorer panel is open, shown again when collapsed
 - **Operations panel**: opens by default alongside the grid
@@ -161,6 +179,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed `HeaderBarComponent` from the main view
 
 ### Fixed
+
 - **Critical**: files and properties not appearing in views due to metadata cache timing — `PropertyIndexService` now rebuilds on `metadataCache.on('resolved')` event
 - **Critical**: `FilterService.applyFilters()` re-triggered on `metadataCache.on('resolved')` to ensure filters run after cache is ready
 - **Compatibility**: replaced `structuredClone()` with `JSON.parse(JSON.stringify())` for older Electron versions
@@ -170,6 +189,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.0] — 2026-03-26
 
 ### Added
+
 - `onExternalSettingsChange()` lifecycle hook — settings now sync when modified externally (e.g. via cloud sync)
 - `onunload()` cleanup in SessionFileService and PropertyIndexService
 - `destroy()` method on PropertyExplorerComponent for timer cleanup
@@ -179,6 +199,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CONTRIBUTING.md with architecture overview and development guidelines
 
 ### Changed
+
 - **IconicService** and **PropertyTypeService** now extend `Component` with proper lifecycle management
 - **PropertyIndexService**: incremental per-file removal on delete (was full vault rebuild)
 - **PropertyIndexService**: metadata change handler debounced (50ms) to batch rapid updates
@@ -187,6 +208,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Settings loading uses `structuredClone()` for deep merge
 
 ### Fixed
+
 - Potential stale callback execution from pending `setTimeout` in SessionFileService on unload
 - Global `document.querySelector` in PropertyExplorerComponent scoped to `ownerDocument`
 - `.className = '...'` pattern wiping Obsidian-injected classes
@@ -196,6 +218,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] — 2026-03-25
 
 ### Added
+
 - Initial release of Vaultman as an Obsidian TypeScript plugin
 - Property explorer with hierarchical tree view, search, sort, and Iconic integration
 - Virtual-scrolled property grid with inline editing

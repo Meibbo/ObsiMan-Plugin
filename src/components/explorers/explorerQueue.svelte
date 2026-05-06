@@ -1,4 +1,4 @@
-	<script lang="ts">
+<script lang="ts">
 	import { setIcon } from 'obsidian';
 	import type { VaultmanPlugin } from '../../main';
 	import ViewList from '../views/viewList.svelte';

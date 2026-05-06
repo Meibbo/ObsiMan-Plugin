@@ -81,7 +81,12 @@ function buildContentReplaceChange(file: TFile): ContentChange {
 		isRegex: false,
 		caseSensitive: false,
 		logicFunc: () => ({
-			[FIND_REPLACE_CONTENT]: { pattern: 'foo', replacement: 'bar', isRegex: false, caseSensitive: false },
+			[FIND_REPLACE_CONTENT]: {
+				pattern: 'foo',
+				replacement: 'bar',
+				isRegex: false,
+				caseSensitive: false,
+			},
 		}),
 	};
 }
@@ -124,7 +129,11 @@ function buildFileDeleteChange(file: TFile): FileChange {
 	};
 }
 
-function buildNativeRenamePropChange(file: TFile, oldName: string, newName: string): PropertyChange {
+function buildNativeRenamePropChange(
+	file: TFile,
+	oldName: string,
+	newName: string,
+): PropertyChange {
 	return {
 		type: 'property',
 		files: [file],
@@ -139,9 +148,7 @@ function buildNativeRenamePropChange(file: TFile, oldName: string, newName: stri
 function setupAppWithFile(content = '---\nstatus: draft\n---\nbody-line\n') {
 	const file = mockTFile('a.md', { frontmatter: { status: 'draft' } });
 	const adapterFiles = new Map([[file.path, content]]);
-	const meta = new Map<string, CachedMetadata>([
-		[file.path, { frontmatter: { status: 'draft' } }],
-	]);
+	const meta = new Map<string, CachedMetadata>([[file.path, { frontmatter: { status: 'draft' } }]]);
 	const app = mockApp({ files: [file], metadata: meta, adapterFiles });
 	const svc = new OperationQueueService(app);
 	return { app, svc, file, adapterFiles };

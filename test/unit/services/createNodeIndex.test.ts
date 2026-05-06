@@ -3,37 +3,37 @@ import { createNodeIndex } from '../../../src/index/indexNodeCreate';
 import type { NodeBase } from '../../../src/types/typeContracts';
 
 interface TestNode extends NodeBase {
-  label: string;
+	label: string;
 }
 
 describe('createNodeIndex', () => {
-  it('rebuilds nodes via the supplied build fn', async () => {
-    const build = vi.fn<() => TestNode[]>().mockReturnValue([
-      { id: 'a', label: 'A' },
-      { id: 'b', label: 'B' },
-    ]);
-    const idx = createNodeIndex<TestNode>({ build });
-    await idx.refresh();
-    expect(idx.nodes.length).toBe(2);
-    expect(idx.byId('a')?.label).toBe('A');
-  });
+	it('rebuilds nodes via the supplied build fn', async () => {
+		const build = vi.fn<() => TestNode[]>().mockReturnValue([
+			{ id: 'a', label: 'A' },
+			{ id: 'b', label: 'B' },
+		]);
+		const idx = createNodeIndex<TestNode>({ build });
+		await idx.refresh();
+		expect(idx.nodes.length).toBe(2);
+		expect(idx.byId('a')?.label).toBe('A');
+	});
 
-  it('notifies subscribers on refresh', async () => {
-    const build = vi.fn<() => TestNode[]>().mockReturnValue([{ id: 'a', label: 'A' }]);
-    const idx = createNodeIndex<TestNode>({ build });
-    const cb = vi.fn();
-    const unsub = idx.subscribe(cb);
-    await idx.refresh();
-    expect(cb).toHaveBeenCalledTimes(1);
-    unsub();
-    await idx.refresh();
-    expect(cb).toHaveBeenCalledTimes(1); // unsubscribed
-  });
+	it('notifies subscribers on refresh', async () => {
+		const build = vi.fn<() => TestNode[]>().mockReturnValue([{ id: 'a', label: 'A' }]);
+		const idx = createNodeIndex<TestNode>({ build });
+		const cb = vi.fn();
+		const unsub = idx.subscribe(cb);
+		await idx.refresh();
+		expect(cb).toHaveBeenCalledTimes(1);
+		unsub();
+		await idx.refresh();
+		expect(cb).toHaveBeenCalledTimes(1); // unsubscribed
+	});
 
-  it('byId returns undefined for missing ids', async () => {
-    const build = vi.fn<() => TestNode[]>().mockReturnValue([]);
-    const idx = createNodeIndex<TestNode>({ build });
-    await idx.refresh();
-    expect(idx.byId('nope')).toBeUndefined();
-  });
+	it('byId returns undefined for missing ids', async () => {
+		const build = vi.fn<() => TestNode[]>().mockReturnValue([]);
+		const idx = createNodeIndex<TestNode>({ build });
+		await idx.refresh();
+		expect(idx.byId('nope')).toBeUndefined();
+	});
 });

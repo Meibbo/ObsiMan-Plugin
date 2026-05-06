@@ -12,8 +12,8 @@
 	let { size = 160, color = 'var(--text-accent)' }: Props = $props();
 </script>
 
-<div 
-	class="vm-indicator-orbiting-ink" 
+<div
+	class="vm-indicator-orbiting-ink"
 	style:--indicator-size="{size}px"
 	style:--indicator-color={color}
 >

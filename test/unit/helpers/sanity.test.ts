@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { TFile, parseYaml, stringifyYaml, mockApp, mockTFile, prepareSimpleSearch } from '../../helpers/obsidian-mocks';
+import {
+	TFile,
+	parseYaml,
+	stringifyYaml,
+	mockApp,
+	mockTFile,
+	prepareSimpleSearch,
+} from '../../helpers/obsidian-mocks';
 
 describe('obsidian mock alias', () => {
 	it('exports TFile constructor', () => {

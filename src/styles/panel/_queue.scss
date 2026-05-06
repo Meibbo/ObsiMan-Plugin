@@ -6,300 +6,300 @@
 
 /*-----------------------------OPERATIONS SECTION------------------------------*/
 .vm-ops-buttons {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
+	display: flex;
+	gap: 4px;
+	flex-wrap: wrap;
+	margin-bottom: 8px;
 }
 
 .vm-queue {
-  &-container {
-    margin-bottom: 8px;
-  }
+	&-container {
+		margin-bottom: 8px;
+	}
 
-  &-header {
-    margin-bottom: 4px;
-  }
+	&-header {
+		margin-bottom: 4px;
+	}
 
-  &-title {
-    font-size: 0.8em;
-    font-weight: 500;
-    color: $vm-text-muted;
-  }
+	&-title {
+		font-size: 0.8em;
+		font-weight: 500;
+		color: $vm-text-muted;
+	}
 
-  &-empty {
-    font-size: 0.8em;
-    color: $vm-text-faint;
-    font-style: italic;
-  }
+	&-empty {
+		font-size: 0.8em;
+		color: $vm-text-faint;
+		font-style: italic;
+	}
 
-  &-group {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+	&-group {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
 
-    & + & {
-      margin-top: 8px;
-    }
+		& + & {
+			margin-top: 8px;
+		}
 
-    &-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 8px;
-      border-radius: 10px;
-      background: color-mix(in srgb, $vm-color-accent 10%, transparent);
-      color: $vm-text-normal;
-      cursor: pointer;
+		&-header {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 6px 8px;
+			border-radius: 10px;
+			background: color-mix(in srgb, $vm-color-accent 10%, transparent);
+			color: $vm-text-normal;
+			cursor: pointer;
 
-      &:hover {
-        background: color-mix(in srgb, $vm-color-accent 14%, transparent);
-      }
-    }
+			&:hover {
+				background: color-mix(in srgb, $vm-color-accent 14%, transparent);
+			}
+		}
 
-    &-label {
-      font-size: 0.75em;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-    }
+		&-label {
+			font-size: 0.75em;
+			font-weight: 600;
+			letter-spacing: 0.04em;
+		}
 
-    &-meta {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-left: auto;
-      color: $vm-text-faint;
-      font-size: 0.75em;
-    }
+		&-meta {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			margin-left: auto;
+			color: $vm-text-faint;
+			font-size: 0.75em;
+		}
 
-    &-chevron {
-      color: $vm-text-muted;
-      font-size: 0.8em;
-      min-width: 14px;
-      text-align: center;
-    }
+		&-chevron {
+			color: $vm-text-muted;
+			font-size: 0.8em;
+			min-width: 14px;
+			text-align: center;
+		}
 
-    &-body {
-      display: flex;
-      flex-direction: column;
-    }
-  }
+		&-body {
+			display: flex;
+			flex-direction: column;
+		}
+	}
 
-  &-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 5px 8px;
-    font-size: 0.8em;
-    border-bottom: $vm-border-width solid $vm-border-color;
-    cursor: pointer;
-    border-radius: 8px;
+	&-item {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 5px 8px;
+		font-size: 0.8em;
+		border-bottom: $vm-border-width solid $vm-border-color;
+		cursor: pointer;
+		border-radius: 8px;
 
-    &:hover {
-      background: $vm-bg-modifier-hover;
-    }
+		&:hover {
+			background: $vm-bg-modifier-hover;
+		}
 
-    &.is-expanded {
-      background: color-mix(in srgb, $vm-color-accent 8%, transparent);
-    }
-  }
+		&.is-expanded {
+			background: color-mix(in srgb, $vm-color-accent 8%, transparent);
+		}
+	}
 
-  &-path {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+	&-path {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
 
-  &-checkbox {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
-  }
+	&-checkbox {
+		width: 14px;
+		height: 14px;
+		flex-shrink: 0;
+	}
 
-  &-index {
-    color: $vm-color-accent;
-    font-size: 0.9em;
-    font-weight: 600;
-    min-width: 18px;
-  }
+	&-index {
+		color: $vm-color-accent;
+		font-size: 0.9em;
+		font-weight: 600;
+		min-width: 18px;
+	}
 
-  &-desc {
-    flex: 1;
-    overflow: hidden;
-  }
+	&-desc {
+		flex: 1;
+		overflow: hidden;
+	}
 
-  &-action {
-    font-weight: 500;
-    color: $vm-color-accent;
-  }
+	&-action {
+		font-weight: 500;
+		color: $vm-color-accent;
+	}
 
-  &-file-count {
-    color: $vm-text-faint;
-    font-size: 0.85em;
-    white-space: nowrap;
-    min-width: 14px;
-    text-align: center;
-  }
+	&-file-count {
+		color: $vm-text-faint;
+		font-size: 0.85em;
+		white-space: nowrap;
+		min-width: 14px;
+		text-align: center;
+	}
 
-  &-actions {
-    display: flex;
-    gap: 4px;
-  }
+	&-actions {
+		display: flex;
+		gap: 4px;
+	}
 
-  &-details {
-    max-width: 600px;
-  }
+	&-details {
+		max-width: 600px;
+	}
 }
 
 .vm-stats {
-  margin-top: 8px;
-  padding-top: 6px;
-  border-top: $vm-border-width solid $vm-border-color;
+	margin-top: 8px;
+	padding-top: 6px;
+	border-top: $vm-border-width solid $vm-border-color;
 
-  &-text {
-    font-size: 0.75em;
-    color: $vm-text-faint;
-  }
+	&-text {
+		font-size: 0.75em;
+		color: $vm-text-faint;
+	}
 }
 
 /*----------------------------QUEUE DETAILS / DIFF-----------------------------*/
 .vm-diff {
-  &-container {
-    max-height: 400px;
-    overflow-y: auto;
-    margin-bottom: 12px;
-  }
+	&-container {
+		max-height: 400px;
+		overflow-y: auto;
+		margin-bottom: 12px;
+	}
 
-  &-file {
-    margin-bottom: 12px;
-    border: $vm-border-width solid $vm-border-color;
-    border-radius: $vm-radius-s;
-    padding: 8px;
+	&-file {
+		margin-bottom: 12px;
+		border: $vm-border-width solid $vm-border-color;
+		border-radius: $vm-radius-s;
+		padding: 8px;
 
-    &-header {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      padding: 4px;
-      border-radius: $vm-radius-s;
+		&-header {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			cursor: pointer;
+			padding: 4px;
+			border-radius: $vm-radius-s;
 
-      &:hover {
-        background: $vm-bg-modifier-hover;
-      }
-    }
+			&:hover {
+				background: $vm-bg-modifier-hover;
+			}
+		}
 
-    &-toggle {
-      font-size: 0.7em;
-      color: $vm-text-faint;
-      width: 12px;
-    }
-  }
+		&-toggle {
+			font-size: 0.7em;
+			color: $vm-text-faint;
+			width: 12px;
+		}
+	}
 
-  &-path {
-    font-size: 0.85em;
-    margin: 0 0 6px 0;
-    word-break: break-all;
-  }
+	&-path {
+		font-size: 0.85em;
+		margin: 0 0 6px 0;
+		word-break: break-all;
+	}
 
-  &-row {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    padding: 2px 4px;
-    margin-bottom: 2px;
-    font-size: 0.8em;
-    font-family: var(--font-monospace);
-  }
+	&-row {
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+		padding: 2px 4px;
+		margin-bottom: 2px;
+		font-size: 0.8em;
+		font-family: var(--font-monospace);
+	}
 
-  &-key {
-    font-weight: 600;
-    color: $vm-text-normal;
-  }
+	&-key {
+		font-weight: 600;
+		color: $vm-text-normal;
+	}
 
-  &-added {
-    background: $vm-diff-added-bg;
-    padding: 1px 4px;
-    border-radius: 2px;
-  }
+	&-added {
+		background: $vm-diff-added-bg;
+		padding: 1px 4px;
+		border-radius: 2px;
+	}
 
-  &-deleted {
-    background: $vm-diff-deleted-bg;
-    padding: 1px 4px;
-    border-radius: 2px;
-  }
+	&-deleted {
+		background: $vm-diff-deleted-bg;
+		padding: 1px 4px;
+		border-radius: 2px;
+	}
 
-  &-summary {
-    font-size: 0.85em;
-    color: $vm-text-muted;
-    margin-bottom: 8px;
-    padding: 4px 8px;
-    background: $vm-bg-secondary;
-    border-radius: $vm-radius-s;
-  }
+	&-summary {
+		font-size: 0.85em;
+		color: $vm-text-muted;
+		margin-bottom: 8px;
+		padding: 4px 8px;
+		background: $vm-bg-secondary;
+		border-radius: $vm-radius-s;
+	}
 
-  &-ops {
-    margin-bottom: 8px;
-    font-size: 0.8em;
-  }
+	&-ops {
+		margin-bottom: 8px;
+		font-size: 0.8em;
+	}
 
-  &-op {
-    display: flex;
-    gap: 6px;
-    padding: 2px 0;
+	&-op {
+		display: flex;
+		gap: 6px;
+		padding: 2px 0;
 
-    &-index {
-      color: $vm-text-faint;
-      min-width: 20px;
-    }
+		&-index {
+			color: $vm-text-faint;
+			min-width: 20px;
+		}
 
-    &-action {
-      font-weight: 600;
-      color: $vm-color-accent;
-      text-transform: uppercase;
-    }
+		&-action {
+			font-weight: 600;
+			color: $vm-color-accent;
+			text-transform: uppercase;
+		}
 
-    &-detail {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+		&-detail {
+			flex: 1;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
 
-    &-files {
-      color: $vm-text-faint;
-      white-space: nowrap;
-    }
-  }
+		&-files {
+			color: $vm-text-faint;
+			white-space: nowrap;
+		}
+	}
 
-  &-toggle-row {
-    margin-bottom: 8px;
-    font-size: 0.8em;
-  }
+	&-toggle-row {
+		margin-bottom: 8px;
+		font-size: 0.8em;
+	}
 
-  &-toggle {
-    cursor: pointer;
-    color: $vm-text-muted;
-  }
+	&-toggle {
+		cursor: pointer;
+		color: $vm-text-muted;
+	}
 
-  &-change-count {
-    font-size: 0.85em;
-    color: $vm-text-faint;
-    margin-left: auto;
-  }
+	&-change-count {
+		font-size: 0.85em;
+		color: $vm-text-faint;
+		margin-left: auto;
+	}
 
-  &-collapsed {
-    display: none;
-  }
+	&-collapsed {
+		display: none;
+	}
 
-  &-unchanged {
-    opacity: 0.5;
-  }
+	&-unchanged {
+		opacity: 0.5;
+	}
 
-  &-same {
-    color: $vm-text-faint;
-    padding: 1px 4px;
-  }
+	&-same {
+		color: $vm-text-faint;
+		padding: 1px 4px;
+	}
 }

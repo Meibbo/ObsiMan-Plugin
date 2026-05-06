@@ -27,14 +27,14 @@ describe('ContextMenuService.registerAction', () => {
 	it('records the action on first registration', () => {
 		const svc = new ContextMenuService(makeCtx());
 		svc.registerAction(fileAction);
-		expect(((svc as unknown) as { _registry: ActionDef[] })._registry.length).toBe(1);
+		expect((svc as unknown as { _registry: ActionDef[] })._registry.length).toBe(1);
 	});
 
 	it('is idempotent on duplicate id', () => {
 		const svc = new ContextMenuService(makeCtx());
 		svc.registerAction(fileAction);
 		svc.registerAction(fileAction);
-		expect(((svc as unknown) as { _registry: ActionDef[] })._registry.length).toBe(1);
+		expect((svc as unknown as { _registry: ActionDef[] })._registry.length).toBe(1);
 	});
 });
 
@@ -52,7 +52,7 @@ describe('ContextMenuService applicable filtering', () => {
 			run: tagSpy,
 		});
 
-		const applicable = ((svc as unknown) as { _registry: ActionDef[] })._registry.filter(
+		const applicable = (svc as unknown as { _registry: ActionDef[] })._registry.filter(
 			(d) => d.nodeTypes.includes('file') && d.surfaces.includes('panel'),
 		);
 		expect(applicable.map((d) => d.id)).toEqual(['test.action']);
@@ -66,9 +66,15 @@ describe('ContextMenuService applicable filtering', () => {
 			when: (ctx) => ctx.file?.path.endsWith('.txt') ?? false,
 		});
 		const file = mockTFile('a.md');
-		const ctxObj = { nodeType: 'file' as const, node: { id: 'x', label: 'x', meta: { file }, icon: '', depth: 0 }, surface: 'panel' as const, file };
-		const applicable = ((svc as unknown) as { _registry: ActionDef[] })._registry.filter(
-			(d) => d.nodeTypes.includes('file') && d.surfaces.includes('panel') && (!d.when || d.when(ctxObj)),
+		const ctxObj = {
+			nodeType: 'file' as const,
+			node: { id: 'x', label: 'x', meta: { file }, icon: '', depth: 0 },
+			surface: 'panel' as const,
+			file,
+		};
+		const applicable = (svc as unknown as { _registry: ActionDef[] })._registry.filter(
+			(d) =>
+				d.nodeTypes.includes('file') && d.surfaces.includes('panel') && (!d.when || d.when(ctxObj)),
 		);
 		expect(applicable.map((d) => d.id)).toEqual([]);
 	});

@@ -7,85 +7,87 @@
 //...----------—————————————(  TAB BAR   )————————————------------...\\
 
 .vm-tab {
-  &-bar {
-    @include flex-center;
-    gap: 0;
-    border-bottom: $vm-border-width solid $vm-border-color;
-    flex-shrink: 0;
-    overflow-x: auto;
+	&-bar {
+		@include flex-center;
+		gap: 0;
+		border-bottom: $vm-border-width solid $vm-border-color;
+		flex-shrink: 0;
+		overflow-x: auto;
 
-    &.has-labels {
-      gap: var(--size-4-2, 8px);
-    }
-  }
+		&.has-labels {
+			gap: var(--size-4-2, 8px);
+		}
+	}
 
-  // Individual tab item
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 9px;
-  cursor: pointer;
-  font-size: var(--font-ui-smaller);
-  color: $vm-text-muted;
-  border-bottom: 2px solid transparent;
-  white-space: nowrap;
-  user-select: none;
-  transition: color 0.12s, border-color 0.12s;
+	// Individual tab item
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	padding: 5px 9px;
+	cursor: pointer;
+	font-size: var(--font-ui-smaller);
+	color: $vm-text-muted;
+	border-bottom: 2px solid transparent;
+	white-space: nowrap;
+	user-select: none;
+	transition:
+		color 0.12s,
+		border-color 0.12s;
 
-  &:hover {
-    color: $vm-text-normal;
-  }
+	&:hover {
+		color: $vm-text-normal;
+	}
 
-  &.is-active {
-    color: $vm-text-normal;
-    border-bottom-color: $vm-color-accent;
-    font-weight: 500;
-  }
+	&.is-active {
+		color: $vm-text-normal;
+		border-bottom-color: $vm-color-accent;
+		font-weight: 500;
+	}
 
-  &-icon {
-    @include flex-center;
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
+	&-icon {
+		@include flex-center;
+		width: 14px;
+		height: 14px;
+		flex-shrink: 0;
 
-    svg {
-      width: 14px;
-      height: 14px;
-    }
-  }
+		svg {
+			width: 14px;
+			height: 14px;
+		}
+	}
 
-  @container (max-width: 220px) {
-    &-label {
-      display: none;
-    }
-  }
+	@container (max-width: 220px) {
+		&-label {
+			display: none;
+		}
+	}
 
-  &-area {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-    min-height: 0;
-  }
+	&-area {
+		flex: 1;
+		position: relative;
+		overflow: hidden;
+		min-height: 0;
+	}
 
-  &-content {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.18s ease;
+	&-content {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		flex-direction: column;
+		overflow-y: auto;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.18s ease;
 
-    &.is-active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-  }
+		&.is-active {
+			opacity: 1;
+			pointer-events: auto;
+		}
+	}
 }
 
 // Obsidian view-content padding override
-.workspace-leaf-content[data-type="vm-view"] .view-content,
-.workspace-leaf-content[data-type="vm-frame"] .view-content {
-  padding: 0 !important;
+.workspace-leaf-content[data-type='vm-view'] .view-content,
+.workspace-leaf-content[data-type='vm-frame'] .view-content {
+	padding: 0 !important;
 }

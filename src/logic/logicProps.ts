@@ -44,7 +44,7 @@ export class PropsLogic {
 	private _filterNodes(
 		nodes: TreeNode<PropMeta>[],
 		search: (text: string) => { score: number } | null,
-		mode: number
+		mode: number,
 	): TreeNode<PropMeta>[] {
 		const result: TreeNode<PropMeta>[] = [];
 		for (const node of nodes) {
@@ -59,11 +59,14 @@ export class PropsLogic {
 				currentMatches = true;
 			}
 
-			// BUG-FIX: If we are in "Property Name" mode and the parent matches, 
+			// BUG-FIX: If we are in "Property Name" mode and the parent matches,
 			// we keep ALL its children (values) so the user can explore them.
-			const filteredChildren = (mode === 0 && currentMatches)
-				? (node.children ?? [])
-				: (node.children ? this._filterNodes(node.children, search, mode) : []);
+			const filteredChildren =
+				mode === 0 && currentMatches
+					? (node.children ?? [])
+					: node.children
+						? this._filterNodes(node.children, search, mode)
+						: [];
 
 			if (currentMatches || filteredChildren.length > 0) {
 				result.push({ ...node, children: filteredChildren });
@@ -73,11 +76,12 @@ export class PropsLogic {
 	}
 
 	private _buildTree(): TreeNode<PropMeta>[] {
-		const allProps = (
-			this.app.metadataCache as unknown as {
-				getAllPropertyInfos(): Record<string, { type: string }>;
-			}
-		).getAllPropertyInfos?.() ?? {};
+		const allProps =
+			(
+				this.app.metadataCache as unknown as {
+					getAllPropertyInfos(): Record<string, { type: string }>;
+				}
+			).getAllPropertyInfos?.() ?? {};
 
 		// Map to store values and their frequencies
 		const valueMap = new Map<string, Map<string, number>>();
@@ -113,12 +117,16 @@ export class PropsLogic {
 
 		const nodes: TreeNode<PropMeta>[] = [];
 		const propInfoMap = new Map(
-			Object.entries(allProps).map(([propName, info]) => [propName.toLowerCase(), { propName, info }]),
+			Object.entries(allProps).map(([propName, info]) => [
+				propName.toLowerCase(),
+				{ propName, info },
+			]),
 		);
 		const propNames = new Set([...propInfoMap.keys(), ...propFileMap.keys()]);
 		for (const normalizedName of propNames) {
 			const indexedInfo = propInfoMap.get(normalizedName);
-			const propName = displayNameMap.get(normalizedName) ?? indexedInfo?.propName ?? normalizedName;
+			const propName =
+				displayNameMap.get(normalizedName) ?? indexedInfo?.propName ?? normalizedName;
 			const propType = indexedInfo?.info.type ?? 'text';
 			const valuesMap = (valueMap.get(normalizedName) ?? new Map()) as Map<string, number>;
 
@@ -126,8 +134,8 @@ export class PropsLogic {
 			const fileCount = propFileMap.get(normalizedName)?.size ?? 0;
 			if (fileCount === 0) continue;
 
-			const valueNodes: TreeNode<PropMeta>[] = Array.from(valuesMap.entries()).map(
-				([rawValue, cnt]: [string, number]) => ({
+			const valueNodes: TreeNode<PropMeta>[] = Array.from(valuesMap.entries())
+				.map(([rawValue, cnt]: [string, number]) => ({
 					id: `${propName}::${rawValue}`,
 					label: rawValue,
 					count: cnt,
@@ -140,8 +148,8 @@ export class PropsLogic {
 						rawValue,
 						isTypeIncompatible: !isCompatible(rawValue, propType),
 					},
-				}),
-			).sort((a, b) => (b.count ?? 0) - (a.count ?? 0));
+				}))
+				.sort((a, b) => (b.count ?? 0) - (a.count ?? 0));
 
 			nodes.push({
 				id: propName,

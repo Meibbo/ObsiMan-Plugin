@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+﻿import { defineConfig } from 'vitest/config';
 import { fileURLToPath } from 'node:url';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
@@ -46,27 +46,27 @@ export default defineConfig({
 					alias: {
 						obsidian: obsidianMockPath,
 					},
-					coverage: {
-						provider: 'v8',
-						reporter: ['text', 'html'],
-						include: ['src/utils/**', 'src/logic/**', 'src/services/**'],
-						exclude: [
-							'**/*-WIP*',
-							'**/*_WIP*',
-							'**/*.svelte',
-							'src/services/serviceLayout-WIP.svelte.ts',
-							'src/services/serviceStats-WIP.svelte.ts',
-							'src/services/serviceDecorate_WIP.ts',
-						],
-						thresholds: {
-							lines: 60,
-							functions: 65,
-							branches: 55,
-							statements: 60,
-						},
-					},
 				},
 			},
 		],
+		coverage: {
+			provider: 'v8',
+			reporter: ['text', 'html'],
+			include: ['src/utils/**', 'src/logic/**', 'src/services/**'],
+			exclude: [
+				'**/*-WIP*',
+				'**/*_WIP*',
+				'**/*.svelte',
+				'src/services/serviceLayout-WIP.svelte.ts',
+				'src/services/serviceStats-WIP.svelte.ts',
+				'src/services/serviceDecorate_WIP.ts',
+			],
+			thresholds: {
+				lines: 60,
+				functions: 65,
+				branches: 55,
+				statements: 60,
+			},
+		},
 	},
 });

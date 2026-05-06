@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { translate } from "../../index/i18n/lang";
+	import { translate } from '../../index/i18n/lang';
 
 	let {
 		searchName = $bindable(),
@@ -16,15 +16,14 @@
 
 <div>
 	<div class="vm-popup-header">
-		<span class="vm-popup-title">{translate("nav.search_files")}</span
-		>
+		<span class="vm-popup-title">{translate('nav.search_files')}</span>
 		<div
 			class="clickable-icon"
 			aria-label="Close"
-			use:icon={"lucide-x"}
+			use:icon={'lucide-x'}
 			onclick={closePopup}
 			onkeydown={(e: KeyboardEvent) => {
-				if (e.key === "Enter" || e.key === " ") closePopup();
+				if (e.key === 'Enter' || e.key === ' ') closePopup();
 			}}
 			role="button"
 			tabindex="0"
@@ -34,13 +33,13 @@
 		<input
 			class="vm-search-input"
 			type="text"
-			placeholder={translate("search.name_placeholder")}
+			placeholder={translate('search.name_placeholder')}
 			bind:value={searchName}
 		/>
 		<input
 			class="vm-search-input"
 			type="text"
-			placeholder={translate("search.folder_placeholder")}
+			placeholder={translate('search.folder_placeholder')}
 			bind:value={searchFolder}
 		/>
 	</div>

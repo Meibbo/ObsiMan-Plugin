@@ -30,7 +30,7 @@ export class FileRenameModal extends Modal {
 		app: App,
 		propertyIndex: PropertyIndexService,
 		targetFiles: TFile[],
-		onQueue: QueueCallback
+		onQueue: QueueCallback,
 	) {
 		super(app);
 		this.propertyIndex = propertyIndex;
@@ -72,7 +72,7 @@ export class FileRenameModal extends Modal {
 				patternInput.value = before + value + after;
 				this.pattern = patternInput.value;
 				this.renderPreview();
-			}
+			},
 		);
 
 		patternInput.addEventListener('input', () => {
@@ -100,11 +100,9 @@ export class FileRenameModal extends Modal {
 					.onClick(() => {
 						this.queueRenames();
 						this.close();
-					})
+					}),
 			)
-			.addButton((btn) =>
-				btn.setButtonText('Cancel').onClick(() => this.close())
-			);
+			.addButton((btn) => btn.setButtonText('Cancel').onClick(() => this.close()));
 	}
 
 	private renderPreview(): void {
@@ -139,8 +137,8 @@ export class FileRenameModal extends Modal {
 			let newName = this.pattern;
 			// natural wildcards aliases
 			newName = newName.replace(/\{basename\}|\*/g, file.basename);
-			newName = newName.replace(/\{date\}|\[fecha\]/ig, today);
-			newName = newName.replace(/\{counter\}|\(1\)/ig, String(index + 1).padStart(3, '0'));
+			newName = newName.replace(/\{date\}|\[fecha\]/gi, today);
+			newName = newName.replace(/\{counter\}|\(1\)/gi, String(index + 1).padStart(3, '0'));
 
 			const stringifyValue = (v: unknown): string => {
 				if (v === null || v === undefined) return '';

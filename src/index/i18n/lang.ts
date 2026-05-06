@@ -12,10 +12,7 @@ const currentLang: ResolvedLanguage = 'en';
  * Falls back to English, then to the raw key.
  */
 export function translate(key: string, vars?: Record<string, string | number>): string {
-	let text =
-		translations[currentLang]?.[key] ??
-		translations['en']?.[key] ??
-		key;
+	let text = translations[currentLang]?.[key] ?? translations['en']?.[key] ?? key;
 
 	if (vars) {
 		for (const [k, v] of Object.entries(vars)) {

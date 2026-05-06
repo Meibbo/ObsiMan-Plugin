@@ -1,4 +1,8 @@
-import type { IActiveFiltersIndex, ActiveFilterEntry, IFilterService } from '../types/typeContracts';
+import type {
+	IActiveFiltersIndex,
+	ActiveFilterEntry,
+	IFilterService,
+} from '../types/typeContracts';
 import type { FilterGroup, FilterRule } from '../types/typeFilter';
 import { createNodeIndex } from './indexNodeCreate';
 
@@ -49,7 +53,9 @@ export function createActiveFiltersIndex(filter: IFilterService): IActiveFilters
 			return [...treeRules, ...searchRules];
 		},
 	});
-	filter.subscribe(() => { void base.refresh(); });
+	filter.subscribe(() => {
+		void base.refresh();
+	});
 	return base;
 }
 

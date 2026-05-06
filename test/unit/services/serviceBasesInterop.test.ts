@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { extractBasesFencedBlocks, previewBasesImport } from '../../../src/services/serviceBasesInterop';
+import {
+	extractBasesFencedBlocks,
+	previewBasesImport,
+} from '../../../src/services/serviceBasesInterop';
 
 describe('serviceBasesInterop', () => {
 	it('imports global and view filters as an and group', () => {
@@ -22,21 +25,27 @@ describe('serviceBasesInterop', () => {
 		expect(preview.source.kind).toBe('base-view');
 		expect(preview.rawConfig).toMatchObject({ views: [{ name: 'Open' }] });
 		expect(preview.filter?.logic).toBe('and');
-		expect(preview.filter?.children).toContainEqual(expect.objectContaining({
-			type: 'rule',
-			filterType: 'specific_value',
-			property: 'status',
-			values: ['open'],
-		}));
-		expect(preview.report.applied).toContainEqual(expect.objectContaining({
-			expression: 'status == "open"',
-			filterType: 'specific_value',
-		}));
-		expect(preview.report.unsupported).toContainEqual(expect.objectContaining({
-			expression: 'file.name.contains("Project")',
-			reason: expect.stringContaining('unsupported'),
-			preserved: true,
-		}));
+		expect(preview.filter?.children).toContainEqual(
+			expect.objectContaining({
+				type: 'rule',
+				filterType: 'specific_value',
+				property: 'status',
+				values: ['open'],
+			}),
+		);
+		expect(preview.report.applied).toContainEqual(
+			expect.objectContaining({
+				expression: 'status == "open"',
+				filterType: 'specific_value',
+			}),
+		);
+		expect(preview.report.unsupported).toContainEqual(
+			expect.objectContaining({
+				expression: 'file.name.contains("Project")',
+				reason: expect.stringContaining('unsupported'),
+				preserved: true,
+			}),
+		);
 	});
 
 	it('combines supported global and supported view filters under a new and group', () => {
@@ -66,8 +75,16 @@ describe('serviceBasesInterop', () => {
 		});
 		expect(preview.filter?.children).toHaveLength(2);
 		expect(preview.report.applied).toEqual([
-			expect.objectContaining({ expression: 'status == "open"', property: 'status', values: ['open'] }),
-			expect.objectContaining({ expression: 'priority == "high"', property: 'priority', values: ['high'] }),
+			expect.objectContaining({
+				expression: 'status == "open"',
+				property: 'status',
+				values: ['open'],
+			}),
+			expect.objectContaining({
+				expression: 'priority == "high"',
+				property: 'priority',
+				values: ['high'],
+			}),
 		]);
 	});
 
@@ -95,20 +112,13 @@ describe('serviceBasesInterop', () => {
 	it('applies supported children from a mixed group and preserves unsupported children in the report', () => {
 		const preview = previewBasesImport({
 			sourcePath: 'Mixed.base',
-			content: [
-				'filters:',
-				'  and:',
-				'    - status == "open"',
-				'    - date <= today()',
-			].join('\n'),
+			content: ['filters:', '  and:', '    - status == "open"', '    - date <= today()'].join('\n'),
 		});
 
 		expect(preview.filter).toMatchObject({
 			type: 'group',
 			logic: 'and',
-			children: [
-				expect.objectContaining({ type: 'rule', property: 'status', values: ['open'] }),
-			],
+			children: [expect.objectContaining({ type: 'rule', property: 'status', values: ['open'] })],
 		});
 		expect(preview.filter?.children).toHaveLength(1);
 		expect(preview.report.applied).toEqual([
@@ -144,12 +154,7 @@ describe('serviceBasesInterop', () => {
 	it('reports unsupported expressions without applying them', () => {
 		const preview = previewBasesImport({
 			sourcePath: 'Advanced.base',
-			content: [
-				'filters:',
-				'  and:',
-				'    - date <= today()',
-				'    - status != "done"',
-			].join('\n'),
+			content: ['filters:', '  and:', '    - date <= today()', '    - status != "done"'].join('\n'),
 		});
 
 		expect(preview.filter).toBeUndefined();
@@ -161,15 +166,11 @@ describe('serviceBasesInterop', () => {
 	});
 
 	it('returns a preview report instead of throwing on invalid YAML', () => {
-		const readPreview = () => previewBasesImport({
-			sourcePath: 'Broken.base',
-			content: [
-				'filters:',
-				'  and:',
-				'    - status == "open"',
-				'    bad: [',
-			].join('\n'),
-		});
+		const readPreview = () =>
+			previewBasesImport({
+				sourcePath: 'Broken.base',
+				content: ['filters:', '  and:', '    - status == "open"', '    bad: ['].join('\n'),
+			});
 
 		expect(readPreview).not.toThrow();
 		const preview = readPreview();
@@ -186,19 +187,21 @@ describe('serviceBasesInterop', () => {
 	});
 
 	it('extracts fenced markdown bases blocks with block index and start line', () => {
-		const blocks = extractBasesFencedBlocks([
-			'# Dashboard',
-			'',
-			'```bases',
-			'filters:',
-			'  and:',
-			'    - status == "open"',
-			'```',
-			'',
-			'```bases yaml',
-			'views: []',
-			'```',
-		].join('\n'));
+		const blocks = extractBasesFencedBlocks(
+			[
+				'# Dashboard',
+				'',
+				'```bases',
+				'filters:',
+				'  and:',
+				'    - status == "open"',
+				'```',
+				'',
+				'```bases yaml',
+				'views: []',
+				'```',
+			].join('\n'),
+		);
 
 		expect(blocks).toEqual([
 			{ blockIndex: 0, lineStart: 3, rawContent: 'filters:\n  and:\n    - status == "open"' },

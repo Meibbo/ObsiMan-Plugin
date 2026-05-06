@@ -268,7 +268,9 @@ describe('reactive explorer components', () => {
 
 		expect(target.textContent).toContain('Import');
 		expect(target.textContent).toContain('Export');
-		expect(target.querySelector<HTMLButtonElement>('[aria-label="Export filters"]')?.disabled).toBe(true);
+		expect(target.querySelector<HTMLButtonElement>('[aria-label="Export filters"]')?.disabled).toBe(
+			true,
+		);
 
 		target.querySelector<HTMLButtonElement>('[aria-label="Import Bases filters"]')?.click();
 		flushSync();
@@ -277,13 +279,8 @@ describe('reactive explorer components', () => {
 	});
 
 	it('declares active filters import actions pointer-clickable inside popup chrome', () => {
-		const source = readFileSync(
-			'src/components/explorers/explorerActiveFilters.svelte',
-			'utf8',
-		);
-		expect(source).toMatch(
-			/\.vm-import-export-flyout-action\s*\{[\s\S]*?pointer-events:\s*auto;/,
-		);
+		const source = readFileSync('src/components/explorers/explorerActiveFilters.svelte', 'utf8');
+		expect(source).toMatch(/\.vm-import-export-flyout-action\s*\{[\s\S]*?pointer-events:\s*auto;/);
 	});
 
 	it('does not reuse the tab-pane visibility class inside the Content tab body', () => {

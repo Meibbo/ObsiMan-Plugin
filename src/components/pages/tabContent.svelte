@@ -1,10 +1,10 @@
-<script lang="ts">
+﻿<script lang="ts">
 	import { untrack } from 'svelte';
 	import type { TFile } from 'obsidian';
 	import type { VaultmanPlugin } from '../../main';
 	import type { ExplorerViewMode } from '../../types/typeExplorer';
 	import type { FnRScope, FnRState } from '../../types/typeFnR';
-	import { buildContentReplaceChange, createFnRState } from '../../services/serviceFnR.svelte';
+	import { buildContentReplaceChange, createFnRState } from '../../services/serviceFnR';
 	import { translate } from '../../index/i18n/lang';
 	import { SEARCH_SEMANTICS_SOURCES } from '../frame/frameSearchSources';
 	import PanelExplorer from '../containers/panelExplorer.svelte';
@@ -146,8 +146,7 @@
 				aria-label={translate('content.replace_placeholder')}
 				placeholder={translate('content.replace_placeholder')}
 				value={fnrState.replace}
-				oninput={(e) =>
-					updateFnRState({ replace: (e.currentTarget as HTMLInputElement).value })}
+				oninput={(e) => updateFnRState({ replace: (e.currentTarget as HTMLInputElement).value })}
 			/>
 		</div>
 

@@ -65,7 +65,7 @@ interface SemanticTarget {
 export class ViewService implements IViewService {
 	private readonly decorationManager?: IDecorationManager;
 	private readonly defaultMode: ExplorerViewMode;
-	
+
 	// Svelte 5 Native Reactivity
 	private readonly modes = new SvelteMap<string, ExplorerViewMode>();
 	private readonly selections = new SvelteMap<string, SvelteSet<string>>();
@@ -78,14 +78,16 @@ export class ViewService implements IViewService {
 	}
 
 	getModel<TNode extends NodeBase>(input: ExplorerViewInput<TNode>): ExplorerRenderModel<TNode> {
-		return getActivePerfProbe()?.measure(
-			'viewService.getModel',
-			{ nodes: input.nodes.length },
-			() => this.buildModel(input),
-		) ?? this.buildModel(input);
+		return (
+			getActivePerfProbe()?.measure('viewService.getModel', { nodes: input.nodes.length }, () =>
+				this.buildModel(input),
+			) ?? this.buildModel(input)
+		);
 	}
 
-	private buildModel<TNode extends NodeBase>(input: ExplorerViewInput<TNode>): ExplorerRenderModel<TNode> {
+	private buildModel<TNode extends NodeBase>(
+		input: ExplorerViewInput<TNode>,
+	): ExplorerRenderModel<TNode> {
 		const selected = this.selectionFor(input.explorerId);
 		const rows = input.nodes.map((node) => this.toRow(input, node, selected));
 
@@ -189,14 +191,15 @@ export class ViewService implements IViewService {
 
 		const source = iconSourceFromContext(context);
 		const decorationLayers: ViewLayers = {
-			icons: decoration.icons.map((icon, index): ViewIconLayer => ({
-				id: `${node.id}:icon:${index}`,
-				icon,
-				source,
-			})),
+			icons: decoration.icons.map(
+				(icon, index): ViewIconLayer => ({
+					id: `${node.id}:icon:${index}`,
+					icon,
+					source,
+				}),
+			),
 			badges: badgeLayersFromDecoration(node.id, decoration, source),
-			highlights:
-				decoration.highlights.length > 0 ? { query: decoration.highlights } : undefined,
+			highlights: decoration.highlights.length > 0 ? { query: decoration.highlights } : undefined,
 		};
 		return mergeLayers(decorationLayers, semanticLayers);
 	}
@@ -228,7 +231,14 @@ function labelFromNode(node: NodeBase): string {
 		property?: string;
 		name?: string;
 	};
-	return candidate.label ?? candidate.basename ?? candidate.tag ?? candidate.property ?? candidate.name ?? node.id;
+	return (
+		candidate.label ??
+		candidate.basename ??
+		candidate.tag ??
+		candidate.property ??
+		candidate.name ??
+		node.id
+	);
 }
 
 function iconSourceFromContext(context: unknown): ViewIconSource {
@@ -380,7 +390,9 @@ function matchedOperationLayersFor(
 			actionId: 'remove',
 		};
 	});
-	const hasDelete = matches.some(({ operation }) => operationIntent(operation.change, operation.group).label === 'delete');
+	const hasDelete = matches.some(
+		({ operation }) => operationIntent(operation.change, operation.group).label === 'delete',
+	);
 
 	return {
 		badges: { ops: uniqueBadges(badges) },
@@ -399,10 +411,11 @@ function matchedActiveFilterLayersFor(
 ): ViewLayers {
 	if (!activeFilters || activeFilters.length === 0) return {};
 	const target = semanticTargetFor(node, context);
-	const matches = activeFilters
-		.flatMap((entry, index) =>
-			isActiveFilterRuleEntry(entry) && filterMatchesTarget(entry.rule, target) ? [{ entry, index }] : [],
-		);
+	const matches = activeFilters.flatMap((entry, index) =>
+		isActiveFilterRuleEntry(entry) && filterMatchesTarget(entry.rule, target)
+			? [{ entry, index }]
+			: [],
+	);
 	if (matches.length === 0) return {};
 
 	const badges: ViewBadge[] = matches.map(({ entry, index }) => {
@@ -441,7 +454,8 @@ function semanticTargetFor(node: NodeBase, context: unknown): SemanticTarget {
 		meta?: SemanticContext;
 	};
 	const meta = candidate.meta ?? {};
-	const property = ctx.propName ?? ctx.property ?? meta.propName ?? meta.property ?? candidate.property;
+	const property =
+		ctx.propName ?? ctx.property ?? meta.propName ?? meta.property ?? candidate.property;
 	const value = ctx.rawValue ?? ctx.value ?? meta.rawValue ?? meta.value;
 	const tag = ctx.tagPath ?? ctx.tag ?? meta.tagPath ?? meta.tag ?? candidate.tag;
 	const filePath =
@@ -488,7 +502,9 @@ function operationMatchesTarget(change: PendingChange, target: SemanticTarget): 
 		if (target.kind !== 'prop') return false;
 		if (normalizeProperty(change.property) !== target.property) return false;
 		if (!target.isValueNode) return true;
-		const values = [change.value, change.oldValue].filter((value): value is string => value != null);
+		const values = [change.value, change.oldValue].filter(
+			(value): value is string => value != null,
+		);
 		return values.some((value) => String(value) === target.value);
 	}
 
@@ -496,7 +512,12 @@ function operationMatchesTarget(change: PendingChange, target: SemanticTarget): 
 		return target.kind === 'tag' && normalizeTag(change.tag) === target.tag;
 	}
 
-	if (change.type === 'file_rename' || change.type === 'file_move' || change.type === 'file_delete' || change.type === 'template') {
+	if (
+		change.type === 'file_rename' ||
+		change.type === 'file_move' ||
+		change.type === 'file_delete' ||
+		change.type === 'template'
+	) {
 		return target.kind === 'file' && changeTargetsFile(change, target);
 	}
 
@@ -511,7 +532,11 @@ function filterMatchesTarget(rule: FilterRule, target: SemanticTarget): boolean 
 	switch (rule.filterType) {
 		case 'has_property':
 		case 'missing_property':
-			return target.kind === 'prop' && !target.isValueNode && normalizeProperty(rule.property) === target.property;
+			return (
+				target.kind === 'prop' &&
+				!target.isValueNode &&
+				normalizeProperty(rule.property) === target.property
+			);
 		case 'specific_value':
 		case 'multiple_values':
 			return (
@@ -521,16 +546,25 @@ function filterMatchesTarget(rule: FilterRule, target: SemanticTarget): boolean 
 				rule.values.some((value) => String(value) === target.value)
 			);
 		case 'has_tag':
-			return target.kind === 'tag' && rule.values.some((value) => normalizeTag(value) === target.tag);
+			return (
+				target.kind === 'tag' && rule.values.some((value) => normalizeTag(value) === target.tag)
+			);
 		case 'folder':
 		case 'folder_exclude':
 		case 'file_folder':
-			return target.kind === 'file' && rule.values.some((value) => targetMatchesFolder(target, value));
+			return (
+				target.kind === 'file' && rule.values.some((value) => targetMatchesFolder(target, value))
+			);
 		case 'file_name':
 		case 'file_name_exclude':
-			return target.kind === 'file' && rule.values.some((value) => targetMatchesFileName(target, value));
+			return (
+				target.kind === 'file' && rule.values.some((value) => targetMatchesFileName(target, value))
+			);
 		case 'file_path':
-			return target.kind === 'file' && rule.values.some((value) => normalizePath(value) === target.filePath);
+			return (
+				target.kind === 'file' &&
+				rule.values.some((value) => normalizePath(value) === target.filePath)
+			);
 		default:
 			return false;
 	}
@@ -543,7 +577,7 @@ function changeTargetsFile(change: PendingChange, target: SemanticTarget): boole
 		const basename = (file.basename ?? file.name ?? '').toLowerCase();
 		return Boolean(
 			(target.filePath && path === target.filePath) ||
-				(target.basename && basename === target.basename),
+			(target.basename && basename === target.basename),
 		);
 	});
 }
@@ -552,7 +586,9 @@ function targetMatchesFolder(target: SemanticTarget, value: string): boolean {
 	const folder = normalizePath(value);
 	if (!folder) return false;
 	if (target.isFolder) return target.folderPath === folder || target.filePath === folder;
-	return Boolean(target.filePath && (target.filePath === folder || target.filePath.startsWith(`${folder}/`)));
+	return Boolean(
+		target.filePath && (target.filePath === folder || target.filePath.startsWith(`${folder}/`)),
+	);
 }
 
 function targetMatchesFileName(target: SemanticTarget, value: string): boolean {
@@ -571,10 +607,15 @@ function operationIntent(
 	if (raw.includes('add')) return { label: 'add', icon: 'lucide-plus', tone: 'success' };
 	if (raw.includes('rename')) return { label: 'rename', icon: 'lucide-pencil', tone: 'warning' };
 	if (raw.includes('move')) return { label: 'move', icon: 'lucide-folder-input', tone: 'info' };
-	if (raw.includes('template')) return { label: 'template', icon: 'lucide-book-marked', tone: 'accent' };
+	if (raw.includes('template'))
+		return { label: 'template', icon: 'lucide-book-marked', tone: 'accent' };
 	if (raw.includes('replace')) return { label: 'replace', icon: 'lucide-replace', tone: 'warning' };
 	if (raw.includes('set')) return { label: 'set', icon: 'lucide-settings-2', tone: 'info' };
-	return { label: change.action || change.type || group || 'operation', icon: 'lucide-settings-2', tone: 'info' };
+	return {
+		label: change.action || change.type || group || 'operation',
+		icon: 'lucide-settings-2',
+		tone: 'info',
+	};
 }
 
 function filterTypeLabel(type: FilterType): string {
@@ -582,7 +623,11 @@ function filterTypeLabel(type: FilterType): string {
 }
 
 function filterRangesForRule(label: string, rule: FilterRule): ViewTextRange[] | undefined {
-	const terms = [rule.property, ...rule.values, ...rule.values.map((value) => value.replace(/^#/, ''))].filter(Boolean);
+	const terms = [
+		rule.property,
+		...rule.values,
+		...rule.values.map((value) => value.replace(/^#/, '')),
+	].filter(Boolean);
 	const ranges = terms.flatMap((term) => rangesForTerm(label, term));
 	if (ranges.length === 0) return undefined;
 	return collapseRanges(ranges);
@@ -647,12 +692,14 @@ function isActiveFilterEntry(node: NodeBase): node is ActiveFilterEntry {
 	};
 	return Boolean(
 		(candidate.kind === 'rule' && candidate.rule?.type === 'rule') ||
-			(candidate.kind === 'group' && candidate.group?.type === 'group') ||
-			candidate.rule?.type === 'rule',
+		(candidate.kind === 'group' && candidate.group?.type === 'group') ||
+		candidate.rule?.type === 'rule',
 	);
 }
 
-function isActiveFilterRuleEntry(node: ActiveFilterEntry): node is Extract<ActiveFilterEntry, { kind: 'rule' }> {
+function isActiveFilterRuleEntry(
+	node: ActiveFilterEntry,
+): node is Extract<ActiveFilterEntry, { kind: 'rule' }> {
 	const candidate = node as {
 		kind?: string;
 		rule?: { type?: string };
@@ -688,7 +735,10 @@ function mergeBadges(
 	};
 }
 
-function mergeArrays<T>(primary: readonly T[] | undefined, secondary: readonly T[] | undefined): readonly T[] | undefined {
+function mergeArrays<T>(
+	primary: readonly T[] | undefined,
+	secondary: readonly T[] | undefined,
+): readonly T[] | undefined {
 	const merged = [...(primary ?? []), ...(secondary ?? [])];
 	return merged.length > 0 ? merged : undefined;
 }
@@ -699,11 +749,13 @@ function badgeLayersFromDecoration(
 	source: ViewIconSource,
 ): ViewBadgeLayers | undefined {
 	if (decoration.badges.length === 0) return undefined;
-	const badges = decoration.badges.map((badge, index): ViewBadge => ({
-		id: `${nodeId}:badge:${index}`,
-		label: badge.label,
-		tone: toneFromAccent(badge.accent),
-	}));
+	const badges = decoration.badges.map(
+		(badge, index): ViewBadge => ({
+			id: `${nodeId}:badge:${index}`,
+			label: badge.label,
+			tone: toneFromAccent(badge.accent),
+		}),
+	);
 
 	if (source === 'operation') return { ops: badges };
 	if (source === 'filter') return { filters: badges };

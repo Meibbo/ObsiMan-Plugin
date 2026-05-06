@@ -125,7 +125,9 @@ describe('FilterService node mutation helpers', () => {
 
 	it('sets a replaceable selected-files filter group with exact file children', () => {
 		const { svc, a, b, c } = setup();
-		const selectedSvc = svc as FilterService & { setSelectedFileFilter(files: Array<typeof a>): void };
+		const selectedSvc = svc as FilterService & {
+			setSelectedFileFilter(files: Array<typeof a>): void;
+		};
 
 		selectedSvc.setSelectedFileFilter([a, b]);
 
@@ -159,7 +161,9 @@ describe('FilterService node mutation helpers', () => {
 
 	it('toggles the selected-files filter off when the same file set is selected again', () => {
 		const { svc, a } = setup();
-		const selectedSvc = svc as FilterService & { setSelectedFileFilter(files: Array<typeof a>): void };
+		const selectedSvc = svc as FilterService & {
+			setSelectedFileFilter(files: Array<typeof a>): void;
+		};
 
 		selectedSvc.setSelectedFileFilter([a]);
 		selectedSvc.setSelectedFileFilter([a]);
@@ -250,11 +254,13 @@ describe('FilterService introspection', () => {
 			root: {
 				type: 'group',
 				logic: 'all',
-				children: [{
-					type: 'group',
-					logic: 'any',
-					children: [draftRule],
-				}],
+				children: [
+					{
+						type: 'group',
+						logic: 'any',
+						children: [draftRule],
+					},
+				],
 			},
 		};
 

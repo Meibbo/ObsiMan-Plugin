@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { buildTagAddChange, buildTagDeleteChange, buildTagRenameChange } from '../../../src/services/serviceTagQueue';
+import {
+	buildTagAddChange,
+	buildTagDeleteChange,
+	buildTagRenameChange,
+} from '../../../src/services/serviceTagQueue';
 import { mockTFile } from '../../helpers/obsidian-mocks';
 
 describe('serviceTagQueue', () => {
@@ -10,7 +14,9 @@ describe('serviceTagQueue', () => {
 		expect(change?.type).toBe('tag');
 		expect(change?.action).toBe('add');
 		expect(change?.tag).toBe('project');
-		expect(change?.logicFunc(file, { tags: ['archive'] })).toEqual({ tags: ['archive', 'project'] });
+		expect(change?.logicFunc(file, { tags: ['archive'] })).toEqual({
+			tags: ['archive', 'project'],
+		});
 		expect(change?.logicFunc(file, { tags: ['project'] })).toBeNull();
 	});
 
@@ -19,7 +25,9 @@ describe('serviceTagQueue', () => {
 		const change = buildTagDeleteChange('#project', [file]);
 
 		expect(change?.action).toBe('delete');
-		expect(change?.logicFunc(file, { tags: ['project', 'archive'] })).toEqual({ tags: ['archive'] });
+		expect(change?.logicFunc(file, { tags: ['project', 'archive'] })).toEqual({
+			tags: ['archive'],
+		});
 		expect(change?.logicFunc(file, { tags: ['other'] })).toBeNull();
 	});
 
@@ -38,7 +46,9 @@ describe('serviceTagQueue', () => {
 		const file = mockTFile('a.md');
 		const change = buildTagRenameChange('project', 'archive', [file]);
 
-		expect(change?.logicFunc(file, { tags: ['project', 'archive'] })).toEqual({ tags: ['archive'] });
+		expect(change?.logicFunc(file, { tags: ['project', 'archive'] })).toEqual({
+			tags: ['archive'],
+		});
 	});
 
 	it('does not build blank or unchanged tag renames', () => {

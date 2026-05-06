@@ -1,4 +1,4 @@
-import { TagsLogic } from '../../logic/logicTags';
+﻿import { TagsLogic } from '../../logic/logicTags';
 import type { TFile } from 'obsidian';
 import type { TreeNode, TagMeta, NodeBadge } from '../../types/typeNode';
 import type { VaultmanPlugin } from '../../main';
@@ -10,7 +10,7 @@ import {
 	buildTagRenameChange,
 	tagListContains,
 } from '../../services/serviceTagQueue';
-import { createFnRState, startTagRenameHandoff } from '../../services/serviceFnR.svelte';
+import { createFnRState, startTagRenameHandoff } from '@services/serviceFnR';
 import type { FnRRenameHandoff, FnRScope } from '../../types/typeFnR';
 import { showInputModal } from '../../utils/inputModal';
 import {

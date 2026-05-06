@@ -1,10 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushSync, mount, unmount, type Component } from 'svelte';
-import {
-	clearActivePerfProbe,
-	createPerfProbe,
-	setActivePerfProbe,
-} from '../../src/dev/perfProbe';
+import { clearActivePerfProbe, createPerfProbe, setActivePerfProbe } from '../../src/dev/perfProbe';
 import PanelExplorer from '../../src/components/containers/panelExplorer.svelte';
 import type { VaultmanPlugin } from '../../src/main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../src/types/typeExplorer';
@@ -120,7 +116,9 @@ describe('PanelExplorer empty landing', () => {
 			});
 			flushSync();
 
-			expect(target.textContent).toContain(`${viewMode[0].toUpperCase()}${viewMode.slice(1)} view not available`);
+			expect(target.textContent).toContain(
+				`${viewMode[0].toUpperCase()}${viewMode.slice(1)} view not available`,
+			);
 			expect(target.textContent).toContain('Switch to tree or grid');
 			expect(target.textContent).not.toContain('No items');
 		},

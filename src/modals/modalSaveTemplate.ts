@@ -36,16 +36,14 @@ export class SaveTemplateModal extends Modal {
 		}
 
 		// Name input
-		new Setting(contentEl)
-			.setName(translate('session.name'))
-			.addText((text) =>
-				text
-					.setPlaceholder('Template name...')
-					.setValue(this.templateName)
-					.onChange((v) => {
-						this.templateName = v.trim();
-					})
-			);
+		new Setting(contentEl).setName(translate('session.name')).addText((text) =>
+			text
+				.setPlaceholder('Template name...')
+				.setValue(this.templateName)
+				.onChange((v) => {
+					this.templateName = v.trim();
+				}),
+		);
 
 		// Buttons
 		new Setting(contentEl)
@@ -57,11 +55,9 @@ export class SaveTemplateModal extends Modal {
 						if (!this.templateName) return;
 						void this.saveTemplate();
 						this.close();
-					})
+					}),
 			)
-			.addButton((btn) =>
-				btn.setButtonText('Cancel').onClick(() => this.close())
-			);
+			.addButton((btn) => btn.setButtonText('Cancel').onClick(() => this.close()));
 	}
 
 	private async saveTemplate(): Promise<void> {

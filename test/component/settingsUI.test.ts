@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest';
 import { mount, unmount, flushSync, type Component } from 'svelte';
 import SettingsUI from '../../src/components/settings/SettingsUI.svelte';
-import { DEFAULT_SETTINGS, type iVaultmanPlugin, type VaultmanSettings } from '../../src/types/typeSettings';
+import {
+	DEFAULT_SETTINGS,
+	type iVaultmanPlugin,
+	type VaultmanSettings,
+} from '../../src/types/typeSettings';
 import { installObsidianDomPolyfill } from '../helpers/dom-obsidian-polyfill';
 
 beforeAll(() => {

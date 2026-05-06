@@ -1,4 +1,4 @@
-import type { TFile } from 'obsidian';
+﻿import type { TFile } from 'obsidian';
 import type { VaultmanPlugin } from '../../main';
 import { FilesLogic } from '../../logic/logicsFiles';
 import type { TreeNode, FileMeta } from '../../types/typeNode';
@@ -8,10 +8,7 @@ import { FileMoveModal } from '../../modals/modalFileMove';
 import { PropertyManagerModal } from '../../modals/modalPropertyManager';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
 import { buildFileDeleteChange } from '../../services/serviceFileQueue';
-import {
-	createFnRState,
-	startFileRenameHandoff,
-} from '../../services/serviceFnR.svelte';
+import { createFnRState, startFileRenameHandoff } from '@services/serviceFnR';
 import type { FnRRenameHandoff } from '../../types/typeFnR';
 
 interface ExplorerFilesOptions {
@@ -154,7 +151,11 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 		this.setSelectedFilesFilter(files);
 	}
 
-	handleContextMenu(node: TreeNode<FileMeta>, e: MouseEvent, selectedNodes: TreeNode<FileMeta>[] = []): void {
+	handleContextMenu(
+		node: TreeNode<FileMeta>,
+		e: MouseEvent,
+		selectedNodes: TreeNode<FileMeta>[] = [],
+	): void {
 		const meta = node.meta;
 		if (meta.isFolder || !meta.file) return;
 		this.plugin.contextMenuService.openPanelMenu(

@@ -50,10 +50,7 @@ export class PropertyTypeService extends Component {
 			const data = JSON.parse(raw) as { types?: Record<string, string> };
 			if (!data.types) data.types = {};
 			data.types[propName] = type;
-			await this.app.vault.adapter.write(
-				path,
-				JSON.stringify(data, null, 2)
-			);
+			await this.app.vault.adapter.write(path, JSON.stringify(data, null, 2));
 		} catch {
 			// Could not write types.json
 		}

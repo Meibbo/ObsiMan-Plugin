@@ -63,9 +63,9 @@ describe('explorerFiles interactions', () => {
 		const trashFile = vi.spyOn(plugin.app.fileManager, 'trashFile');
 		const explorer = new explorerFiles(plugin);
 		const fileNode = explorer.getTree()[0].children?.find((node) => node.meta.file === files[0]);
-		const deleteAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
-			([action]) => action.id === 'file.delete',
-		)?.[0];
+		const deleteAction = (
+			plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'file.delete')?.[0];
 
 		expect(fileNode).toBeTruthy();
 		expect(deleteAction).toBeTruthy();
@@ -89,9 +89,9 @@ describe('explorerFiles interactions', () => {
 		const startRenameHandoff = vi.fn<(handoff: FnRRenameHandoff) => void>();
 		const explorer = new explorerFiles(plugin, { startRenameHandoff });
 		const fileNodes = explorer.getTree()[0].children?.filter((node) => node.meta.file) ?? [];
-		const renameAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
-			([action]) => action.id === 'file.rename',
-		)?.[0];
+		const renameAction = (
+			plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'file.rename')?.[0];
 
 		expect(fileNodes.length).toBe(2);
 		expect(renameAction).toBeTruthy();

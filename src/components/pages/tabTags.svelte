@@ -1,56 +1,56 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import type { VaultmanPlugin } from "../../main";
-  import { explorerTags } from "../containers/explorerTags";
-  import PanelExplorer from "../containers/panelExplorer.svelte";
-  import type { FnRRenameHandoff } from "../../types/typeFnR";
-  import { setIcon } from "obsidian";
+	import { onMount } from 'svelte';
+	import type { VaultmanPlugin } from '../../main';
+	import { explorerTags } from '../containers/explorerTags';
+	import PanelExplorer from '../containers/panelExplorer.svelte';
+	import type { FnRRenameHandoff } from '../../types/typeFnR';
+	import { setIcon } from 'obsidian';
 
-  let {
-    plugin,
-    searchTerm = $bindable(""),
-    searchMode = 0,
-    sortBy = $bindable("name"),
-    sortDirection = $bindable("asc"),
-    viewMode = $bindable("tree"),
-    explorer = $bindable(),
-    startRenameHandoff,
-  }: {
-    plugin: VaultmanPlugin;
-    searchTerm?: string;
-    searchMode?: number;
-    sortBy?: string;
-    sortDirection?: "asc" | "desc";
-    viewMode?: any;
-    explorer: explorerTags | undefined;
-    startRenameHandoff?: (handoff: FnRRenameHandoff) => void;
-  } = $props();
+	let {
+		plugin,
+		searchTerm = $bindable(''),
+		searchMode = 0,
+		sortBy = $bindable('name'),
+		sortDirection = $bindable('asc'),
+		viewMode = $bindable('tree'),
+		explorer = $bindable(),
+		startRenameHandoff,
+	}: {
+		plugin: VaultmanPlugin;
+		searchTerm?: string;
+		searchMode?: number;
+		sortBy?: string;
+		sortDirection?: 'asc' | 'desc';
+		viewMode?: any;
+		explorer: explorerTags | undefined;
+		startRenameHandoff?: (handoff: FnRRenameHandoff) => void;
+	} = $props();
 
-  onMount(() => {
-    explorer = new explorerTags(plugin, { startRenameHandoff });
-  });
+	onMount(() => {
+		explorer = new explorerTags(plugin, { startRenameHandoff });
+	});
 
-  function icon(el: HTMLElement, name: string) {
-    setIcon(el, name);
-    return {
-      update(n: string) {
-        setIcon(el, n);
-      },
-    };
-  }
+	function icon(el: HTMLElement, name: string) {
+		setIcon(el, name);
+		return {
+			update(n: string) {
+				setIcon(el, n);
+			},
+		};
+	}
 </script>
 
 <div class="vm-tags-tab-content">
-  {#if explorer}
-    <PanelExplorer
-      {plugin}
-      provider={explorer}
-      bind:viewMode
-      bind:searchTerm
-      {searchMode}
-      bind:sortBy
-      bind:sortDirection
-      {icon}
-    />
-  {/if}
+	{#if explorer}
+		<PanelExplorer
+			{plugin}
+			provider={explorer}
+			bind:viewMode
+			bind:searchTerm
+			{searchMode}
+			bind:sortBy
+			bind:sortDirection
+			{icon}
+		/>
+	{/if}
 </div>

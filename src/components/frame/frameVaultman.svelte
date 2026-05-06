@@ -1,14 +1,14 @@
-<!--******************************************************************\\
-//*      ___|^___^|___        .-~*´¨¯¨`*~-.        ___|^___^|___     *\\
+﻿<!--******************************************************************\\
+//*      ___|^___^|___        .-~*Â´Â¨Â¯Â¨`*~-.        ___|^___^|___     *\\
 //*     |  Vaultman  |       |   Meibbo   |       | April 2026 |     *\\
-//*     \___/`*´\___/        `-~*´¨¯¨`*~-´        \___/`*´\___/      *\\
+//*     \___/`*Â´\___/        `-~*Â´Â¨Â¯Â¨`*~-Â´        \___/`*Â´\___/      *\\
 //*                                                                  *\\
 //*           Made with love for tools that last and help.           *\\
 //*                                                                  *\\
-//*     (づ￣ 3￣)づ    ☆*: .｡. o(≧▽≦)o .｡.:*☆     ╰(*°▽°*)╯      *\\
+//*     (ã¥ï¿£ 3ï¿£)ã¥    â˜†*: .ï½¡. o(â‰§â–½â‰¦)o .ï½¡.:*â˜†     â•°(*Â°â–½Â°*)â•¯      *\\
 //*******************************************************************-->
 
-<!--...---------—————————————(   IMPORTS   )————————————----------...-->
+<!--...---------â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”(   IMPORTS   )â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”----------...-->
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
 	import { setIcon } from 'obsidian';
@@ -49,14 +49,14 @@
 		type FiltersSearchTab,
 		type FiltersSearchState,
 	} from './frameFiltersSearch';
-	import { createFnRState } from '../../services/serviceFnR.svelte';
+	import { createFnRState } from '../../services/serviceFnR';
 	import type { FnRState } from '../../types/typeFnR';
 
-	// ─── Props ─────────────------------------...........
+	// â”€â”€â”€ Props â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€------------------...........
 
 	let { plugin }: { plugin: VaultmanPlugin } = $props();
 
-	// ─── Page navigation ──────────────────────────────────────────────────────
+	// â”€â”€â”€ Page navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 	function initFrameState() {
 		return {
@@ -78,7 +78,7 @@
 	const pageIcons: Record<string, string> = createFramePageIcons();
 	const overlays = initialFrameState.overlays;
 
-	// ─── Per-page FAB definitions ────────────────────────────────────────────────
+	// â”€â”€â”€ Per-page FAB definitions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 	const pageFabs = $derived.by<Record<string, { left: FabDef | null; right: FabDef | null }>>(() =>
 		createFramePageFabs(
@@ -97,7 +97,7 @@
 
 	let activePage = $state<string>(initialFrameState.pageOrder[0] ?? 'ops');
 
-	// Use DOM insertion order (pageOrder at mount time) — avoids stale settings mismatch
+	// Use DOM insertion order (pageOrder at mount time) â€” avoids stale settings mismatch
 	let pageIndex = $derived(pageOrder.indexOf(activePage));
 	const viewport = new FrameViewportController(() => pageIndex);
 	const navReorder = new FrameNavReorderController({
@@ -146,7 +146,7 @@
 		}
 	});
 
-	// ─── Stats ────────────────────────────────────────────────────────────────
+	// â”€â”€â”€ Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 	let selectedCount = $state(0);
 	let queuedCount = $state(0);
@@ -171,7 +171,7 @@
 	let tagsExplorer = $state<explorerTags>();
 	let selectedFilePaths = $state(new Set<string>());
 
-	// ─── Filters page state ──────────────────────────────────────────────────
+	// â”€â”€â”€ Filters page state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 	type FiltersTab = FiltersSearchTab;
 	let filtersActiveTab = $state<FiltersTab>('props');
 	$effect(() => {
@@ -226,7 +226,7 @@
 		}
 	});
 
-	// ─── Refresh ─────────────────────────────────────────────────────────────
+	// â”€â”€â”€ Refresh â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 	function refreshFiles() {
 		updateStats();
@@ -258,7 +258,7 @@
 		updateStats();
 	}
 
-	// ─── Scope popup ──────────────────────────────────────────────────────────
+	// â”€â”€â”€ Scope popup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 	// TODO: where this icons are showed?
 	const scopeOptions = [
 		{
@@ -296,7 +296,7 @@
 		void plugin.saveSettings();
 	}
 
-	// ─── Search popup ─────────────────────────────────────────────────────────
+	// â”€â”€â”€ Search popup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 	let searchName = $state('');
 	let searchFolder = $state('');
@@ -308,9 +308,9 @@
 		plugin.filterService.setSearchFilter(searchName, searchFolder);
 	});
 
-	// ─── Filters page state (bound to FiltersPage component) ─────────────────
+	// â”€â”€â”€ Filters page state (bound to FiltersPage component) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-	// ─── Active Filters popup state ───────────────────────────────────────────
+	// â”€â”€â”€ Active Filters popup state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 	let activeFilterRules = $state<ActiveFilterRule[]>([]);
 
@@ -331,9 +331,9 @@
 		updateStats();
 	}
 
-	// ─── Scope popup ──────────────────────────────────────────────────────────
+	// â”€â”€â”€ Scope popup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-	// ─── Move popup ───────────────────────────────────────────────────────────
+	// â”€â”€â”€ Move popup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 	let moveTargetFiles = $state<import('obsidian').TFile[]>([]);
 	let moveTargetFolder = $state('');
@@ -358,7 +358,7 @@
 		};
 	}
 
-	// ─── Icon action (Svelte action wrapping Obsidian setIcon) ────────────────
+	// â”€â”€â”€ Icon action (Svelte action wrapping Obsidian setIcon) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 	function icon(el: HTMLElement, name: string) {
 		setIcon(el, name);
@@ -369,7 +369,7 @@
 		};
 	}
 
-	// ─── Refresh active filters popup when it becomes visible ────────────────
+	// â”€â”€â”€ Refresh active filters popup when it becomes visible â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 	$effect(() => {
 		if (overlays.activePopup === 'active-filters' && overlays.popupOpen) {
@@ -377,7 +377,7 @@
 		}
 	});
 
-	// ─── Lifecycle ────────────────────────────────────────────────────────────
+	// â”€â”€â”€ Lifecycle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 	onMount(() => {
 		const onFilterChanged = () => {
@@ -412,7 +412,7 @@
 	});
 </script>
 
-<!-- ─── Page container (horizontal slide strip) ────────────────────────────── -->
+<!-- â”€â”€â”€ Page container (horizontal slide strip) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <!-- vm-pages-viewport clips via overflow:hidden; the container slides inside it -->
 <div class="vm-view" use:navReorder.bindViewRoot>
 	<div class="vm-pages-viewport" use:viewport.bindViewport>
@@ -455,7 +455,7 @@
 			{/each}
 		</div>
 
-		<!-- ─── Island Backdrop (Rising Glass) ─────────────────────────────────── -->
+		<!-- â”€â”€â”€ Island Backdrop (Rising Glass) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 		<div
 			class="vm-island-backdrop vm-glass"
 			class:is-open={overlays.isIslandOpen}

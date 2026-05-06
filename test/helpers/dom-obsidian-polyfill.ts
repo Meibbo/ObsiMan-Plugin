@@ -16,10 +16,14 @@ export function installObsidianDomPolyfill(): void {
 	if (typeof Element === 'undefined') return;
 	const proto = Element.prototype as unknown as ObsEl;
 	if (!proto.addClass) {
-		proto.addClass = function (cls: string) { (this as Element).classList.add(cls); };
+		proto.addClass = function (cls: string) {
+			(this as Element).classList.add(cls);
+		};
 	}
 	if (!proto.removeClass) {
-		proto.removeClass = function (cls: string) { (this as Element).classList.remove(cls); };
+		proto.removeClass = function (cls: string) {
+			(this as Element).classList.remove(cls);
+		};
 	}
 	if (!proto.toggleClass) {
 		proto.toggleClass = function (cls: string, force?: boolean) {
@@ -52,6 +56,8 @@ export function installObsidianDomPolyfill(): void {
 		};
 	}
 	if (!proto.setText) {
-		proto.setText = function (text: string) { (this as Element).textContent = text; };
+		proto.setText = function (text: string) {
+			(this as Element).textContent = text;
+		};
 	}
 }

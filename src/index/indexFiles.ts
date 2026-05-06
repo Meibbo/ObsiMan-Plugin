@@ -3,13 +3,13 @@ import type { FileNode, IFilesIndex } from '../types/typeContracts';
 import { createNodeIndex } from './indexNodeCreate';
 
 export function createFilesIndex(app: App): IFilesIndex {
-  return createNodeIndex<FileNode>({
-    build: () =>
-      app.vault.getMarkdownFiles().map((file) => ({
-        id: file.path,
-        path: file.path,
-        basename: file.basename,
-        file,
-      })),
-  });
+	return createNodeIndex<FileNode>({
+		build: () =>
+			app.vault.getMarkdownFiles().map((file) => ({
+				id: file.path,
+				path: file.path,
+				basename: file.basename,
+				file,
+			})),
+	});
 }

@@ -36,7 +36,7 @@ export class PropertyIndexService extends Component {
 		this.registerEvent(
 			this.app.metadataCache.on('resolved', () => {
 				this.rebuild();
-			})
+			}),
 		);
 
 		// Live update on metadata changes (debounced)
@@ -44,21 +44,21 @@ export class PropertyIndexService extends Component {
 			this.app.metadataCache.on('changed', (file) => {
 				this.pendingFiles.add(file.path);
 				this.scheduleFlush();
-			})
+			}),
 		);
 
 		// Incremental removal on file delete
 		this.registerEvent(
 			this.app.vault.on('delete', (file: TAbstractFile) => {
 				this.removeFile(file.path);
-			})
+			}),
 		);
 
 		// Track new files for fileCount
 		this.registerEvent(
 			this.app.vault.on('create', () => {
 				this.fileCount = this.app.vault.getMarkdownFiles().length;
-			})
+			}),
 		);
 	}
 
@@ -85,7 +85,7 @@ export class PropertyIndexService extends Component {
 	/** Get sorted property names for autocomplete */
 	getPropertyNames(): string[] {
 		return [...this.index.keys()].sort((a, b) =>
-			a.localeCompare(b, undefined, { sensitivity: 'base' })
+			a.localeCompare(b, undefined, { sensitivity: 'base' }),
 		);
 	}
 
@@ -93,9 +93,7 @@ export class PropertyIndexService extends Component {
 	getPropertyValues(property: string): string[] {
 		const values = this.index.get(property);
 		if (!values) return [];
-		return [...values].sort((a, b) =>
-			a.localeCompare(b, undefined, { sensitivity: 'base' })
-		);
+		return [...values].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 	}
 
 	/** Schedule a debounced flush of pending metadata updates */

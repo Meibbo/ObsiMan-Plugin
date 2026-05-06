@@ -5,10 +5,13 @@ import type { VaultmanSettings } from '../../src/types/typeSettings';
 
 interface ExtendedApp extends App {
 	plugins: {
-		plugins: Record<string, {
-			settings?: VaultmanSettings;
-			saveSettings?: () => Promise<void>;
-		}>;
+		plugins: Record<
+			string,
+			{
+				settings?: VaultmanSettings;
+				saveSettings?: () => Promise<void>;
+			}
+		>;
 	};
 }
 
@@ -71,9 +74,7 @@ describe('settings migration', () => {
 					'contextMenuHideRules',
 				];
 
-				const missing = required.filter(
-					(k) => plugin.settings![k] === undefined,
-				);
+				const missing = required.filter((k) => plugin.settings![k] === undefined);
 				return { ok: missing.length === 0, missing };
 			},
 		});

@@ -1,14 +1,8 @@
 import type { App, TFile } from 'obsidian';
 import { createNodeIndex } from './indexNodeCreate';
-import {
-	extractBasesFencedBlocks,
-	previewBasesImport,
-} from '../services/serviceBasesInterop';
+import { extractBasesFencedBlocks, previewBasesImport } from '../services/serviceBasesInterop';
 import type { BasesImportTarget } from '../types/typeBasesInterop';
-import type {
-	BasesImportTargetNode,
-	IBasesImportTargetsIndex,
-} from '../types/typeContracts';
+import type { BasesImportTargetNode, IBasesImportTargetsIndex } from '../types/typeContracts';
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -26,9 +20,10 @@ async function discoverBasesImportTargetNodes(app: App): Promise<BasesImportTarg
 		if (extension !== 'base' && extension !== 'md') continue;
 
 		const content = await app.vault.read(file);
-		const targets = extension === 'base'
-			? discoverBaseFileTargets(file, content)
-			: discoverMarkdownFenceTargets(file, content);
+		const targets =
+			extension === 'base'
+				? discoverBaseFileTargets(file, content)
+				: discoverMarkdownFenceTargets(file, content);
 
 		if (targets.length === 0) continue;
 		nodes.push({
@@ -54,13 +49,15 @@ function discoverBaseFileTargets(file: TFile, content: string): BasesImportTarge
 	const views = getNamedViews(sourcePreview.rawConfig);
 	if (views.length === 0) {
 		return isCompatiblePreview(sourcePreview)
-			? [{
-				sourcePath: file.path,
-				kind: 'base-file',
-				label: file.basename || file.name || file.path,
-				compatible: true,
-				reasons: [],
-			}]
+			? [
+					{
+						sourcePath: file.path,
+						kind: 'base-file',
+						label: file.basename || file.name || file.path,
+						compatible: true,
+						reasons: [],
+					},
+				]
 			: [];
 	}
 
@@ -74,13 +71,13 @@ function discoverBaseFileTargets(file: TFile, content: string): BasesImportTarge
 			});
 			return isCompatiblePreview(preview)
 				? {
-					sourcePath: file.path,
-					kind: 'base-view' as const,
-					targetViewName,
-					label: targetViewName,
-					compatible: true,
-					reasons: [],
-				}
+						sourcePath: file.path,
+						kind: 'base-view' as const,
+						targetViewName,
+						label: targetViewName,
+						compatible: true,
+						reasons: [],
+					}
 				: undefined;
 		})
 		.filter((target): target is BasesImportTarget => target !== undefined);
@@ -120,7 +117,7 @@ function getNamedViews(config: UnknownRecord): string[] {
 	if (!Array.isArray(config.views)) return [];
 	const views: unknown[] = config.views;
 	return views
-		.map((view) => isRecord(view) && typeof view.name === 'string' ? view.name : undefined)
+		.map((view) => (isRecord(view) && typeof view.name === 'string' ? view.name : undefined))
 		.filter((name): name is string => Boolean(name));
 }
 

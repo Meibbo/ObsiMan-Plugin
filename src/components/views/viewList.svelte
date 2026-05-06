@@ -77,7 +77,8 @@
 				class:is-selected={row.layers.state?.selected}
 				class:is-disabled={row.disabled || row.layers.state?.disabled}
 				class:is-group={isGroupRow(row)}
-				style="transform: translateY({absIdx * virtualizer.rowHeight}px); --vm-list-depth-indent: {(row.depth ?? 0) * 14}px"
+				style="transform: translateY({absIdx *
+					virtualizer.rowHeight}px); --vm-list-depth-indent: {(row.depth ?? 0) * 14}px"
 				data-id={row.id}
 			>
 				{#if iconName}

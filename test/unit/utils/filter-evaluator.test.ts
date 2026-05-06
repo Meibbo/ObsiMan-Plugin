@@ -55,7 +55,11 @@ describe('evalNode', () => {
 
 	it('multiple_values matches any provided value', () => {
 		const { universe, getMeta, a, b } = fixture();
-		const r = rule({ property: 'status', filterType: 'multiple_values', values: ['draft', 'done'] });
+		const r = rule({
+			property: 'status',
+			filterType: 'multiple_values',
+			values: ['draft', 'done'],
+		});
 		expect(evalNode(r, universe, getMeta)).toEqual(new Set([a.path, b.path]));
 	});
 
@@ -75,7 +79,10 @@ describe('evalNode', () => {
 
 	it('file_path matches exact file paths case-insensitively', () => {
 		const { universe, getMeta, a } = fixture();
-		const r = rule({ filterType: 'file_path' as FilterRule['filterType'], values: ['notes/draft.md'] });
+		const r = rule({
+			filterType: 'file_path' as FilterRule['filterType'],
+			values: ['notes/draft.md'],
+		});
 		expect(evalNode(r, universe, getMeta)).toEqual(new Set([a.path]));
 	});
 
@@ -87,40 +94,65 @@ describe('evalNode', () => {
 
 	it('group ALL = intersection of children', () => {
 		const { universe, getMeta, a } = fixture();
-		const g = group([
-			rule({ property: 'status', filterType: 'has_property' }),
-			rule({ filterType: 'folder', values: ['Notes'] }),
-			rule({ filterType: 'specific_value', property: 'status', values: ['draft'] }),
-		], 'all');
+		const g = group(
+			[
+				rule({ property: 'status', filterType: 'has_property' }),
+				rule({ filterType: 'folder', values: ['Notes'] }),
+				rule({ filterType: 'specific_value', property: 'status', values: ['draft'] }),
+			],
+			'all',
+		);
 		expect(evalNode(g, universe, getMeta)).toEqual(new Set([a.path]));
 	});
 
 	it('group ANY = union of children', () => {
 		const { universe, getMeta, a, c } = fixture();
-		const g = group([
-			rule({ filterType: 'specific_value', property: 'status', values: ['draft'] }),
-			rule({ filterType: 'folder', values: ['Archive'] }),
-		], 'any');
+		const g = group(
+			[
+				rule({ filterType: 'specific_value', property: 'status', values: ['draft'] }),
+				rule({ filterType: 'folder', values: ['Archive'] }),
+			],
+			'any',
+		);
 		expect(evalNode(g, universe, getMeta)).toEqual(new Set([a.path, c.path]));
 	});
 
 	it('group NONE = universe minus union', () => {
 		const { universe, getMeta, c } = fixture();
-		const g = group([
-			rule({ property: 'status', filterType: 'has_property' }),
-		], 'none');
+		const g = group([rule({ property: 'status', filterType: 'has_property' })], 'none');
 		expect(evalNode(g, universe, getMeta)).toEqual(new Set([c.path]));
 	});
 
 	it('evaluates and/or/not group logic names', () => {
 		const { universe, getMeta, a, b, c } = fixture();
 
-		expect(evalNode(group([rule({ filterType: 'folder', values: ['Notes'] })], 'and'), universe, getMeta)).toEqual(new Set([a.path, b.path]));
-		expect(evalNode(group([
-			rule({ filterType: 'specific_value', property: 'status', values: ['draft'] }),
-			rule({ filterType: 'folder', values: ['Archive'] }),
-		], 'or'), universe, getMeta)).toEqual(new Set([a.path, c.path]));
-		expect(evalNode(group([rule({ property: 'status', filterType: 'has_property' })], 'not'), universe, getMeta)).toEqual(new Set([c.path]));
+		expect(
+			evalNode(
+				group([rule({ filterType: 'folder', values: ['Notes'] })], 'and'),
+				universe,
+				getMeta,
+			),
+		).toEqual(new Set([a.path, b.path]));
+		expect(
+			evalNode(
+				group(
+					[
+						rule({ filterType: 'specific_value', property: 'status', values: ['draft'] }),
+						rule({ filterType: 'folder', values: ['Archive'] }),
+					],
+					'or',
+				),
+				universe,
+				getMeta,
+			),
+		).toEqual(new Set([a.path, c.path]));
+		expect(
+			evalNode(
+				group([rule({ property: 'status', filterType: 'has_property' })], 'not'),
+				universe,
+				getMeta,
+			),
+		).toEqual(new Set([c.path]));
 	});
 
 	it('normalizes legacy all/any/none group logic', () => {

@@ -31,7 +31,9 @@ function plugin(): VaultmanPlugin {
 			],
 		]),
 	});
-	(app.metadataCache as unknown as { getTags: () => Record<string, number> }).getTags = vi.fn(() => ({}));
+	(app.metadataCache as unknown as { getTags: () => Record<string, number> }).getTags = vi.fn(
+		() => ({}),
+	);
 
 	return {
 		app,

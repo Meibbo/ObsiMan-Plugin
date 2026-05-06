@@ -4,7 +4,8 @@ import { mockApp } from '../../helpers/obsidian-mocks';
 
 function appWithTags(rawTags: Record<string, number>) {
 	const app = mockApp();
-	(app.metadataCache as unknown as { getTags: () => Record<string, number> }).getTags = () => rawTags;
+	(app.metadataCache as unknown as { getTags: () => Record<string, number> }).getTags = () =>
+		rawTags;
 	return app;
 }
 

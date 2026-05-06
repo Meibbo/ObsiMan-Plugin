@@ -10,21 +10,9 @@ export const FIND_REPLACE_CONTENT = '_FIND_REPLACE_CONTENT';
 export const REORDER_ALL = '_REORDER_ALL';
 export const APPLY_TEMPLATE = '_APPLY_TEMPLATE';
 
-export type PropertyAction =
-	| 'set'
-	| 'rename'
-	| 'delete'
-	| 'clean_empty'
-	| 'change_type'
-	| 'add';
+export type PropertyAction = 'set' | 'rename' | 'delete' | 'clean_empty' | 'change_type' | 'add';
 
-export type PropertyType =
-	| 'text'
-	| 'number'
-	| 'checkbox'
-	| 'list'
-	| 'date'
-	| 'wikilink';
+export type PropertyType = 'text' | 'number' | 'checkbox' | 'list' | 'date' | 'wikilink';
 
 export type OpKind =
 	| 'set_prop'
@@ -71,10 +59,7 @@ export interface BaseChange {
 	files: TFile[];
 	action: string;
 	details: string;
-	logicFunc: (
-		file: TFile,
-		metadata: Record<string, unknown>
-	) => Record<string, unknown> | null;
+	logicFunc: (file: TFile, metadata: Record<string, unknown>) => Record<string, unknown> | null;
 	customLogic?: boolean;
 }
 
@@ -117,7 +102,12 @@ export interface TagChange extends BaseChange {
 	action: 'rename' | 'delete' | 'add';
 }
 
-export type PendingChange = PropertyChange | ContentChange | FileChange | TemplateChange | TagChange;
+export type PendingChange =
+	| PropertyChange
+	| ContentChange
+	| FileChange
+	| TemplateChange
+	| TagChange;
 
 export interface OperationResult {
 	success: number;

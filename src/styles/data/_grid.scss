@@ -7,231 +7,233 @@
 //...----------—————————————(    GRID    )————————————------------...\\
 
 .vm-grid {
-  &-wrapper {
-    flex: 1;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
+	&-wrapper {
+		flex: 1;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+	}
 
-  &-header {
-    @include flex-center;
-    justify-content: flex-start;
-    gap: 8px;
-    padding: 6px 12px;
-    border-bottom: $vm-border-width solid $vm-border-color;
-    flex-shrink: 0;
-  }
+	&-header {
+		@include flex-center;
+		justify-content: flex-start;
+		gap: 8px;
+		padding: 6px 12px;
+		border-bottom: $vm-border-width solid $vm-border-color;
+		flex-shrink: 0;
+	}
 
-  &-search {
-    flex: 1;
-    max-width: 300px;
-    font-size: 0.85em;
-    padding: 4px 8px;
-    border: $vm-border-width solid $vm-border-color;
-    border-radius: $vm-radius-s;
-    background: $vm-bg-primary;
-    color: $vm-text-normal;
-  }
+	&-search {
+		flex: 1;
+		max-width: 300px;
+		font-size: 0.85em;
+		padding: 4px 8px;
+		border: $vm-border-width solid $vm-border-color;
+		border-radius: $vm-radius-s;
+		background: $vm-bg-primary;
+		color: $vm-text-normal;
+	}
 
-  &-filter-toggle {
-    padding: 4px;
-    border-radius: $vm-radius-s;
-    color: $vm-text-muted;
-    transition: color 0.15s ease, background 0.15s ease;
+	&-filter-toggle {
+		padding: 4px;
+		border-radius: $vm-radius-s;
+		color: $vm-text-muted;
+		transition:
+			color 0.15s ease,
+			background 0.15s ease;
 
-    &.is-active {
-      color: $vm-color-accent;
-      background: color-mix(in srgb, $vm-color-accent 12%, transparent);
-    }
-  }
+		&.is-active {
+			color: $vm-color-accent;
+			background: color-mix(in srgb, $vm-color-accent 12%, transparent);
+		}
+	}
 
-  &-table-wrapper {
-    flex: 1;
-    overflow: auto;
-  }
+	&-table-wrapper {
+		flex: 1;
+		overflow: auto;
+	}
 
-  &-table {
-    border-collapse: collapse;
-    font-size: 0.85em;
+	&-table {
+		border-collapse: collapse;
+		font-size: 0.85em;
 
-    thead {
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      background: $vm-bg-secondary;
-    }
-  }
+		thead {
+			position: sticky;
+			top: 0;
+			z-index: 2;
+			background: $vm-bg-secondary;
+		}
+	}
 
-  &-fixed {
-    table-layout: fixed;
-  }
+	&-fixed {
+		table-layout: fixed;
+	}
 
-  &-th {
-    &-check {
-      width: 30px;
-      text-align: center;
-      padding: 6px 4px;
-      border-bottom: 2px solid $vm-border-color;
-      transition: border-color 0.15s ease;
+	&-th {
+		&-check {
+			width: 30px;
+			text-align: center;
+			padding: 6px 4px;
+			border-bottom: 2px solid $vm-border-color;
+			transition: border-color 0.15s ease;
 
-      input[type="checkbox"] {
-        width: 14px;
-        height: 14px;
-      }
+			input[type='checkbox'] {
+				width: 14px;
+				height: 14px;
+			}
 
-      &.is-indeterminate {
-        border-color: $vm-color-accent;
+			&.is-indeterminate {
+				border-color: $vm-color-accent;
 
-        input[type="checkbox"] {
-          border-color: $vm-color-accent;
-          box-shadow: 0 0 0 1px $vm-color-accent;
-        }
-      }
-    }
+				input[type='checkbox'] {
+					border-color: $vm-color-accent;
+					box-shadow: 0 0 0 1px $vm-color-accent;
+				}
+			}
+		}
 
-    &-sortable {
-      position: relative;
-      padding: 6px 8px;
-      text-align: left;
-      font-weight: 600;
-      font-size: 0.9em;
-      color: $vm-text-muted;
-      white-space: nowrap;
-      border-bottom: 2px solid $vm-border-color;
-      user-select: none;
-      @include text-ellipsis;
+		&-sortable {
+			position: relative;
+			padding: 6px 8px;
+			text-align: left;
+			font-weight: 600;
+			font-size: 0.9em;
+			color: $vm-text-muted;
+			white-space: nowrap;
+			border-bottom: 2px solid $vm-border-color;
+			user-select: none;
+			@include text-ellipsis;
 
-      &:hover {
-        color: $vm-text-normal;
-        background: $vm-bg-modifier-hover;
-      }
-    }
+			&:hover {
+				color: $vm-text-normal;
+				background: $vm-bg-modifier-hover;
+			}
+		}
 
-    &-label {
-      cursor: pointer;
-    }
+		&-label {
+			cursor: pointer;
+		}
 
-    &-active {
-      color: $vm-text-normal;
-    }
-  }
+		&-active {
+			color: $vm-text-normal;
+		}
+	}
 
-  &-resize-handle {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 5px;
-    height: 100%;
-    cursor: col-resize;
-    z-index: 3;
+	&-resize-handle {
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 5px;
+		height: 100%;
+		cursor: col-resize;
+		z-index: 3;
 
-    &:hover {
-      background: $vm-color-accent;
-      opacity: 0.4;
-    }
+		&:hover {
+			background: $vm-color-accent;
+			opacity: 0.4;
+		}
 
-    body.vm-resizing & {
-      background: $vm-color-accent;
-      opacity: 0.4;
-    }
-  }
+		body.vm-resizing & {
+			background: $vm-color-accent;
+			opacity: 0.4;
+		}
+	}
 
-  &-row {
-    border-bottom: $vm-border-width solid $vm-border-color;
-    cursor: default;
-    user-select: none;
+	&-row {
+		border-bottom: $vm-border-width solid $vm-border-color;
+		cursor: default;
+		user-select: none;
 
-    &:hover {
-      background: $vm-bg-modifier-hover;
-    }
+		&:hover {
+			background: $vm-bg-modifier-hover;
+		}
 
-    &.is-selected {
-      background: color-mix(in srgb, $vm-color-accent 12%, transparent);
+		&.is-selected {
+			background: color-mix(in srgb, $vm-color-accent 12%, transparent);
 
-      &:hover {
-        background: color-mix(in srgb, $vm-color-accent 18%, transparent);
-      }
-    }
+			&:hover {
+				background: color-mix(in srgb, $vm-color-accent 18%, transparent);
+			}
+		}
 
-    @media (pointer: coarse) {
-      min-height: 44px;
-    }
-  }
+		@media (pointer: coarse) {
+			min-height: 44px;
+		}
+	}
 
-  &-td {
-    &-check {
-      width: 30px;
-      text-align: center;
-      padding: 4px;
+	&-td {
+		&-check {
+			width: 30px;
+			text-align: center;
+			padding: 4px;
 
-      input[type="checkbox"] {
-        width: 14px;
-        height: 14px;
-      }
-    }
+			input[type='checkbox'] {
+				width: 14px;
+				height: 14px;
+			}
+		}
 
-    &-name {
-      padding: 4px 8px;
-      @include text-ellipsis;
-    }
+		&-name {
+			padding: 4px 8px;
+			@include text-ellipsis;
+		}
 
-    &-prop {
-      padding: 4px 8px;
-      color: $vm-text-normal;
-      cursor: default;
-      @include text-ellipsis;
+		&-prop {
+			padding: 4px 8px;
+			color: $vm-text-normal;
+			cursor: default;
+			@include text-ellipsis;
 
-      &:hover {
-        background: $vm-bg-modifier-hover;
-      }
-    }
-  }
+			&:hover {
+				background: $vm-bg-modifier-hover;
+			}
+		}
+	}
 
-  &-name-link {
-    cursor: pointer;
-    color: $vm-text-normal;
+	&-name-link {
+		cursor: pointer;
+		color: $vm-text-normal;
 
-    &:hover {
-      color: $vm-color-accent;
-      text-decoration: underline;
-    }
-  }
+		&:hover {
+			color: $vm-color-accent;
+			text-decoration: underline;
+		}
+	}
 
-  &-editing {
-    padding: 2px 4px !important;
-  }
+	&-editing {
+		padding: 2px 4px !important;
+	}
 
-  &-edit-input {
-    width: 100%;
-    font-size: 1em;
-    padding: 2px 4px;
-    border: 2px solid $vm-color-accent;
-    border-radius: $vm-radius-s;
-    background: $vm-bg-primary;
-    color: $vm-text-normal;
-    outline: none;
-  }
+	&-edit-input {
+		width: 100%;
+		font-size: 1em;
+		padding: 2px 4px;
+		border: 2px solid $vm-color-accent;
+		border-radius: $vm-radius-s;
+		background: $vm-bg-primary;
+		color: $vm-text-normal;
+		outline: none;
+	}
 
-  &-live-cell {
-    overflow: hidden;
+	&-live-cell {
+		overflow: hidden;
 
-    p {
-      margin: 0;
-      line-height: inherit;
-    }
+		p {
+			margin: 0;
+			line-height: inherit;
+		}
 
-    .tag {
-      font-size: 0.85em;
-    }
+		.tag {
+			font-size: 0.85em;
+		}
 
-    .internal-link {
-      cursor: pointer;
-    }
-  }
+		.internal-link {
+			cursor: pointer;
+		}
+	}
 }
 
 body.vm-resizing {
-  cursor: col-resize !important;
-  user-select: none !important;
+	cursor: col-resize !important;
+	user-select: none !important;
 }

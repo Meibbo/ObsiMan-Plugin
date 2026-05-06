@@ -24,6 +24,6 @@ export interface ActionDef {
 
 export interface MenuHideRule {
 	surface: 'file-menu' | 'editor-menu' | 'more-options';
-	titleMatch: string;   // case-insensitive substring match
+	titleMatch: string; // case-insensitive substring match
 	enabled: boolean;
 }

@@ -174,7 +174,10 @@ export function createPerfProbe({ now, doc }: PerfProbeOptions): PerfProbe {
 		};
 	}
 
-	async function run(name: PerfScenarioName, options: PerfScenarioOptions = {}): Promise<PerfProbeSnapshot> {
+	async function run(
+		name: PerfScenarioName,
+		options: PerfScenarioOptions = {},
+	): Promise<PerfProbeSnapshot> {
 		reset();
 		count(`scenario.${name}`);
 

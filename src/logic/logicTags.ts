@@ -42,9 +42,7 @@ export class TagsLogic {
 	): TreeNode<TagMeta>[] {
 		const result: TreeNode<TagMeta>[] = [];
 		for (const node of nodes) {
-			const filteredChildren = node.children
-				? this._filterNodes(node.children, search)
-				: [];
+			const filteredChildren = node.children ? this._filterNodes(node.children, search) : [];
 			const selfMatch = !!search(node.label);
 			if (selfMatch || filteredChildren.length > 0) {
 				result.push({ ...node, children: filteredChildren });
@@ -54,18 +52,17 @@ export class TagsLogic {
 	}
 
 	private _buildTree(): TreeNode<TagMeta>[] {
-		const rawTags = (
-			this.app.metadataCache as unknown as {
-				getTags(): Record<string, number>;
-			}
-		).getTags() ?? {};
+		const rawTags =
+			(
+				this.app.metadataCache as unknown as {
+					getTags(): Record<string, number>;
+				}
+			).getTags() ?? {};
 
 		const root: TreeNode<TagMeta>[] = [];
 		const nodeMap = new Map<string, TreeNode<TagMeta>>();
 
-		const entries = Object.entries(rawTags).sort(([a], [b]) =>
-			a.localeCompare(b),
-		);
+		const entries = Object.entries(rawTags).sort(([a], [b]) => a.localeCompare(b));
 
 		for (const [tagWithHash, count] of entries) {
 			const fullPath = tagWithHash.replace(/^#/, '');
@@ -89,8 +86,7 @@ export class TagsLogic {
 					nodeMap.set(currentPath, node);
 					currentLevel.push(node);
 				} else if (i === parts.length - 1) {
-					nodeMap.get(currentPath)!.count =
-						(nodeMap.get(currentPath)!.count ?? 0) + count;
+					nodeMap.get(currentPath)!.count = (nodeMap.get(currentPath)!.count ?? 0) + count;
 				}
 				currentLevel = nodeMap.get(currentPath)!.children!;
 			}

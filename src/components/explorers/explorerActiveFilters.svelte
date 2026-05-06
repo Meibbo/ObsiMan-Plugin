@@ -94,7 +94,9 @@
 			if (removeSelectedFile(entry.rule.values[0])) return;
 		}
 		if (entry.rule.id && 'deleteFilterRule' in plugin.filterService) {
-			(plugin.filterService as { deleteFilterRule(id: string): void }).deleteFilterRule(entry.rule.id);
+			(plugin.filterService as { deleteFilterRule(id: string): void }).deleteFilterRule(
+				entry.rule.id,
+			);
 			return;
 		}
 		plugin.filterService.removeNode(entry.rule);

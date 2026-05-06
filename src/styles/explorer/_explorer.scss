@@ -7,225 +7,225 @@
 //...----------—————————————(  EXPLORER  )————————————------------...\\
 
 .vm-explorer {
-  &-container {
-    max-height: 250px;
-    overflow-y: auto;
-  }
+	&-container {
+		max-height: 250px;
+		overflow-y: auto;
+	}
 
-  &-search {
-    margin-bottom: 6px;
-    
-    &-input {
-      width: 100%;
-      font-size: 0.8em;
-      padding: 4px 8px;
-      border: $vm-border-width solid $vm-border-color;
-      border-radius: $vm-radius-s;
-      background: $vm-bg-primary;
-      color: $vm-text-normal;
-      
-      &-wrap {
-        position: relative;
-        flex: 1;
-        
-        .vm-explorer-search-input {
-          width: 100%;
-          padding-right: 28px;
-          box-sizing: border-box;
-        }
-      }
-    }
-    
-    &-collapsible {
-      overflow: hidden;
-      max-height: 0;
-      transition: max-height 0.15s ease;
-      
-      &.is-open {
-        max-height: 40px;
-      }
-    }
+	&-search {
+		margin-bottom: 6px;
 
-    &-row {
-      @include flex-center;
-      justify-content: flex-start;
-      gap: 4px;
-    }
+		&-input {
+			width: 100%;
+			font-size: 0.8em;
+			padding: 4px 8px;
+			border: $vm-border-width solid $vm-border-color;
+			border-radius: $vm-radius-s;
+			background: $vm-bg-primary;
+			color: $vm-text-normal;
 
-    &-clear {
-      position: absolute;
-      right: 4px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 18px;
-      height: 18px;
-      @include flex-center;
-      
-      &.is-hidden {
-        display: none;
-      }
-    }
-  }
+			&-wrap {
+				position: relative;
+				flex: 1;
 
-  &-tree {
-    font-size: 0.8em;
-  }
+				.vm-explorer-search-input {
+					width: 100%;
+					padding-right: 28px;
+					box-sizing: border-box;
+				}
+			}
+		}
 
-  &-empty {
-    color: $vm-text-faint;
-    font-style: italic;
-    padding: 4px 0;
-  }
+		&-collapsible {
+			overflow: hidden;
+			max-height: 0;
+			transition: max-height 0.15s ease;
 
-  &-node {
-    margin-bottom: 1px;
-    
-    &.is-active-filter > .vm-explorer-header {
-      border-left: 2px solid $vm-color-accent;
-      background: color-mix(in srgb, $vm-color-accent 8%, transparent);
-      padding-left: calc(var(--size-4-2) - 2px);
-    }
-  }
+			&.is-open {
+				max-height: 40px;
+			}
+		}
 
-  &-header {
-    @include flex-center;
-    justify-content: flex-start;
-    gap: 4px;
-    padding: 3px 4px;
-    border-radius: $vm-radius-s;
-    cursor: pointer;
-    user-select: none;
-    
-    @include hover-bg-accent;
+		&-row {
+			@include flex-center;
+			justify-content: flex-start;
+			gap: 4px;
+		}
 
-    &.is-expanded {
-      font-weight: 500;
-    }
-  }
+		&-clear {
+			position: absolute;
+			right: 4px;
+			top: 50%;
+			transform: translateY(-50%);
+			width: 18px;
+			height: 18px;
+			@include flex-center;
 
-  &-toggle {
-    font-size: 0.7em;
-    width: 12px;
-    text-align: center;
-    color: $vm-text-faint;
-    flex-shrink: 0;
-  }
+			&.is-hidden {
+				display: none;
+			}
+		}
+	}
 
-  &-prop-name {
-    flex: 1;
-    color: $vm-text-normal;
-    @include text-ellipsis;
-  }
+	&-tree {
+		font-size: 0.8em;
+	}
 
-  &-badge {
-    font-size: 0.8em;
-    color: $vm-text-faint;
-    min-width: 18px;
-    text-align: center;
-    flex-shrink: 0;
-  }
+	&-empty {
+		color: $vm-text-faint;
+		font-style: italic;
+		padding: 4px 0;
+	}
 
-  &-children {
-    margin-left: 16px;
-    border-left: $vm-border-width solid $vm-border-color;
-    padding-left: 6px;
-  }
+	&-node {
+		margin-bottom: 1px;
 
-  &-value {
-    @include flex-center;
-    justify-content: flex-start;
-    gap: 4px;
-    padding: 2px 4px;
-    border-radius: $vm-radius-s;
-    cursor: pointer;
-    
-    @include hover-bg-accent;
+		&.is-active-filter > .vm-explorer-header {
+			border-left: 2px solid $vm-color-accent;
+			background: color-mix(in srgb, $vm-color-accent 8%, transparent);
+			padding-left: calc(var(--size-4-2) - 2px);
+		}
+	}
 
-    &.is-active-filter {
-      border-left: 2px solid $vm-color-accent;
-      background: color-mix(in srgb, $vm-color-accent 6%, transparent);
-    }
+	&-header {
+		@include flex-center;
+		justify-content: flex-start;
+		gap: 4px;
+		padding: 3px 4px;
+		border-radius: $vm-radius-s;
+		cursor: pointer;
+		user-select: none;
 
-    &:hover .vm-explorer-value-text {
-      color: $vm-color-accent;
-    }
+		@include hover-bg-accent;
 
-    &-text {
-      flex: 1;
-      color: $vm-text-muted;
-      @include text-ellipsis;
-    }
-  }
+		&.is-expanded {
+			font-weight: 500;
+		}
+	}
 
-  &-nav {
-    @include flex-center;
-    justify-content: flex-start;
-    gap: 2px;
-    padding: 4px;
-    border-bottom: $vm-border-width solid $vm-border-color;
+	&-toggle {
+		font-size: 0.7em;
+		width: 12px;
+		text-align: center;
+		color: $vm-text-faint;
+		flex-shrink: 0;
+	}
 
-    .clickable-icon {
-      padding: 4px;
-      border-radius: $vm-radius-s;
-      color: $vm-text-muted;
-      
-      &:hover {
-        color: $vm-text-normal;
-        background: $vm-bg-modifier-hover;
-      }
-      
-      &.is-active {
-        color: $vm-color-accent;
-      }
-    }
-  }
+	&-prop-name {
+		flex: 1;
+		color: $vm-text-normal;
+		@include text-ellipsis;
+	}
 
-  &-icon {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+	&-badge {
+		font-size: 0.8em;
+		color: $vm-text-faint;
+		min-width: 18px;
+		text-align: center;
+		flex-shrink: 0;
+	}
 
-    svg {
-      width: 14px;
-      height: 14px;
-    }
+	&-children {
+		margin-left: 16px;
+		border-left: $vm-border-width solid $vm-border-color;
+		padding-left: 6px;
+	}
 
-    &-default {
-      opacity: 0.5;
-    }
-  }
+	&-value {
+		@include flex-center;
+		justify-content: flex-start;
+		gap: 4px;
+		padding: 2px 4px;
+		border-radius: $vm-radius-s;
+		cursor: pointer;
 
-  // Queue Preview States
-  &-pending {
-    opacity: 0.7;
-    border-left: 2px dashed $vm-color-accent;
-    padding-left: 4px;
-  }
+		@include hover-bg-accent;
 
-  &-deleting {
-    text-decoration: line-through;
-    opacity: 0.5;
-  }
+		&.is-active-filter {
+			border-left: 2px solid $vm-color-accent;
+			background: color-mix(in srgb, $vm-color-accent 6%, transparent);
+		}
+
+		&:hover .vm-explorer-value-text {
+			color: $vm-color-accent;
+		}
+
+		&-text {
+			flex: 1;
+			color: $vm-text-muted;
+			@include text-ellipsis;
+		}
+	}
+
+	&-nav {
+		@include flex-center;
+		justify-content: flex-start;
+		gap: 2px;
+		padding: 4px;
+		border-bottom: $vm-border-width solid $vm-border-color;
+
+		.clickable-icon {
+			padding: 4px;
+			border-radius: $vm-radius-s;
+			color: $vm-text-muted;
+
+			&:hover {
+				color: $vm-text-normal;
+				background: $vm-bg-modifier-hover;
+			}
+
+			&.is-active {
+				color: $vm-color-accent;
+			}
+		}
+	}
+
+	&-icon {
+		width: 16px;
+		height: 16px;
+		flex-shrink: 0;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+
+		svg {
+			width: 14px;
+			height: 14px;
+		}
+
+		&-default {
+			opacity: 0.5;
+		}
+	}
+
+	// Queue Preview States
+	&-pending {
+		opacity: 0.7;
+		border-left: 2px dashed $vm-color-accent;
+		padding-left: 4px;
+	}
+
+	&-deleting {
+		text-decoration: line-through;
+		opacity: 0.5;
+	}
 }
 
 .vm-search-mode-toggle {
-  width: 24px;
-  height: 24px;
-  @include flex-center;
-  border-radius: $vm-radius-s;
-  color: $vm-text-muted;
-  cursor: pointer;
-  flex-shrink: 0;
+	width: 24px;
+	height: 24px;
+	@include flex-center;
+	border-radius: $vm-radius-s;
+	color: $vm-text-muted;
+	cursor: pointer;
+	flex-shrink: 0;
 
-  &:hover {
-    background: $vm-bg-modifier-hover;
-    color: $vm-text-normal;
-  }
+	&:hover {
+		background: $vm-bg-modifier-hover;
+		color: $vm-text-normal;
+	}
 
-  &.is-active {
-    color: $vm-color-accent;
-  }
+	&.is-active {
+		color: $vm-color-accent;
+	}
 }

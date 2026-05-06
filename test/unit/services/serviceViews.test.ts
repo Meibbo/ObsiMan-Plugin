@@ -140,7 +140,9 @@ describe('ViewService', () => {
 		expect(model.rows.map((row) => row.layers.state?.selected ?? false)).toEqual([false, true]);
 
 		service.select('filters', 'b', 'toggle');
-		expect([...service.getModel({ explorerId: 'filters', mode: 'list', nodes }).selection.ids]).toEqual([]);
+		expect([
+			...service.getModel({ explorerId: 'filters', mode: 'list', nodes }).selection.ids,
+		]).toEqual([]);
 	});
 
 	it('builds flat rows with mapper-provided labels, details, actions, and decoration layers', () => {
@@ -158,7 +160,9 @@ describe('ViewService', () => {
 				},
 			},
 		});
-		const nodes: TestNode[] = [{ id: 'queue:1', label: 'Rename property', detail: 'status -> state' }];
+		const nodes: TestNode[] = [
+			{ id: 'queue:1', label: 'Rename property', detail: 'status -> state' },
+		];
 		const model = service.getModel({
 			explorerId: 'queue',
 			mode: 'list',

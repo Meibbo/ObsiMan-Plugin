@@ -1,4 +1,4 @@
-import type { TFile } from 'obsidian';
+﻿import type { TFile } from 'obsidian';
 import { PropsLogic } from '../../logic/logicProps';
 import type { TreeNode, PropMeta, NodeBadge } from '../../types/typeNode';
 import { DELETE_PROP, NATIVE_RENAME_PROP } from '../../types/typeOps';
@@ -7,7 +7,7 @@ import {
 	createFnRState,
 	startPropRenameHandoff,
 	startValueRenameHandoff,
-} from '../../services/serviceFnR.svelte';
+} from '@services/serviceFnR';
 import type { FnRRenameHandoff, FnRScope } from '../../types/typeFnR';
 import {
 	highlightsFromViewLayers,
@@ -282,7 +282,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			type: 'property',
 			property: canonicalName,
 			action: 'rename',
-			details: `Rename property "${propName}" → "${newName}"`,
+			details: `Rename property "${propName}" ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ "${newName}"`,
 			files,
 			customLogic: true,
 			logicFunc: (_file, fm) => {
@@ -381,7 +381,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			type: 'property',
 			property: propName,
 			action: 'set',
-			details: `Rename value "${oldValue}" → "${newVal}"`,
+			details: `Rename value "${oldValue}" -> "${newVal}"`,
 			files,
 			value: newVal,
 			oldValue: oldValue,

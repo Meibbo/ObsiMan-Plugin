@@ -20,8 +20,9 @@ function makePlugin(overrides: Partial<VaultmanPlugin> = {}): VaultmanPlugin {
 		[b.path, { frontmatter: { status: 'done' } }],
 	]);
 	const app = mockApp({ files, metadata: meta });
-	(app.metadataCache as unknown as { getAllPropertyInfos: () => Record<string, { type: string }> })
-		.getAllPropertyInfos = () => ({
+	(
+		app.metadataCache as unknown as { getAllPropertyInfos: () => Record<string, { type: string }> }
+	).getAllPropertyInfos = () => ({
 		status: { type: 'text' },
 		owner: { type: 'text' },
 	});
@@ -56,9 +57,9 @@ describe('explorerProps search', () => {
 		const plugin = makePlugin();
 		const explorer = new explorerProps(plugin, { startRenameHandoff });
 		const statusNode = explorer.getTree().find((node) => node.id === 'status');
-		const renameAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
-			([action]) => action.id === 'prop.rename',
-		)?.[0];
+		const renameAction = (
+			plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'prop.rename')?.[0];
 
 		await renameAction.run({ nodeType: 'prop', node: statusNode, surface: 'panel' });
 
@@ -83,9 +84,9 @@ describe('explorerProps search', () => {
 			.getTree()
 			.find((node) => node.id === 'status')
 			?.children?.find((node) => node.label === 'draft');
-		const renameAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
-			([action]) => action.id === 'value.rename',
-		)?.[0];
+		const renameAction = (
+			plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'value.rename')?.[0];
 
 		await renameAction.run({ nodeType: 'value', node: valueNode, surface: 'panel' });
 
@@ -153,7 +154,9 @@ describe('explorerProps search', () => {
 		const explorer = new explorerProps(plugin);
 
 		const tree = explorer.getTree();
-		const valueNode = tree.find((node) => node.id === 'status')?.children?.find((node) => node.label === 'draft');
+		const valueNode = tree
+			.find((node) => node.id === 'status')
+			?.children?.find((node) => node.label === 'draft');
 
 		expect(valueNode?.cls).toContain('is-active-filter');
 		expect(valueNode?.badges).toContainEqual(
@@ -175,8 +178,11 @@ describe('explorerProps search', () => {
 			[file.path, { frontmatter: { tags: ['project', 'archive'], owner: 'vic' } }],
 		]);
 		const app = mockApp({ files, metadata: meta });
-		(app.metadataCache as unknown as { getAllPropertyInfos: () => Record<string, { type: string }> })
-			.getAllPropertyInfos = () => ({
+		(
+			app.metadataCache as unknown as {
+				getAllPropertyInfos: () => Record<string, { type: string }>;
+			}
+		).getAllPropertyInfos = () => ({
 			tags: { type: 'list' },
 			owner: { type: 'text' },
 		});
@@ -198,9 +204,9 @@ describe('explorerProps search', () => {
 
 		explorer.handleContextMenu = vi.fn();
 		// Invoke the registered action directly through the context menu mock.
-		const deleteAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
-			([action]) => action.id === 'value.delete',
-		)?.[0];
+		const deleteAction = (
+			plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'value.delete')?.[0];
 		deleteAction.run({ node: valueNode });
 
 		expect(add).toHaveBeenCalledOnce();
@@ -218,9 +224,9 @@ describe('explorerProps search', () => {
 		const tree = explorer.getTree();
 		const statusNode = tree.find((node) => node.id === 'status');
 		const ownerNode = tree.find((node) => node.id === 'owner');
-		const deleteAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
-			([action]) => action.id === 'prop.delete',
-		)?.[0];
+		const deleteAction = (
+			plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'prop.delete')?.[0];
 
 		deleteAction.run({
 			nodeType: 'prop',
@@ -230,10 +236,11 @@ describe('explorerProps search', () => {
 		});
 
 		expect(plugin.queueService.add).toHaveBeenCalledTimes(2);
-		expect((plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls.map(([change]) => change.property)).toEqual([
-			'status',
-			'owner',
-		]);
+		expect(
+			(plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls.map(
+				([change]) => change.property,
+			),
+		).toEqual(['status', 'owner']);
 	});
 
 	it('queues ctxmenu delete for properties whose indexed name casing differs from frontmatter', () => {
@@ -243,8 +250,11 @@ describe('explorerProps search', () => {
 			[file.path, { frontmatter: { pressBarBench: 1820 } }],
 		]);
 		const app = mockApp({ files, metadata: meta });
-		(app.metadataCache as unknown as { getAllPropertyInfos: () => Record<string, { type: string }> })
-			.getAllPropertyInfos = () => ({
+		(
+			app.metadataCache as unknown as {
+				getAllPropertyInfos: () => Record<string, { type: string }>;
+			}
+		).getAllPropertyInfos = () => ({
 			pressbarbench: { type: 'number' },
 		});
 		const decorationManager = new DecorationManager(app);
@@ -258,9 +268,9 @@ describe('explorerProps search', () => {
 		});
 		const explorer = new explorerProps(plugin);
 		const propNode = explorer.getTree().find((node) => node.label === 'pressBarBench');
-		const deleteAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
-			([action]) => action.id === 'prop.delete',
-		)?.[0];
+		const deleteAction = (
+			plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'prop.delete')?.[0];
 
 		deleteAction.run({ nodeType: 'prop', node: propNode, surface: 'panel' });
 
@@ -282,8 +292,11 @@ describe('explorerProps search', () => {
 			pressbarbench: { type: 'number' },
 		};
 		const app = mockApp({ files, metadata: meta });
-		(app.metadataCache as unknown as { getAllPropertyInfos: () => Record<string, { type: string }> })
-			.getAllPropertyInfos = () => propertyInfos;
+		(
+			app.metadataCache as unknown as {
+				getAllPropertyInfos: () => Record<string, { type: string }>;
+			}
+		).getAllPropertyInfos = () => propertyInfos;
 		const decorationManager = new DecorationManager(app);
 		const explorer = new explorerProps(
 			makePlugin({

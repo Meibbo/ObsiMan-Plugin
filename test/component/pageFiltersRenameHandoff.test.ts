@@ -22,7 +22,9 @@ function noopIndex() {
 }
 
 function plugin(): VaultmanPlugin {
-	const a = mockTFile('a.md', { frontmatter: { status: 'draft', owner: 'vic', tags: ['project'] } });
+	const a = mockTFile('a.md', {
+		frontmatter: { status: 'draft', owner: 'vic', tags: ['project'] },
+	});
 	const b = mockTFile('b.md', { frontmatter: { status: 'done' } });
 	const files = [a, b] as TFile[];
 	const meta = new Map<string, CachedMetadata>([
@@ -30,14 +32,17 @@ function plugin(): VaultmanPlugin {
 		[b.path, { frontmatter: { status: 'done' } }],
 	]);
 	const app = mockApp({ files, metadata: meta });
-	(app.metadataCache as unknown as { getAllPropertyInfos: () => Record<string, { type: string }> })
-		.getAllPropertyInfos = () => ({
+	(
+		app.metadataCache as unknown as { getAllPropertyInfos: () => Record<string, { type: string }> }
+	).getAllPropertyInfos = () => ({
 		status: { type: 'text' },
 		owner: { type: 'text' },
 	});
-	(app.metadataCache as unknown as { getTags: () => Record<string, number> }).getTags = vi.fn(() => ({
-		'#project': 1,
-	}));
+	(app.metadataCache as unknown as { getTags: () => Record<string, number> }).getTags = vi.fn(
+		() => ({
+			'#project': 1,
+		}),
+	);
 	const decorationManager = new DecorationManager(app);
 
 	return {
@@ -118,9 +123,9 @@ describe('PageFilters rename handoff', () => {
 		await Promise.resolve();
 		flushSync();
 
-		const renameAction = (vm.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
-			([action]) => action.id === 'prop.rename',
-		)?.[0];
+		const renameAction = (
+			vm.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'prop.rename')?.[0];
 		expect(renameAction).toBeTruthy();
 
 		await renameAction.run({
@@ -172,9 +177,9 @@ describe('PageFilters rename handoff', () => {
 		await Promise.resolve();
 		flushSync();
 
-		const renameAction = (vm.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
-			([action]) => action.id === 'tag.rename',
-		)?.[0];
+		const renameAction = (
+			vm.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'tag.rename')?.[0];
 		expect(renameAction).toBeTruthy();
 
 		await renameAction.run({
@@ -226,9 +231,9 @@ describe('PageFilters rename handoff', () => {
 		flushSync();
 
 		const files = vm.app.vault.getMarkdownFiles();
-		const renameAction = (vm.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
-			([action]) => action.id === 'file.rename',
-		)?.[0];
+		const renameAction = (
+			vm.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'file.rename')?.[0];
 		expect(renameAction).toBeTruthy();
 
 		await renameAction.run({

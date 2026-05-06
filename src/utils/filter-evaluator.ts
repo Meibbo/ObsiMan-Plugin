@@ -18,7 +18,7 @@ export type MetadataGetter = (file: TFile) => CachedMetadata | null;
 export function evalNode(
 	node: FilterNode,
 	universe: TFile[],
-	getMeta: MetadataGetter
+	getMeta: MetadataGetter,
 ): Set<string> {
 	if (node.enabled === false) return new Set();
 	if (node.type === 'rule') {
@@ -27,14 +27,10 @@ export function evalNode(
 	return matchGroup(node, universe, getMeta);
 }
 
-function matchGroup(
-	group: FilterGroup,
-	universe: TFile[],
-	getMeta: MetadataGetter
-): Set<string> {
+function matchGroup(group: FilterGroup, universe: TFile[], getMeta: MetadataGetter): Set<string> {
 	const universePaths = new Set(universe.map((f) => f.path));
 
-	const activeChildren = group.children.filter(c => c.enabled !== false);
+	const activeChildren = group.children.filter((c) => c.enabled !== false);
 	const logic = normalizeGroupLogic(group.logic);
 
 	if (activeChildren.length === 0) {
@@ -42,9 +38,7 @@ function matchGroup(
 		return logic === 'or' ? new Set() : new Set(universePaths);
 	}
 
-	const childResults = activeChildren.map((child) =>
-		evalNode(child, universe, getMeta)
-	);
+	const childResults = activeChildren.map((child) => evalNode(child, universe, getMeta));
 
 	switch (logic) {
 		case 'and': {
@@ -74,11 +68,7 @@ function matchGroup(
 	}
 }
 
-function matchRule(
-	rule: FilterRule,
-	universe: TFile[],
-	getMeta: MetadataGetter
-): Set<string> {
+function matchRule(rule: FilterRule, universe: TFile[], getMeta: MetadataGetter): Set<string> {
 	const result = new Set<string>();
 
 	for (const file of universe) {
@@ -89,11 +79,7 @@ function matchRule(
 	return result;
 }
 
-function matchesFile(
-	rule: FilterRule,
-	file: TFile,
-	getMeta: MetadataGetter
-): boolean {
+function matchesFile(rule: FilterRule, file: TFile, getMeta: MetadataGetter): boolean {
 	const meta = getMeta(file);
 	const fm = meta?.frontmatter ?? {};
 

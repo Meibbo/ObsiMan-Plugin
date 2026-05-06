@@ -68,14 +68,20 @@ export function removeTagValue(raw: unknown, tagPath: string): string[] {
 	return tagValues(raw).filter((tag) => normalizeTag(tag) !== expected);
 }
 
-export function replaceTagValue(raw: unknown, oldTagPath: string, newTagPath: string): string[] | null {
+export function replaceTagValue(
+	raw: unknown,
+	oldTagPath: string,
+	newTagPath: string,
+): string[] | null {
 	const oldTag = normalizeTag(oldTagPath);
 	const newTag = normalizeTag(newTagPath);
 	if (!oldTag || !newTag || oldTag === newTag) return null;
 
 	const values = tagValues(raw);
 	let changed = false;
-	let wroteNewTag = values.some((tag) => normalizeTag(tag) === newTag && normalizeTag(tag) !== oldTag);
+	let wroteNewTag = values.some(
+		(tag) => normalizeTag(tag) === newTag && normalizeTag(tag) !== oldTag,
+	);
 	const next: string[] = [];
 
 	for (const tag of values) {

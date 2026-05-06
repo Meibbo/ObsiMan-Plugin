@@ -83,7 +83,8 @@ export const es: Record<string, string> = {
 	'prop.add_to_queue': 'Agregar a cola',
 	'prop.new_name': 'Nuevo nombre',
 	'prop.option.native_rename': 'Renombrado Global (Nativo)',
-	'prop.option.native_rename_desc': 'Usa el motor interno de Obsidian para renombrar esta propiedad en todo el baúl. Es más rápido para grandes volúmenes de datos.',
+	'prop.option.native_rename_desc':
+		'Usa el motor interno de Obsidian para renombrar esta propiedad en todo el baúl. Es más rápido para grandes volúmenes de datos.',
 
 	// Queue island
 	'queue.island.pending': 'cambios pendientes',
@@ -183,7 +184,8 @@ export const es: Record<string, string> = {
 	// Linter
 	'linter.title': 'Linter de Propiedades',
 	'linter.description': 'Reordena las propiedades YAML usando obsidian-linter.',
-	'linter.not_installed': 'El plugin obsidian-linter no está instalado. Instálalo para usar esta función.',
+	'linter.not_installed':
+		'El plugin obsidian-linter no está instalado. Instálalo para usar esta función.',
 	'linter.scope': 'Alcance',
 	'linter.add_property': 'Agregar propiedad al orden...',
 	'linter.save_order': 'Guardar orden',
@@ -264,9 +266,11 @@ export const es: Record<string, string> = {
 
 	// Settings (new)
 	'settings.ctrl_click_search': 'Ctrl+click abre búsqueda',
-	'settings.ctrl_click_search.desc': 'Ctrl+click en una propiedad o valor abre la búsqueda de Obsidian con la query',
+	'settings.ctrl_click_search.desc':
+		'Ctrl+click en una propiedad o valor abre la búsqueda de Obsidian con la query',
 	'settings.queue_preview': 'Vista previa de cola en explorador',
-	'settings.queue_preview.desc': 'Muestra cambios pendientes de la cola en el explorador de propiedades',
+	'settings.queue_preview.desc':
+		'Muestra cambios pendientes de la cola en el explorador de propiedades',
 	'settings.content_search': 'Búsqueda de contenido',
 	'settings.content_search.desc': 'Habilita búsqueda en contenido de archivos en el file tree',
 	'settings.operation_scope': 'Alcance de operaciones',
@@ -315,10 +319,12 @@ export const es: Record<string, string> = {
 	'settings.grid_render_mode.chunk': 'Vista previa (por bloques)',
 	'settings.grid_render_mode.all': 'Vista previa (todo a la vez)',
 	'settings.grid_editable_columns': 'Columnas editables',
-	'settings.grid_editable_columns.desc': 'Columnas que permiten edición en línea (separadas por coma, incluir "name" para renombrar)',
+	'settings.grid_editable_columns.desc':
+		'Columnas que permiten edición en línea (separadas por coma, incluir "name" para renombrar)',
 	'settings.base_file': 'Ruta del archivo base',
-	'settings.base_file.desc': 'Ruta a un archivo .base para sincronización bidireccional con Obsidian Bases',
-	'viewmode.add_mode':    'Modo AGREGAR',
+	'settings.base_file.desc':
+		'Ruta a un archivo .base para sincronización bidireccional con Obsidian Bases',
+	'viewmode.add_mode': 'Modo AGREGAR',
 	'filter.search_help': 'Ayuda de semántica de búsqueda',
 	'filter.search_read_more': 'Leer más',
 	'filter.search_history': 'Búsquedas recientes',

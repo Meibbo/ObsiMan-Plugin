@@ -1,11 +1,11 @@
-<script lang="ts">
+﻿<script lang="ts">
 	import type { VaultmanPlugin } from '../../main';
-	// TODO: por qué importo los tabs y los explorer?
+	// TODO: por quÃ© importo los tabs y los explorer?
 	import FiltersPropsTab from './tabProps.svelte';
 	import FiltersFilesTab from './tabFiles.svelte';
 	import FiltersTagsTab from './tabTags.svelte';
 	import ContentTab from './tabContent.svelte';
-	// TODO: por qué importa navbartabs??
+	// TODO: por quÃ© importa navbartabs??
 	import NavbarTabs from '../layout/navbarTabs.svelte';
 	import NavbarExplorer from '../layout/navbarExplorer.svelte';
 	import PanelExplorer from '../containers/panelExplorer.svelte';
@@ -15,17 +15,14 @@
 	import { explorerTags } from '../containers/explorerTags';
 	import { explorerBasesImport } from '../containers/explorerBasesImport';
 	import { createBasesImportTargetsIndex } from '../../index/indexBasesImportTargets';
-	import {
-		extractBasesFencedBlocks,
-		previewBasesImport,
-	} from '../../services/serviceBasesInterop';
+	import { extractBasesFencedBlocks, previewBasesImport } from '../../services/serviceBasesInterop';
 	import {
 		buildRenameHandoffChange,
 		cancelRenameHandoff,
 		createFnRState,
 		markRenameHandoffQueued,
 		updateRenameHandoffReplacement,
-	} from '../../services/serviceFnR.svelte';
+	} from '../../services/serviceFnR';
 	import type { ActiveFnRRenameHandoff, FnRRenameHandoff, FnRState } from '../../types/typeFnR';
 	import type { FilterGroup } from '../../types/typeFilter';
 	import type { BasesImportTarget } from '../../types/typeBasesInterop';
@@ -38,7 +35,7 @@
 		type FiltersSearchTab,
 		type FiltersSearchState,
 	} from '../frame/frameFiltersSearch';
-	// TODO: por qué setIcon?
+	// TODO: por quÃ© setIcon?
 	import { setIcon } from 'obsidian';
 
 	let {
@@ -82,12 +79,14 @@
 	} = $props();
 
 	const basesImportTargetsIndex = $derived(createBasesImportTargetsIndex(plugin.app));
-	const basesImportProvider = $derived(new explorerBasesImport({
-		index: basesImportTargetsIndex,
-		onImportTarget: (target) => {
-			void handleBasesImportTarget(target);
-		},
-	}));
+	const basesImportProvider = $derived(
+		new explorerBasesImport({
+			index: basesImportTargetsIndex,
+			onImportTarget: (target) => {
+				void handleBasesImportTarget(target);
+			},
+		}),
+	);
 	let basesImportVersion = $state(0);
 	let lastBasesImportPreview = $state<ReturnType<typeof previewBasesImport> | null>(null);
 
@@ -137,9 +136,12 @@
 		if (!file) return;
 
 		const sourceContent = await plugin.app.vault.read(file);
-		const block = target.kind === 'markdown-fence'
-			? extractBasesFencedBlocks(sourceContent).find((candidate) => candidate.blockIndex === target.blockIndex)
-			: undefined;
+		const block =
+			target.kind === 'markdown-fence'
+				? extractBasesFencedBlocks(sourceContent).find(
+						(candidate) => candidate.blockIndex === target.blockIndex,
+					)
+				: undefined;
 		const preview = previewBasesImport({
 			sourcePath: target.sourcePath,
 			content: block?.rawContent ?? sourceContent,

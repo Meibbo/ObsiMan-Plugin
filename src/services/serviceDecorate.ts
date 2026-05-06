@@ -41,11 +41,11 @@ export class DecorationManager implements IDecorationManager {
 	}
 
 	decorate<TNode extends NodeBase>(node: TNode, context?: unknown): DecorationOutput {
-		return getActivePerfProbe()?.measure(
-			'decoration.decorate',
-			{ nodes: 1 },
-			() => this.decorateNode(node, context),
-		) ?? this.decorateNode(node, context);
+		return (
+			getActivePerfProbe()?.measure('decoration.decorate', { nodes: 1 }, () =>
+				this.decorateNode(node, context),
+			) ?? this.decorateNode(node, context)
+		);
 	}
 
 	private decorateNode<TNode extends NodeBase>(node: TNode, context?: unknown): DecorationOutput {

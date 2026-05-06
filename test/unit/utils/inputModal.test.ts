@@ -3,9 +3,15 @@ import { showInputModal } from '../../../src/utils/inputModal';
 import { mockApp } from '../../helpers/obsidian-mocks';
 
 beforeAll(() => {
-	if (typeof (globalThis as { requestAnimationFrame?: unknown }).requestAnimationFrame !== 'function') {
-		(globalThis as { requestAnimationFrame: (cb: () => void) => number }).requestAnimationFrame =
-			(cb) => { setTimeout(cb, 0); return 0; };
+	if (
+		typeof (globalThis as { requestAnimationFrame?: unknown }).requestAnimationFrame !== 'function'
+	) {
+		(globalThis as { requestAnimationFrame: (cb: () => void) => number }).requestAnimationFrame = (
+			cb,
+		) => {
+			setTimeout(cb, 0);
+			return 0;
+		};
 	}
 });
 

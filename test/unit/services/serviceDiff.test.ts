@@ -75,8 +75,13 @@ describe('buildOperationDiff', () => {
 			fm: { x: 1, y: 2 },
 			fmInitial: { x: 1 },
 			ops: [
-				op('o1', (s) => { s.fm.helper = 1; }),
-				op('o2', (s) => { s.fm.y = 2; delete s.fm.helper; }),
+				op('o1', (s) => {
+					s.fm.helper = 1;
+				}),
+				op('o2', (s) => {
+					s.fm.y = 2;
+					delete s.fm.helper;
+				}),
 			],
 		});
 		const txs = new Map([[v.originalPath, v]]);

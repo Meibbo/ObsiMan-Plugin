@@ -7,83 +7,89 @@
 //...------—————————————( VIEWMODE POPUP )————————————----------...\\
 
 .vm-viewmode {
-  &-popup {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 4px 8px;
-  }
+	&-popup {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		padding: 4px 8px;
+	}
 
-  &-row {
-    @include flex-center;
-    justify-content: flex-start;
-    gap: 6px;
+	&-row {
+		@include flex-center;
+		justify-content: flex-start;
+		gap: 6px;
 
-    &-controls {
-      overflow: hidden;
-    }
-  }
+		&-controls {
+			overflow: hidden;
+		}
+	}
 
-  &-close-btn, &-circle-btn {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    @include flex-center;
-    cursor: pointer;
-    background: $vm-bg-secondary;
-    border: $vm-border-width solid $vm-border-color;
-    color: $vm-text-muted;
-    flex-shrink: 0;
-    transition: background 150ms ease, color 150ms ease;
+	&-close-btn,
+	&-circle-btn {
+		width: 24px;
+		height: 24px;
+		border-radius: 50%;
+		@include flex-center;
+		cursor: pointer;
+		background: $vm-bg-secondary;
+		border: $vm-border-width solid $vm-border-color;
+		color: $vm-text-muted;
+		flex-shrink: 0;
+		transition:
+			background 150ms ease,
+			color 150ms ease;
 
-    &:hover {
-      background: $vm-bg-modifier-hover;
-      color: $vm-text-normal;
-    }
+		&:hover {
+			background: $vm-bg-modifier-hover;
+			color: $vm-text-normal;
+		}
 
-    svg {
-      width: 13px;
-      height: 13px;
-    }
-  }
+		svg {
+			width: 13px;
+			height: 13px;
+		}
+	}
 
-  &-pills {
-    @include flex-center;
-    justify-content: flex-start;
-    gap: 4px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    flex: 1;
-    min-width: 0;
+	&-pills {
+		@include flex-center;
+		justify-content: flex-start;
+		gap: 4px;
+		overflow-x: auto;
+		scrollbar-width: none;
+		flex: 1;
+		min-width: 0;
 
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
+		&::-webkit-scrollbar {
+			display: none;
+		}
+	}
 
-  &-pill {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 11px;
-    white-space: nowrap;
-    cursor: pointer;
-    background: $vm-bg-secondary;
-    border: $vm-border-width solid $vm-border-color;
-    color: $vm-text-muted;
-    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
-    flex-shrink: 0;
+	&-pill {
+		display: inline-flex;
+		align-items: center;
+		padding: 2px 8px;
+		border-radius: 999px;
+		font-size: 11px;
+		white-space: nowrap;
+		cursor: pointer;
+		background: $vm-bg-secondary;
+		border: $vm-border-width solid $vm-border-color;
+		color: $vm-text-muted;
+		transition:
+			background 150ms ease,
+			color 150ms ease,
+			border-color 150ms ease;
+		flex-shrink: 0;
 
-    &.is-active {
-      background: color-mix(in srgb, $vm-color-accent 25%, transparent);
-      border-color: $vm-color-accent;
-      color: $vm-text-normal;
-    }
+		&.is-active {
+			background: color-mix(in srgb, $vm-color-accent 25%, transparent);
+			border-color: $vm-color-accent;
+			color: $vm-text-normal;
+		}
 
-    &:hover {
-      background: $vm-bg-modifier-hover;
-      color: $vm-text-normal;
-    }
-  }
+		&:hover {
+			background: $vm-bg-modifier-hover;
+			color: $vm-text-normal;
+		}
+	}
 }

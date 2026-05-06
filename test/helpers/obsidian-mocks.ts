@@ -121,10 +121,22 @@ export class Menu {
 			icon: undefined,
 			submenu: null,
 			onClickCb: undefined,
-			setTitle(t: string) { this.title = t; return this; },
-			setIcon(i: string) { this.icon = i; return this; },
-			onClick(c: () => void) { this.onClickCb = c; return this; },
-			setSubmenu() { this.submenu = new Menu(); return this.submenu; },
+			setTitle(t: string) {
+				this.title = t;
+				return this;
+			},
+			setIcon(i: string) {
+				this.icon = i;
+				return this;
+			},
+			onClick(c: () => void) {
+				this.onClickCb = c;
+				return this;
+			},
+			setSubmenu() {
+				this.submenu = new Menu();
+				return this.submenu;
+			},
 		};
 		cb(wrapper);
 		this.items.push({
@@ -139,8 +151,12 @@ export class Menu {
 		this.items.push({ title: '---' });
 		return this;
 	}
-	showAtPosition(_pos: { x: number; y: number }): this { return this; }
-	showAtMouseEvent(_e: MouseEvent): this { return this; }
+	showAtPosition(_pos: { x: number; y: number }): this {
+		return this;
+	}
+	showAtMouseEvent(_e: MouseEvent): this {
+		return this;
+	}
 }
 
 export class Modal {
@@ -174,7 +190,9 @@ export class AbstractInputSuggest<T> {
 	close(): void {
 		this.closed = true;
 	}
-	getSuggestions(_query: string): T[] | Promise<T[]> { return []; }
+	getSuggestions(_query: string): T[] | Promise<T[]> {
+		return [];
+	}
 	renderSuggestion(_value: T, _el: HTMLElement): void {}
 	selectSuggestion(_value: T): void {}
 }
@@ -279,7 +297,10 @@ export interface MockAppOptions {
 	adapterFiles?: Map<string, string>;
 }
 
-export function mockTFile(path: string, options: { frontmatter?: Record<string, unknown> } = {}): TFile {
+export function mockTFile(
+	path: string,
+	options: { frontmatter?: Record<string, unknown> } = {},
+): TFile {
 	const file = new TFile();
 	file.path = path;
 	const segs = path.split('/');
@@ -326,12 +347,12 @@ export function mockApp(opts: MockAppOptions = {}): App {
 		getMarkdownFiles: () => [...files],
 		getFileByPath: (path) => files.find((f) => f.path === path) ?? null,
 		getAbstractFileByPath: (path) =>
-			files.find((f) => f.path === path) ??
-			folders.find((f) => f.path === path) ??
-			null,
+			files.find((f) => f.path === path) ?? folders.find((f) => f.path === path) ?? null,
 		getAllFolders: () => [...folders],
 		read: async (file) => adapterFiles.get(file.path) ?? '',
-		modify: async (file, content) => { adapterFiles.set(file.path, content); },
+		modify: async (file, content) => {
+			adapterFiles.set(file.path, content);
+		},
 		create: async (path, content) => {
 			const f = mockTFile(path);
 			files.push(f);
@@ -349,7 +370,9 @@ export function mockApp(opts: MockAppOptions = {}): App {
 				if (v == null) throw new Error(`ENOENT: ${path}`);
 				return v;
 			},
-			write: async (path, content) => { adapterFiles.set(path, content); },
+			write: async (path, content) => {
+				adapterFiles.set(path, content);
+			},
 			exists: async (path) => adapterFiles.has(path),
 		},
 		on: (name, cb) => events.on(name, cb),

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { buildFileDeleteChange, buildFileMoveChange, buildFileRenameChange } from '../../../src/services/serviceFileQueue';
+import {
+	buildFileDeleteChange,
+	buildFileMoveChange,
+	buildFileRenameChange,
+} from '../../../src/services/serviceFileQueue';
 import { DELETE_FILE, MOVE_FILE, RENAME_FILE } from '../../../src/types/typeOps';
 import { mockTFile } from '../../helpers/obsidian-mocks';
 

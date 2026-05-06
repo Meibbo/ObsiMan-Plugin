@@ -203,7 +203,10 @@ export function buildRenameHandoffChange(handoff: FnRRenameHandoff): PendingChan
 	return null;
 }
 
-export function resolveFnRPattern(find: string, state: Pick<FnRState, 'syntax' | 'wholeWord'>): FnRPattern {
+export function resolveFnRPattern(
+	find: string,
+	state: Pick<FnRState, 'syntax' | 'wholeWord'>,
+): FnRPattern {
 	const trimmed = find.trim();
 	if (state.syntax === 'regex' || state.syntax === 'ant-renamer') {
 		return { pattern: trimmed, isRegex: true };
@@ -222,7 +225,9 @@ export function canReplaceContent(syntax: FnRSyntax): boolean {
 	return FNR_SYNTAX_OPTIONS.find((option) => option.id === syntax)?.canReplaceContent ?? false;
 }
 
-export function buildContentReplaceChange(input: BuildContentReplaceChangeInput): ContentChange | null {
+export function buildContentReplaceChange(
+	input: BuildContentReplaceChangeInput,
+): ContentChange | null {
 	const find = input.find.trim();
 	if (!find || input.files.length === 0 || !canReplaceContent(input.state.syntax)) return null;
 
@@ -255,7 +260,10 @@ export function buildContentReplaceChange(input: BuildContentReplaceChangeInput)
 	};
 }
 
-function buildPropRenameChange(handoff: ActiveFnRRenameHandoff, replacement: string): PendingChange {
+function buildPropRenameChange(
+	handoff: ActiveFnRRenameHandoff,
+	replacement: string,
+): PendingChange {
 	const propName = handoff.propName ?? handoff.original;
 	const files = [...handoff.files];
 	return {
@@ -276,7 +284,10 @@ function buildPropRenameChange(handoff: ActiveFnRRenameHandoff, replacement: str
 	};
 }
 
-function buildValueRenameChange(handoff: ActiveFnRRenameHandoff, replacement: string): PendingChange {
+function buildValueRenameChange(
+	handoff: ActiveFnRRenameHandoff,
+	replacement: string,
+): PendingChange {
 	const propName = handoff.propName ?? '';
 	const oldValue = handoff.oldValue ?? handoff.original;
 	const files = [...handoff.files];
@@ -336,7 +347,9 @@ function replaceValueUpdate(
 		if (!valueContains(current, oldValue)) return null;
 		const values = current as unknown[];
 		return {
-			[propName]: values.map((item): unknown => (valueToString(item) === oldValue ? newValue : item)),
+			[propName]: values.map((item): unknown =>
+				valueToString(item) === oldValue ? newValue : item,
+			),
 		};
 	}
 	if (valueToString(current) !== oldValue) return null;
@@ -344,7 +357,8 @@ function replaceValueUpdate(
 }
 
 function valueContains(value: unknown, needle: string): boolean {
-	if (Array.isArray(value)) return (value as unknown[]).some((item) => valueToString(item) === needle);
+	if (Array.isArray(value))
+		return (value as unknown[]).some((item) => valueToString(item) === needle);
 	return valueToString(value) === needle;
 }
 

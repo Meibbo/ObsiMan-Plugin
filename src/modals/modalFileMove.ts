@@ -67,11 +67,9 @@ export class FileMoveModal extends Modal {
 					.onClick(() => {
 						this.queueMoves();
 						this.close();
-					})
+					}),
 			)
-			.addButton((btn) =>
-				btn.setButtonText('Cancel').onClick(() => this.close())
-			);
+			.addButton((btn) => btn.setButtonText('Cancel').onClick(() => this.close()));
 	}
 
 	private renderPreview(): void {
@@ -81,9 +79,7 @@ export class FileMoveModal extends Modal {
 		const limit = Math.min(this.targetFiles.length, 10);
 		for (let i = 0; i < limit; i++) {
 			const file = this.targetFiles[i];
-			const newPath = this.targetFolder
-				? `${this.targetFolder}/${file.name}`
-				: file.name;
+			const newPath = this.targetFolder ? `${this.targetFolder}/${file.name}` : file.name;
 
 			const row = this.previewEl.createDiv({ cls: 'vm-rename-row' });
 			row.createSpan({ cls: 'vm-diff-deleted', text: file.path });

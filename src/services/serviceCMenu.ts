@@ -28,9 +28,7 @@ export class ContextMenuService extends Component {
 				const surface: MenuCtx['surface'] =
 					source === 'more-options' ? 'more-options' : 'file-menu';
 				const settingKey =
-					surface === 'more-options'
-						? 'contextMenuShowInMoreOptions'
-						: 'contextMenuShowInFileMenu';
+					surface === 'more-options' ? 'contextMenuShowInMoreOptions' : 'contextMenuShowInFileMenu';
 				if (!this.plugin.settings[settingKey]) {
 					this._applyHideRules(menu, surface);
 					return;
@@ -56,7 +54,7 @@ export class ContextMenuService extends Component {
 	}
 
 	registerAction(def: ActionDef): void {
-		if (this._registry.some(a => a.id === def.id)) return;
+		if (this._registry.some((a) => a.id === def.id)) return;
 		this._registry.push(def);
 	}
 
@@ -84,7 +82,8 @@ export class ContextMenuService extends Component {
 				if (sm) {
 					targetMenu = sm;
 				} else {
-					const icon = def.submenu === 'Convert' ? 'lucide-arrow-right-left' : 'lucide-chevron-right';
+					const icon =
+						def.submenu === 'Convert' ? 'lucide-arrow-right-left' : 'lucide-chevron-right';
 					menu.addItem((i: MenuItem) => {
 						i.setTitle(def.submenu!).setIcon(icon);
 						// Internal API for submenus in modern Obsidian
@@ -149,7 +148,8 @@ export class ContextMenuService extends Component {
 				if (sm) {
 					targetMenu = sm;
 				} else {
-					const icon = def.submenu === 'Convert' ? 'lucide-arrow-right-left' : 'lucide-chevron-right';
+					const icon =
+						def.submenu === 'Convert' ? 'lucide-arrow-right-left' : 'lucide-chevron-right';
 					menu.addItem((i: MenuItem) => {
 						i.setTitle(def.submenu!).setIcon(icon);
 						targetMenu = (i as unknown as { setSubmenu: () => Menu }).setSubmenu() || new Menu();
@@ -174,10 +174,7 @@ export class ContextMenuService extends Component {
 		}
 	}
 
-	private _applyHideRules(
-		menu: Menu,
-		surface: 'file-menu' | 'editor-menu' | 'more-options',
-	): void {
+	private _applyHideRules(menu: Menu, surface: 'file-menu' | 'editor-menu' | 'more-options'): void {
 		const rules = this.plugin.settings.contextMenuHideRules || [];
 		const activeRules = rules.filter((r) => r.surface === surface && r.enabled);
 		if (activeRules.length === 0) return;

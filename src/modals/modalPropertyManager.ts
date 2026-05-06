@@ -32,7 +32,7 @@ export class PropertyManagerModal extends Modal {
 		app: App,
 		propertyIndex: PropertyIndexService,
 		targetFiles: TFile[],
-		onQueue: QueueCallback
+		onQueue: QueueCallback,
 	) {
 		super(app);
 		this.propertyIndex = propertyIndex;
@@ -52,24 +52,22 @@ export class PropertyManagerModal extends Modal {
 		});
 
 		// Action selector
-		new Setting(contentEl)
-			.setName(translate('prop.action'))
-			.addDropdown((dd) =>
-				dd
-					.addOptions({
-						set: translate('prop.action.set'),
-						rename: translate('prop.action.rename'),
-						delete: translate('prop.action.delete'),
-						clean_empty: translate('prop.action.clean'),
-						change_type: translate('prop.action.change_type'),
-						add: translate('prop.action.add'),
-					})
-					.setValue(this.action)
-					.onChange((v) => {
-						this.action = v as PropertyAction;
-						this.renderForm();
-					})
-			);
+		new Setting(contentEl).setName(translate('prop.action')).addDropdown((dd) =>
+			dd
+				.addOptions({
+					set: translate('prop.action.set'),
+					rename: translate('prop.action.rename'),
+					delete: translate('prop.action.delete'),
+					clean_empty: translate('prop.action.clean'),
+					change_type: translate('prop.action.change_type'),
+					add: translate('prop.action.add'),
+				})
+				.setValue(this.action)
+				.onChange((v) => {
+					this.action = v as PropertyAction;
+					this.renderForm();
+				}),
+		);
 
 		contentEl.createDiv({ cls: 'vm-prop-form' });
 		this.renderForm();
@@ -83,25 +81,18 @@ export class PropertyManagerModal extends Modal {
 		const propertyNames = this.propertyIndex.getPropertyNames();
 
 		// Property selector with autosuggest
-		new Setting(formEl as HTMLElement)
-			.setName(translate('prop.property'))
-			.addText((text) => {
-				text
-					.setPlaceholder('Property name...')
-					.setValue(this.property)
-					.onChange((v) => {
-						this.property = v;
-					});
-				new PropertySuggest(
-					this.app,
-					text.inputEl,
-					propertyNames,
-					(val) => {
-						this.property = val;
-						text.setValue(val);
-					}
-				);
+		new Setting(formEl as HTMLElement).setName(translate('prop.property')).addText((text) => {
+			text
+				.setPlaceholder('Property name...')
+				.setValue(this.property)
+				.onChange((v) => {
+					this.property = v;
+				});
+			new PropertySuggest(this.app, text.inputEl, propertyNames, (val) => {
+				this.property = val;
+				text.setValue(val);
 			});
+		});
 
 		// Action-specific fields
 		switch (this.action) {
@@ -136,93 +127,78 @@ export class PropertyManagerModal extends Modal {
 						this.onQueue(change);
 						this.close();
 					}
-				})
+				}),
 		);
 	}
 
 	private renderSetFields(container: HTMLElement): void {
 		// Type selector
-		new Setting(container)
-			.setName(translate('prop.type'))
-			.addDropdown((dd) =>
-				dd
-					.addOptions({
-						text: translate('prop.type.text'),
-						number: translate('prop.type.number'),
-						checkbox: translate('prop.type.checkbox'),
-						list: translate('prop.type.list'),
-						date: translate('prop.type.date'),
-					})
-					.setValue(this.propertyType)
-					.onChange((v) => {
-						this.propertyType = v as PropertyType;
-					})
-			);
+		new Setting(container).setName(translate('prop.type')).addDropdown((dd) =>
+			dd
+				.addOptions({
+					text: translate('prop.type.text'),
+					number: translate('prop.type.number'),
+					checkbox: translate('prop.type.checkbox'),
+					list: translate('prop.type.list'),
+					date: translate('prop.type.date'),
+				})
+				.setValue(this.propertyType)
+				.onChange((v) => {
+					this.propertyType = v as PropertyType;
+				}),
+		);
 
 		// Value input with autosuggest
-		new Setting(container)
-			.setName(translate('prop.value'))
-			.addText((text) => {
-				text
-					.setPlaceholder('Value')
-					.setValue(this.value)
-					.onChange((v) => {
-						this.value = v;
-					});
-				if (this.property) {
-					new PropertySuggest(
-						this.app,
-						text.inputEl,
-						this.propertyIndex.getPropertyValues(this.property),
-						(val) => {
-							this.value = val;
-							text.setValue(val);
-						}
-					);
-				}
-			});
+		new Setting(container).setName(translate('prop.value')).addText((text) => {
+			text
+				.setPlaceholder('Value')
+				.setValue(this.value)
+				.onChange((v) => {
+					this.value = v;
+				});
+			if (this.property) {
+				new PropertySuggest(
+					this.app,
+					text.inputEl,
+					this.propertyIndex.getPropertyValues(this.property),
+					(val) => {
+						this.value = val;
+						text.setValue(val);
+					},
+				);
+			}
+		});
 
 		// Wikilink toggle
-		new Setting(container)
-			.setName(translate('prop.option.wikilink'))
-			.addToggle((toggle) =>
-				toggle.setValue(this.asWikilink).onChange((v) => {
-					this.asWikilink = v;
-				})
-			);
+		new Setting(container).setName(translate('prop.option.wikilink')).addToggle((toggle) =>
+			toggle.setValue(this.asWikilink).onChange((v) => {
+				this.asWikilink = v;
+			}),
+		);
 
 		// Append toggle (for list type)
 		if (this.propertyType === 'list') {
-			new Setting(container)
-				.setName(translate('prop.option.append'))
-				.addToggle((toggle) =>
-					toggle.setValue(this.appendToList).onChange((v) => {
-						this.appendToList = v;
-					})
-				);
+			new Setting(container).setName(translate('prop.option.append')).addToggle((toggle) =>
+				toggle.setValue(this.appendToList).onChange((v) => {
+					this.appendToList = v;
+				}),
+			);
 		}
 	}
 
 	private renderRenameFields(container: HTMLElement): void {
-		new Setting(container)
-			.setName(translate('prop.new_name'))
-			.addText((text) => {
-				text
-					.setPlaceholder('New property name')
-					.setValue(this.newName)
-					.onChange((v) => {
-						this.newName = v;
-					});
-				new PropertySuggest(
-					this.app,
-					text.inputEl,
-					this.propertyIndex.getPropertyNames(),
-					(val) => {
-						this.newName = val;
-						text.setValue(val);
-					}
-				);
+		new Setting(container).setName(translate('prop.new_name')).addText((text) => {
+			text
+				.setPlaceholder('New property name')
+				.setValue(this.newName)
+				.onChange((v) => {
+					this.newName = v;
+				});
+			new PropertySuggest(this.app, text.inputEl, this.propertyIndex.getPropertyNames(), (val) => {
+				this.newName = val;
+				text.setValue(val);
 			});
+		});
 
 		// Native rename toggle — only if rename is selected
 		new Setting(container)
@@ -231,28 +207,26 @@ export class PropertyManagerModal extends Modal {
 			.addToggle((toggle) =>
 				toggle.setValue(this.useNativeRename).onChange((v) => {
 					this.useNativeRename = v;
-				})
+				}),
 			);
 	}
 
 	private renderChangeTypeFields(container: HTMLElement): void {
-		new Setting(container)
-			.setName(translate('prop.type'))
-			.addDropdown((dd) =>
-				dd
-					.addOptions({
-						text: translate('prop.type.text'),
-						number: translate('prop.type.number'),
-						checkbox: translate('prop.type.checkbox'),
-						list: translate('prop.type.list'),
-						date: translate('prop.type.date'),
-						wikilink: translate('prop.type.wikilink'),
-					})
-					.setValue(this.propertyType)
-					.onChange((v) => {
-						this.propertyType = v as PropertyType;
-					})
-			);
+		new Setting(container).setName(translate('prop.type')).addDropdown((dd) =>
+			dd
+				.addOptions({
+					text: translate('prop.type.text'),
+					number: translate('prop.type.number'),
+					checkbox: translate('prop.type.checkbox'),
+					list: translate('prop.type.list'),
+					date: translate('prop.type.date'),
+					wikilink: translate('prop.type.wikilink'),
+				})
+				.setValue(this.propertyType)
+				.onChange((v) => {
+					this.propertyType = v as PropertyType;
+				}),
+		);
 	}
 
 	private buildChange(): PendingChange | null {
@@ -395,11 +369,12 @@ export class PropertyManagerModal extends Modal {
 				return isNaN(n) ? 0 : n;
 			}
 			case 'checkbox':
-				return !['false', '0', 'no', 'none', 'null', ''].includes(
-					raw.toLowerCase().trim()
-				);
+				return !['false', '0', 'no', 'none', 'null', ''].includes(raw.toLowerCase().trim());
 			case 'list':
-				return raw.split(',').map((s) => s.trim()).filter((s) => s.length > 0);
+				return raw
+					.split(',')
+					.map((s) => s.trim())
+					.filter((s) => s.length > 0);
 			case 'date':
 			case 'text':
 			default:
@@ -433,16 +408,17 @@ export class PropertyManagerModal extends Modal {
 			}
 			case 'checkbox': {
 				if (typeof value === 'string') {
-					return !['false', '0', 'no', 'none', 'null', ''].includes(
-						value.toLowerCase().trim()
-					);
+					return !['false', '0', 'no', 'none', 'null', ''].includes(value.toLowerCase().trim());
 				}
 				return Boolean(value);
 			}
 			case 'list':
 				if (Array.isArray(value)) return value;
 				if (typeof value === 'string') {
-					return value.split(',').map((s) => s.trim()).filter(Boolean);
+					return value
+						.split(',')
+						.map((s) => s.trim())
+						.filter(Boolean);
 				}
 				if (value == null) return [];
 				if (typeof value === 'object') return [JSON.stringify(value)];
@@ -452,13 +428,9 @@ export class PropertyManagerModal extends Modal {
 				if (Array.isArray(value)) return String(value[0] ?? '');
 				const str = String((value as string | number | boolean) ?? '');
 				// Try to extract ISO date pattern
-				const dateMatch = str.match(
-					/(\d{4}-\d{2}-\d{2})(?:T|\s)?(\d{2}:\d{2}:\d{2})?/
-				);
+				const dateMatch = str.match(/(\d{4}-\d{2}-\d{2})(?:T|\s)?(\d{2}:\d{2}:\d{2})?/);
 				if (dateMatch) {
-					return dateMatch[2]
-						? `${dateMatch[1]}T${dateMatch[2]}`
-						: dateMatch[1];
+					return dateMatch[2] ? `${dateMatch[1]}T${dateMatch[2]}` : dateMatch[1];
 				}
 				return str;
 			}

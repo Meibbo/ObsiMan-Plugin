@@ -6,17 +6,17 @@
 //...----------—————————————( ANIMATIONS )————————————------------...\\
 
 @keyframes vm-search-pulse {
-  0% {
-    background-color: transparent;
-  }
-  20% {
-    background-color: $vm-bg-modifier-active-hover;
-  }
-  100% {
-    background-color: transparent;
-  }
+	0% {
+		background-color: transparent;
+	}
+	20% {
+		background-color: $vm-bg-modifier-active-hover;
+	}
+	100% {
+		background-color: transparent;
+	}
 }
 
 .vm-search-highlight {
-  animation: vm-search-pulse 0.8s ease-out;
+	animation: vm-search-pulse 0.8s ease-out;
 }

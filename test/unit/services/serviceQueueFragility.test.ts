@@ -11,11 +11,11 @@ description: |
 status: draft
 ---
 Body content here.`;
-		
+
 		const result = splitYamlBody(content);
-		
-		expect(result.fm.description).toContain("Line 2");
-		expect(result.body.trim()).toBe("Body content here.");
+
+		expect(result.fm.description).toContain('Line 2');
+		expect(result.body.trim()).toBe('Body content here.');
 	});
 
 	it('fails when comments contain "---" on its own line', () => {
@@ -28,8 +28,8 @@ key: value
 Body`;
 
 		const result = splitYamlBody(content);
-		expect(result.fm.key).toBe("value");
-		expect(result.body.trim()).toBe("Body");
+		expect(result.fm.key).toBe('value');
+		expect(result.body.trim()).toBe('Body');
 	});
 
 	it('correctly slices frontmatter when provided with Obsidian cache positions', () => {
@@ -40,18 +40,18 @@ Body`;
 key: value
 ---
 Body`;
-		
+
 		// In this case, Obsidian's cache says the frontmatter ends at the LAST ---
 		// (Assuming a more sophisticated parser or a user-corrected state)
 		// Or even if it says it ends at the second, we follow it.
-		
+
 		const mockCache = {
 			frontmatter: {
 				position: {
 					start: { offset: 0 },
-					end: { offset: 42 } // Let's say 42 is after the third ---
-				}
-			}
+					end: { offset: 42 }, // Let's say 42 is after the third ---
+				},
+			},
 		};
 
 		const result = splitYamlBody(content, mockCache);

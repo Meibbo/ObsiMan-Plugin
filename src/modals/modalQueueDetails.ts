@@ -6,11 +6,7 @@
 import { Modal, Notice, Setting, type App } from 'obsidian';
 import type { OperationQueueService } from '../services/serviceQueue.svelte';
 import { translate } from '../index/i18n/lang';
-import {
-  buildDiff,
-  computeBodyHunks,
-  type FileDiff,
-} from "../services/serviceDiff";
+import { buildDiff, computeBodyHunks, type FileDiff } from '../services/serviceDiff';
 
 /**
  * Transitional diff preview modal.
@@ -57,11 +53,9 @@ export class QueueDetailsModal extends Modal {
 					.onClick(async () => {
 						this.close();
 						await this.executeWithProgress();
-					})
+					}),
 			)
-			.addButton((btn) =>
-				btn.setButtonText('Cancel').onClick(() => this.close())
-			);
+			.addButton((btn) => btn.setButtonText('Cancel').onClick(() => this.close()));
 	}
 
 	private renderDiffs(container: HTMLElement, diffs: FileDiff[]): void {
@@ -71,9 +65,8 @@ export class QueueDetailsModal extends Modal {
 
 			// Header: path (or rename path) + op count
 			const headerEl = fileEl.createDiv({ cls: 'vm-diff-file-header' });
-			const pathText = fd.newPath && fd.newPath !== fd.path
-				? `${fd.path} → ${fd.newPath}`
-				: fd.path;
+			const pathText =
+				fd.newPath && fd.newPath !== fd.path ? `${fd.path} → ${fd.newPath}` : fd.path;
 			headerEl.createSpan({ cls: 'vm-diff-file-path', text: pathText });
 			headerEl.createSpan({
 				cls: 'vm-diff-file-ops',

@@ -9,6 +9,7 @@
 ## Development Setup
 
 1. Clone the repository into your vault's plugin directory:
+
    ```bash
    cd /path/to/your/vault/.obsidian/plugins
    git clone https://github.com/Meibbo/vaultman.git
@@ -16,11 +17,13 @@
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Start the development build (watch mode with sourcemaps):
+
    ```bash
    npm run dev
    ```
@@ -31,11 +34,11 @@
 
 ## Build Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Continuous build with watch mode and sourcemaps |
+| Command         | Description                                     |
+| --------------- | ----------------------------------------------- |
+| `npm run dev`   | Continuous build with watch mode and sourcemaps |
 | `npm run build` | Production build (type-check + minified bundle) |
-| `npm run lint` | Run ESLint with Obsidian-specific rules |
+| `npm run lint`  | Run ESLint with Obsidian-specific rules         |
 
 ## Architecture Overview
 
@@ -85,6 +88,7 @@ src/
 ### VaultmanView.svelte — key patterns
 
 The sidebar Svelte component manages all page/tab state. Key rules:
+
 - All user-visible strings use `t('key')` from `src/i18n/index.ts`
 - DOM elements created by TypeScript components (FileListComponent, FilterTreeComponent, QueueListComponent) are initialized via Svelte `use:action` directives
 - State is `$state` runes; derived values are `$derived.by()`
@@ -94,13 +98,13 @@ The sidebar Svelte component manages all page/tab state. Key rules:
 
 `src/types/operation.ts` defines special string constants used as keys in `logicFunc()` return values to signal non-standard operations:
 
-| Constant | Value | Effect |
-|----------|-------|--------|
-| `RENAME_FILE` | `_RENAME_FILE` | Rename file via `fileManager.renameFile` |
-| `MOVE_FILE` | `_MOVE_FILE` | Move file to target folder |
+| Constant               | Value                   | Effect                                              |
+| ---------------------- | ----------------------- | --------------------------------------------------- |
+| `RENAME_FILE`          | `_RENAME_FILE`          | Rename file via `fileManager.renameFile`            |
+| `MOVE_FILE`            | `_MOVE_FILE`            | Move file to target folder                          |
 | `FIND_REPLACE_CONTENT` | `_FIND_REPLACE_CONTENT` | Replace content in raw file via `vault.read/modify` |
-| `DELETE_PROP` | `_DELETE_PROP` | Delete a frontmatter property |
-| `REORDER_ALL` | `_REORDER_ALL` | Reorder all frontmatter keys |
+| `DELETE_PROP`          | `_DELETE_PROP`          | Delete a frontmatter property                       |
+| `REORDER_ALL`          | `_REORDER_ALL`          | Reorder all frontmatter keys                        |
 
 ## Key Development Patterns
 
@@ -111,7 +115,7 @@ All services extend Obsidian's `Component` class and are registered via `addChil
 ```typescript
 // In main.ts onload():
 this.myService = new MyService(this.app);
-this.addChild(this.myService);  // Calls onload(), auto-calls onunload() later
+this.addChild(this.myService); // Calls onload(), auto-calls onunload() later
 ```
 
 ### Event Registration
@@ -163,7 +167,7 @@ Use O(1) path-based lookups instead of filtering the full vault:
 const file = this.app.vault.getFileByPath(path);
 
 // Bad — O(n) full vault scan
-const file = this.app.vault.getMarkdownFiles().find(f => f.path === path);
+const file = this.app.vault.getMarkdownFiles().find((f) => f.path === path);
 ```
 
 ### Performance Guidelines

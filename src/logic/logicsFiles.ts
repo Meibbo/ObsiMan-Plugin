@@ -19,9 +19,7 @@ export class FilesLogic {
 		const root: TreeNode<FileMeta>[] = [];
 		const folderMap = new Map<string, TreeNode<FileMeta>>();
 
-		const sortedFiles = [...filteredFiles].sort((a, b) =>
-			a.path.localeCompare(b.path),
-		);
+		const sortedFiles = [...filteredFiles].sort((a, b) => a.path.localeCompare(b.path));
 
 		for (const file of sortedFiles) {
 			const rawPath = file.parent?.path ?? '';
@@ -65,8 +63,8 @@ export class FilesLogic {
 	/** Filter flat file list by name/folder substring */
 	filterFlat(files: TFile[], name: string, folder: string): TFile[] {
 		let result = files;
-		if (name) result = result.filter(f => f.basename.toLowerCase().includes(name.toLowerCase()));
-		if (folder) result = result.filter(f => f.path.toLowerCase().includes(folder.toLowerCase()));
+		if (name) result = result.filter((f) => f.basename.toLowerCase().includes(name.toLowerCase()));
+		if (folder) result = result.filter((f) => f.path.toLowerCase().includes(folder.toLowerCase()));
 		return result;
 	}
 }

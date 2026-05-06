@@ -23,9 +23,8 @@ export interface SelectionGestureResult {
 }
 
 export function applyPointerSelection(input: SelectionGestureInput): SelectionGestureResult {
-	const anchorId = input.anchorId && input.orderedIds.includes(input.anchorId)
-		? input.anchorId
-		: input.targetId;
+	const anchorId =
+		input.anchorId && input.orderedIds.includes(input.anchorId) ? input.anchorId : input.targetId;
 
 	if (input.range) {
 		return {
@@ -62,11 +61,11 @@ export function applyKeyboardMove(input: KeyboardMoveInput): SelectionGestureRes
 		Math.max(input.orderedIds.length - 1, 0),
 	);
 	const focusedId = input.orderedIds[nextIndex] ?? null;
-	if (!focusedId) return { ids: new Set(input.selectedIds), anchorId: input.anchorId ?? null, focusedId: null };
+	if (!focusedId)
+		return { ids: new Set(input.selectedIds), anchorId: input.anchorId ?? null, focusedId: null };
 
-	const anchorId = input.anchorId && input.orderedIds.includes(input.anchorId)
-		? input.anchorId
-		: focusedId;
+	const anchorId =
+		input.anchorId && input.orderedIds.includes(input.anchorId) ? input.anchorId : focusedId;
 	if (input.range) {
 		return {
 			ids: idsInRange(input.orderedIds, anchorId, focusedId),

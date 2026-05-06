@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { translate } from "../../index/i18n/lang";
-	import type { TFile } from "obsidian";
+	import { translate } from '../../index/i18n/lang';
+	import type { TFile } from 'obsidian';
 
 	let {
 		moveTargetFiles,
@@ -23,16 +23,14 @@
 
 <div>
 	<div class="vm-popup-header">
-		<span class="vm-popup-title"
-			>{translate("move.title")} ({moveTargetFiles.length})</span
-		>
+		<span class="vm-popup-title">{translate('move.title')} ({moveTargetFiles.length})</span>
 		<div
 			class="clickable-icon"
 			aria-label="Close"
-			use:icon={"lucide-x"}
+			use:icon={'lucide-x'}
 			onclick={closePopup}
 			onkeydown={(e: KeyboardEvent) => {
-				if (e.key === "Enter" || e.key === " ") closePopup();
+				if (e.key === 'Enter' || e.key === ' ') closePopup();
 			}}
 			role="button"
 			tabindex="0"
@@ -41,17 +39,14 @@
 	<input
 		class="vm-search-input"
 		type="text"
-		placeholder={translate("move.target_folder_placeholder")}
+		placeholder={translate('move.target_folder_placeholder')}
 		use:attachFolderSuggest
 		oninput={(e: Event) => {
 			moveTargetFolder = (e.target as HTMLInputElement).value.trim();
 		}}
 	/>
-	<p
-		class="vm-text-faint"
-		style="font-size: var(--font-ui-smaller); margin: 4px 0 8px;"
-	>
-		{translate("move.root_hint")}
+	<p class="vm-text-faint" style="font-size: var(--font-ui-smaller); margin: 4px 0 8px;">
+		{translate('move.root_hint')}
 	</p>
 	<div class="vm-rename-preview">
 		{#each movePreviews as row}
@@ -68,9 +63,7 @@
 		{/if}
 	</div>
 	<div class="vm-popup-actions">
-		<button class="vm-btn mod-cta" onclick={queueMoves}
-			>{translate("prop.add_to_queue")}</button
-		>
+		<button class="vm-btn mod-cta" onclick={queueMoves}>{translate('prop.add_to_queue')}</button>
 		<button class="vm-btn" onclick={closePopup}>Cancel</button>
 	</div>
 </div>

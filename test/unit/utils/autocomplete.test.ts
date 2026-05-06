@@ -21,14 +21,21 @@ describe('PropertySuggest.getSuggestions', () => {
 	});
 
 	it('prefix matches sort before substring matches', () => {
-		const sg = new PropertySuggest(mockApp(), makeInput(), ['extra-status', 'status', 'mystatus'], () => {});
+		const sg = new PropertySuggest(
+			mockApp(),
+			makeInput(),
+			['extra-status', 'status', 'mystatus'],
+			() => {},
+		);
 		const out = sg.getSuggestions('status');
 		expect(out[0]).toBe('status');
 	});
 
 	it('selectSuggestion fires the callback with the chosen value', () => {
 		let chosen = '';
-		const sg = new PropertySuggest(mockApp(), makeInput(), ['x'], (v) => { chosen = v; });
+		const sg = new PropertySuggest(mockApp(), makeInput(), ['x'], (v) => {
+			chosen = v;
+		});
 		sg.selectSuggestion('x');
 		expect(chosen).toBe('x');
 	});

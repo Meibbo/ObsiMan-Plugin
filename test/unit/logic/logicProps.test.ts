@@ -10,8 +10,9 @@ function setup() {
 		[b.path, { frontmatter: { status: 'done' } }],
 	]);
 	const app = mockApp({ files: [a, b], metadata: meta });
-	(app.metadataCache as unknown as { getAllPropertyInfos: () => Record<string, { type: string }> }).getAllPropertyInfos =
-		() => ({ status: { type: 'text' }, tags: { type: 'list' } });
+	(
+		app.metadataCache as unknown as { getAllPropertyInfos: () => Record<string, { type: string }> }
+	).getAllPropertyInfos = () => ({ status: { type: 'text' }, tags: { type: 'list' } });
 	return { app };
 }
 
@@ -34,8 +35,11 @@ describe('PropsLogic.getTree', () => {
 			[file.path, { frontmatter: { age: 'not-a-number' } }],
 		]);
 		const app = mockApp({ files: [file], metadata: meta });
-		(app.metadataCache as unknown as { getAllPropertyInfos: () => Record<string, { type: string }> }).getAllPropertyInfos =
-			() => ({ age: { type: 'number' } });
+		(
+			app.metadataCache as unknown as {
+				getAllPropertyInfos: () => Record<string, { type: string }>;
+			}
+		).getAllPropertyInfos = () => ({ age: { type: 'number' } });
 
 		const logic = new PropsLogic(app);
 		const valueNode = logic.getTree()[0].children![0];

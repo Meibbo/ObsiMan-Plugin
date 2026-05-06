@@ -48,7 +48,10 @@ export function showInputModal(app: App, message: string): Promise<string | null
 			}
 
 			onClose(): void {
-				if (!resolved) { resolved = true; resolve(null); }
+				if (!resolved) {
+					resolved = true;
+					resolve(null);
+				}
 				this.contentEl.empty();
 			}
 		}

@@ -10,14 +10,20 @@
 	let { state, icon }: Props = $props();
 
 	const kind = $derived(state.kind ?? 'empty');
-	const iconName = $derived(state.icon ?? (kind === 'loading' ? 'lucide-loader-circle' : 'lucide-inbox'));
+	const iconName = $derived(
+		state.icon ?? (kind === 'loading' ? 'lucide-loader-circle' : 'lucide-inbox'),
+	);
 
 	function iconAction(el: HTMLElement, name: string) {
 		return icon?.(el, name) ?? { update: () => {} };
 	}
 </script>
 
-<section class="vm-empty-landing" data-empty-kind={kind} aria-live={kind === 'loading' ? 'polite' : 'off'}>
+<section
+	class="vm-empty-landing"
+	data-empty-kind={kind}
+	aria-live={kind === 'loading' ? 'polite' : 'off'}
+>
 	{#if kind === 'loading'}
 		<div class="vm-empty-landing-indicator">
 			<IndicatorOrbitingInk size={40} />

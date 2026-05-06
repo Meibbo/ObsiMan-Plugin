@@ -17,9 +17,11 @@ describe('bubbleHiddenTreeBadges', () => {
 	it('adds hidden descendant badges to collapsed parents as inherited badges', () => {
 		const tree = [
 			node('status', [
-				node('status:draft', [], [
-					{ text: 'delete', icon: 'lucide-trash-2', color: 'red', queueIndex: 0 },
-				]),
+				node(
+					'status:draft',
+					[],
+					[{ text: 'delete', icon: 'lucide-trash-2', color: 'red', queueIndex: 0 }],
+				),
 			]),
 		];
 
@@ -41,9 +43,11 @@ describe('bubbleHiddenTreeBadges', () => {
 	it('does not bubble child badges when the parent is expanded', () => {
 		const tree = [
 			node('status', [
-				node('status:draft', [], [
-					{ text: 'delete', icon: 'lucide-trash-2', color: 'red', queueIndex: 0 },
-				]),
+				node(
+					'status:draft',
+					[],
+					[{ text: 'delete', icon: 'lucide-trash-2', color: 'red', queueIndex: 0 }],
+				),
 			]),
 		];
 
@@ -58,12 +62,16 @@ describe('bubbleHiddenTreeBadges', () => {
 	it('collapses duplicate inherited badges by stable operation identity', () => {
 		const tree = [
 			node('status', [
-				node('status:draft', [], [
-					{ text: 'delete', icon: 'lucide-trash-2', color: 'red', queueIndex: 2 },
-				]),
-				node('status:done', [], [
-					{ text: 'delete', icon: 'lucide-trash-2', color: 'red', queueIndex: 2 },
-				]),
+				node(
+					'status:draft',
+					[],
+					[{ text: 'delete', icon: 'lucide-trash-2', color: 'red', queueIndex: 2 }],
+				),
+				node(
+					'status:done',
+					[],
+					[{ text: 'delete', icon: 'lucide-trash-2', color: 'red', queueIndex: 2 }],
+				),
 			]),
 		];
 
@@ -84,9 +92,11 @@ describe('bubbleHiddenTreeBadges', () => {
 	});
 
 	it('reuses expanded branch references when bubbling does not change badges', () => {
-		const child = node('status:draft', [], [
-			{ text: 'delete', icon: 'lucide-trash-2', color: 'red', queueIndex: 0 },
-		]);
+		const child = node(
+			'status:draft',
+			[],
+			[{ text: 'delete', icon: 'lucide-trash-2', color: 'red', queueIndex: 0 }],
+		);
 		const parent = node('status', [child]);
 		const tree = [parent];
 
@@ -97,9 +107,11 @@ describe('bubbleHiddenTreeBadges', () => {
 	});
 
 	it('clones only collapsed ancestors that receive inherited badges', () => {
-		const child = node('status:draft', [], [
-			{ text: 'delete', icon: 'lucide-trash-2', color: 'red', queueIndex: 0 },
-		]);
+		const child = node(
+			'status:draft',
+			[],
+			[{ text: 'delete', icon: 'lucide-trash-2', color: 'red', queueIndex: 0 }],
+		);
 		const stableSibling = node('status:done');
 		const parent = node('status', [child, stableSibling]);
 		const tree = [parent];

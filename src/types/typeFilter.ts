@@ -10,8 +10,8 @@ export type FilterType =
 	| 'file_name'
 	| 'file_name_exclude'
 	| 'file_path'
-	| 'file_folder'    // matches folder path only (not filename)
-	| 'has_tag';       // matches files with a specific tag
+	| 'file_folder' // matches folder path only (not filename)
+	| 'has_tag'; // matches files with a specific tag
 
 export type GroupLogic = 'and' | 'or' | 'not';
 export type LegacyGroupLogic = 'all' | 'any' | 'none';

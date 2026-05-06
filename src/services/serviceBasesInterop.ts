@@ -33,7 +33,11 @@ export function previewBasesImport(input: PreviewBasesImportInput): BasesImportP
 	}
 
 	const globalFilter = convertFilter(rawConfig.filters, source, report);
-	const viewFilter = convertFilter(findViewFilters(rawConfig, input.targetViewName), source, report);
+	const viewFilter = convertFilter(
+		findViewFilters(rawConfig, input.targetViewName),
+		source,
+		report,
+	);
 	const filter = combineFilters(globalFilter, viewFilter);
 
 	return { source, rawConfig, filter, report };
@@ -75,7 +79,7 @@ export function extractBasesFencedBlocks(content: string): BasesFencedBlock[] {
 function parseYamlObject(
 	content: string,
 	source: BasesImportSource,
-	report: BasesInteropReport
+	report: BasesInteropReport,
 ): UnknownRecord {
 	let parsed: unknown;
 	try {
@@ -104,17 +108,17 @@ function parseErrorFromUnknown(error: unknown, source: BasesImportSource): Bases
 function findViewFilters(config: UnknownRecord, targetViewName?: string): unknown {
 	if (!targetViewName || !Array.isArray(config.views)) return undefined;
 	const views: unknown[] = config.views;
-	const view = views.find((candidate) =>
-		isRecord(candidate) && candidate.name === targetViewName
-	);
+	const view = views.find((candidate) => isRecord(candidate) && candidate.name === targetViewName);
 	return isRecord(view) ? view.filters : undefined;
 }
 
 function combineFilters(
 	globalFilter: BasesImportedFilterNode | undefined,
-	viewFilter: BasesImportedFilterNode | undefined
+	viewFilter: BasesImportedFilterNode | undefined,
 ): BasesImportedFilterGroup | undefined {
-	const children = [globalFilter, viewFilter].filter((node): node is BasesImportedFilterNode => node !== undefined);
+	const children = [globalFilter, viewFilter].filter(
+		(node): node is BasesImportedFilterNode => node !== undefined,
+	);
 	if (children.length === 0) return undefined;
 	if (children.length === 1 && children[0].type === 'group') return children[0];
 	return {
@@ -128,7 +132,7 @@ function combineFilters(
 function convertFilter(
 	filter: unknown,
 	source: BasesImportSource,
-	report: BasesInteropReport
+	report: BasesInteropReport,
 ): BasesImportedFilterNode | undefined {
 	if (typeof filter === 'string') {
 		return convertExpression(filter, source, report);
@@ -138,7 +142,9 @@ function convertFilter(
 		const children = filter
 			.map((child) => convertFilter(child, source, report))
 			.filter((node): node is BasesImportedFilterNode => node !== undefined);
-		return children.length > 0 ? { type: 'group', logic: 'and', children, enabled: true } : undefined;
+		return children.length > 0
+			? { type: 'group', logic: 'and', children, enabled: true }
+			: undefined;
 	}
 
 	if (!isRecord(filter)) return undefined;
@@ -161,7 +167,7 @@ function convertFilter(
 function convertExpression(
 	expression: string,
 	source: BasesImportSource,
-	report: BasesInteropReport
+	report: BasesInteropReport,
 ): FilterRule | undefined {
 	const trimmed = expression.trim();
 	const equality = /^([A-Za-z_][\w.-]*)\s*==\s*(?:"([^"]*)"|'([^']*)')$/.exec(trimmed);
@@ -205,7 +211,7 @@ function appliedRule(
 	expression: string,
 	source: BasesImportSource,
 	report: BasesInteropReport,
-	rule: FilterRule
+	rule: FilterRule,
 ): FilterRule {
 	const applied: BasesAppliedExpression = {
 		expression,
@@ -224,7 +230,7 @@ function reportUnsupported(
 	expression: string,
 	source: BasesImportSource,
 	report: BasesInteropReport,
-	reason: string
+	reason: string,
 ): void {
 	const unsupported: BasesUnsupportedExpression = {
 		expression,

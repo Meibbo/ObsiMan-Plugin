@@ -24,52 +24,55 @@ import { translate } from '../index/i18n/lang';
  * Split a markdown file's raw content into its frontmatter object and body string.
  * Uses Obsidian's parseYaml for byte-exact compatibility with processFrontMatter.
  */
-export function splitYamlBody(content: string, cache?: { frontmatter?: { position?: { start: { offset: number }, end: { offset: number } } } }): {
-  fm: Record<string, unknown>;
-  body: string;
+export function splitYamlBody(
+	content: string,
+	cache?: { frontmatter?: { position?: { start: { offset: number }; end: { offset: number } } } },
+): {
+	fm: Record<string, unknown>;
+	body: string;
 } {
-  // 1. Precise split using Obsidian's cache if available
-  const pos = cache?.frontmatter?.position;
-  if (pos && pos.start && pos.end) {
-    const fmSource = content.slice(pos.start.offset, pos.end.offset);
-    const body = content.slice(pos.end.offset);
-    
-    // Strip leading/trailing delimiters from source before parsing
-    const yamlMatch = fmSource.match(/^---\r?\n([\s\S]*?)\r?\n---$/);
-    const yaml = yamlMatch ? yamlMatch[1] : fmSource.replace(/^---\n?/, '').replace(/\n?---$/, '');
-    
-    try {
-      const fm = parseYaml(yaml) as Record<string, unknown> | null;
-      return { fm: fm ?? {}, body };
-    } catch {
-      // Fallback if parse fails
-    }
-  }
+	// 1. Precise split using Obsidian's cache if available
+	const pos = cache?.frontmatter?.position;
+	if (pos && pos.start && pos.end) {
+		const fmSource = content.slice(pos.start.offset, pos.end.offset);
+		const body = content.slice(pos.end.offset);
 
-  // 2. Manual fallback using a safer line-by-line approach
-  const lines = content.split(/\r?\n/);
-  if (lines.length > 0 && lines[0] === '---') {
-    let endIdx = -1;
-    for (let i = 1; i < lines.length; i++) {
-      if (lines[i] === '---' || lines[i] === '...') {
-        endIdx = i;
-        break;
-      }
-    }
+		// Strip leading/trailing delimiters from source before parsing
+		const yamlMatch = fmSource.match(/^---\r?\n([\s\S]*?)\r?\n---$/);
+		const yaml = yamlMatch ? yamlMatch[1] : fmSource.replace(/^---\n?/, '').replace(/\n?---$/, '');
 
-    if (endIdx !== -1) {
-      const yaml = lines.slice(1, endIdx).join('\n');
-      const body = lines.slice(endIdx + 1).join('\n');
-      try {
-        const fm = parseYaml(yaml) as Record<string, unknown> | null;
-        return { fm: fm ?? {}, body };
-      } catch {
-        // Fallback to empty fm
-      }
-    }
-  }
+		try {
+			const fm = parseYaml(yaml) as Record<string, unknown> | null;
+			return { fm: fm ?? {}, body };
+		} catch {
+			// Fallback if parse fails
+		}
+	}
 
-  return { fm: {}, body: content };
+	// 2. Manual fallback using a safer line-by-line approach
+	const lines = content.split(/\r?\n/);
+	if (lines.length > 0 && lines[0] === '---') {
+		let endIdx = -1;
+		for (let i = 1; i < lines.length; i++) {
+			if (lines[i] === '---' || lines[i] === '...') {
+				endIdx = i;
+				break;
+			}
+		}
+
+		if (endIdx !== -1) {
+			const yaml = lines.slice(1, endIdx).join('\n');
+			const body = lines.slice(endIdx + 1).join('\n');
+			try {
+				const fm = parseYaml(yaml) as Record<string, unknown> | null;
+				return { fm: fm ?? {}, body };
+			} catch {
+				// Fallback to empty fm
+			}
+		}
+	}
+
+	return { fm: {}, body: content };
 }
 
 /**
@@ -77,9 +80,9 @@ export function splitYamlBody(content: string, cache?: { frontmatter?: { positio
  * Empty fm means no frontmatter block.
  */
 export function serializeFile(fm: Record<string, unknown>, body: string): string {
-  if (Object.keys(fm).length === 0) return body;
-  const yaml = stringifyYaml(fm);
-  return `---\n${yaml}---\n${body}`;
+	if (Object.keys(fm).length === 0) return body;
+	const yaml = stringifyYaml(fm);
+	return `---\n${yaml}---\n${body}`;
 }
 
 function tagOpKind(action: string): StagedOp['kind'] {
@@ -96,10 +99,10 @@ function tagOpKind(action: string): StagedOp['kind'] {
  */
 export class OperationQueueService extends Component implements IOperationQueue {
 	private app: App;
-	
+
 	// SvelteMap provides fine-grained reactivity out of the box.
 	readonly transactions = new SvelteMap<string, VirtualFileState>();
-	
+
 	// Lock mechanism to prevent race conditions when multiple operations hydrate the same file concurrently.
 	private loadingLocks = new Map<string, Promise<VirtualFileState>>();
 	private listeners = new Map<'changed', Set<() => void>>();
@@ -152,7 +155,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 	/** Remove a staged op by its op ID across all file transactions. */
 	remove(id: string): void {
 		for (const [path, vfs] of this.transactions) {
-			if (vfs.ops.some(o => o.id === id || o.changeId === id)) {
+			if (vfs.ops.some((o) => o.id === id || o.changeId === id)) {
 				this.removeOp(path, id, true);
 			}
 		}
@@ -164,7 +167,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 	 */
 	private async getOrCreateVFS(file: TFile, requireBody: boolean): Promise<VirtualFileState> {
 		const key = file.path;
-		
+
 		const activeLock = this.loadingLocks.get(key);
 		if (activeLock) return activeLock;
 
@@ -303,7 +306,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		vfs: VirtualFileState,
 		change: PendingChange,
 		updates: Record<string, unknown>,
-		changeId: string
+		changeId: string,
 	): void {
 		for (const [key, value] of Object.entries(updates)) {
 			const op = this.translateUpdate(vfs, change, key, value, changeId);
@@ -318,7 +321,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		change: PendingChange,
 		key: string,
 		value: unknown,
-		changeId: string
+		changeId: string,
 	): StagedOp | null {
 		const id = `op-${++this.opCounter}`;
 		const action = change.action;
@@ -327,14 +330,25 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		if (key === DELETE_PROP) {
 			const propName = value as string;
 			return {
-				id, changeId, property: propName, kind: 'delete_prop', action, details,
-				apply: (v) => { delete v.fm[propName]; },
+				id,
+				changeId,
+				property: propName,
+				kind: 'delete_prop',
+				action,
+				details,
+				apply: (v) => {
+					delete v.fm[propName];
+				},
 			};
 		}
 		if (key === REORDER_ALL) {
 			const ordered = value as string[];
 			return {
-				id, changeId, kind: 'reorder_props', action, details,
+				id,
+				changeId,
+				kind: 'reorder_props',
+				action,
+				details,
 				apply: (v) => {
 					const copy = { ...v.fm };
 					for (const k of Object.keys(v.fm)) delete v.fm[k];
@@ -346,14 +360,24 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		if (key === RENAME_FILE) {
 			const newName = value as string;
 			return {
-				id, changeId, kind: 'rename_file', action, details,
-				apply: (v) => { v.newPath = v.originalPath.replace(v.file.name, newName); },
+				id,
+				changeId,
+				kind: 'rename_file',
+				action,
+				details,
+				apply: (v) => {
+					v.newPath = v.originalPath.replace(v.file.name, newName);
+				},
 			};
 		}
 		if (key === MOVE_FILE) {
 			const targetFolder = value as string;
 			return {
-				id, changeId, kind: 'move_file', action, details,
+				id,
+				changeId,
+				kind: 'move_file',
+				action,
+				details,
 				apply: (v) => {
 					v.newPath = targetFolder ? `${targetFolder}/${v.file.name}` : v.file.name;
 				},
@@ -361,27 +385,48 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		}
 		if (key === DELETE_FILE) {
 			return {
-				id, changeId, kind: 'delete_file', action, details,
-				apply: (v) => { v.deleted = true; },
+				id,
+				changeId,
+				kind: 'delete_file',
+				action,
+				details,
+				apply: (v) => {
+					v.deleted = true;
+				},
 			};
 		}
 		if (key === FIND_REPLACE_CONTENT) {
 			const { pattern, replacement, isRegex, caseSensitive } = value as {
-				pattern: string; replacement: string; isRegex: boolean; caseSensitive: boolean;
+				pattern: string;
+				replacement: string;
+				isRegex: boolean;
+				caseSensitive: boolean;
 			};
 			const flags = 'g' + (caseSensitive ? '' : 'i');
 			const escaped = isRegex ? pattern : pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 			const rx = new RegExp(escaped, flags);
 			return {
-				id, changeId, kind: 'find_replace_content', action, details,
-				apply: (v) => { v.body = v.body.replace(rx, replacement); },
+				id,
+				changeId,
+				kind: 'find_replace_content',
+				action,
+				details,
+				apply: (v) => {
+					v.body = v.body.replace(rx, replacement);
+				},
 			};
 		}
 		if (key === APPLY_TEMPLATE) {
 			const templateContent = (change as TemplateChange).templateContent;
 			return {
-				id, changeId, kind: 'apply_template', action, details,
-				apply: (v) => { v.body = v.body + '\n\n' + templateContent; },
+				id,
+				changeId,
+				kind: 'apply_template',
+				action,
+				details,
+				apply: (v) => {
+					v.body = v.body + '\n\n' + templateContent;
+				},
 			};
 		}
 		if (key === NATIVE_RENAME_PROP) {
@@ -389,13 +434,27 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		}
 		if (change.type === 'tag' && key === 'tags') {
 			return {
-				id, changeId, tag: change.tag, kind: tagOpKind(change.action), action, details,
-				apply: (v) => { v.fm.tags = value; },
+				id,
+				changeId,
+				tag: change.tag,
+				kind: tagOpKind(change.action),
+				action,
+				details,
+				apply: (v) => {
+					v.fm.tags = value;
+				},
 			};
 		}
 		return {
-			id, changeId, property: key, kind: 'set_prop', action, details,
-			apply: (v) => { v.fm[key] = value; },
+			id,
+			changeId,
+			property: key,
+			kind: 'set_prop',
+			action,
+			details,
+			apply: (v) => {
+				v.fm[key] = value;
+			},
 		};
 	}
 
@@ -403,7 +462,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		change: PendingChange,
 		oldName: string,
 		newName: string,
-		changeId: string
+		changeId: string,
 	): Promise<void> {
 		const allFiles = this.app.vault.getMarkdownFiles();
 		for (const file of allFiles) {
@@ -466,7 +525,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 	removeOp(path: string, opId: string, _silent = false): void {
 		const vfs = this.transactions.get(path);
 		if (!vfs) return;
-		const filtered = vfs.ops.filter(o => o.id !== opId && o.changeId !== opId);
+		const filtered = vfs.ops.filter((o) => o.id !== opId && o.changeId !== opId);
 		if (filtered.length === vfs.ops.length) return;
 		if (filtered.length === 0) {
 			this.transactions.delete(path);
@@ -540,7 +599,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 			}
 
 			if ((i + 1) % CHUNK === 0) {
-				await new Promise<void>(r => activeWindow.setTimeout(r, 0));
+				await new Promise<void>((r) => activeWindow.setTimeout(r, 0));
 			}
 		}
 
@@ -551,7 +610,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		new Notice(
 			result.errors > 0
 				? translate('result.errors', { count: result.errors })
-				: translate('result.success', { count: result.success })
+				: translate('result.success', { count: result.success }),
 		);
 
 		return result;
@@ -590,8 +649,14 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		return serializeFile(scratch.fm, scratch.body);
 	}
 
-	simulateChanges(): Map<string, { before: Record<string, unknown>; after: Record<string, unknown>; newPath?: string }> {
-		const diffs = new Map<string, { before: Record<string, unknown>; after: Record<string, unknown>; newPath?: string }>();
+	simulateChanges(): Map<
+		string,
+		{ before: Record<string, unknown>; after: Record<string, unknown>; newPath?: string }
+	> {
+		const diffs = new Map<
+			string,
+			{ before: Record<string, unknown>; after: Record<string, unknown>; newPath?: string }
+		>();
 		for (const [path, vfs] of this.transactions) {
 			diffs.set(path, {
 				before: { ...vfs.fmInitial },

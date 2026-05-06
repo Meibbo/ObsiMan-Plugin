@@ -10,7 +10,13 @@ import { evalNode } from '../utils/filter-evaluator';
  * Also retains the full legacy API for backward compatibility.
  */
 export class FilterService implements IFilterService {
-	activeFilter = $state<FilterGroup>({ type: 'group', logic: 'and', children: [], id: 'root', enabled: true });
+	activeFilter = $state<FilterGroup>({
+		type: 'group',
+		logic: 'and',
+		children: [],
+		id: 'root',
+		enabled: true,
+	});
 	selectedFiles = $state<TFile[]>([]);
 	filteredFiles = $derived.by(() => this.computeFiltered());
 
@@ -53,13 +59,11 @@ export class FilterService implements IFilterService {
 		}
 		if (this._searchFolder) {
 			const term = this._searchFolder.toLowerCase();
-			base = base.filter((f) =>
-				(f.parent?.path ?? '').toLowerCase().includes(term)
-			);
+			base = base.filter((f) => (f.parent?.path ?? '').toLowerCase().includes(term));
 		}
 
 		return base.sort((a, b) =>
-			a.basename.localeCompare(b.basename, undefined, { sensitivity: 'base' })
+			a.basename.localeCompare(b.basename, undefined, { sensitivity: 'base' }),
 		);
 	}
 
@@ -101,10 +105,14 @@ export class FilterService implements IFilterService {
 	/** Toggle-helper: remove rule matching property/optional value */
 	removeNodeByProperty(propName: string, value?: string): void {
 		const walkAndRemove = (group: FilterGroup): boolean => {
-			const idx = group.children.findIndex(node => {
+			const idx = group.children.findIndex((node) => {
 				if (node.type === 'rule') {
 					if (value !== undefined) {
-						return node.filterType === 'specific_value' && node.property === propName && node.values?.includes(value);
+						return (
+							node.filterType === 'specific_value' &&
+							node.property === propName &&
+							node.values?.includes(value)
+						);
 					} else {
 						return node.filterType === 'has_property' && node.property === propName;
 					}
@@ -132,8 +140,10 @@ export class FilterService implements IFilterService {
 	/** Toggle-helper: remove rule matching tag value */
 	removeNodeByTag(tagId: string): void {
 		const walkAndRemove = (group: FilterGroup): boolean => {
-			const idx = group.children.findIndex(node => {
-				return node.type === 'rule' && node.filterType === 'has_tag' && node.values?.includes(tagId);
+			const idx = group.children.findIndex((node) => {
+				return (
+					node.type === 'rule' && node.filterType === 'has_tag' && node.values?.includes(tagId)
+				);
 			});
 
 			if (idx !== -1) {
@@ -213,21 +223,38 @@ export class FilterService implements IFilterService {
 	}
 
 	/** Returns a flat list of rules (with descriptions) for the Island view */
-	getFlatRules(): { id: string, description: string, enabled: boolean }[] {
-		const rules: { id: string, description: string, enabled: boolean }[] = [];
+	getFlatRules(): { id: string; description: string; enabled: boolean }[] {
+		const rules: { id: string; description: string; enabled: boolean }[] = [];
 		const walk = (node: FilterNode) => {
 			if (node.type === 'rule') {
 				let desc = '';
 				switch (node.filterType) {
-					case 'has_property': desc = `Has property: ${node.property}`; break;
-					case 'missing_property': desc = `Missing property: ${node.property}`; break;
-					case 'specific_value': desc = `${node.property} = ${node.values[0]}`; break;
-					case 'has_tag': desc = `Has tag: ${node.values[0]}`; break;
-					case 'file_name': desc = `Name contains: ${node.values[0]}`; break;
-					case 'file_path': desc = `File: ${node.values[0]}`; break;
-					case 'folder': desc = `In folder: ${node.values[0]}`; break;
-					case 'file_folder': desc = `Folder contains: ${node.values[0]}`; break;
-					default: desc = `${node.filterType}: ${node.property}`;
+					case 'has_property':
+						desc = `Has property: ${node.property}`;
+						break;
+					case 'missing_property':
+						desc = `Missing property: ${node.property}`;
+						break;
+					case 'specific_value':
+						desc = `${node.property} = ${node.values[0]}`;
+						break;
+					case 'has_tag':
+						desc = `Has tag: ${node.values[0]}`;
+						break;
+					case 'file_name':
+						desc = `Name contains: ${node.values[0]}`;
+						break;
+					case 'file_path':
+						desc = `File: ${node.values[0]}`;
+						break;
+					case 'folder':
+						desc = `In folder: ${node.values[0]}`;
+						break;
+					case 'file_folder':
+						desc = `Folder contains: ${node.values[0]}`;
+						break;
+					default:
+						desc = `${node.filterType}: ${node.property}`;
 				}
 				rules.push({ id: node.id!, description: desc, enabled: node.enabled !== false });
 			} else {
@@ -259,7 +286,7 @@ export class FilterService implements IFilterService {
 
 	deleteFilterRule(id: string): void {
 		const walk = (group: FilterGroup): boolean => {
-			const idx = group.children.findIndex(c => c.id === id);
+			const idx = group.children.findIndex((c) => c.id === id);
 			if (idx !== -1) {
 				group.children.splice(idx, 1);
 				return true;
@@ -292,7 +319,11 @@ export class FilterService implements IFilterService {
 	/** Returns true if the property is already in the active filter tree */
 	hasPropFilter(propName: string): boolean {
 		const walk = (node: FilterNode): boolean => {
-			if (node.type === 'rule' && node.filterType === 'has_property' && node.property === propName) {
+			if (
+				node.type === 'rule' &&
+				node.filterType === 'has_property' &&
+				node.property === propName
+			) {
 				return true;
 			}
 			if (node.type === 'group') {
@@ -306,7 +337,12 @@ export class FilterService implements IFilterService {
 	/** Returns true if a specific value is already in the active filter tree */
 	hasValueFilter(propName: string, value: string): boolean {
 		const walk = (node: FilterNode): boolean => {
-			if (node.type === 'rule' && node.filterType === 'specific_value' && node.property === propName && Array.isArray(node.values)) {
+			if (
+				node.type === 'rule' &&
+				node.filterType === 'specific_value' &&
+				node.property === propName &&
+				Array.isArray(node.values)
+			) {
 				return node.values.includes(value);
 			}
 			if (node.type === 'group') {
