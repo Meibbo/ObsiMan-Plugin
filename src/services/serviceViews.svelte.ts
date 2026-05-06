@@ -1,3 +1,4 @@
+import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 import type {
 	ActiveFilterEntry,
 	DecorationOutput,
@@ -27,8 +28,6 @@ interface ViewServiceOptions {
 	decorationManager?: IDecorationManager;
 	defaultMode?: ExplorerViewMode;
 }
-
-type Subscriber = () => void;
 
 interface SemanticContext {
 	kind?: string;
@@ -66,11 +65,12 @@ interface SemanticTarget {
 export class ViewService implements IViewService {
 	private readonly decorationManager?: IDecorationManager;
 	private readonly defaultMode: ExplorerViewMode;
-	private readonly modes = new Map<string, ExplorerViewMode>();
-	private readonly selections = new Map<string, Set<string>>();
-	private readonly expanded = new Map<string, Set<string>>();
-	private readonly focused = new Map<string, string | null>();
-	private readonly subscribers = new Map<string, Set<Subscriber>>();
+	
+	// Svelte 5 Native Reactivity
+	private readonly modes = new SvelteMap<string, ExplorerViewMode>();
+	private readonly selections = new SvelteMap<string, SvelteSet<string>>();
+	private readonly expanded = new SvelteMap<string, SvelteSet<string>>();
+	private readonly focused = new SvelteMap<string, string | null>();
 
 	constructor(options: ViewServiceOptions = {}) {
 		this.decorationManager = options.decorationManager;
@@ -108,7 +108,6 @@ export class ViewService implements IViewService {
 	setViewMode(explorerId: string, mode: ExplorerViewMode): void {
 		if (this.modes.get(explorerId) === mode) return;
 		this.modes.set(explorerId, mode);
-		this.notify(explorerId);
 	}
 
 	getViewMode(explorerId: string): ExplorerViewMode {
@@ -119,6 +118,7 @@ export class ViewService implements IViewService {
 		getActivePerfProbe()?.count('viewService.select');
 		const selected = this.selectionFor(explorerId);
 		if (mode === 'replace') {
+			if (selected.size === 1 && selected.has(id)) return;
 			selected.clear();
 			selected.add(id);
 		} else if (mode === 'toggle') {
@@ -127,36 +127,30 @@ export class ViewService implements IViewService {
 		} else {
 			selected.add(id);
 		}
-		this.notify(explorerId);
 	}
 
 	clearSelection(explorerId: string): void {
+		const selected = this.selections.get(explorerId);
+		if (!selected || selected.size === 0) return;
 		getActivePerfProbe()?.count('viewService.clearSelection');
-		this.selectionFor(explorerId).clear();
-		this.notify(explorerId);
+		selected.clear();
 	}
 
 	toggleExpanded(explorerId: string, id: string): void {
 		const expanded = this.expandedFor(explorerId);
 		if (expanded.has(id)) expanded.delete(id);
 		else expanded.add(id);
-		this.notify(explorerId);
 	}
 
 	setFocused(explorerId: string, id: string | null): void {
+		if (this.focused.get(explorerId) === id) return;
 		getActivePerfProbe()?.count('viewService.setFocused');
 		this.focused.set(explorerId, id);
-		this.notify(explorerId);
 	}
 
-	subscribe(explorerId: string, cb: Subscriber): () => void {
-		let set = this.subscribers.get(explorerId);
-		if (!set) {
-			set = new Set();
-			this.subscribers.set(explorerId, set);
-		}
-		set.add(cb);
-		return () => set?.delete(cb);
+	/** Legacy support - SvelteMap handles reactivity automatically */
+	subscribe(_explorerId: string, _cb: () => void): () => void {
+		return () => {};
 	}
 
 	private toRow<TNode extends NodeBase>(
@@ -207,26 +201,22 @@ export class ViewService implements IViewService {
 		return mergeLayers(decorationLayers, semanticLayers);
 	}
 
-	private selectionFor(explorerId: string): Set<string> {
+	private selectionFor(explorerId: string): SvelteSet<string> {
 		let selected = this.selections.get(explorerId);
 		if (!selected) {
-			selected = new Set();
+			selected = new SvelteSet<string>();
 			this.selections.set(explorerId, selected);
 		}
 		return selected;
 	}
 
-	private expandedFor(explorerId: string): Set<string> {
+	private expandedFor(explorerId: string): SvelteSet<string> {
 		let expanded = this.expanded.get(explorerId);
 		if (!expanded) {
-			expanded = new Set();
+			expanded = new SvelteSet<string>();
 			this.expanded.set(explorerId, expanded);
 		}
 		return expanded;
-	}
-
-	private notify(explorerId: string): void {
-		for (const cb of this.subscribers.get(explorerId) ?? []) cb();
 	}
 }
 
@@ -506,7 +496,7 @@ function operationMatchesTarget(change: PendingChange, target: SemanticTarget): 
 		return target.kind === 'tag' && normalizeTag(change.tag) === target.tag;
 	}
 
-	if (change.type === 'file_rename' || change.type === 'file_move' || change.type === 'template') {
+	if (change.type === 'file_rename' || change.type === 'file_move' || change.type === 'file_delete' || change.type === 'template') {
 		return target.kind === 'file' && changeTargetsFile(change, target);
 	}
 

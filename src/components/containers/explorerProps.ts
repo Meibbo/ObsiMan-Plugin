@@ -4,6 +4,12 @@ import type { TreeNode, PropMeta } from '../../types/typeNode';
 import { DELETE_PROP, NATIVE_RENAME_PROP } from '../../types/typeOps';
 import { showInputModal } from '../../utils/inputModal';
 import {
+	createFnRState,
+	startPropRenameHandoff,
+	startValueRenameHandoff,
+} from '../../services/serviceFnR.svelte';
+import type { FnRRenameHandoff, FnRScope } from '../../types/typeFnR';
+import {
 	highlightsFromViewLayers,
 	nodeBadgesFromViewLayers,
 	withViewStateClasses,
@@ -22,18 +28,24 @@ const TYPE_ICON_MAP: Record<string, string> = {
 	multitext: 'lucide-list-plus',
 };
 
+export interface ExplorerPropsOptions {
+	startRenameHandoff?: (handoff: FnRRenameHandoff) => void;
+}
+
 export class explorerProps implements ExplorerProvider<PropMeta> {
 	id = 'props';
 	private plugin: VaultmanPlugin;
 	private logic: PropsLogic;
+	private options: ExplorerPropsOptions;
 	private searchTerm = '';
 	private searchMode: 'all' | 'leaf' = 'all';
 	private sortBy: string = 'name';
 	private sortDir: 'asc' | 'desc' = 'asc';
 	private addMode = false;
 
-	constructor(plugin: VaultmanPlugin) {
+	constructor(plugin: VaultmanPlugin, options: ExplorerPropsOptions = {}) {
 		this.plugin = plugin;
+		this.options = options;
 		this.logic = new PropsLogic(plugin.app);
 		this.registerActions();
 	}
@@ -247,6 +259,17 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 	}
 
 	private async _renameProp(propName: string): Promise<void> {
+		const files = this.scopedFilesWithProperty(propName);
+		if (this.options.startRenameHandoff) {
+			const state = startPropRenameHandoff(createFnRState(), {
+				propName: this.canonicalPropName(propName),
+				files,
+				scope: this.fnrScope(),
+			});
+			this.options.startRenameHandoff(state.rename);
+			return;
+		}
+
 		const newName = await showInputModal(this.plugin.app, `Rename "${propName}" to:`);
 		if (!newName) return;
 		const canonicalName = this.canonicalPropName(propName);
@@ -255,7 +278,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			property: canonicalName,
 			action: 'rename',
 			details: `Rename property "${propName}" → "${newName}"`,
-			files: this.scopedFilesWithProperty(propName),
+			files,
 			customLogic: true,
 			logicFunc: (_file, fm) => {
 				const actualKey = frontmatterKey(fm, propName);
@@ -305,6 +328,18 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 	}
 
 	private async _renameValue(propName: string, oldValue: string): Promise<void> {
+		const files = this.scopedFilesWithValue(propName, oldValue);
+		if (this.options.startRenameHandoff) {
+			const state = startValueRenameHandoff(createFnRState(), {
+				propName,
+				oldValue,
+				files,
+				scope: this.fnrScope(),
+			});
+			this.options.startRenameHandoff(state.rename);
+			return;
+		}
+
 		const newVal = await showInputModal(this.plugin.app, `Rename value "${oldValue}" to:`);
 		if (!newVal) return;
 		this.plugin.queueService.add({
@@ -312,7 +347,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			property: propName,
 			action: 'set',
 			details: `Rename value "${oldValue}" → "${newVal}"`,
-			files: this.scopedFilesWithValue(propName, oldValue),
+			files,
 			value: newVal,
 			oldValue: oldValue,
 			customLogic: true,
@@ -374,6 +409,12 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 		if (selectedFiles.length > 0) return selectedFiles;
 		if (filteredFiles.length > 0) return filteredFiles;
 		return allFiles;
+	}
+
+	private fnrScope(): FnRScope {
+		const scope = this.plugin.settings?.explorerOperationScope;
+		if (scope === 'selected' || scope === 'all') return scope;
+		return 'filtered';
 	}
 
 	private canonicalPropName(propName: string): string {

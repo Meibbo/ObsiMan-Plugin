@@ -1,8 +1,8 @@
 import { Modal, Setting, type App, type TFile } from 'obsidian';
 import type { PendingChange } from '../types/typeOps';
-import { MOVE_FILE } from '../types/typeOps';
 import { FolderSuggest } from '../utils/autocomplete';
 import { translate } from '../index/i18n/lang';
+import { buildFileMoveChange } from '../services/serviceFileQueue';
 
 type QueueCallback = (change: PendingChange) => void;
 
@@ -102,18 +102,8 @@ export class FileMoveModal extends Modal {
 	private queueMoves(): void {
 		const targetFolder = this.targetFolder;
 		for (const file of this.targetFiles) {
-			const newPath = targetFolder ? `${targetFolder}/${file.name}` : file.name;
-			if (newPath === file.path) continue;
-
-			const change: PendingChange = {
-				type: 'file_move',
-				action: 'move',
-				details: `${file.path} → ${newPath}`,
-				files: [file],
-				logicFunc: () => ({ [MOVE_FILE]: targetFolder }),
-				customLogic: true,
-			};
-			this.onQueue(change);
+			const change = buildFileMoveChange(file, targetFolder);
+			if (change) this.onQueue(change);
 		}
 	}
 

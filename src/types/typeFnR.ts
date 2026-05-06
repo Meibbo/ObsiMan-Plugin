@@ -10,6 +10,26 @@ export type FnRSyntax =
 
 export type FnRScope = 'filtered' | 'selected' | 'all';
 
+export type FnRRenameSourceKind = 'prop' | 'value' | 'tag' | 'file';
+export type FnRRenameStatus = 'inactive' | 'editing' | 'ready' | 'queued' | 'cancelled';
+
+export interface InactiveFnRRenameHandoff {
+	status: 'inactive' | 'queued' | 'cancelled';
+}
+
+export interface ActiveFnRRenameHandoff {
+	status: 'editing' | 'ready';
+	sourceKind: FnRRenameSourceKind;
+	original: string;
+	replacement: string;
+	propName?: string;
+	oldValue?: string;
+	files: TFile[];
+	scope: FnRScope;
+}
+
+export type FnRRenameHandoff = InactiveFnRRenameHandoff | ActiveFnRRenameHandoff;
+
 export interface FnRState {
 	expanded: boolean;
 	replace: string;
@@ -17,6 +37,7 @@ export interface FnRState {
 	caseSensitive: boolean;
 	wholeWord: boolean;
 	scope: FnRScope;
+	rename: FnRRenameHandoff;
 }
 
 export interface FnRPattern {
@@ -35,4 +56,17 @@ export interface BuildContentReplaceChangeInput {
 	find: string;
 	files: readonly TFile[];
 	state: FnRState;
+}
+
+export interface StartPropRenameHandoffInput {
+	propName: string;
+	files: readonly TFile[];
+	scope: FnRScope;
+}
+
+export interface StartValueRenameHandoffInput {
+	propName: string;
+	oldValue: string;
+	files: readonly TFile[];
+	scope: FnRScope;
 }

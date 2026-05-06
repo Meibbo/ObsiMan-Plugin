@@ -56,4 +56,30 @@ describe('explorerFiles interactions', () => {
 		expect(setSelectedFileFilter).toHaveBeenCalledWith([files[0]]);
 		expect(openLinkText).not.toHaveBeenCalled();
 	});
+
+	it('queues file deletion from the registered context menu action', async () => {
+		const { plugin, files } = makePlugin();
+		const trashFile = vi.spyOn(plugin.app.fileManager, 'trashFile');
+		const explorer = new explorerFiles(plugin);
+		const fileNode = explorer.getTree()[0].children?.find((node) => node.meta.file === files[0]);
+		const deleteAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
+			([action]) => action.id === 'file.delete',
+		)?.[0];
+
+		expect(fileNode).toBeTruthy();
+		expect(deleteAction).toBeTruthy();
+
+		await deleteAction.run({
+			nodeType: 'file',
+			node: fileNode,
+			surface: 'panel',
+		});
+
+		expect(plugin.queueService.add).toHaveBeenCalledOnce();
+		expect(trashFile).not.toHaveBeenCalled();
+		const change = (plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls[0][0];
+		expect(change.type).toBe('file_delete');
+		expect(change.action).toBe('delete');
+		expect(change.files).toEqual([files[0]]);
+	});
 });

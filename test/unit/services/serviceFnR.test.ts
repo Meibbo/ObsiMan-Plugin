@@ -1,11 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { mockTFile } from '../../helpers/obsidian-mocks';
-import { FIND_REPLACE_CONTENT } from '../../../src/types/typeOps';
+import { FIND_REPLACE_CONTENT, NATIVE_RENAME_PROP } from '../../../src/types/typeOps';
 import {
+	buildRenameHandoffChange,
 	buildContentReplaceChange,
+	cancelRenameHandoff,
 	createFnRState,
+	markRenameHandoffQueued,
 	normalizeAntReplacement,
 	resolveFnRPattern,
+	startPropRenameHandoff,
+	startValueRenameHandoff,
+	updateRenameHandoffReplacement,
 } from '../../../src/services/serviceFnR.svelte';
 
 describe('serviceFnR', () => {
@@ -18,7 +24,88 @@ describe('serviceFnR', () => {
 			syntax: 'plain',
 			caseSensitive: false,
 			wholeWord: false,
+			rename: { status: 'inactive' },
 		});
+	});
+
+	it('starts and builds a prop rename handoff using native rename semantics', () => {
+		const files = [mockTFile('A.md')];
+		let state = startPropRenameHandoff(createFnRState(), {
+			propName: 'status',
+			files,
+			scope: 'filtered',
+		});
+
+		expect(state.expanded).toBe(true);
+		expect(state.rename).toMatchObject({
+			status: 'editing',
+			sourceKind: 'prop',
+			original: 'status',
+			replacement: '',
+			propName: 'status',
+			files,
+			scope: 'filtered',
+		});
+
+		state = updateRenameHandoffReplacement(state, 'state');
+		expect(state.rename.status).toBe('ready');
+		const change = buildRenameHandoffChange(state.rename);
+
+		expect(change).toMatchObject({
+			type: 'property',
+			property: 'status',
+			action: 'rename',
+			files,
+		});
+		expect(change?.logicFunc(files[0], { status: 'draft' })).toEqual({
+			[NATIVE_RENAME_PROP]: { oldName: 'status', newName: 'state' },
+		});
+	});
+
+	it('starts and builds a value rename handoff matching existing value replacement behavior', () => {
+		const files = [mockTFile('A.md')];
+		let state = startValueRenameHandoff(createFnRState(), {
+			propName: 'status',
+			oldValue: 'draft',
+			files,
+			scope: 'selected',
+		});
+		state = updateRenameHandoffReplacement(state, 'done');
+		const change = buildRenameHandoffChange(state.rename);
+
+		expect(change).toMatchObject({
+			type: 'property',
+			property: 'status',
+			action: 'set',
+			files,
+			value: 'done',
+			oldValue: 'draft',
+		});
+		expect(change?.logicFunc(files[0], { status: ['draft', 'todo'] })).toEqual({
+			status: ['done', 'todo'],
+		});
+		expect(change?.logicFunc(files[0], { status: 'draft' })).toEqual({ status: 'done' });
+	});
+
+	it('does not build cancelled, queued, unchanged, or blank rename handoffs', () => {
+		const files = [mockTFile('A.md')];
+		let state = startPropRenameHandoff(createFnRState(), {
+			propName: 'status',
+			files,
+			scope: 'filtered',
+		});
+
+		expect(buildRenameHandoffChange(state.rename)).toBeNull();
+		expect(buildRenameHandoffChange(cancelRenameHandoff(state).rename)).toBeNull();
+		expect(buildRenameHandoffChange(markRenameHandoffQueued(state).rename)).toBeNull();
+
+		state = updateRenameHandoffReplacement(state, 'status');
+		expect(state.rename.status).toBe('editing');
+		expect(buildRenameHandoffChange(state.rename)).toBeNull();
+
+		state = updateRenameHandoffReplacement(state, '   ');
+		expect(state.rename.status).toBe('editing');
+		expect(buildRenameHandoffChange(state.rename)).toBeNull();
 	});
 
 	it('builds one content replace change across the provided file scope', () => {

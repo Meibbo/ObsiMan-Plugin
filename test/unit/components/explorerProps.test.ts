@@ -3,8 +3,13 @@ import { mockApp, mockTFile, type CachedMetadata, type TFile } from '../../helpe
 import { explorerProps } from '../../../src/components/containers/explorerProps';
 import { DecorationManager } from '../../../src/services/serviceDecorate';
 import { ViewService } from '../../../src/services/serviceViews.svelte';
+import { showInputModal } from '../../../src/utils/inputModal';
 import type { VaultmanPlugin } from '../../../src/main';
 import type { ActiveFilterEntry, QueueChange } from '../../../src/types/typeContracts';
+
+vi.mock('../../../src/utils/inputModal', () => ({
+	showInputModal: vi.fn(),
+}));
 
 function makePlugin(overrides: Partial<VaultmanPlugin> = {}): VaultmanPlugin {
 	const a = mockTFile('a.md', { frontmatter: { status: 'draft', owner: 'vic' } });
@@ -45,6 +50,58 @@ function makePlugin(overrides: Partial<VaultmanPlugin> = {}): VaultmanPlugin {
 }
 
 describe('explorerProps search', () => {
+	it('starts a prop rename handoff from the registered context menu action', async () => {
+		vi.mocked(showInputModal).mockClear();
+		const startRenameHandoff = vi.fn();
+		const plugin = makePlugin();
+		const explorer = new explorerProps(plugin, { startRenameHandoff });
+		const statusNode = explorer.getTree().find((node) => node.id === 'status');
+		const renameAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
+			([action]) => action.id === 'prop.rename',
+		)?.[0];
+
+		await renameAction.run({ nodeType: 'prop', node: statusNode, surface: 'panel' });
+
+		expect(showInputModal).not.toHaveBeenCalled();
+		expect(startRenameHandoff).toHaveBeenCalledOnce();
+		expect(startRenameHandoff.mock.calls[0][0]).toMatchObject({
+			status: 'editing',
+			sourceKind: 'prop',
+			original: 'status',
+			propName: 'status',
+			files: plugin.app.vault.getMarkdownFiles(),
+			scope: 'filtered',
+		});
+	});
+
+	it('starts a value rename handoff from the registered context menu action', async () => {
+		vi.mocked(showInputModal).mockClear();
+		const startRenameHandoff = vi.fn();
+		const plugin = makePlugin();
+		const explorer = new explorerProps(plugin, { startRenameHandoff });
+		const valueNode = explorer
+			.getTree()
+			.find((node) => node.id === 'status')
+			?.children?.find((node) => node.label === 'draft');
+		const renameAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
+			([action]) => action.id === 'value.rename',
+		)?.[0];
+
+		await renameAction.run({ nodeType: 'value', node: valueNode, surface: 'panel' });
+
+		expect(showInputModal).not.toHaveBeenCalled();
+		expect(startRenameHandoff).toHaveBeenCalledOnce();
+		expect(startRenameHandoff.mock.calls[0][0]).toMatchObject({
+			status: 'editing',
+			sourceKind: 'value',
+			original: 'draft',
+			propName: 'status',
+			oldValue: 'draft',
+			files: [plugin.app.vault.getMarkdownFiles()[0]],
+			scope: 'filtered',
+		});
+	});
+
 	it('filters property nodes by the shared filter search term', () => {
 		const explorer = new explorerProps(makePlugin());
 

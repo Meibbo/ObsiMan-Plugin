@@ -5,6 +5,7 @@ import {
 	NATIVE_RENAME_PROP,
 	RENAME_FILE,
 	MOVE_FILE,
+	DELETE_FILE,
 	FIND_REPLACE_CONTENT,
 	APPLY_TEMPLATE,
 	type PendingChange,
@@ -104,6 +105,16 @@ function buildTagDeleteChange(file: TFile, tag: string): TagChange {
 			return { tags: tags.filter((item) => item !== tag) };
 		},
 		customLogic: true,
+	};
+}
+
+function buildFileDeleteChange(file: TFile): FileChange {
+	return {
+		type: 'file_delete',
+		files: [file],
+		action: 'delete',
+		details: `delete ${file.path}`,
+		logicFunc: () => ({ [DELETE_FILE]: true }),
 	};
 }
 
@@ -247,6 +258,17 @@ describe('OperationQueueService op kinds', () => {
 		expect(svc.getTransaction(file.path)?.newPath).toBe('Archive/a.md');
 	});
 
+	it('DELETE_FILE stages deletion without touching the vault immediately', async () => {
+		const { app, svc, file } = setupAppWithFile();
+		const trashFile = vi.spyOn(app.fileManager, 'trashFile');
+		await svc.addAsync(buildFileDeleteChange(file));
+		const tx = svc.getTransaction(file.path);
+
+		expect(tx?.deleted).toBe(true);
+		expect(tx?.ops[0].kind).toBe('delete_file');
+		expect(trashFile).not.toHaveBeenCalled();
+	});
+
 	it('FIND_REPLACE_CONTENT mutates body', async () => {
 		const { svc, file } = setupAppWithFile('---\nstatus: draft\n---\nfoo bar foo\n');
 		await svc.addAsync(buildContentReplaceChange(file));
@@ -383,5 +405,23 @@ describe('OperationQueueService.execute', () => {
 		const written = adapterFiles.get(file.path) ?? '';
 		expect(written).toContain('reviewer: Bob');
 		expect(written).toContain('body-line');
+	});
+
+	it('trashes queued file deletes only when the queue executes', async () => {
+		const { app, svc, file } = setupAppWithFile();
+		const process = vi.spyOn(app.vault, 'process');
+		const trashFile = vi.spyOn(app.fileManager, 'trashFile');
+		await svc.addAsync(buildFileDeleteChange(file));
+
+		expect(trashFile).not.toHaveBeenCalled();
+
+		const promise = svc.execute();
+		await vi.runAllTimersAsync();
+		const result = await promise;
+
+		expect(result.success).toBe(1);
+		expect(process).not.toHaveBeenCalled();
+		expect(trashFile).toHaveBeenCalledWith(file);
+		expect(svc.isEmpty).toBe(true);
 	});
 });

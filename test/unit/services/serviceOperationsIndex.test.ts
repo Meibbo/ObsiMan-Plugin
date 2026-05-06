@@ -111,6 +111,38 @@ describe('serviceOperationsIndex', () => {
 		expect(idx.nodes[0].group).toBe('rename_file');
 	});
 
+	it('maps staged file delete ops back to file_delete queue changes', async () => {
+		const file = { path: 'trash.md' };
+		const tx: VirtualFileState = {
+			file: file as never,
+			originalPath: 'trash.md',
+			deleted: true,
+			fm: {},
+			body: '',
+			ops: [
+				{
+					id: 'op-delete-file',
+					kind: 'delete_file',
+					action: 'delete',
+					details: 'Delete file',
+					apply: vi.fn(),
+				},
+			],
+			fmInitial: {},
+			bodyInitial: '',
+			bodyLoaded: false,
+		};
+		const q = Object.assign(stubQueue([]), {
+			listTransactions: () => [tx],
+		});
+		const idx = createOperationsIndex(q);
+
+		await idx.refresh();
+
+		expect(idx.nodes[0].change.type).toBe('file_delete');
+		expect(idx.nodes[0].group).toBe('delete_file');
+	});
+
 	it('collapses repeated staged ops from one logical change into one node with all touched files', async () => {
 		const files = [{ path: 'a.md' }, { path: 'b.md' }, { path: 'c.md' }];
 		const txs: VirtualFileState[] = files.map((file, index) => ({

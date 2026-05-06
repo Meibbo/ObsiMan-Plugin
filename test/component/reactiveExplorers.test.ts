@@ -285,4 +285,11 @@ describe('reactive explorer components', () => {
 			/\.vm-import-export-flyout-action\s*\{[\s\S]*?pointer-events:\s*auto;/,
 		);
 	});
+
+	it('does not reuse the tab-pane visibility class inside the Content tab body', () => {
+		const source = readFileSync('src/components/pages/tabContent.svelte', 'utf8');
+
+		expect(source).not.toContain('<div class="vm-tab-content">');
+		expect(source).toContain('<div class="vm-content-tab">');
+	});
 });

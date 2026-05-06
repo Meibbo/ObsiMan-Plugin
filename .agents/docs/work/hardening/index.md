@@ -4,7 +4,7 @@ type: initiative-index
 status: active
 parent: "[[.agents/docs/work/pkm-ai/index|pkm-ai]]"
 created: 2026-05-04T01:44:46
-updated: 2026-05-05T22:34:47
+updated: 2026-05-06T02:46:22
 tags:
   - agent/work
   - initiative/hardening
@@ -32,6 +32,7 @@ quality work before it reaches `main`.
 - [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/index|Explorer view service]]
 - [[.agents/docs/work/hardening/specs/2026-05-05-bases-import-choose-mode/index|Bases import choose mode]]
 - [[.agents/docs/work/hardening/specs/2026-05-05-performance-diagnosis-loop/index|Performance diagnosis loop]]
+- [[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|User-facing recovery wave A]]
 
 ## Active Plans
 
@@ -39,3 +40,5 @@ quality work before it reaches `main`.
 - [[.agents/docs/work/hardening/plans/2026-05-05-bases-import-choose-mode/index|Bases import choose mode implementation]]
 - [[.agents/docs/work/hardening/plans/2026-05-05-performance-diagnosis-loop/index|Performance diagnosis loop implementation]]
 - [[.agents/docs/work/hardening/plans/2026-05-05-badge-bubbling-optimization/index|Badge bubbling optimization]]
+- [[.agents/docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|CMenu queue repair implementation]]
+- [[.agents/docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/index|Prop value rename handoff implementation]]

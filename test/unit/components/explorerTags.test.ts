@@ -3,8 +3,13 @@ import { mockApp, mockTFile, type CachedMetadata, type TFile } from '../../helpe
 import { explorerTags } from '../../../src/components/containers/explorerTags';
 import { DecorationManager } from '../../../src/services/serviceDecorate';
 import { ViewService } from '../../../src/services/serviceViews.svelte';
+import { showInputModal } from '../../../src/utils/inputModal';
 import type { VaultmanPlugin } from '../../../src/main';
 import type { ActiveFilterEntry, QueueChange } from '../../../src/types/typeContracts';
+
+vi.mock('../../../src/utils/inputModal', () => ({
+	showInputModal: vi.fn(),
+}));
 
 function makePlugin(activeFilters: ActiveFilterEntry[] = [], tags: string[] = ['project']): VaultmanPlugin {
 	const file = mockTFile('a.md', { frontmatter: { tags } });
@@ -93,6 +98,35 @@ describe('explorerTags', () => {
 		expect(change.files).toEqual(plugin.app.vault.getMarkdownFiles());
 		expect(change.logicFunc(plugin.app.vault.getMarkdownFiles()[0], { tags: ['project', 'archive'] })).toEqual({
 			tags: ['archive'],
+		});
+	});
+
+	it('queues tag rename from the registered context menu action', async () => {
+		vi.mocked(showInputModal).mockResolvedValueOnce('renamed');
+		const plugin = makePlugin([], ['project', 'archive']);
+		const explorer = new explorerTags(plugin);
+		const projectNode = explorer.getTree().find((node) => node.meta.tagPath === 'project');
+		const renameAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
+			([action]) => action.id === 'tag.rename',
+		)?.[0];
+
+		expect(projectNode).toBeTruthy();
+		expect(renameAction).toBeTruthy();
+
+		await renameAction.run({
+			nodeType: 'tag',
+			node: projectNode,
+			surface: 'panel',
+		});
+
+		expect(plugin.queueService.add).toHaveBeenCalledOnce();
+		const change = (plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls[0][0];
+		expect(change.type).toBe('tag');
+		expect(change.action).toBe('rename');
+		expect(change.tag).toBe('project');
+		expect(change.files).toEqual(plugin.app.vault.getMarkdownFiles());
+		expect(change.logicFunc(plugin.app.vault.getMarkdownFiles()[0], { tags: ['project', 'archive'] })).toEqual({
+			tags: ['renamed', 'archive'],
 		});
 	});
 

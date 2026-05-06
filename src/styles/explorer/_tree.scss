@@ -24,7 +24,7 @@
     justify-content: flex-start;
     gap: 4px;
     padding: 0 8px;
-    height: 26px;
+    height: calc(var(--vm-tree-row-h) - 1px);
     margin-bottom: 1px;
     padding-left: calc(8px + var(--depth, 0) * var(--tree-indent));
     cursor: pointer;
@@ -43,7 +43,7 @@
       position: absolute;
       left: calc(var(--depth, 0) * var(--tree-indent));
       top: 0;
-      bottom: 0;
+      bottom: -1px;
       width: 1px;
       background-color: $vm-border-color;
       opacity: 0.6;

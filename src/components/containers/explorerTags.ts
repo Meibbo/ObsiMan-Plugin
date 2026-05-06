@@ -4,6 +4,8 @@ import type { TreeNode, TagMeta } from '../../types/typeNode';
 import type { VaultmanPlugin } from '../../main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
 import type { MenuCtx } from '../../types/typeCtxMenu';
+import { buildTagAddChange, buildTagDeleteChange, buildTagRenameChange, tagListContains } from '../../services/serviceTagQueue';
+import { showInputModal } from '../../utils/inputModal';
 import {
 	highlightsFromViewLayers,
 	nodeBadgesFromViewLayers,
@@ -35,9 +37,14 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 			surfaces: ['panel', 'file-menu'],
 			label: 'Rename',
 			icon: 'lucide-pencil',
-			run: () => {
-				// In Svelte version, rename can be triggered via editingId in the component
-				// This would need a way to set editingId from the context menu
+			run: async (ctx) => {
+				const node = ctx.node as TreeNode<TagMeta>;
+				const oldTag = node.meta.tagPath;
+				const newTag = await showInputModal(this.plugin.app, `Rename tag "#${oldTag}" to:`);
+				if (!newTag) return;
+				const files = this.filesWithTag(oldTag);
+				const change = buildTagRenameChange(oldTag, newTag, files);
+				if (change) void this.plugin.queueService.add(change);
 			},
 		});
 
@@ -119,22 +126,8 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 	handleNodeClick(node: TreeNode<TagMeta>): void {
 		const meta = node.meta;
 		if (this.addMode) {
-			void this.plugin.queueService.add({
-				type: 'tag',
-				tag: meta.tagPath,
-				action: 'add',
-				details: `Add tag "#${meta.tagPath}"`,
-				files: this.operationScopeFiles(),
-				customLogic: true,
-				logicFunc: (_file, fm: Record<string, unknown>) => {
-					const raw = fm.tags;
-					const coerce = (v: unknown): string =>
-						typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v);
-					const tags = Array.isArray(raw) ? (raw as string[]) : raw ? [coerce(raw)] : [];
-					if (tags.includes(meta.tagPath)) return null;
-					return { tags: [...tags, meta.tagPath] };
-				},
-			});
+			const change = buildTagAddChange(meta.tagPath, this.operationScopeFiles());
+			if (change) void this.plugin.queueService.add(change);
 			return;
 		}
 
@@ -198,22 +191,8 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 	}
 
 	private _deleteTag(tagPath: string): void {
-		const files = this.operationScopeFiles().filter((file) => {
-			const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
-			return tagListContains(fm.tags, tagPath);
-		});
-		this.plugin.queueService.add({
-			type: 'tag',
-			tag: tagPath,
-			action: 'delete',
-			details: `Delete tag "#${tagPath}"`,
-			files,
-			customLogic: true,
-			logicFunc: (_file, fm: Record<string, unknown>) => {
-				if (!tagListContains(fm.tags, tagPath)) return null;
-				return { tags: removeTagValue(fm.tags, tagPath) };
-			},
-		});
+		const change = buildTagDeleteChange(tagPath, this.filesWithTag(tagPath));
+		if (change) this.plugin.queueService.add(change);
 	}
 
 	private contextTagNodes(ctx: MenuCtx): TreeNode<TagMeta>[] {
@@ -233,32 +212,11 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 		if (filteredFiles.length > 0) return filteredFiles;
 		return allFiles;
 	}
-}
 
-function tagListContains(raw: unknown, tagPath: string): boolean {
-	const expected = normalizeTag(tagPath);
-	return tagValues(raw).some((tag) => normalizeTag(tag) === expected);
-}
-
-function removeTagValue(raw: unknown, tagPath: string): string[] {
-	const expected = normalizeTag(tagPath);
-	return tagValues(raw).filter((tag) => normalizeTag(tag) !== expected);
-}
-
-function tagValues(raw: unknown): string[] {
-	if (Array.isArray(raw)) return (raw as unknown[]).map(tagValueToString);
-	if (raw == null || raw === '') return [];
-	return [tagValueToString(raw)];
-}
-
-function normalizeTag(value: string): string {
-	return value.replace(/^#/, '');
-}
-
-function tagValueToString(value: unknown): string {
-	if (typeof value === 'string') return value;
-	if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
-		return String(value);
+	private filesWithTag(tagPath: string): TFile[] {
+		return this.operationScopeFiles().filter((file) => {
+			const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
+			return tagListContains(fm.tags, tagPath);
+		});
 	}
-	return JSON.stringify(value) ?? '';
 }

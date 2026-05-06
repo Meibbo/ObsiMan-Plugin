@@ -7,6 +7,7 @@ import { FileRenameModal } from '../../modals/modalFileRename';
 import { FileMoveModal } from '../../modals/modalFileMove';
 import { PropertyManagerModal } from '../../modals/modalPropertyManager';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
+import { buildFileDeleteChange } from '../../services/serviceFileQueue';
 
 export class explorerFiles implements ExplorerProvider<FileMeta> {
 	id = 'files';
@@ -54,7 +55,7 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 			run: (ctx: MenuCtx) => {
 				const meta = ctx.node.meta as FileMeta;
 				if (!meta.file) return;
-				return this.plugin.app.fileManager.trashFile(meta.file);
+				void this.plugin.queueService.add(buildFileDeleteChange(meta.file));
 			},
 		});
 

@@ -10,6 +10,7 @@ function opType(op: StagedOp): PendingChange['type'] {
 	if (op.kind === 'find_replace_content') return 'content_replace';
 	if (op.kind === 'rename_file') return 'file_rename';
 	if (op.kind === 'move_file') return 'file_move';
+	if (op.kind === 'delete_file') return 'file_delete';
 	if (op.kind === 'set_tag' || op.kind === 'delete_tag' || op.kind === 'add_tag') return 'tag';
 	if (op.kind === 'apply_template') return 'template';
 	return 'property';

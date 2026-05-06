@@ -38,3 +38,6 @@ settings.local.json
 !.agents/tools/
 !.agents/tools/pkm-ai/
 !.agents/tools/pkm-ai/**/*.mjs
+# CodeQL
+codeql-db/
+*.sarif

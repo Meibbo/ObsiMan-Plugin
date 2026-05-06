@@ -1,35 +1,33 @@
 filters:
   and:
-    - 'file.ext == "md"'
-    - 'file.inFolder(".agents/docs/work")'
-    - 'file.hasTag("agent/item")'
-
+    - file.ext == "md"
+    - file.inFolder(".agents/docs/work")
+    - file.hasTag("agent/item")
 properties:
   id:
-    displayName: "ID"
+    displayName: ID
   type:
-    displayName: "Type"
+    displayName: Type
   status:
-    displayName: "Status"
+    displayName: Status
   priority:
-    displayName: "Priority"
+    displayName: Priority
   initiative:
-    displayName: "Initiative"
+    displayName: Initiative
   task_size:
-    displayName: "Task Size"
+    displayName: Task Size
   actual_size:
-    displayName: "Actual Size"
+    displayName: Actual Size
   updated:
-    displayName: "Updated"
-
+    displayName: Updated
 views:
   - type: table
-    name: "Active"
+    name: Active
     filters:
       and:
-        - 'status != "done"'
-        - 'status != "wont-do"'
-        - 'status != "superseded"'
+        - status != "done"
+        - status != "wont-do"
+        - status != "superseded"
     order:
       - id
       - file.name
@@ -39,57 +37,53 @@ views:
       - initiative
       - task_size
       - updated
-
   - type: table
-    name: "Bugs"
+    name: Bugs
     filters:
       and:
-        - 'type == "bug"'
-        - 'status != "done"'
-        - 'status != "wont-do"'
-        - 'status != "superseded"'
+        - type == "bug"
+        - status != "done"
+        - status != "wont-do"
+        - status != "superseded"
     order:
       - id
       - file.name
       - status
       - priority
       - updated
-
   - type: table
-    name: "Regressions"
+    name: Regressions
     filters:
       and:
-        - 'type == "regression"'
-        - 'status != "done"'
-        - 'status != "wont-do"'
-        - 'status != "superseded"'
+        - type == "regression"
+        - status != "done"
+        - status != "wont-do"
+        - status != "superseded"
     order:
       - id
       - file.name
       - status
       - priority
       - updated
-
   - type: table
-    name: "Conflicts"
+    name: Conflicts
     filters:
       and:
-        - 'type == "conflict"'
-        - 'status != "done"'
-        - 'status != "wont-do"'
-        - 'status != "superseded"'
+        - type == "conflict"
+        - status != "done"
+        - status != "wont-do"
+        - status != "superseded"
     order:
       - id
       - file.name
       - status
       - priority
       - updated
-
   - type: table
-    name: "Done"
+    name: Done
     filters:
       and:
-        - 'status == "done"'
+        - status == "done"
     order:
       - id
       - file.name

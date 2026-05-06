@@ -1,10 +1,14 @@
-import { FIND_REPLACE_CONTENT, type ContentChange } from '../types/typeOps';
+import { FIND_REPLACE_CONTENT, NATIVE_RENAME_PROP, type ContentChange, type PendingChange } from '../types/typeOps';
 import type {
 	BuildContentReplaceChangeInput,
+	ActiveFnRRenameHandoff,
 	FnRPattern,
+	FnRRenameHandoff,
 	FnRState,
 	FnRSyntax,
 	FnRSyntaxOption,
+	StartPropRenameHandoffInput,
+	StartValueRenameHandoffInput,
 } from '../types/typeFnR';
 
 export const FNR_SYNTAX_OPTIONS: FnRSyntaxOption[] = [
@@ -54,7 +58,92 @@ export function createFnRState(): FnRState {
 		caseSensitive: false,
 		wholeWord: false,
 		scope: 'filtered',
+		rename: createInactiveRenameHandoff(),
 	};
+}
+
+export function createInactiveRenameHandoff(): FnRRenameHandoff {
+	return { status: 'inactive' };
+}
+
+export function startPropRenameHandoff(
+	state: FnRState,
+	input: StartPropRenameHandoffInput,
+): FnRState {
+	return {
+		...state,
+		expanded: true,
+		replace: '',
+		scope: input.scope,
+		rename: {
+			status: 'editing',
+			sourceKind: 'prop',
+			original: input.propName,
+			replacement: '',
+			propName: input.propName,
+			files: [...input.files],
+			scope: input.scope,
+		},
+	};
+}
+
+export function startValueRenameHandoff(
+	state: FnRState,
+	input: StartValueRenameHandoffInput,
+): FnRState {
+	return {
+		...state,
+		expanded: true,
+		replace: '',
+		scope: input.scope,
+		rename: {
+			status: 'editing',
+			sourceKind: 'value',
+			original: input.oldValue,
+			replacement: '',
+			propName: input.propName,
+			oldValue: input.oldValue,
+			files: [...input.files],
+			scope: input.scope,
+		},
+	};
+}
+
+export function updateRenameHandoffReplacement(state: FnRState, replacement: string): FnRState {
+	const rename = state.rename;
+	if (!isActiveRenameHandoff(rename)) return state;
+	const trimmed = replacement.trim();
+	return {
+		...state,
+		replace: replacement,
+		rename: {
+			...rename,
+			replacement,
+			status: trimmed && trimmed !== rename.original ? 'ready' : 'editing',
+		},
+	};
+}
+
+export function cancelRenameHandoff(state: FnRState): FnRState {
+	return { ...state, rename: { status: 'cancelled' } };
+}
+
+export function markRenameHandoffQueued(state: FnRState): FnRState {
+	return { ...state, rename: { status: 'queued' } };
+}
+
+export function buildRenameHandoffChange(handoff: FnRRenameHandoff): PendingChange | null {
+	if (!isActiveRenameHandoff(handoff) || handoff.status !== 'ready') return null;
+	const replacement = handoff.replacement.trim();
+	if (!replacement || replacement === handoff.original || handoff.files.length === 0) return null;
+
+	if (handoff.sourceKind === 'prop' && handoff.propName) {
+		return buildPropRenameChange(handoff, replacement);
+	}
+	if (handoff.sourceKind === 'value' && handoff.propName && handoff.oldValue != null) {
+		return buildValueRenameChange(handoff, replacement);
+	}
+	return null;
 }
 
 export function resolveFnRPattern(find: string, state: Pick<FnRState, 'syntax' | 'wholeWord'>): FnRPattern {
@@ -107,6 +196,89 @@ export function buildContentReplaceChange(input: BuildContentReplaceChangeInput)
 			},
 		}),
 	};
+}
+
+function buildPropRenameChange(handoff: ActiveFnRRenameHandoff, replacement: string): PendingChange {
+	const propName = handoff.propName ?? handoff.original;
+	const files = [...handoff.files];
+	return {
+		type: 'property',
+		property: propName,
+		action: 'rename',
+		details: `Rename property "${propName}" to "${replacement}"`,
+		files,
+		customLogic: true,
+		logicFunc: (_file, fm) => {
+			const actualKey = frontmatterKey(fm, propName);
+			if (!actualKey) return null;
+			return {
+				[NATIVE_RENAME_PROP]: {
+					oldName: actualKey,
+					newName: replacement,
+				},
+			};
+		},
+	};
+}
+
+function buildValueRenameChange(handoff: ActiveFnRRenameHandoff, replacement: string): PendingChange {
+	const propName = handoff.propName ?? '';
+	const oldValue = handoff.oldValue ?? handoff.original;
+	const files = [...handoff.files];
+	return {
+		type: 'property',
+		property: propName,
+		action: 'set',
+		details: `Rename value "${oldValue}" to "${replacement}"`,
+		files,
+		value: replacement,
+		oldValue,
+		customLogic: true,
+		logicFunc: (_file, fm) => {
+			const actualKey = frontmatterKey(fm, propName);
+			if (!actualKey) return null;
+			return replaceValueUpdate(actualKey, fm[actualKey], oldValue, replacement);
+		},
+	};
+}
+
+function isActiveRenameHandoff(handoff: FnRRenameHandoff): handoff is ActiveFnRRenameHandoff {
+	return handoff.status === 'editing' || handoff.status === 'ready';
+}
+
+function frontmatterKey(fm: Record<string, unknown>, propName: string): string | null {
+	const expected = propName.toLowerCase();
+	return Object.keys(fm).find((key) => key.toLowerCase() === expected) ?? null;
+}
+
+function replaceValueUpdate(
+	propName: string,
+	current: unknown,
+	oldValue: string,
+	newValue: string,
+): Record<string, unknown> | null {
+	if (Array.isArray(current)) {
+		if (!valueContains(current, oldValue)) return null;
+		const values = current as unknown[];
+		return {
+			[propName]: values.map((item): unknown => (valueToString(item) === oldValue ? newValue : item)),
+		};
+	}
+	if (valueToString(current) !== oldValue) return null;
+	return { [propName]: newValue };
+}
+
+function valueContains(value: unknown, needle: string): boolean {
+	if (Array.isArray(value)) return (value as unknown[]).some((item) => valueToString(item) === needle);
+	return valueToString(value) === needle;
+}
+
+function valueToString(value: unknown): string {
+	if (typeof value === 'string') return value;
+	if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+		return String(value);
+	}
+	return JSON.stringify(value) ?? '';
 }
 
 function escapeRegex(value: string): string {

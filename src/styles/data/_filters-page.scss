@@ -288,6 +288,12 @@
     white-space: nowrap;
   }
 
+  &-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   &-select,
   &-input {
     min-width: 0;
@@ -379,6 +385,37 @@
       opacity: 0.45;
       background: var(--background-modifier-border);
       color: var(--text-muted);
+    }
+  }
+
+  &-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--background-primary) 88%, transparent);
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+
+    &:hover:not(:disabled),
+    &:focus-visible:not(:disabled) {
+      border-color: var(--color-accent);
+      color: var(--text-normal);
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.45;
+    }
+
+    svg {
+      width: 14px;
+      height: 14px;
     }
   }
 }

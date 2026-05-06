@@ -98,7 +98,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 32px;
+  height: var(--vm-list-row-h);
   display: flex;
   align-items: center;
   gap: 6px;

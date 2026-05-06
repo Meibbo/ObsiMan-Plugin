@@ -8,6 +8,7 @@ export function createContentIndex(app: App): IContentIndex {
   const base = createNodeIndex<ContentMatch>({
     build: async () => {
       const currentQuery = query;
+      const searchQuery = currentQuery.toLowerCase();
       const currentVersion = ++buildVersion;
       if (!currentQuery.trim()) return [];
       const out: ContentMatch[] = [];
@@ -18,16 +19,18 @@ export function createContentIndex(app: App): IContentIndex {
         const lines = content.split('\n');
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
+          const searchLine = line.toLowerCase();
           let start = 0;
           while (true) {
-            const idx = line.indexOf(currentQuery, start);
+            const idx = searchLine.indexOf(searchQuery, start);
             if (idx === -1) break;
+            const match = line.slice(idx, idx + currentQuery.length);
             out.push({
               id: `${file.path}:${i}:${idx}`,
               filePath: file.path,
               line: i,
               before: line.slice(Math.max(0, idx - 30), idx),
-              match: currentQuery,
+              match,
               after: line.slice(idx + currentQuery.length, idx + currentQuery.length + 30),
             });
             start = idx + currentQuery.length;

@@ -19,6 +19,7 @@ type QueueGroupKey =
   | "content_replace"
   | "file_rename"
   | "file_move"
+  | "file_delete"
   | "template"
   | "tag";
 
@@ -39,6 +40,7 @@ const GROUP_ORDER: QueueGroupKey[] = [
   "content_replace",
   "file_rename",
   "file_move",
+  "file_delete",
   "template",
   "tag",
 ];
@@ -199,6 +201,8 @@ export class QueueListComponent {
         return "file_rename";
       case "move_file":
         return "file_move";
+      case "delete_file":
+        return "file_delete";
       case "apply_template":
         return "template";
       case "set_tag":

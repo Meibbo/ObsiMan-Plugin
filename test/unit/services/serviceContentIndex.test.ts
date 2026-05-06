@@ -32,6 +32,24 @@ describe('serviceContentIndex', () => {
     expect(idx.nodes[0].match).toBe('foobar');
   });
 
+  it('matches content case-insensitively by default and preserves original text', async () => {
+    const f1 = mockTFile('lower.md');
+    const f2 = mockTFile('upper.md');
+    const app = mockApp({
+      files: [f1, f2],
+      adapterFiles: new Map([
+        ['lower.md', 'hola mundo'],
+        ['upper.md', 'Hola mundo'],
+      ]),
+    });
+    const idx = createContentIndex(app);
+    idx.setQuery('hola');
+    await idx.refresh();
+
+    expect(idx.nodes.map((node) => node.filePath)).toEqual(['lower.md', 'upper.md']);
+    expect(idx.nodes.map((node) => node.match)).toEqual(['hola', 'Hola']);
+  });
+
   it('sets correct id, filePath, before, after', async () => {
     const f = mockTFile('notes/a.md');
     const app = mockApp({ files: [f], adapterFiles: new Map([['notes/a.md', 'prefix foobar suffix']]) });

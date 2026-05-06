@@ -3,6 +3,7 @@
   import { explorerProps } from "../containers/explorerProps";
   import PanelExplorer from "../containers/panelExplorer.svelte";
   import type { VaultmanPlugin } from "../../main";
+  import type { FnRRenameHandoff } from "../../types/typeFnR";
   import { setIcon } from "obsidian";
 
   let {
@@ -13,6 +14,7 @@
     sortDirection = $bindable("asc"),
     viewMode = $bindable("tree"),
     explorer = $bindable(),
+    startRenameHandoff,
   }: {
     plugin: VaultmanPlugin;
     searchTerm?: string;
@@ -21,10 +23,11 @@
     sortDirection?: "asc" | "desc";
     viewMode?: any;
     explorer: explorerProps | undefined;
+    startRenameHandoff?: (handoff: FnRRenameHandoff) => void;
   } = $props();
 
   onMount(() => {
-    explorer = new explorerProps(plugin);
+    explorer = new explorerProps(plugin, { startRenameHandoff });
   });
 
   function icon(el: HTMLElement, name: string) {

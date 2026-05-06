@@ -2,9 +2,9 @@
 title: Current handoff
 type: agent-handoff
 status: active
-parent: "[[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/index|explorer-view-service]]"
+parent: "[[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|user-facing-recovery-wave-a]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-05T01:13:46
+updated: 2026-05-06T04:12:52
 tags:
   - agent/current
 ---
@@ -18,7 +18,8 @@ Last known work:
 - PKM-AI policy/tool repair implemented:
   `archive-active-doc.mjs`, `record-metric.mjs`, glossary lookup in
   `query-docs.mjs`, and health extensions.
-- Four hardening regression frontmatters were fixed; doc health reports OK.
+- Four hardening regression frontmatters were fixed earlier; current doc health
+  now fails on unrelated `docs/superpowers` and oversized superpowers plans.
 - Metric evidence exists in `.agents/metrics/pkm-ai.jsonl`; latest health event
   is `health_passed` with `0 warnings`.
 - serviceViews implementation plan exists:
@@ -48,17 +49,7 @@ Last known work:
 - User validated a service-owned explorer view architecture.
 - New spec exists:
   [[.agents/docs/work/hardening/specs/2026-05-04-explorer-view-service/index|Explorer view service]].
-- Spec preserves detail in shards: current state, taxonomy, principles,
-  `serviceViews`, layers, projections, decorations/marks, interactions, groups,
-  migration, tests, and risks.
-- Confirmed taxonomy: `tree`, `table`, `grid`, `cards`, `list`.
-- `table` means Bases/Excel-like matrix; `grid` means file-explorer medium icon
-  layout; `cards` means Bases-like cards; `list` is compact queue/filter/marks.
-- Confirmed rule: `serviceViews` produces semantic layers; each view presents
-  layers in its own way.
-- Confirmed rule: because groups are being added to all views, all view modes
-  should treat their render model as hierarchical; badge bubbling is general,
-  not tree-specific.
+- Explorer view spec preserves taxonomy and `serviceViews` layer/group rules in shards.
 - Current operations suite handoff:
   [[.agents/docs/work/hardening/backlog/regressions/operations-suite-live-handoff|operations suite live handoff]].
 - `pressBarBench` live probe queues as one logical delete op over two files;
@@ -83,17 +74,26 @@ Last known work:
   `viewTable.svelte`.
 - Docs policy updated: preserve detail first; line limits are sharding triggers,
   not content caps; temporary oversized captures are allowed if needed.
-- Bases interop research continued with API details and a compatibility matrix:
-  [[.agents/docs/work/hardening/research/2026-05-05-bases-interop-research/index|bases interop research]].
-
-Next agent should:
-
-1. Read `AGENTS.md`, [[.agents/docs/start|start]], [[.agents/docs/current/status|status]], and this file.
-2. Read the Explorer view service spec index and relevant shards.
-3. Current verification passes: `pnpm run lint`, `pnpm run check`, `pnpm run build`, full unit Vitest with `--fileParallelism=false`, `pnpm run test:component`, `obsidian plugin:reload id=vaultman`, and `obsidian dev:errors`.
-4. Decide the first Bases interop slice before product edits; recommended slice
-   is read-only import preview.
-5. Continue with rename-node handoff into FnR mode after Bases slice is scoped.
-6. Review `git status`; there are unrelated/user changes in product files.
+- Bases interop research continued with API details and a compatibility matrix: [[.agents/docs/work/hardening/research/2026-05-05-bases-interop-research/index|bases interop research]].
+- Latest hardening D slice added `IndicatorOrbitingInk.svelte`, an organic
+  gooey loading indicator based on "Indicator 18" from Organic Loading
+  Indicators, and updated `viewEmptyLanding.svelte` to use it for all loading
+  states (e.g., tabContent indexing).
+- User selected [[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|User-facing recovery wave A]] as the first deferred-work wave.
+- A0 CMenu queue repair completed: [[.agents/docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|CMenu queue repair implementation]].
+  Tags/files CMenu actions now stage queue work; `file_delete` trashes only on queue execute.
+- A1 Prop/Value Rename Handoff completed: `serviceFnR` owns typed rename
+  handoff state/builders, `explorerProps` routes prop/value CMenu rename into
+  the shared handoff, and `NavbarExplorer` confirms/cancels queued rename work.
+- New component coverage: `test/component/pageFiltersRenameHandoff.test.ts`
+  proves prop rename opens the navbar handoff instead of `showInputModal` and
+  queues the native property rename change.
+- Current A1 verification passes: focused `serviceFnR`/`explorerProps` unit
+  tests, focused `pageFiltersRenameHandoff` component test, `pnpm run check`,
+  `pnpm run lint`, and `pnpm run build`.
+- Lint has two pre-existing unused-import warnings outside A1; combined
+  component runs can still hit transient `svelte` resolver failure.
+- Next slice is A2 Tag/File Rename Handoff into the same FnR/navbar model.
+- Review `git status`; there are unrelated/user changes in product files.
 
 Do not: commit without explicit user request; move AI files into `main`; use `parent_path`; compress specs/plans; base `viewTable` on current `viewGrid.svelte`.

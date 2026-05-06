@@ -1,9 +1,9 @@
 import { Modal, Setting, type App, type TFile } from 'obsidian';
 import type { PendingChange } from '../types/typeOps';
-import { RENAME_FILE } from '../types/typeOps';
 import type { PropertyIndexService } from '../index/utilPropIndex';
 import { PropertySuggest } from '../utils/autocomplete';
 import { translate } from '../index/i18n/lang';
+import { buildFileRenameChange } from '../services/serviceFileQueue';
 
 type QueueCallback = (change: PendingChange) => void;
 
@@ -168,17 +168,8 @@ export class FileRenameModal extends Modal {
 		const renames = this.computeRenames();
 
 		for (const { file, newName } of renames) {
-			if (newName === file.name) continue;
-
-			const change: PendingChange = {
-				type: 'file_rename',
-				action: 'rename',
-				details: `${file.name} → ${newName}`,
-				files: [file],
-				logicFunc: () => ({ [RENAME_FILE]: newName }),
-				customLogic: true,
-			};
-			this.onQueue(change);
+			const change = buildFileRenameChange(file, newName);
+			if (change) this.onQueue(change);
 		}
 	}
 

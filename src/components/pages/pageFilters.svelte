@@ -19,8 +19,14 @@
 		extractBasesFencedBlocks,
 		previewBasesImport,
 	} from '../../services/serviceBasesInterop';
-	import { createFnRState } from '../../services/serviceFnR.svelte';
-	import type { FnRState } from '../../types/typeFnR';
+	import {
+		buildRenameHandoffChange,
+		cancelRenameHandoff,
+		createFnRState,
+		markRenameHandoffQueued,
+		updateRenameHandoffReplacement,
+	} from '../../services/serviceFnR.svelte';
+	import type { ActiveFnRRenameHandoff, FnRRenameHandoff, FnRState } from '../../types/typeFnR';
 	import type { FilterGroup } from '../../types/typeFilter';
 	import type { BasesImportTarget } from '../../types/typeBasesInterop';
 	import {
@@ -151,6 +157,39 @@
 		filtersBaseChooseMode = false;
 		filtersActiveTab = 'files';
 	}
+
+	function startRenameHandoff(handoff: FnRRenameHandoff): void {
+		if (isActiveRenameHandoff(handoff)) {
+			filtersFnRState = {
+				...filtersFnRState,
+				expanded: true,
+				replace: handoff.replacement,
+				scope: handoff.scope,
+				rename: handoff,
+			};
+			return;
+		}
+		filtersFnRState = { ...filtersFnRState, rename: handoff };
+	}
+
+	function updateRenameReplacement(replacement: string): void {
+		filtersFnRState = updateRenameHandoffReplacement(filtersFnRState, replacement);
+	}
+
+	function cancelRename(): void {
+		filtersFnRState = cancelRenameHandoff(filtersFnRState);
+	}
+
+	function queueRename(): void {
+		const change = buildRenameHandoffChange(filtersFnRState.rename);
+		if (!change) return;
+		void plugin.queueService.add(change);
+		filtersFnRState = markRenameHandoffQueued(filtersFnRState);
+	}
+
+	function isActiveRenameHandoff(handoff: FnRRenameHandoff): handoff is ActiveFnRRenameHandoff {
+		return handoff.status === 'editing' || handoff.status === 'ready';
+	}
 </script>
 
 <NavbarTabs
@@ -177,6 +216,10 @@
 	{tagsExplorer}
 	{propExplorer}
 	{fileList}
+	fnrState={filtersFnRState}
+	onRenameReplacementChange={updateRenameReplacement}
+	onRenameConfirm={queueRename}
+	onRenameCancel={cancelRename}
 	{addOpCount}
 	{icon}
 />
@@ -211,6 +254,7 @@
 				bind:sortDirection={filtersSortDir}
 				bind:viewMode={filtersViewMode}
 				bind:explorer={propExplorer}
+				{startRenameHandoff}
 			/>
 		</div>
 		<div class="vm-tab-content" class:is-active={filtersActiveTab === 'files'}>

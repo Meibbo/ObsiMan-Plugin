@@ -39,3 +39,13 @@ $vm-z-index-popup: 100;
 // --- 6. ANIMATIONS & TRANSITIONS ---
 $vm-transition-speed: 0.2s;
 $vm-transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+// --- 7. VIRTUALIZATION & LAYOUT SIZES ---
+// These are defined as CSS variables to be accessible by Svelte services
+/*
+:root {
+  --vm-tree-row-h: 28px;
+  --vm-file-row-h: 28px;
+  --vm-list-row-h: 32px;
+}
+*/

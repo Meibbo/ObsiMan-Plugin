@@ -6,6 +6,7 @@
   import { explorerProps } from "../containers/explorerProps";
   import { explorerTags } from "../containers/explorerTags";
   import { SEARCH_SEMANTICS_SOURCES } from "../frame/frameSearchSources";
+  import type { ActiveFnRRenameHandoff, FnRState } from "../../types/typeFnR";
 
   type FiltersTab = "props" | "files" | "tags" | "content";
   type HeaderMode = "header" | "sort" | "viewmode";
@@ -23,6 +24,10 @@
     addMode = $bindable(false),
     operationScope = $bindable("auto"),
     onOperationScopeChange,
+    fnrState,
+    onRenameReplacementChange,
+    onRenameConfirm,
+    onRenameCancel,
     icon,
     addOpCount = 0,
   }: {
@@ -43,6 +48,10 @@
     tagsExplorer: explorerTags | null | undefined;
     propExplorer: explorerProps | undefined;
     fileList: explorerFiles | undefined;
+    fnrState?: FnRState;
+    onRenameReplacementChange?: (replacement: string) => void;
+    onRenameConfirm?: () => void;
+    onRenameCancel?: () => void;
     icon: (node: HTMLElement, name: string) => { update(n: string): void };
     addOpCount?: number;
   } = $props();
@@ -75,7 +84,16 @@
   let headerExitDir = $state<"left" | "right">("right");
   let searchFocused = $state(false);
   let helpOpen = $state(false);
+  let renameInput = $state<HTMLInputElement | undefined>();
   const historyItems = $derived(searchHistory.slice(0, 3));
+  const activeRename = $derived.by((): ActiveFnRRenameHandoff | null => {
+    const rename = fnrState?.rename;
+    if (rename?.status === "editing" || rename?.status === "ready") return rename;
+    return null;
+  });
+  const renameFocusKey = $derived(
+    activeRename ? `${activeRename.sourceKind}:${activeRename.original}` : "",
+  );
 
   function openSortPopup() {
     headerExitDir = "right";
@@ -110,6 +128,38 @@
     commitSearchHistory(term);
     searchFocused = false;
   }
+
+  function renameContext(rename: ActiveFnRRenameHandoff): string {
+    if (rename.sourceKind === "value" && rename.propName) {
+      return translate("fnr.rename.context_value", {
+        original: rename.original,
+        prop: rename.propName,
+        count: rename.files.length,
+      });
+    }
+    return translate("fnr.rename.context", {
+      kind: translate(`fnr.rename.kind.${rename.sourceKind}`),
+      original: rename.original,
+      count: rename.files.length,
+    });
+  }
+
+  function handleRenameKeydown(event: KeyboardEvent) {
+    if (event.key === "Enter" && activeRename?.status === "ready") {
+      onRenameConfirm?.();
+    }
+    if (event.key === "Escape") {
+      onRenameCancel?.();
+    }
+  }
+
+  $effect(() => {
+    if (!renameFocusKey) return;
+    queueMicrotask(() => {
+      renameInput?.focus();
+      renameInput?.select();
+    });
+  });
 </script>
 
 <div class="vm-navbar-filters vm-glass vm-glass--top">
@@ -269,6 +319,47 @@
           {addOpCount}
           {icon}
         />
+      </div>
+    {/if}
+    {#if activeRename}
+      <div class="vm-fnr-island vm-fnr-rename" aria-label={translate("fnr.rename.title")}>
+        <div class="vm-fnr-row">
+          <span class="vm-fnr-label" title={renameContext(activeRename)}>
+            {renameContext(activeRename)}
+          </span>
+          <input
+            bind:this={renameInput}
+            class="vm-fnr-input"
+            type="text"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            aria-label={translate("fnr.rename.replacement")}
+            placeholder={translate("prop.new_name")}
+            value={activeRename.replacement}
+            onkeydown={handleRenameKeydown}
+            oninput={(event) =>
+              onRenameReplacementChange?.((event.currentTarget as HTMLInputElement).value)}
+          />
+          <button
+            class="vm-fnr-action"
+            type="button"
+            disabled={activeRename.status !== "ready"}
+            aria-label={translate("fnr.rename.queue")}
+            title={translate("fnr.rename.queue")}
+            use:icon={"lucide-check"}
+            onclick={onRenameConfirm}
+          ></button>
+          <button
+            class="vm-fnr-action"
+            type="button"
+            aria-label={translate("fnr.rename.cancel")}
+            title={translate("fnr.rename.cancel")}
+            use:icon={"lucide-x"}
+            onclick={onRenameCancel}
+          ></button>
+        </div>
       </div>
     {/if}
   </div>

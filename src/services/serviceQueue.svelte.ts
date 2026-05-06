@@ -1,4 +1,5 @@
-import { App, Component, Events, Notice, TFile, parseYaml, stringifyYaml } from 'obsidian';
+import { App, Component, Notice, TFile, parseYaml, stringifyYaml } from 'obsidian';
+import { SvelteMap } from 'svelte/reactivity';
 import type {
 	PendingChange,
 	OperationResult,
@@ -6,7 +7,16 @@ import type {
 	StagedOp,
 	TemplateChange,
 } from '../types/typeOps';
-import { DELETE_PROP, RENAME_FILE, REORDER_ALL, MOVE_FILE, FIND_REPLACE_CONTENT, NATIVE_RENAME_PROP, APPLY_TEMPLATE } from '../types/typeOps';
+import {
+	DELETE_PROP,
+	RENAME_FILE,
+	REORDER_ALL,
+	MOVE_FILE,
+	DELETE_FILE,
+	FIND_REPLACE_CONTENT,
+	NATIVE_RENAME_PROP,
+	APPLY_TEMPLATE,
+} from '../types/typeOps';
 import type { IOperationQueue } from '../types/typeContracts';
 import { translate } from '../index/i18n/lang';
 
@@ -14,22 +24,52 @@ import { translate } from '../index/i18n/lang';
  * Split a markdown file's raw content into its frontmatter object and body string.
  * Uses Obsidian's parseYaml for byte-exact compatibility with processFrontMatter.
  */
-function splitYamlBody(content: string): {
+export function splitYamlBody(content: string, cache?: { frontmatter?: { position?: { start: { offset: number }, end: { offset: number } } } }): {
   fm: Record<string, unknown>;
   body: string;
 } {
-  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
-  if (!match) {
-    return { fm: {}, body: content };
+  // 1. Precise split using Obsidian's cache if available
+  const pos = cache?.frontmatter?.position;
+  if (pos && pos.start && pos.end) {
+    const fmSource = content.slice(pos.start.offset, pos.end.offset);
+    const body = content.slice(pos.end.offset);
+    
+    // Strip leading/trailing delimiters from source before parsing
+    const yamlMatch = fmSource.match(/^---\r?\n([\s\S]*?)\r?\n---$/);
+    const yaml = yamlMatch ? yamlMatch[1] : fmSource.replace(/^---\n?/, '').replace(/\n?---$/, '');
+    
+    try {
+      const fm = parseYaml(yaml) as Record<string, unknown> | null;
+      return { fm: fm ?? {}, body };
+    } catch {
+      // Fallback if parse fails
+    }
   }
-  const yaml = match[1];
-  const body = content.slice(match[0].length);
-  try {
-    const fm = parseYaml(yaml) as Record<string, unknown> | null;
-    return { fm: fm ?? {}, body };
-  } catch {
-    return { fm: {}, body };
+
+  // 2. Manual fallback using a safer line-by-line approach
+  const lines = content.split(/\r?\n/);
+  if (lines.length > 0 && lines[0] === '---') {
+    let endIdx = -1;
+    for (let i = 1; i < lines.length; i++) {
+      if (lines[i] === '---' || lines[i] === '...') {
+        endIdx = i;
+        break;
+      }
+    }
+
+    if (endIdx !== -1) {
+      const yaml = lines.slice(1, endIdx).join('\n');
+      const body = lines.slice(endIdx + 1).join('\n');
+      try {
+        const fm = parseYaml(yaml) as Record<string, unknown> | null;
+        return { fm: fm ?? {}, body };
+      } catch {
+        // Fallback to empty fm
+      }
+    }
   }
+
+  return { fm: {}, body: content };
 }
 
 /**
@@ -56,19 +96,19 @@ function tagOpKind(action: string): StagedOp['kind'] {
  */
 export class OperationQueueService extends Component implements IOperationQueue {
 	private app: App;
-	private events = new Events();
-	private subs = new Set<() => void>();
+	
+	// SvelteMap provides fine-grained reactivity out of the box.
+	readonly transactions = new SvelteMap<string, VirtualFileState>();
+	
+	// Lock mechanism to prevent race conditions when multiple operations hydrate the same file concurrently.
+	private loadingLocks = new Map<string, Promise<VirtualFileState>>();
+	private listeners = new Map<'changed', Set<() => void>>();
 
-	readonly transactions = new Map<string, VirtualFileState>();
 	private opCounter = 0;
 	private changeCounter = 0;
 
 	/**
 	 * Reactive list of pending changes (rune-backed).
-	 * Kept as an empty array for now — the service stores operations as
-	 * VirtualFileState internally. UI components should use `transactions`
-	 * for richer data, or subscribe via `subscribe()` / `onUpdate()`.
-	 * Will be populated in a future migration (Sub-A.4.x).
 	 */
 	pending = $state<PendingChange[]>([]);
 
@@ -81,110 +121,124 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		this.app = app;
 	}
 
+	on(event: 'changed', callback: () => void): () => void {
+		const listeners = this.listeners.get(event) ?? new Set<() => void>();
+		listeners.add(callback);
+		this.listeners.set(event, listeners);
+		return () => listeners.delete(callback);
+	}
+
+	off(event: 'changed', callback: () => void): void {
+		this.listeners.get(event)?.delete(callback);
+	}
+
+	private emitChanged(): void {
+		for (const callback of this.listeners.get('changed') ?? []) callback();
+	}
+
 	/** Back-compat shim — some UI code iterates the array. Returns empty for now. */
 	get queue(): PendingChange[] {
-		// Temporary back-compat. Remove after all UI migrates (Task 14–18).
 		return [];
 	}
 
-	/**
-	 * Bridge to Obsidian events that returns an unsubscribe function.
-	 * Used by Svelte components in $effect blocks.
-	 */
 	onUpdate(callback: () => void): () => void {
-		this.on('changed', callback);
-		return () => this.off('changed', callback);
+		return this.subscribe(callback);
 	}
 
-	on(name: 'changed' | 'executed', callback: (result?: OperationResult) => void): void {
-		this.events.on(name, callback as (...data: unknown[]) => unknown);
-	}
-
-	off(name: 'changed' | 'executed', callback: (result?: OperationResult) => void): void {
-		this.events.off(name, callback as (...data: unknown[]) => unknown);
-	}
-
-	/**
-	 * Subscribe to queue changes; returns an unsubscribe function.
-	 * Implements IOperationQueue.subscribe.
-	 */
 	subscribe(cb: () => void): () => void {
-		this.subs.add(cb);
-		return () => this.subs.delete(cb);
+		return this.on('changed', cb);
 	}
 
 	/** Remove a staged op by its op ID across all file transactions. */
 	remove(id: string): void {
-		let removed = false;
 		for (const [path, vfs] of this.transactions) {
 			if (vfs.ops.some(o => o.id === id || o.changeId === id)) {
 				this.removeOp(path, id, true);
-				removed = true;
 			}
 		}
-		if (removed) this.fireChanged();
-	}
-
-	/** Fire both the legacy Events emitter and all IOperationQueue subscribers. */
-	private fireChanged(): void {
-		this.events.trigger('changed');
-		for (const cb of this.subs) cb();
 	}
 
 	/**
 	 * Get existing VFS for file.path, or read from disk and create a new one.
-	 * For lazy-body entries (bodyLoaded: false), hydrates them on demand
-	 * when callers request full materialization (requireBody=true).
+	 * Uses loadingLocks to prevent race conditions during concurrent hydration.
 	 */
 	private async getOrCreateVFS(file: TFile, requireBody: boolean): Promise<VirtualFileState> {
 		const key = file.path;
-		const existing = this.transactions.get(key);
+		
+		const activeLock = this.loadingLocks.get(key);
+		if (activeLock) return activeLock;
 
+		const existing = this.transactions.get(key);
 		if (existing) {
 			if (requireBody && !existing.bodyLoaded) {
-				await this.hydrateBody(existing);
+				return this.hydrateWithLock(existing);
 			}
 			return existing;
 		}
 
-		if (!requireBody) {
-			const cache = this.app.metadataCache.getFileCache(file);
-			const fmCopy = { ...cache?.frontmatter };
-			delete fmCopy['position'];
-			const vfs: VirtualFileState = {
-				file,
-				originalPath: key,
-				newPath: undefined,
-				fm: { ...fmCopy },
-				body: '',
-				ops: [],
-				fmInitial: { ...fmCopy },
-				bodyInitial: '',
-				bodyLoaded: false,
-			};
-			this.transactions.set(key, vfs);
-			return vfs;
-		}
+		const promise = (async () => {
+			try {
+				let vfs: VirtualFileState;
+				if (!requireBody) {
+					const cache = this.app.metadataCache.getFileCache(file);
+					const fmCopy = { ...cache?.frontmatter };
+					delete fmCopy['position'];
+					vfs = {
+						file,
+						originalPath: key,
+						newPath: undefined,
+						fm: { ...fmCopy },
+						body: '',
+						ops: [],
+						fmInitial: { ...fmCopy },
+						bodyInitial: '',
+						bodyLoaded: false,
+					};
+				} else {
+					const content = await this.app.vault.read(file);
+					const cache = this.app.metadataCache.getFileCache(file);
+					const { fm, body } = splitYamlBody(content, cache ?? undefined);
+					vfs = {
+						file,
+						originalPath: key,
+						newPath: undefined,
+						fm: { ...fm },
+						body,
+						ops: [],
+						fmInitial: { ...fm },
+						bodyInitial: body,
+						bodyLoaded: true,
+					};
+				}
+				this.transactions.set(key, vfs);
+				return vfs;
+			} finally {
+				this.loadingLocks.delete(key);
+			}
+		})();
 
-		// Fresh and body-sensitive — read full content.
-		const content = await this.app.vault.read(file);
-		const { fm, body } = splitYamlBody(content);
-		const vfs: VirtualFileState = {
-			file,
-			originalPath: key,
-			newPath: undefined,
-			fm: { ...fm },
-			body,
-			ops: [],
-			fmInitial: { ...fm },
-			bodyInitial: body,
-			bodyLoaded: true,
-		};
-		this.transactions.set(key, vfs);
-		return vfs;
+		this.loadingLocks.set(key, promise);
+		return promise;
 	}
 
-	/** Upgrade a lazy VFS: read body from disk and fill bodyInitial/body. */
+	private async hydrateWithLock(vfs: VirtualFileState): Promise<VirtualFileState> {
+		const key = vfs.file.path;
+		const activeLock = this.loadingLocks.get(key);
+		if (activeLock) return activeLock;
+
+		const promise = (async () => {
+			try {
+				await this.hydrateBody(vfs);
+				return vfs;
+			} finally {
+				this.loadingLocks.delete(key);
+			}
+		})();
+
+		this.loadingLocks.set(key, promise);
+		return promise;
+	}
+
 	private async hydrateBody(vfs: VirtualFileState): Promise<void> {
 		const content = await this.app.vault.read(vfs.file);
 		const { body } = splitYamlBody(content);
@@ -193,35 +247,30 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		vfs.bodyLoaded = true;
 	}
 
-	/** Add a single pending change. Fires async ingestion in background. */
 	add(change: PendingChange): void {
-		this.ingest(change, /*silent*/ false).catch((err) => {
+		this.ingest(change).catch((err) => {
 			console.error('Failed to add change:', err);
 		});
 	}
 
-	/** Internal: add with explicit await (for tests). */
 	async addAsync(change: PendingChange): Promise<void> {
-		await this.ingest(change, /*silent*/ false);
+		await this.ingest(change);
 	}
 
-	/** Add many changes, firing only ONE 'changed' event at the end. */
 	async addBatch(changes: PendingChange[]): Promise<void> {
 		if (changes.length === 0) return;
 		for (const c of changes) {
-			await this.ingest(c, /*silent*/ true);
+			await this.ingest(c, false);
 		}
-		this.fireChanged();
+		this.emitChanged();
 	}
 
-	/** Shared internal ingestion: translate PendingChange to per-file StagedOps. */
-	private async ingest(change: PendingChange, silent: boolean): Promise<void> {
+	private async ingest(change: PendingChange, emit = true): Promise<void> {
 		const changeId = change.id ?? `change-${++this.changeCounter}`;
-		// Special case: NATIVE_RENAME_PROP is vault-wide — expand across metadataCache.
 		const probe = this.probeForNativeRename(change);
 		if (probe) {
 			await this.expandNativeRename(change, probe.oldName, probe.newName, changeId);
-			if (!silent) this.fireChanged();
+			if (emit) this.emitChanged();
 			return;
 		}
 
@@ -232,13 +281,9 @@ export class OperationQueueService extends Component implements IOperationQueue 
 			if (!updates) continue;
 			this.applyUpdates(vfs, change, updates, changeId);
 		}
-		if (!silent) this.fireChanged();
+		if (emit) this.emitChanged();
 	}
 
-	/**
-	 * Probe: does this change carry _NATIVE_RENAME_PROP?
-	 * Safe to call — logicFunc for rename-prop changes ignores file/fm.
-	 */
 	private probeForNativeRename(change: PendingChange): { oldName: string; newName: string } | null {
 		if (change.files.length === 0) return null;
 		const sample = change.logicFunc(change.files[0], {});
@@ -248,17 +293,12 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		return null;
 	}
 
-	/** Returns true if the change will modify body content. */
 	private opNeedsBody(change: PendingChange): boolean {
 		if (change.type === 'content_replace') return true;
 		if (change.type === 'template') return true;
 		return false;
 	}
 
-	/**
-	 * Translate logicFunc's `updates` dict into one or more StagedOps,
-	 * push them onto vfs.ops, and mutate vfs state eagerly.
-	 */
 	private applyUpdates(
 		vfs: VirtualFileState,
 		change: PendingChange,
@@ -273,7 +313,6 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		}
 	}
 
-	/** Build a StagedOp from a single update entry. Null if unknown/ignored. */
 	private translateUpdate(
 		_vfs: VirtualFileState,
 		change: PendingChange,
@@ -320,6 +359,12 @@ export class OperationQueueService extends Component implements IOperationQueue 
 				},
 			};
 		}
+		if (key === DELETE_FILE) {
+			return {
+				id, changeId, kind: 'delete_file', action, details,
+				apply: (v) => { v.deleted = true; },
+			};
+		}
 		if (key === FIND_REPLACE_CONTENT) {
 			const { pattern, replacement, isRegex, caseSensitive } = value as {
 				pattern: string; replacement: string; isRegex: boolean; caseSensitive: boolean;
@@ -340,7 +385,6 @@ export class OperationQueueService extends Component implements IOperationQueue 
 			};
 		}
 		if (key === NATIVE_RENAME_PROP) {
-			// Should have been pre-expanded via probeForNativeRename. Skip defensively.
 			return null;
 		}
 		if (change.type === 'tag' && key === 'tags') {
@@ -349,7 +393,6 @@ export class OperationQueueService extends Component implements IOperationQueue 
 				apply: (v) => { v.fm.tags = value; },
 			};
 		}
-		// Normal frontmatter property set
 		return {
 			id, changeId, property: key, kind: 'set_prop', action, details,
 			apply: (v) => { v.fm[key] = value; },
@@ -373,7 +416,6 @@ export class OperationQueueService extends Component implements IOperationQueue 
 			if (existing) {
 				vfs = existing;
 			} else {
-				// Lazy VFS — fm from metadataCache, body deferred to execute
 				const fmCopy = { ...fm };
 				delete fmCopy['position'];
 				vfs = {
@@ -410,36 +452,34 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		}
 	}
 
-	/** Clear all pending operations */
 	clear(): void {
+		const hadTransactions = this.transactions.size > 0;
 		this.transactions.clear();
-		this.fireChanged();
+		if (hadTransactions) this.emitChanged();
 	}
 
-	/** Drop the entire VFS entry for a path. */
 	removeFile(path: string): void {
-		if (this.transactions.delete(path)) {
-			this.fireChanged();
-		}
+		const removed = this.transactions.delete(path);
+		if (removed) this.emitChanged();
 	}
 
-	/** Surgical: remove a single op from a file's VFS. Re-materializes that VFS from initial state. */
-	removeOp(path: string, opId: string, silent = false): void {
+	removeOp(path: string, opId: string, _silent = false): void {
 		const vfs = this.transactions.get(path);
 		if (!vfs) return;
 		const filtered = vfs.ops.filter(o => o.id !== opId && o.changeId !== opId);
-		if (filtered.length === vfs.ops.length) return; // no-op — op not found
+		if (filtered.length === vfs.ops.length) return;
 		if (filtered.length === 0) {
 			this.transactions.delete(path);
 		} else {
-			// Reset state to initial + replay remaining ops
 			vfs.fm = { ...vfs.fmInitial };
 			vfs.body = vfs.bodyInitial;
 			vfs.newPath = undefined;
+			vfs.deleted = false;
 			vfs.ops = filtered;
 			for (const op of vfs.ops) op.apply(vfs);
+			this.transactions.set(path, vfs);
 		}
-		if (!silent) this.fireChanged();
+		if (!_silent) this.emitChanged();
 	}
 
 	get fileCount(): number {
@@ -474,21 +514,6 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		return [...this.transactions.values()];
 	}
 
-	/**
-	 * Execute all staged transactions atomically.
-	 *
-	 * - Uses vault.process for byte-exact, atomic content writes.
-	 * - Processes in chunks of 20 files, yielding to the UI thread between
-	 *   chunks so Obsidian stays responsive during large batches.
-	 * - Shows a persistent Notice with a live progress counter.
-	 *
-	 * Note: Obsidian's metadataCache indexes each renamed/moved file
-	 * individually via a 'rename' event (one at a time, single-threaded).
-	 * This is expected OS-level behavior — files move instantly at the
-	 * filesystem level, but Obsidian's vault view updates incrementally
-	 * as each file is re-indexed. The queue clears when execution finishes,
-	 * regardless of how far Obsidian's indexing has progressed.
-	 */
 	async execute(): Promise<OperationResult> {
 		const result: OperationResult = { success: 0, errors: 0, messages: [] };
 
@@ -521,6 +546,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 
 		notice.hide();
 		this.transactions.clear();
+		this.emitChanged();
 
 		new Notice(
 			result.errors > 0
@@ -528,13 +554,15 @@ export class OperationQueueService extends Component implements IOperationQueue 
 				: translate('result.success', { count: result.success })
 		);
 
-		this.events.trigger('executed', result);
-		this.fireChanged();
 		return result;
 	}
 
-	/** Commit one file: atomic content write + optional rename. */
 	private async commitFile(vfs: VirtualFileState): Promise<void> {
+		if (vfs.deleted) {
+			await this.app.fileManager.trashFile(vfs.file);
+			return;
+		}
+
 		await this.app.vault.process(vfs.file, (currentContent) => {
 			if (!vfs.bodyLoaded) {
 				return this.applyOpsToRawContent(currentContent, vfs);
@@ -547,10 +575,6 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		}
 	}
 
-	/**
-	 * Lazy-body path: operate on raw disk content without touching body.
-	 * Applies all staged ops (rename_prop etc.) to the YAML frontmatter only.
-	 */
 	private applyOpsToRawContent(currentContent: string, vfs: VirtualFileState): string {
 		const { fm, body } = splitYamlBody(currentContent);
 		const scratch: VirtualFileState = {
@@ -566,11 +590,6 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		return serializeFile(scratch.fm, scratch.body);
 	}
 
-	/**
-	 * Derive diff snapshots from the current transactions map.
-	 * Returns a map of file path → { before, after, newPath }.
-	 * Used by QueueDetailsModal for preview rendering.
-	 */
 	simulateChanges(): Map<string, { before: Record<string, unknown>; after: Record<string, unknown>; newPath?: string }> {
 		const diffs = new Map<string, { before: Record<string, unknown>; after: Record<string, unknown>; newPath?: string }>();
 		for (const [path, vfs] of this.transactions) {
