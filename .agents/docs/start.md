@@ -16,6 +16,9 @@ Always read:
 1. [[.agents/docs/current/status|status]]
 2. [[.agents/docs/current/handoff|handoff]]
 
+- For large code files, use `.agents/tools/pkm-ai/analyze-code.mjs` instead of reading the whole file.
+- To archive long context, use `.agents/tools/pkm-ai/manage-memory.mjs archive`.
+
 Then choose the smallest route that fits the user's intent. A quick side
 question can be answered directly without changing mode.
 
