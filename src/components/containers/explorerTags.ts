@@ -1,14 +1,16 @@
 import { TagsLogic } from '../../logic/logicTags';
 import type { TFile } from 'obsidian';
-import type { TreeNode, TagMeta } from '../../types/typeNode';
+import type { TreeNode, TagMeta, NodeBadge } from '../../types/typeNode';
 import type { VaultmanPlugin } from '../../main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
 import type { MenuCtx } from '../../types/typeCtxMenu';
-import { buildTagAddChange, buildTagDeleteChange, buildTagRenameChange, tagListContains } from '../../services/serviceTagQueue';
 import {
-	createFnRState,
-	startTagRenameHandoff,
-} from '../../services/serviceFnR.svelte';
+	buildTagAddChange,
+	buildTagDeleteChange,
+	buildTagRenameChange,
+	tagListContains,
+} from '../../services/serviceTagQueue';
+import { createFnRState, startTagRenameHandoff } from '../../services/serviceFnR.svelte';
 import type { FnRRenameHandoff, FnRScope } from '../../types/typeFnR';
 import { showInputModal } from '../../utils/inputModal';
 import {
@@ -137,7 +139,10 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 				cls: currentCls,
 				icon: viewRow.icon,
 				highlights,
-				badges: nodeBadgesFromViewLayers(viewRow.layers, operations),
+				badges: [
+					...nodeBadgesFromViewLayers(viewRow.layers, operations),
+					...this.quickActionBadges(meta),
+				],
 				children: resolvedChildren,
 			};
 		});
@@ -146,8 +151,7 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 	handleNodeClick(node: TreeNode<TagMeta>): void {
 		const meta = node.meta;
 		if (this.addMode) {
-			const change = buildTagAddChange(meta.tagPath, this.operationScopeFiles());
-			if (change) void this.plugin.queueService.add(change);
+			this._addTag(meta.tagPath);
 			return;
 		}
 
@@ -164,7 +168,11 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 		}
 	}
 
-	handleContextMenu(node: TreeNode<TagMeta>, e: MouseEvent, selectedNodes: TreeNode<TagMeta>[] = []): void {
+	handleContextMenu(
+		node: TreeNode<TagMeta>,
+		e: MouseEvent,
+		selectedNodes: TreeNode<TagMeta>[] = [],
+	): void {
 		this.plugin.contextMenuService.openPanelMenu(
 			{ nodeType: 'tag', node: node, selectedNodes, surface: 'panel' },
 			e,
@@ -213,6 +221,26 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 	private _deleteTag(tagPath: string): void {
 		const change = buildTagDeleteChange(tagPath, this.filesWithTag(tagPath));
 		if (change) this.plugin.queueService.add(change);
+	}
+
+	private _addTag(tagPath: string): void {
+		const change = buildTagAddChange(tagPath, this.operationScopeFiles());
+		if (change) void this.plugin.queueService.add(change);
+	}
+
+	private quickActionBadges(meta: TagMeta): NodeBadge[] {
+		if (!this.addMode) return [];
+		return [
+			{
+				text: 'add',
+				icon: 'lucide-plus',
+				color: 'green',
+				quickAction: true,
+				title: `Queue add tag "#${meta.tagPath}"`,
+				ariaLabel: `Queue add tag "#${meta.tagPath}"`,
+				onClick: () => this._addTag(meta.tagPath),
+			},
+		];
 	}
 
 	private contextTagNodes(ctx: MenuCtx): TreeNode<TagMeta>[] {

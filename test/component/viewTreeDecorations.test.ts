@@ -1,10 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushSync, mount, unmount, type Component } from 'svelte';
-import {
-	clearActivePerfProbe,
-	createPerfProbe,
-	setActivePerfProbe,
-} from '../../src/dev/perfProbe';
+import { clearActivePerfProbe, createPerfProbe, setActivePerfProbe } from '../../src/dev/perfProbe';
 import ViewTree from '../../src/components/views/viewTree.svelte';
 import type { TreeNode } from '../../src/types/typeTree';
 
@@ -124,7 +120,9 @@ describe('ViewTree decorations', () => {
 		flushSync();
 
 		expect(target.querySelector('.vm-tree-child-badge-indicator')).toBeTruthy();
-		expect(target.querySelectorAll('.vm-tree-child-badge-pill .vm-badge.is-inherited')).toHaveLength(1);
+		expect(
+			target.querySelectorAll('.vm-tree-child-badge-pill .vm-badge.is-inherited'),
+		).toHaveLength(1);
 	});
 
 	it('removes a queued badge with a single click without triggering row activation', () => {
@@ -157,6 +155,46 @@ describe('ViewTree decorations', () => {
 		(target.querySelector('.vm-badge.is-undoable') as HTMLElement).click();
 
 		expect(onBadgeClick).toHaveBeenCalledWith(3);
+		expect(onRowClick).not.toHaveBeenCalled();
+	});
+
+	it('runs a quick-action badge without triggering row activation', () => {
+		const onQuickAction = vi.fn();
+		const onRowClick = vi.fn();
+		const nodes: TreeNode[] = [
+			{
+				id: 'project',
+				label: 'project',
+				depth: 0,
+				meta: {},
+				badges: [
+					{
+						text: 'Add tag',
+						icon: 'lucide-plus',
+						color: 'green',
+						quickAction: true,
+						onClick: onQuickAction,
+					},
+				],
+			},
+		];
+
+		app = mount(ViewTree as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: {
+				nodes,
+				expandedIds: new Set<string>(),
+				onToggle: vi.fn(),
+				onRowClick,
+				onContextMenu: vi.fn(),
+				icon: vi.fn(() => ({ update: vi.fn() })),
+			},
+		});
+		flushSync();
+
+		(target.querySelector('.vm-badge.is-quick-action') as HTMLElement).click();
+
+		expect(onQuickAction).toHaveBeenCalledOnce();
 		expect(onRowClick).not.toHaveBeenCalled();
 	});
 

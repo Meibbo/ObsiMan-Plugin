@@ -1,6 +1,6 @@
 import type { TFile } from 'obsidian';
 import { PropsLogic } from '../../logic/logicProps';
-import type { TreeNode, PropMeta } from '../../types/typeNode';
+import type { TreeNode, PropMeta, NodeBadge } from '../../types/typeNode';
 import { DELETE_PROP, NATIVE_RENAME_PROP } from '../../types/typeOps';
 import { showInputModal } from '../../utils/inputModal';
 import {
@@ -69,7 +69,9 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			surfaces: ['panel'],
 			label: (ctx) => {
 				const nodes = this.contextPropNodes(ctx);
-				return nodes.length > 1 ? `Delete ${nodes.length} properties` : `Delete "${ctx.node.label}"`;
+				return nodes.length > 1
+					? `Delete ${nodes.length} properties`
+					: `Delete "${ctx.node.label}"`;
 			},
 			icon: 'lucide-trash-2',
 			when: (ctx) => !(ctx.node.meta as PropMeta).isValueNode,
@@ -89,7 +91,8 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 				submenu: 'Change type',
 				when: (ctx) => !(ctx.node.meta as PropMeta).isValueNode,
 				run: (ctx) => {
-					for (const node of this.contextPropNodes(ctx)) this._changePropType(node.meta.propName, type);
+					for (const node of this.contextPropNodes(ctx))
+						this._changePropType(node.meta.propName, type);
 				},
 			});
 		});
@@ -163,13 +166,19 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			}
 			const deletedClass = meta.isValueNode ? 'is-deleted-value' : 'is-deleted-prop';
 			currentCls = withViewStateClasses(currentCls, viewRow.layers, { deletedClass });
-			if (parentDeleted) currentCls = withViewStateClasses(currentCls, { state: { deleted: true } }, { deletedClass });
+			if (parentDeleted)
+				currentCls = withViewStateClasses(
+					currentCls,
+					{ state: { deleted: true } },
+					{ deletedClass },
+				);
 
 			const badges: import('../../types/typeNode').NodeBadge[] = [];
 			if (meta.isTypeIncompatible) {
 				badges.push({ text: 'Conflict', color: 'red', solid: true, icon: 'lucide-alert-triangle' });
 			}
 			badges.push(...nodeBadgesFromViewLayers(viewRow.layers, operations));
+			badges.push(...this.quickActionBadges(meta));
 			const isDeleted = parentDeleted || viewRow.layers.state?.deleted === true;
 
 			return {
@@ -186,18 +195,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 	handleNodeClick(node: TreeNode<PropMeta>): void {
 		const meta = node.meta;
 		if (this.addMode && !meta.isValueNode) {
-			void this.plugin.queueService.add({
-				type: 'property',
-				property: meta.propName,
-				action: 'add',
-				details: `Add property "${meta.propName}"`,
-				files: this.operationScopeFiles(),
-				customLogic: true,
-				logicFunc: (_file, fm) => {
-					if (meta.propName in fm) return null;
-					return { [meta.propName]: '' };
-				},
-			});
+			this._addProp(meta.propName);
 			return;
 		}
 
@@ -228,9 +226,16 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 		}
 	}
 
-	handleContextMenu(node: TreeNode<PropMeta>, e: MouseEvent, selectedNodes: TreeNode<PropMeta>[] = []): void {
+	handleContextMenu(
+		node: TreeNode<PropMeta>,
+		e: MouseEvent,
+		selectedNodes: TreeNode<PropMeta>[] = [],
+	): void {
 		const nodeType = this.getNodeType(node);
-		this.plugin.contextMenuService.openPanelMenu({ nodeType, node: node, selectedNodes, surface: 'panel' }, e);
+		this.plugin.contextMenuService.openPanelMenu(
+			{ nodeType, node: node, selectedNodes, surface: 'panel' },
+			e,
+		);
 	}
 
 	getNodeType(node: TreeNode<PropMeta>): 'prop' | 'value' {
@@ -308,6 +313,36 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 				return { [DELETE_PROP]: actualKey };
 			},
 		});
+	}
+
+	private _addProp(propName: string): void {
+		void this.plugin.queueService.add({
+			type: 'property',
+			property: propName,
+			action: 'add',
+			details: `Add property "${propName}"`,
+			files: this.operationScopeFiles(),
+			customLogic: true,
+			logicFunc: (_file, fm) => {
+				if (propName in fm) return null;
+				return { [propName]: '' };
+			},
+		});
+	}
+
+	private quickActionBadges(meta: PropMeta): NodeBadge[] {
+		if (!this.addMode || meta.isValueNode) return [];
+		return [
+			{
+				text: 'add',
+				icon: 'lucide-plus',
+				color: 'green',
+				quickAction: true,
+				title: `Queue add property "${meta.propName}"`,
+				ariaLabel: `Queue add property "${meta.propName}"`,
+				onClick: () => this._addProp(meta.propName),
+			},
+		];
 	}
 
 	private _changePropType(propName: string, newType: string): void {
@@ -438,7 +473,8 @@ function frontmatterKey(fm: Record<string, unknown>, propName: string): string |
 }
 
 function valueContains(value: unknown, needle: string): boolean {
-	if (Array.isArray(value)) return (value as unknown[]).some((item) => valueToString(item) === needle);
+	if (Array.isArray(value))
+		return (value as unknown[]).some((item) => valueToString(item) === needle);
 	return valueToString(value) === needle;
 }
 
@@ -452,7 +488,9 @@ function replaceValueUpdate(
 		if (!valueContains(current, oldValue)) return null;
 		const values = current as unknown[];
 		return {
-			[propName]: values.map((item): unknown => (valueToString(item) === oldValue ? newValue : item)),
+			[propName]: values.map((item): unknown =>
+				valueToString(item) === oldValue ? newValue : item,
+			),
 		};
 	}
 	if (valueToString(current) !== oldValue) return null;

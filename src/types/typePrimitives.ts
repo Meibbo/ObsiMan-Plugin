@@ -1,10 +1,6 @@
 import type { TFile } from 'obsidian';
 
-export type PopupType =
-	| "active-filters"
-	| "scope"
-	| "search"
-	| "move";
+export type PopupType = 'active-filters' | 'scope' | 'search' | 'move';
 
 export interface ContentSnippet {
 	before: string;
@@ -27,13 +23,14 @@ export interface FabDef {
 	label: string;
 	action: () => void;
 	isPlaceholder?: boolean;
+	badgeKind?: 'queue' | 'filters';
 }
 
 export interface BtnSelectionItem {
-	icon: string;        // Lucide icon name (e.g. "lucide-trash")
-	label: string;       // i18n-resolved aria-label + tooltip
+	icon: string; // Lucide icon name (e.g. "lucide-trash")
+	label: string; // i18n-resolved aria-label + tooltip
 	onClick: () => void; // fire-and-forget; async callers wrap with `void`
-	isActive?: boolean;  // visual active state
-	isToggle?: boolean;  // toggleable button
-	disabled?: boolean;  // grayed out, non-clickable
+	isActive?: boolean; // visual active state
+	isToggle?: boolean; // toggleable button
+	disabled?: boolean; // grayed out, non-clickable
 }

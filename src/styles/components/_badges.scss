@@ -7,98 +7,125 @@
 //...----------—————————————(   BADGES   )————————————------------...\\
 
 .vm-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 12px;
-  height: 12px;
-  padding: 0;
-  border-radius: 2px;
-  font-size: 0;
-  color: var(--text-normal);
-  background: transparent;
-  border: none;
-  flex-shrink: 0;
-  transition: transform 0.1s ease, filter 0.1s ease;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 12px;
+	height: 12px;
+	padding: 0;
+	border-radius: 2px;
+	font-size: 0;
+	color: var(--text-normal);
+	background: transparent;
+	border: none;
+	flex-shrink: 0;
+	transition:
+		transform 0.1s ease,
+		filter 0.1s ease;
 
-  &.is-undoable {
-    cursor: pointer;
+	&.is-undoable,
+	&.is-actionable {
+		cursor: pointer;
 
-    &:hover {
-      transform: scale(1.2);
-      filter: brightness(1.2);
-    }
+		&:hover {
+			transform: scale(1.2);
+			filter: brightness(1.2);
+		}
 
-    &:active {
-      transform: scale(0.9);
-    }
-  }
+		&:active {
+			transform: scale(0.9);
+		}
 
-  &.is-inherited {
-    opacity: 0.5;
-  }
+		&:focus-visible {
+			outline: 2px solid $vm-color-accent;
+			outline-offset: 2px;
+		}
+	}
 
-  &-icon {
-    display: flex !important;
-    width: 10px !important;
-    height: 10px !important;
-    color: inherit;
+	&.is-quick-action {
+		width: 14px;
+		height: 14px;
+		border-radius: 999px;
+		color: $vm-color-accent;
+		background: color-mix(in srgb, $vm-color-accent 12%, transparent);
+		border: $vm-border-width solid color-mix(in srgb, $vm-color-accent 35%, transparent);
+	}
 
-    svg {
-      width: 10px !important;
-      height: 10px !important;
-    }
-  }
+	&.is-inherited {
+		opacity: 0.5;
+	}
 
-  // Color variants
-  &--blue   { color: #007aff; }
-  &--red    { color: #ff3b30; }
-  &--purple { color: #af52de; }
-  &--orange { color: #ff9500; }
-  &--green  { color: #34c759; }
+	&-icon {
+		display: flex !important;
+		width: 10px !important;
+		height: 10px !important;
+		color: inherit;
 
-  &-warning {
-    outline: 1px solid var(--color-yellow);
-  }
+		svg {
+			width: 10px !important;
+			height: 10px !important;
+		}
+	}
+
+	// Color variants
+	&--blue {
+		color: #007aff;
+	}
+	&--red {
+		color: #ff3b30;
+	}
+	&--purple {
+		color: #af52de;
+	}
+	&--orange {
+		color: #ff9500;
+	}
+	&--green {
+		color: #34c759;
+	}
+
+	&-warning {
+		outline: 1px solid var(--color-yellow);
+	}
 }
 
 // Active Filters count badge
 .vm-active-filters-count {
-  margin-left: 4px;
-  min-width: 16px;
-  height: 16px;
-  border-radius: 8px;
-  background: var(--color-accent);
-  color: var(--text-on-accent);
-  font-size: 9px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px;
+	margin-left: 4px;
+	min-width: 16px;
+	height: 16px;
+	border-radius: 8px;
+	background: var(--color-accent);
+	color: var(--text-on-accent);
+	font-size: 9px;
+	font-weight: 700;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 4px;
 }
 
 // Main section badge
 .vm-main-badge {
-  font-size: var(--font-ui-smaller);
-  font-weight: 600;
-  background: var(--color-accent);
-  color: var(--text-on-accent);
-  border-radius: 8px;
-  padding: 0 5px;
-  min-width: 16px;
-  text-align: center;
+	font-size: var(--font-ui-smaller);
+	font-weight: 600;
+	background: var(--color-accent);
+	color: var(--text-on-accent);
+	border-radius: 8px;
+	padding: 0 5px;
+	min-width: 16px;
+	text-align: center;
 }
 
 // Coming-soon badge (disabled items)
 .vm-coming-soon-badge {
-  margin-left: auto;
-  font-size: 9px;
-  font-weight: 600;
-  color: var(--text-muted);
-  background: var(--background-modifier-border);
-  border-radius: 4px;
-  padding: 1px 5px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+	margin-left: auto;
+	font-size: 9px;
+	font-weight: 600;
+	color: var(--text-muted);
+	background: var(--background-modifier-border);
+	border-radius: 4px;
+	padding: 1px 5px;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
 }

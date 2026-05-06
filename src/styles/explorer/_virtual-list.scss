@@ -7,59 +7,74 @@
 //...--------—————————————( VIRTUAL LIST )————————————-----------...\\
 
 .vm-tree-virtual {
-  &-outer {
-    flex: 1;
-    min-height: 0;
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    position: relative;
-    contain: strict;
-  }
+	&-outer {
+		flex: 1;
+		min-height: 0;
+		height: 100%;
+		overflow-y: auto;
+		overflow-x: hidden;
+		position: relative;
+		contain: strict;
+	}
 
-  &-inner {
-    position: relative;
-    width: 100%;
-    height: var(--vm-tree-total-h, 0);
-  }
+	&-inner {
+		position: relative;
+		width: 100%;
+		height: var(--vm-tree-total-h, 0);
+	}
 
-  &-row {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: var(--vm-tree-row-h);
-    transform: translateY(var(--vm-tree-y, 0));
-    @include flex-center;
-    justify-content: flex-start;
-    gap: 4px;
-    padding-left: calc(var(--depth, 0) * 16px + 4px);
-    padding-right: 8px;
-    white-space: nowrap;
-    overflow: hidden;
-    box-sizing: border-box;
-    will-change: transform;
+	&-row {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: var(--vm-tree-row-h);
+		transform: translateY(var(--vm-tree-y, 0));
+		@include flex-center;
+		justify-content: flex-start;
+		gap: 4px;
+		padding-left: calc(var(--depth, 0) * 16px + 4px);
+		padding-right: 8px;
+		white-space: nowrap;
+		overflow: hidden;
+		box-sizing: border-box;
+		will-change: transform;
 
-    &.is-selected {
-      background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
-      color: var(--text-normal);
-    }
+		&.is-selected {
+			background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
+			color: var(--text-normal);
+		}
 
-    &.is-focused {
-      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--interactive-accent) 55%, transparent);
-    }
+		&.is-focused {
+			box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--interactive-accent) 55%, transparent);
+		}
 
-    .vm-tree-label {
-      flex: 1 1 auto;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+		.vm-tree-label {
+			flex: 1 1 auto;
+			min-width: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
 
-    .vm-tree-badge-zone {
-      flex: 0 0 auto;
-      max-width: 50%;
-      overflow: visible;
-    }
-  }
+		.vm-tree-badge-zone {
+			flex: 0 0 auto;
+			max-width: 50%;
+			overflow: visible;
+		}
+
+		.vm-badge.is-quick-action {
+			opacity: 0;
+			pointer-events: none;
+			transform: scale(0.85);
+		}
+
+		&:hover,
+		&:focus-within {
+			.vm-badge.is-quick-action {
+				opacity: 1;
+				pointer-events: auto;
+				transform: scale(1);
+			}
+		}
+	}
 }

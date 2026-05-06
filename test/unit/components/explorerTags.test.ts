@@ -12,12 +12,13 @@ vi.mock('../../../src/utils/inputModal', () => ({
 	showInputModal: vi.fn(),
 }));
 
-function makePlugin(activeFilters: ActiveFilterEntry[] = [], tags: string[] = ['project']): VaultmanPlugin {
+function makePlugin(
+	activeFilters: ActiveFilterEntry[] = [],
+	tags: string[] = ['project'],
+): VaultmanPlugin {
 	const file = mockTFile('a.md', { frontmatter: { tags } });
 	const files = [file] as TFile[];
-	const meta = new Map<string, CachedMetadata>([
-		[file.path, { frontmatter: { tags } }],
-	]);
+	const meta = new Map<string, CachedMetadata>([[file.path, { frontmatter: { tags } }]]);
 	const app = mockApp({ files, metadata: meta });
 	(app.metadataCache as unknown as { getTags: () => Record<string, number> }).getTags = () =>
 		Object.fromEntries(tags.map((tag) => [`#${tag}`, 1]));
@@ -86,9 +87,9 @@ describe('explorerTags', () => {
 		const plugin = makePlugin([], ['project', 'archive']);
 		const explorer = new explorerTags(plugin);
 		const projectNode = explorer.getTree().find((node) => node.meta.tagPath === 'project');
-		const deleteAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
-			([action]) => action.id === 'tag.delete',
-		)?.[0];
+		const deleteAction = (
+			plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'tag.delete')?.[0];
 
 		await deleteAction.run({ node: projectNode });
 
@@ -97,7 +98,9 @@ describe('explorerTags', () => {
 		expect(change.type).toBe('tag');
 		expect(change.action).toBe('delete');
 		expect(change.files).toEqual(plugin.app.vault.getMarkdownFiles());
-		expect(change.logicFunc(plugin.app.vault.getMarkdownFiles()[0], { tags: ['project', 'archive'] })).toEqual({
+		expect(
+			change.logicFunc(plugin.app.vault.getMarkdownFiles()[0], { tags: ['project', 'archive'] }),
+		).toEqual({
 			tags: ['archive'],
 		});
 	});
@@ -107,9 +110,9 @@ describe('explorerTags', () => {
 		const startRenameHandoff = vi.fn<(handoff: FnRRenameHandoff) => void>();
 		const explorer = new explorerTags(plugin, { startRenameHandoff });
 		const projectNode = explorer.getTree().find((node) => node.meta.tagPath === 'project');
-		const renameAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
-			([action]) => action.id === 'tag.rename',
-		)?.[0];
+		const renameAction = (
+			plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'tag.rename')?.[0];
 
 		expect(projectNode).toBeTruthy();
 		expect(renameAction).toBeTruthy();
@@ -138,9 +141,9 @@ describe('explorerTags', () => {
 		const tree = explorer.getTree();
 		const projectNode = tree.find((node) => node.meta.tagPath === 'project');
 		const archiveNode = tree.find((node) => node.meta.tagPath === 'archive');
-		const deleteAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
-			([action]) => action.id === 'tag.delete',
-		)?.[0];
+		const deleteAction = (
+			plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([action]) => action.id === 'tag.delete')?.[0];
 
 		await deleteAction.run({
 			nodeType: 'tag',
@@ -150,10 +153,34 @@ describe('explorerTags', () => {
 		});
 
 		expect(plugin.queueService.add).toHaveBeenCalledTimes(2);
-		expect((plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls.map(([change]) => change.tag)).toEqual([
-			'project',
-			'archive',
-		]);
+		expect(
+			(plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls.map(
+				([change]) => change.tag,
+			),
+		).toEqual(['project', 'archive']);
+	});
+
+	it('adds an add-mode quick-action badge that queues a tag add operation', () => {
+		const plugin = makePlugin([], ['project']);
+		const explorer = new explorerTags(plugin);
+		explorer.setAddMode(true);
+
+		const projectNode = explorer.getTree().find((node) => node.meta.tagPath === 'project');
+		const addBadge = projectNode?.badges?.find(
+			(badge) => badge.quickAction && badge.icon === 'lucide-plus',
+		);
+
+		expect(addBadge).toBeTruthy();
+		addBadge?.onClick?.();
+
+		expect(plugin.queueService.add).toHaveBeenCalledOnce();
+		const change = (plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls[0][0];
+		expect(change).toMatchObject({
+			type: 'tag',
+			action: 'add',
+			tag: 'project',
+			files: plugin.app.vault.getMarkdownFiles(),
+		});
 	});
 
 	it('rebuilds tag tree after Obsidian metadata changes outside the provider', () => {
@@ -164,7 +191,8 @@ describe('explorerTags', () => {
 		]);
 		let tagInfos: Record<string, number> = { '#project': 1 };
 		const app = mockApp({ files, metadata: meta });
-		(app.metadataCache as unknown as { getTags: () => Record<string, number> }).getTags = () => tagInfos;
+		(app.metadataCache as unknown as { getTags: () => Record<string, number> }).getTags = () =>
+			tagInfos;
 		const decorationManager = new DecorationManager(app);
 		const plugin = makePlugin();
 		Object.assign(plugin, {

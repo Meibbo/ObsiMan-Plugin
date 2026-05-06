@@ -58,6 +58,7 @@ export function createFramePageFabs(
 				icon: 'lucide-list-checks',
 				label: translate('ops.queue'),
 				action: toggleQueueIsland,
+				badgeKind: 'queue',
 			},
 			right: null,
 		},
@@ -76,18 +77,20 @@ export function createFramePageFabs(
 				icon: 'lucide-list-checks',
 				label: translate('ops.queue'),
 				action: toggleQueueIsland,
+				badgeKind: 'queue',
 			},
 			right: options.filtersBaseChooseMode
 				? {
-					icon: 'lucide-x',
-					label: 'Exit Bases import',
-					action: options.exitBasesImportMode ?? (() => {}),
-				}
+						icon: 'lucide-x',
+						label: 'Exit Bases import',
+						action: options.exitBasesImportMode ?? (() => {}),
+					}
 				: {
-					icon: 'lucide-sparkles',
-					label: translate('filters.active'),
-					action: toggleFiltersIsland,
-				},
+						icon: 'lucide-sparkles',
+						label: translate('filters.active'),
+						action: toggleFiltersIsland,
+						badgeKind: 'filters',
+					},
 		},
 	};
 }

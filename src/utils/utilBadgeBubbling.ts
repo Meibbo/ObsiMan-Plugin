@@ -19,13 +19,17 @@ export function bubbleHiddenTreeBadges<TMeta>(
 	return changed ? results : (nodes as TreeNode<TMeta>[]);
 }
 
-function bubbleNode<TMeta>(node: TreeNode<TMeta>, expandedIds: ReadonlySet<string>): BubbleResult<TMeta> {
+function bubbleNode<TMeta>(
+	node: TreeNode<TMeta>,
+	expandedIds: ReadonlySet<string>,
+): BubbleResult<TMeta> {
 	const sourceChildren = node.children ?? [];
 	const childResults = sourceChildren.map((child) => bubbleNode(child, expandedIds));
 	const childrenChanged = childResults.some((result) => result.changed);
 	const children = childrenChanged ? childResults.map((result) => result.node) : sourceChildren;
 	const currentBadges = node.badges ?? [];
 	const directBadges = currentBadges.filter((badge) => !badge.isInherited);
+	const bubbleableDirectBadges = directBadges.filter((badge) => !badge.quickAction);
 	const descendantBadges = childResults.flatMap((result) => result.ownAndDescendantBadges);
 	const inheritedBadges =
 		children.length > 0 && !expandedIds.has(node.id)
@@ -37,7 +41,7 @@ function bubbleNode<TMeta>(node: TreeNode<TMeta>, expandedIds: ReadonlySet<strin
 
 	return {
 		node: changed ? { ...node, badges, children } : node,
-		ownAndDescendantBadges: [...directBadges, ...descendantBadges],
+		ownAndDescendantBadges: [...bubbleableDirectBadges, ...descendantBadges],
 		changed,
 	};
 }
@@ -64,5 +68,6 @@ function badgeKey(badge: NodeBadge): string {
 		badge.icon ?? '',
 		badge.color ?? '',
 		badge.solid ?? false,
+		badge.quickAction ?? false,
 	].join(':');
 }

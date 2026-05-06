@@ -4,9 +4,24 @@ import type { TFile } from 'obsidian';
 export interface NodeBadge {
 	text?: string;
 	icon?: string;
-	color?: 'accent' | 'warning' | 'error' | 'success' | 'info' | 'faint' | 'red' | 'blue' | 'purple' | 'orange' | 'green';
+	color?:
+		| 'accent'
+		| 'warning'
+		| 'error'
+		| 'success'
+		| 'info'
+		| 'faint'
+		| 'red'
+		| 'blue'
+		| 'purple'
+		| 'orange'
+		| 'green';
 	solid?: boolean;
 	isInherited?: boolean;
+	quickAction?: boolean;
+	title?: string;
+	ariaLabel?: string;
+	onClick?: () => void;
 	/** Queue operation index for click-to-remove. Undefined = visual-only badge. */
 	queueIndex?: number;
 }
@@ -37,7 +52,7 @@ export interface PropMeta {
 }
 
 export interface FileMeta {
-	file: TFile | null;  // null = folder node
+	file: TFile | null; // null = folder node
 	isFolder: boolean;
 	folderPath: string;
 }
