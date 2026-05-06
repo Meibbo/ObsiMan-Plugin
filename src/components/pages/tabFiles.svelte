@@ -3,6 +3,7 @@
   import { explorerFiles } from "../containers/explorerFiles";
   import PanelExplorer from "../containers/panelExplorer.svelte";
   import type { VaultmanPlugin } from "../../main";
+  import type { FnRRenameHandoff } from "../../types/typeFnR";
   import { setIcon } from "obsidian";
 
   let {
@@ -15,6 +16,7 @@
     viewMode = $bindable("grid"),
     selectedFilePaths = $bindable(new Set<string>()),
     onSelectionChange,
+    startRenameHandoff,
   }: {
     plugin: VaultmanPlugin;
     fileList: explorerFiles | undefined;
@@ -25,6 +27,7 @@
     viewMode?: any;
     selectedFilePaths: Set<string>;
     onSelectionChange?: (count: number) => void;
+    startRenameHandoff?: (handoff: FnRRenameHandoff) => void;
   } = $props();
 
   $effect(() => {
@@ -32,7 +35,7 @@
   });
 
   onMount(() => {
-    fileList = new explorerFiles(plugin);
+    fileList = new explorerFiles(plugin, { startRenameHandoff });
   });
 
   function icon(el: HTMLElement, name: string) {

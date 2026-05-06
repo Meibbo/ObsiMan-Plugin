@@ -4,7 +4,7 @@ type: agent-status
 status: active
 parent: "[[.agents/docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-06T04:11:25
+updated: 2026-05-06T04:43:53
 tags:
   - agent/current
 ---
@@ -62,12 +62,14 @@ Recent work:
 - Latest hardening D slice added `IndicatorOrbitingInk.svelte`, an organic
   gooey loading indicator based on "Indicator 18", and integrated it into the
   shared `viewEmptyLanding` loading state for tabContent and explorers.
-- Wave A A0 completed CMenu queue repair for tags/files:
-  [[.agents/docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|CMenu queue repair implementation]].
-- Wave A A1 completed prop/value rename handoff into FnR/navbar:
-  [[.agents/docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/index|prop value rename handoff implementation]].
-- Remaining hardening: A2 tag/file rename handoff, A3 navbar badges, and
-  deeper Obsidian/Bases/Dataview parser compatibility.
+- Wave A A0/A1 completed:
+  [[.agents/docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|CMenu queue repair]],
+  [[.agents/docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/index|prop value rename handoff]].
+- Wave A A2 completed tag/file rename handoff into FnR/navbar; tags queue
+  frontmatter tag rename, files queue `RENAME_FILE`, and selected file nodes
+  stay in handoff scope.
+- Remaining hardening: A3 navbar badges and deeper Obsidian/Bases/Dataview
+  parser compatibility.
 - Bases interop research now has a compatibility matrix:
   [[.agents/docs/work/hardening/research/2026-05-05-bases-interop-research/04-compatibility-matrix|bases compatibility matrix]].
 
@@ -84,9 +86,9 @@ Recent metric evidence:
 
 Verification focus:
 
-- Latest A1 run: focused `serviceFnR`/`explorerProps` unit tests, focused
-  `pageFiltersRenameHandoff` component test, `pnpm run check`, `pnpm run lint`,
-  and `pnpm run build` pass.
+- Latest A2 run: focused `serviceFnR`/`explorerTags`/`explorerFiles` unit
+  tests, focused `pageFiltersRenameHandoff` component test, `pnpm run check`,
+  `pnpm run lint`, and `pnpm run build` pass.
 - `pnpm run lint` exits 0 with two pre-existing unused-import warnings outside
   A1; combined component runs can still hit the known transient `svelte`
   resolver issue before tests load.

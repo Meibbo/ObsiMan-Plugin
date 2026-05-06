@@ -268,6 +268,7 @@
 				bind:fileList
 				bind:selectedFilePaths
 				onSelectionChange={(c) => (selectedCount = c)}
+				{startRenameHandoff}
 			/>
 		</div>
 		<div class="vm-tab-content" class:is-active={filtersActiveTab === 'tags'}>
@@ -279,6 +280,7 @@
 				bind:sortDirection={filtersSortDir}
 				bind:viewMode={filtersViewMode}
 				bind:explorer={tagsExplorer}
+				{startRenameHandoff}
 			/>
 		</div>
 		<div class="vm-tab-content" class:is-active={filtersActiveTab === 'content'}>

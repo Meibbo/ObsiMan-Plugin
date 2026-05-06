@@ -70,3 +70,14 @@ export interface StartValueRenameHandoffInput {
 	files: readonly TFile[];
 	scope: FnRScope;
 }
+
+export interface StartTagRenameHandoffInput {
+	tagPath: string;
+	files: readonly TFile[];
+	scope: FnRScope;
+}
+
+export interface StartFileRenameHandoffInput {
+	files: readonly TFile[];
+	scope: FnRScope;
+}

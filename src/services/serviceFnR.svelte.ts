@@ -1,4 +1,12 @@
-import { FIND_REPLACE_CONTENT, NATIVE_RENAME_PROP, type ContentChange, type PendingChange } from '../types/typeOps';
+import {
+	FIND_REPLACE_CONTENT,
+	NATIVE_RENAME_PROP,
+	RENAME_FILE,
+	type ContentChange,
+	type PendingChange,
+} from '../types/typeOps';
+import { buildFileRenameChange } from './serviceFileQueue';
+import { buildTagRenameChange } from './serviceTagQueue';
 import type {
 	BuildContentReplaceChangeInput,
 	ActiveFnRRenameHandoff,
@@ -7,7 +15,9 @@ import type {
 	FnRState,
 	FnRSyntax,
 	FnRSyntaxOption,
+	StartFileRenameHandoffInput,
 	StartPropRenameHandoffInput,
+	StartTagRenameHandoffInput,
 	StartValueRenameHandoffInput,
 } from '../types/typeFnR';
 
@@ -109,6 +119,47 @@ export function startValueRenameHandoff(
 	};
 }
 
+export function startTagRenameHandoff(
+	state: FnRState,
+	input: StartTagRenameHandoffInput,
+): FnRState {
+	return {
+		...state,
+		expanded: true,
+		replace: '',
+		scope: input.scope,
+		rename: {
+			status: 'editing',
+			sourceKind: 'tag',
+			original: input.tagPath,
+			replacement: '',
+			files: [...input.files],
+			scope: input.scope,
+		},
+	};
+}
+
+export function startFileRenameHandoff(
+	state: FnRState,
+	input: StartFileRenameHandoffInput,
+): FnRState {
+	const firstFile = input.files[0];
+	return {
+		...state,
+		expanded: true,
+		replace: '',
+		scope: input.scope,
+		rename: {
+			status: 'editing',
+			sourceKind: 'file',
+			original: firstFile?.name ?? '',
+			replacement: '',
+			files: [...input.files],
+			scope: input.scope,
+		},
+	};
+}
+
 export function updateRenameHandoffReplacement(state: FnRState, replacement: string): FnRState {
 	const rename = state.rename;
 	if (!isActiveRenameHandoff(rename)) return state;
@@ -142,6 +193,12 @@ export function buildRenameHandoffChange(handoff: FnRRenameHandoff): PendingChan
 	}
 	if (handoff.sourceKind === 'value' && handoff.propName && handoff.oldValue != null) {
 		return buildValueRenameChange(handoff, replacement);
+	}
+	if (handoff.sourceKind === 'tag') {
+		return buildTagRenameChange(handoff.original, replacement, [...handoff.files]);
+	}
+	if (handoff.sourceKind === 'file') {
+		return buildFileRenameHandoffChange(handoff, replacement);
 	}
 	return null;
 }
@@ -238,6 +295,26 @@ function buildValueRenameChange(handoff: ActiveFnRRenameHandoff, replacement: st
 			const actualKey = frontmatterKey(fm, propName);
 			if (!actualKey) return null;
 			return replaceValueUpdate(actualKey, fm[actualKey], oldValue, replacement);
+		},
+	};
+}
+
+function buildFileRenameHandoffChange(
+	handoff: ActiveFnRRenameHandoff,
+	replacement: string,
+): PendingChange | null {
+	const files = [...handoff.files];
+	if (files.length === 0) return null;
+	const single = buildFileRenameChange(files[0], replacement);
+	if (!single) return null;
+	if (files.length === 1) return single;
+	return {
+		...single,
+		details: `Rename ${files.length} files to "${replacement}"`,
+		files,
+		logicFunc: (file) => {
+			if (replacement === file.name) return null;
+			return { [RENAME_FILE]: replacement };
 		},
 	};
 }

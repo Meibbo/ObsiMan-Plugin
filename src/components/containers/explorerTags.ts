@@ -5,6 +5,11 @@ import type { VaultmanPlugin } from '../../main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
 import type { MenuCtx } from '../../types/typeCtxMenu';
 import { buildTagAddChange, buildTagDeleteChange, buildTagRenameChange, tagListContains } from '../../services/serviceTagQueue';
+import {
+	createFnRState,
+	startTagRenameHandoff,
+} from '../../services/serviceFnR.svelte';
+import type { FnRRenameHandoff, FnRScope } from '../../types/typeFnR';
 import { showInputModal } from '../../utils/inputModal';
 import {
 	highlightsFromViewLayers,
@@ -12,9 +17,14 @@ import {
 	withViewStateClasses,
 } from '../../utils/utilViewLayers';
 
+interface ExplorerTagsOptions {
+	startRenameHandoff?: (handoff: FnRRenameHandoff) => void;
+}
+
 export class explorerTags implements ExplorerProvider<TagMeta> {
 	id = 'tags';
 	private plugin: VaultmanPlugin;
+	private options: ExplorerTagsOptions;
 	private logic: TagsLogic;
 	private searchTerm = '';
 	private searchMode: 'all' | 'leaf' = 'all';
@@ -22,8 +32,9 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 	private sortDir: 'asc' | 'desc' = 'asc';
 	private addMode = false;
 
-	constructor(plugin: VaultmanPlugin) {
+	constructor(plugin: VaultmanPlugin, options: ExplorerTagsOptions = {}) {
 		this.plugin = plugin;
+		this.options = options;
 		this.logic = new TagsLogic(plugin.app);
 		this.registerActions();
 	}
@@ -40,9 +51,18 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 			run: async (ctx) => {
 				const node = ctx.node as TreeNode<TagMeta>;
 				const oldTag = node.meta.tagPath;
+				const files = this.filesWithTag(oldTag);
+				if (this.options.startRenameHandoff) {
+					const state = startTagRenameHandoff(createFnRState(), {
+						tagPath: oldTag,
+						files,
+						scope: this.fnrScope(),
+					});
+					this.options.startRenameHandoff(state.rename);
+					return;
+				}
 				const newTag = await showInputModal(this.plugin.app, `Rename tag "#${oldTag}" to:`);
 				if (!newTag) return;
-				const files = this.filesWithTag(oldTag);
 				const change = buildTagRenameChange(oldTag, newTag, files);
 				if (change) void this.plugin.queueService.add(change);
 			},
@@ -211,6 +231,12 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 		if (selectedFiles.length > 0) return selectedFiles;
 		if (filteredFiles.length > 0) return filteredFiles;
 		return allFiles;
+	}
+
+	private fnrScope(): FnRScope {
+		const scope = this.plugin.settings?.explorerOperationScope;
+		if (scope === 'selected' || scope === 'all') return scope;
+		return 'filtered';
 	}
 
 	private filesWithTag(tagPath: string): TFile[] {

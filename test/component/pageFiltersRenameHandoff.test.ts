@@ -4,7 +4,7 @@ import PageFilters from '../../src/components/pages/pageFilters.svelte';
 import { showInputModal } from '../../src/utils/inputModal';
 import { DecorationManager } from '../../src/services/serviceDecorate';
 import { ViewService } from '../../src/services/serviceViews.svelte';
-import { NATIVE_RENAME_PROP } from '../../src/types/typeOps';
+import { NATIVE_RENAME_PROP, RENAME_FILE } from '../../src/types/typeOps';
 import type { VaultmanPlugin } from '../../src/main';
 import { mockApp, mockTFile, type CachedMetadata, type TFile } from '../helpers/obsidian-mocks';
 
@@ -22,11 +22,11 @@ function noopIndex() {
 }
 
 function plugin(): VaultmanPlugin {
-	const a = mockTFile('a.md', { frontmatter: { status: 'draft', owner: 'vic' } });
+	const a = mockTFile('a.md', { frontmatter: { status: 'draft', owner: 'vic', tags: ['project'] } });
 	const b = mockTFile('b.md', { frontmatter: { status: 'done' } });
 	const files = [a, b] as TFile[];
 	const meta = new Map<string, CachedMetadata>([
-		[a.path, { frontmatter: { status: 'draft', owner: 'vic' } }],
+		[a.path, { frontmatter: { status: 'draft', owner: 'vic', tags: ['project'] } }],
 		[b.path, { frontmatter: { status: 'done' } }],
 	]);
 	const app = mockApp({ files, metadata: meta });
@@ -35,7 +35,9 @@ function plugin(): VaultmanPlugin {
 		status: { type: 'text' },
 		owner: { type: 'text' },
 	});
-	(app.metadataCache as unknown as { getTags: () => Record<string, number> }).getTags = vi.fn(() => ({}));
+	(app.metadataCache as unknown as { getTags: () => Record<string, number> }).getTags = vi.fn(() => ({
+		'#project': 1,
+	}));
 	const decorationManager = new DecorationManager(app);
 
 	return {
@@ -154,5 +156,114 @@ describe('PageFilters rename handoff', () => {
 		expect(change.logicFunc(vm.app.vault.getMarkdownFiles()[0], { status: 'draft' })).toEqual({
 			[NATIVE_RENAME_PROP]: { oldName: 'status', newName: 'state' },
 		});
+	});
+
+	it('queues a tag rename from the navbar handoff instead of opening the input modal', async () => {
+		const vm = plugin();
+		app = mount(PageFilters as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: {
+				plugin: vm,
+				filtersActiveTab: 'tags',
+			},
+		});
+		flushSync();
+		await Promise.resolve();
+		flushSync();
+
+		const renameAction = (vm.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
+			([action]) => action.id === 'tag.rename',
+		)?.[0];
+		expect(renameAction).toBeTruthy();
+
+		await renameAction.run({
+			nodeType: 'tag',
+			node: {
+				id: 'tag:project',
+				label: 'project',
+				meta: { tagPath: 'project' },
+			},
+			surface: 'panel',
+		});
+		flushSync();
+
+		expect(showInputModal).not.toHaveBeenCalled();
+		const replacement = target.querySelector<HTMLInputElement>('[aria-label="Rename replacement"]');
+		expect(replacement).toBeTruthy();
+
+		replacement!.value = '#renamed';
+		replacement!.dispatchEvent(new Event('input', { bubbles: true }));
+		flushSync();
+
+		target.querySelector<HTMLButtonElement>('[aria-label="Queue rename"]')?.click();
+		flushSync();
+
+		expect(vm.queueService.add).toHaveBeenCalledOnce();
+		const change = (vm.queueService.add as ReturnType<typeof vi.fn>).mock.calls[0][0];
+		expect(change).toMatchObject({
+			type: 'tag',
+			tag: 'project',
+			action: 'rename',
+			files: [vm.app.vault.getMarkdownFiles()[0]],
+		});
+		expect(change.logicFunc(vm.app.vault.getMarkdownFiles()[0], { tags: ['project'] })).toEqual({
+			tags: ['renamed'],
+		});
+	});
+
+	it('queues a selected file rename from the navbar handoff with RENAME_FILE semantics', async () => {
+		const vm = plugin();
+		app = mount(PageFilters as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: {
+				plugin: vm,
+				filtersActiveTab: 'files',
+			},
+		});
+		flushSync();
+		await Promise.resolve();
+		flushSync();
+
+		const files = vm.app.vault.getMarkdownFiles();
+		const renameAction = (vm.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
+			([action]) => action.id === 'file.rename',
+		)?.[0];
+		expect(renameAction).toBeTruthy();
+
+		await renameAction.run({
+			nodeType: 'file',
+			node: {
+				id: 'file:a.md',
+				label: 'a',
+				meta: { file: files[0], isFolder: false },
+			},
+			selectedNodes: [
+				{ id: 'file:a.md', label: 'a', meta: { file: files[0], isFolder: false } },
+				{ id: 'file:b.md', label: 'b', meta: { file: files[1], isFolder: false } },
+			],
+			surface: 'panel',
+			file: files[0],
+		});
+		flushSync();
+
+		const replacement = target.querySelector<HTMLInputElement>('[aria-label="Rename replacement"]');
+		expect(replacement).toBeTruthy();
+
+		replacement!.value = 'Renamed.md';
+		replacement!.dispatchEvent(new Event('input', { bubbles: true }));
+		flushSync();
+
+		target.querySelector<HTMLButtonElement>('[aria-label="Queue rename"]')?.click();
+		flushSync();
+
+		expect(vm.queueService.add).toHaveBeenCalledOnce();
+		const change = (vm.queueService.add as ReturnType<typeof vi.fn>).mock.calls[0][0];
+		expect(change).toMatchObject({
+			type: 'file_rename',
+			action: 'rename',
+			files,
+		});
+		expect(change.logicFunc(files[0], {})).toEqual({ [RENAME_FILE]: 'Renamed.md' });
+		expect(change.logicFunc(files[1], {})).toEqual({ [RENAME_FILE]: 'Renamed.md' });
 	});
 });

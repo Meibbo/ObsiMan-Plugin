@@ -4,7 +4,7 @@ type: agent-handoff
 status: active
 parent: "[[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|user-facing-recovery-wave-a]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-06T04:12:52
+updated: 2026-05-06T04:46:02
 tags:
   - agent/current
 ---
@@ -82,18 +82,18 @@ Last known work:
 - User selected [[.agents/docs/work/hardening/specs/2026-05-06-user-facing-recovery-wave-a/index|User-facing recovery wave A]] as the first deferred-work wave.
 - A0 CMenu queue repair completed: [[.agents/docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|CMenu queue repair implementation]].
   Tags/files CMenu actions now stage queue work; `file_delete` trashes only on queue execute.
-- A1 Prop/Value Rename Handoff completed: `serviceFnR` owns typed rename
-  handoff state/builders, `explorerProps` routes prop/value CMenu rename into
-  the shared handoff, and `NavbarExplorer` confirms/cancels queued rename work.
-- New component coverage: `test/component/pageFiltersRenameHandoff.test.ts`
-  proves prop rename opens the navbar handoff instead of `showInputModal` and
-  queues the native property rename change.
-- Current A1 verification passes: focused `serviceFnR`/`explorerProps` unit
-  tests, focused `pageFiltersRenameHandoff` component test, `pnpm run check`,
-  `pnpm run lint`, and `pnpm run build`.
-- Lint has two pre-existing unused-import warnings outside A1; combined
+- A1 Prop/Value Rename Handoff completed: `serviceFnR` owns prop/value builders,
+  `explorerProps` routes CMenu rename into handoff, and navbar queues/cancels.
+- A2 Tag/File Rename Handoff completed: `serviceFnR` adds tag/file builders;
+  `explorerTags`/`explorerFiles` and tabs route registered actions into the
+  PageFilters handoff; navbar queues tag frontmatter or file `RENAME_FILE`;
+  selected file nodes stay scoped.
+- A2 coverage/verification: `serviceFnR`, `explorerTags`, `explorerFiles`,
+  `pageFiltersRenameHandoff`; focused unit/component tests, `pnpm run check`,
+  `pnpm run lint`, and `pnpm run build` pass.
+- Lint has two pre-existing unused-import warnings outside A2; combined
   component runs can still hit transient `svelte` resolver failure.
-- Next slice is A2 Tag/File Rename Handoff into the same FnR/navbar model.
+- Next slice is A3 navbar badges and quick actions.
 - Review `git status`; there are unrelated/user changes in product files.
 
 Do not: commit without explicit user request; move AI files into `main`; use `parent_path`; compress specs/plans; base `viewTable` on current `viewGrid.svelte`.

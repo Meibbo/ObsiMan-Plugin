@@ -6,6 +6,7 @@ import { ViewService } from '../../../src/services/serviceViews.svelte';
 import { showInputModal } from '../../../src/utils/inputModal';
 import type { VaultmanPlugin } from '../../../src/main';
 import type { ActiveFilterEntry, QueueChange } from '../../../src/types/typeContracts';
+import type { FnRRenameHandoff } from '../../../src/types/typeFnR';
 
 vi.mock('../../../src/utils/inputModal', () => ({
 	showInputModal: vi.fn(),
@@ -101,10 +102,10 @@ describe('explorerTags', () => {
 		});
 	});
 
-	it('queues tag rename from the registered context menu action', async () => {
-		vi.mocked(showInputModal).mockResolvedValueOnce('renamed');
+	it('starts a tag rename handoff from the registered context menu action', async () => {
 		const plugin = makePlugin([], ['project', 'archive']);
-		const explorer = new explorerTags(plugin);
+		const startRenameHandoff = vi.fn<(handoff: FnRRenameHandoff) => void>();
+		const explorer = new explorerTags(plugin, { startRenameHandoff });
 		const projectNode = explorer.getTree().find((node) => node.meta.tagPath === 'project');
 		const renameAction = (plugin.contextMenuService.registerAction as ReturnType<typeof vi.fn>).mock.calls.find(
 			([action]) => action.id === 'tag.rename',
@@ -119,14 +120,15 @@ describe('explorerTags', () => {
 			surface: 'panel',
 		});
 
-		expect(plugin.queueService.add).toHaveBeenCalledOnce();
-		const change = (plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls[0][0];
-		expect(change.type).toBe('tag');
-		expect(change.action).toBe('rename');
-		expect(change.tag).toBe('project');
-		expect(change.files).toEqual(plugin.app.vault.getMarkdownFiles());
-		expect(change.logicFunc(plugin.app.vault.getMarkdownFiles()[0], { tags: ['project', 'archive'] })).toEqual({
-			tags: ['renamed', 'archive'],
+		expect(showInputModal).not.toHaveBeenCalled();
+		expect(plugin.queueService.add).not.toHaveBeenCalled();
+		expect(startRenameHandoff).toHaveBeenCalledWith({
+			status: 'editing',
+			sourceKind: 'tag',
+			original: 'project',
+			replacement: '',
+			files: plugin.app.vault.getMarkdownFiles(),
+			scope: 'filtered',
 		});
 	});
 

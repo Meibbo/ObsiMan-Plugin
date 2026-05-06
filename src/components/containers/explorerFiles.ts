@@ -8,10 +8,20 @@ import { FileMoveModal } from '../../modals/modalFileMove';
 import { PropertyManagerModal } from '../../modals/modalPropertyManager';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
 import { buildFileDeleteChange } from '../../services/serviceFileQueue';
+import {
+	createFnRState,
+	startFileRenameHandoff,
+} from '../../services/serviceFnR.svelte';
+import type { FnRRenameHandoff } from '../../types/typeFnR';
+
+interface ExplorerFilesOptions {
+	startRenameHandoff?: (handoff: FnRRenameHandoff) => void;
+}
 
 export class explorerFiles implements ExplorerProvider<FileMeta> {
 	id = 'files';
 	private plugin: VaultmanPlugin;
+	private options: ExplorerFilesOptions;
 	private logic: FilesLogic;
 	private sortBy: string = 'name';
 	private sortDir: 'asc' | 'desc' = 'asc';
@@ -19,8 +29,9 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 	private searchName = '';
 	private searchFolder = '';
 
-	constructor(plugin: VaultmanPlugin) {
+	constructor(plugin: VaultmanPlugin, options: ExplorerFilesOptions = {}) {
 		this.plugin = plugin;
+		this.options = options;
 		this.logic = new FilesLogic(plugin.app);
 		this.registerActions();
 	}
@@ -35,12 +46,20 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 			label: 'Rename',
 			icon: 'lucide-pencil',
 			run: (ctx: MenuCtx) => {
-				const meta = ctx.node.meta as FileMeta;
-				if (!meta.file) return;
+				const files = this.contextFiles(ctx);
+				if (files.length === 0) return;
+				if (this.options.startRenameHandoff) {
+					const state = startFileRenameHandoff(createFnRState(), {
+						files,
+						scope: 'selected',
+					});
+					this.options.startRenameHandoff(state.rename);
+					return;
+				}
 				new FileRenameModal(
 					this.plugin.app,
 					this.plugin.propertyIndex,
-					[meta.file],
+					files,
 					(change) => void this.plugin.queueService.add(change),
 				).open();
 			},
@@ -190,5 +209,14 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 			return;
 		}
 		filterService.setSelectedFiles(files);
+	}
+
+	private contextFiles(ctx: MenuCtx): TFile[] {
+		const selected = (ctx.selectedNodes ?? []) as TreeNode<FileMeta>[];
+		const nodes = selected.length > 0 ? selected : [ctx.node as TreeNode<FileMeta>];
+		return nodes
+			.map((node) => node.meta)
+			.filter((meta) => !meta.isFolder && Boolean(meta.file))
+			.map((meta) => meta.file!);
 	}
 }
