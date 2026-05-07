@@ -4,7 +4,7 @@ type: spec
 status: active
 parent: "[[docs/work/polish/index|polish]]"
 created: 2026-05-07T08:13:22
-updated: 2026-05-07T08:13:22
+updated: 2026-05-07T10:12:36
 tags:
   - agent/spec
   - initiative/polish
@@ -34,6 +34,19 @@ as controlled table UI helpers.
 - [[docs/work/polish/specs/2026-05-07-tanstack-node-table/02-architecture-selection|Architecture and selection]]
 - [[docs/work/polish/specs/2026-05-07-tanstack-node-table/03-mvp-testing-risks|MVP, testing, and risks]]
 
+## Implementation Status
+
+- MVP table implementation completed and verified in the current worktree.
+- UI route completed after smoke found the view-mode popup did not expose
+  `table`; `ViewModePopup` now includes a Table button and translation.
+- Obsidian CLI smoke verified the popup switches to table mode, renders 1
+  `.vm-node-table` with 23 rows and `Name / Detail / Count` headers, supports
+  row selection and header sorting, and reports no runtime errors or console
+  errors after interaction.
+- Provider-specific table columns are implemented for `props`, `tags`, `files`,
+  and `content`; Obsidian CLI smoke verified the live `props` table renders
+  `Name / Kind / Type / Count` with `Property` and `Value` row cells.
+
 ## Scope Summary
 
 In scope for the first implementation:
@@ -57,8 +70,6 @@ Out of scope for the first implementation:
 
 ## Next Action
 
-User review gate: confirm this spec before writing the implementation plan.
-
-Planned implementation-plan path:
-
-`docs/work/polish/plans/2026-05-07-tanstack-node-table/`.
+Choose the next post-MVP table capability, such as inline cell edit,
+copy/paste, range selection, persisted column layout, Bases summaries, or
+formulas.

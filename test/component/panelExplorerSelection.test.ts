@@ -5,7 +5,7 @@ import { NodeSelectionService } from '../../src/services/serviceSelection.svelte
 import { ViewService } from '../../src/services/serviceViews.svelte';
 import type { VaultmanPlugin } from '../../src/main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../src/types/typeExplorer';
-import type { FileMeta, TreeNode } from '../../src/types/typeNode';
+import type { FileMeta, PropMeta, TreeNode } from '../../src/types/typeNode';
 import type { IViewService } from '../../src/types/typeViews';
 import { mockTFile } from '../helpers/obsidian-mocks';
 
@@ -218,6 +218,94 @@ describe('PanelExplorer tree selection adapter', () => {
 
 		expect(target.querySelector('[data-id="beta"]')?.getAttribute('aria-selected')).toBe('true');
 		expect(target.querySelector('[data-id="alpha"]')?.getAttribute('aria-selected')).toBe('false');
+	});
+
+	it('table mode renders provider tree nodes instead of fallback copy', () => {
+		renderPanel({ viewMode: 'table' });
+
+		expect(target.querySelector('.vm-node-table')).not.toBeNull();
+		expect(target.textContent).toContain('Alpha');
+		expect(target.textContent).not.toContain('Table view not available');
+	});
+
+	it('table row click selects through the shared node selection service', () => {
+		const { pluginStub, selectionService } = renderPanel({ viewMode: 'table' });
+
+		(target.querySelector('[data-id="beta"]') as HTMLElement).click();
+		flushSync();
+
+		expect([...selectionService.snapshot(EXPLORER_ID).ids]).toEqual(['beta']);
+		expect(pluginStub.viewService.select).toHaveBeenCalledWith(EXPLORER_ID, 'beta', 'add');
+	});
+
+	it('table mode uses provider-specific property columns', () => {
+		const propTree: TreeNode<PropMeta>[] = [
+			{
+				id: 'status',
+				label: 'status',
+				count: 3,
+				depth: 0,
+				meta: { propName: 'status', propType: 'list', isValueNode: false },
+				children: [
+					{
+						id: 'status::draft',
+						label: 'draft',
+						count: 2,
+						depth: 1,
+						meta: {
+							propName: 'status',
+							propType: 'list',
+							isValueNode: true,
+							rawValue: 'draft',
+						},
+					},
+				],
+			},
+		];
+
+		renderPanel({
+			viewMode: 'table',
+			provider: provider({
+				id: 'props',
+				getTree: vi.fn(() => propTree),
+			}),
+		});
+
+		expect(target.querySelector('[data-vm-table-header="nodeKind"]')?.textContent).toContain(
+			'Kind',
+		);
+		expect(target.querySelector('[data-vm-table-header="propType"]')?.textContent).toContain(
+			'Type',
+		);
+		expect(target.querySelector('[data-vm-table-cell="status:nodeKind"]')?.textContent).toContain(
+			'Property',
+		);
+		expect(
+			target.querySelector('[data-vm-table-cell="status::draft:nodeKind"]')?.textContent,
+		).toContain('Value');
+		expect(target.querySelector('[data-vm-table-cell="status:propType"]')?.textContent).toContain(
+			'list',
+		);
+	});
+
+	it('table context menu receives same-type selected nodes', () => {
+		const providerStub = provider({
+			getNodeType: vi.fn((node) => (node.id === 'alpha' || node.id === 'beta' ? 'file' : 'tag')),
+		});
+		const { selectionService } = renderPanel({ viewMode: 'table', provider: providerStub });
+		selectionService.selectPointer(EXPLORER_ID, ['alpha', 'beta'], 'alpha');
+		selectionService.selectPointer(EXPLORER_ID, ['alpha', 'beta'], 'beta', { additive: true });
+		flushSync();
+
+		(target.querySelector('[data-id="beta"]') as HTMLElement).dispatchEvent(
+			new MouseEvent('contextmenu', { bubbles: true }),
+		);
+
+		expect(providerStub.handleContextMenu).toHaveBeenCalledWith(
+			expect.objectContaining({ id: 'beta' }),
+			expect.any(MouseEvent),
+			[expect.objectContaining({ id: 'alpha' }), expect.objectContaining({ id: 'beta' })],
+		);
 	});
 
 	it('grid folder mode shows root parents without flattening descendants', () => {

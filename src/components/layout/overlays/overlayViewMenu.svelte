@@ -5,7 +5,7 @@
 	import type { BtnSelectionItem } from '../../../types/typePrimitives';
 
 	type FiltersTab = 'props' | 'files' | 'tags' | 'content';
-	type ViewMode = 'tree' | 'dnd' | 'grid' | 'cards';
+	type ViewMode = 'tree' | 'dnd' | 'table' | 'grid' | 'cards';
 
 	type PillDef = {
 		id: string;
@@ -23,6 +23,11 @@
 			id: 'dnd',
 			iconName: 'lucide-grip-vertical',
 			labelKey: 'viewmode.mode.dnd',
+		},
+		{
+			id: 'table',
+			iconName: 'lucide-table',
+			labelKey: 'viewmode.mode.table',
 		},
 		{
 			id: 'grid',

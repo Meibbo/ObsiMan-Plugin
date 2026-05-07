@@ -14,8 +14,10 @@
 	import GridNavigationToolbar from '../layout/GridNavigationToolbar.svelte';
 	import ViewTree from '../views/viewTree.svelte';
 	import ViewNodeGrid from '../views/ViewNodeGrid.svelte';
+	import ViewNodeTable from '../views/ViewNodeTable.svelte';
 	import ViewEmptyLanding from '../views/viewEmptyLanding.svelte';
 	import { getActivePerfProbe } from '../../dev/perfProbe';
+	import { nodeRowsFromTree, nodeTableColumnsForProvider } from '../../services/serviceViewTableAdapter';
 	import { NodeSelectionService } from '../../services/serviceSelection.svelte';
 	import type { TreeNode } from '../../types/typeNode';
 	import { bubbleHiddenTreeBadges } from '../../utils/utilBadgeBubbling';
@@ -101,6 +103,8 @@
 	const gridNodes = $derived(
 		viewMode === 'grid' ? (gridHierarchyMode === 'folder' ? currentGridNodes : nodes) : [],
 	);
+	const tableRows = $derived(viewMode === 'table' ? nodeRowsFromTree(nodes) : []);
+	const tableColumns = $derived(nodeTableColumnsForProvider<TMeta>(provider.id));
 	const emptyState = $derived.by(() => resolveEmptyState(viewMode, searchTerm, provider));
 	const fallbackItemCount = $derived(flatFiles.length + nodes.length);
 	const fallbackState = $derived.by(() =>
@@ -108,6 +112,7 @@
 	);
 	const isTreeEmpty = $derived(viewMode === 'tree' && nodes.length === 0);
 	const isGridEmpty = $derived(viewMode === 'grid' && gridNodes.length === 0);
+	const isTableEmpty = $derived(viewMode === 'table' && tableRows.length === 0);
 	let lastCommittedSelectionKey = '';
 	let lastExpansionSummaryKey = '';
 	let lastExpansionCommandSerial = -1;
@@ -185,6 +190,9 @@
 			nodes = readProviderTree();
 			flatFiles = [];
 		} else if (viewMode === 'grid') {
+			nodes = readProviderTree();
+			flatFiles = [];
+		} else if (viewMode === 'table') {
 			nodes = readProviderTree();
 			flatFiles = [];
 		} else {
@@ -410,6 +418,11 @@
 		);
 	}
 
+	function handleTableSelectAll(ids: string[], e: Event) {
+		const additive = e instanceof MouseEvent ? e.ctrlKey || e.metaKey : false;
+		commitSelection(selectionService.selectBox(provider.id, visibleNodeIds(), ids, { additive }));
+	}
+
 	function commitSelection(snapshot: NodeSelectionSnapshot) {
 		const key = selectionKey(snapshot);
 		if (key === lastCommittedSelectionKey) return;
@@ -451,6 +464,7 @@
 			if (gridHierarchyMode === 'inline') return collectVisibleHierarchyIds(nodes, gridExpandedIds);
 			return gridNodes.map((node) => node.id);
 		}
+		if (viewMode === 'table') return tableRows.map((row) => row.id);
 		const ids: string[] = [];
 		const walk = (items: TreeNode<TMeta>[]) => {
 			for (const node of items) {
@@ -702,6 +716,26 @@
 				/>
 			{/if}
 		</div>
+	{:else if viewMode === 'table'}
+		<div class="vm-table-container">
+			{#if isTableEmpty}
+				<ViewEmptyLanding state={emptyState} {icon} />
+			{:else}
+				<ViewNodeTable
+					rows={tableRows}
+					columns={tableColumns}
+					selectedIds={selectedNodeIds}
+					focusedId={focusedNodeId}
+					activeId={selectionSnapshot.activeId}
+					onRowClick={handleNodeClick}
+					onPrimaryAction={handlePrimaryAction}
+					onContextMenu={handleContextMenu}
+					onRowKeydown={handleRowKeydown}
+					onSelectAll={(ids, e) => handleTableSelectAll(ids, e)}
+					{icon}
+				/>
+			{/if}
+		</div>
 	{:else}
 		<div class="vm-fallback-container">
 			<ViewEmptyLanding state={fallbackState} {icon} />
@@ -719,6 +753,12 @@
 		overflow: hidden;
 	}
 	.vm-grid-container {
+		flex: 1;
+		overflow: hidden;
+		min-height: 0;
+		height: 100%;
+	}
+	.vm-table-container {
 		flex: 1;
 		overflow: hidden;
 		min-height: 0;

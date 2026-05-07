@@ -6,7 +6,7 @@ parent: "[[docs/work/polish/plans/2026-05-07-tanstack-node-table/index|tanstack-
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-status.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-07T08:26:53
+updated: 2026-05-07T10:12:36
 tags:
   - agent/current
 created_by: dec
@@ -150,6 +150,15 @@ Archived completed/superseded status:
   `git diff --check`, and Obsidian CLI reload/open plus `dev:errors` passed.
   Build hit the known transient `svelte` resolver once, then passed on immediate
   sequential rerun without code changes.
+- TanStack node table MVP is implemented in the current worktree: table-core
+  adapter, `ViewNodeTable.svelte`, panel table routing, table SCSS, view-mode
+  popup Table route, and focused unit/component checks are green; broad
+  `check`, `lint`, and `build` pass. Obsidian CLI smoke renders table mode,
+  selection, and sorting with clean runtime/console error checks.
+- Provider-specific table columns are now implemented for `props`, `tags`,
+  `files`, and `content`. Focused adapter/component tests pass, and Obsidian
+  CLI smoke verified the live props table shows `Name / Kind / Type / Count`
+  with `Property` and `Value` row cells and clean error/console checks.
 
 ## Source Links
 

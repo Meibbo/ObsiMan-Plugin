@@ -5,7 +5,7 @@
 	export type { BtnSelectionItem };
 
 	interface Props {
-		buttons: BtnSelectionItem[]; // 1–4 items
+		buttons: BtnSelectionItem[];
 		ariaLabel?: string; // overall row aria-label
 	}
 

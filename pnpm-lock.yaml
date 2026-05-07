@@ -17,6 +17,9 @@ importers:
       '@tanstack/svelte-virtual':
         specifier: 3.13.24
         version: 3.13.24(svelte@5.55.5(@typescript-eslint/types@8.59.1))
+      '@tanstack/table-core':
+        specifier: 8.21.3
+        version: 8.21.3
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
@@ -1631,6 +1634,10 @@ packages:
     resolution: {integrity: sha512-Up3LOD5Cj+oJ3GuKfM1Li06jzzZMIZnRPmu3aik9rJQgk7jq7LgPo4yumfUw4+I4edjYfyPKSZnXGwZ9Vjlebw==}
     peerDependencies:
       svelte: ^3.48.0 || ^4.0.0 || ^5.0.0
+
+  '@tanstack/table-core@8.21.3':
+    resolution: {integrity: sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==}
+    engines: {node: '>=12'}
 
   '@tanstack/virtual-core@3.14.0':
     resolution: {integrity: sha512-JLANqGy/D6k4Ujmh8Tr25lGimuOXNiaVyXaCAZS0W+1390sADdGnyUdSWNIfd49gebtIxGMij4IktRVzrdr12Q==}
@@ -6495,6 +6502,8 @@ snapshots:
       '@tanstack/virtual-core': 3.14.0
       svelte: 5.55.5(@typescript-eslint/types@8.59.1)
 
+  '@tanstack/table-core@8.21.3': {}
+
   '@tanstack/virtual-core@3.14.0': {}
 
   '@tootallnate/quickjs-emscripten@0.23.0': {}
@@ -7076,7 +7085,7 @@ snapshots:
 
   '@wdio/utils@9.27.0':
     dependencies:
-      '@puppeteer/browsers': 2.13.0
+      '@puppeteer/browsers': 2.13.1
       '@wdio/logger': 9.18.0
       '@wdio/types': 9.27.0
       decamelize: 6.0.1
