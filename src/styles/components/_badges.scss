@@ -55,6 +55,31 @@
 		opacity: 0.5;
 	}
 
+	// Hover-only quick-action badges. No box, faint icon-only. Active state
+	// (when wired by view) uses normal weight with text + icon.
+	&.is-hover-badge {
+		background: transparent;
+		border: none;
+		box-shadow: none;
+		opacity: 0.45;
+		font-size: 0;
+
+		.vm-badge-icon {
+			display: flex !important;
+		}
+
+		&:hover,
+		&:focus-visible {
+			opacity: 0.85;
+		}
+
+		&.is-active {
+			opacity: 1;
+			font-size: var(--font-ui-smaller);
+			font-weight: 500;
+		}
+	}
+
 	&-icon {
 		display: flex !important;
 		width: 10px !important;

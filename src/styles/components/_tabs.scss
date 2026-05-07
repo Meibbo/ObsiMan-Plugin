@@ -66,6 +66,28 @@
 		}
 	}
 
+	&-modepill {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 22px;
+		padding: 0 8px;
+		border-radius: 999px;
+		border: $vm-border-width solid $vm-border-color;
+		background: $vm-bg-secondary;
+		color: $vm-text-muted;
+		font-size: 10px;
+		text-transform: lowercase;
+		cursor: pointer;
+		flex: 0 0 auto;
+
+		&[data-mode='replace'] {
+			background: $vm-color-accent;
+			color: $vm-text-on-accent;
+			border-color: transparent;
+		}
+	}
+
 	&-help {
 		position: absolute;
 		top: 34px;

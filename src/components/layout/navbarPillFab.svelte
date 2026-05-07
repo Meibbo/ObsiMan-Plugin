@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { FabDef } from '../../types/typePrimitives';
 	import { translate } from '../../index/i18n/lang';
+	import { useDoubleClick } from '../../utils/useDoubleClick';
 
 	let {
 		isIslandOpen = false,
@@ -64,6 +65,31 @@
 
 	const leftFabBadgeCount = $derived(badgeCountForFab(leftFab));
 	const rightFabBadgeCount = $derived(badgeCountForFab(rightFab));
+
+	// FAB click dispatchers — when a FAB exposes `onDoubleClick`, route
+	// clicks through `useDoubleClick` so a single click still toggles the
+	// popup and a double click within 250 ms clears the underlying state.
+	const leftFabClick = $derived.by(() => makeFabClickHandler(leftFab));
+	const rightFabClick = $derived.by(() => makeFabClickHandler(rightFab));
+
+	function makeFabClickHandler(fab: FabDef | null): (e: MouseEvent) => void {
+		if (!fab) return () => {};
+		if (!fab.onDoubleClick) {
+			return (e: MouseEvent) => {
+				e.stopPropagation();
+				fab.action?.();
+			};
+		}
+		const dbl = useDoubleClick({
+			onSingle: () => fab.action?.(),
+			onDouble: () => fab.onDoubleClick?.(),
+			threshold: 250,
+		});
+		return (e: MouseEvent) => {
+			e.stopPropagation();
+			dbl.handleClick(e);
+		};
+	}
 </script>
 
 <div
@@ -92,10 +118,7 @@
 				class="vm-nav-fab"
 				aria-label={leftFab.label}
 				use:icon={leftFab.icon}
-				onclick={(e: MouseEvent) => {
-					e.stopPropagation();
-					leftFab.action?.();
-				}}
+				onclick={leftFabClick}
 				onkeydown={(e: KeyboardEvent) => {
 					if (e.key === 'Enter' || e.key === ' ') {
 						e.stopPropagation();
@@ -166,10 +189,7 @@
 				class="vm-nav-fab"
 				aria-label={rightFab.label}
 				use:icon={rightFab.icon}
-				onclick={(e: MouseEvent) => {
-					e.stopPropagation();
-					rightFab.action?.();
-				}}
+				onclick={rightFabClick}
 				onkeydown={(e: KeyboardEvent) => {
 					if (e.key === 'Enter' || e.key === ' ') {
 						e.stopPropagation();

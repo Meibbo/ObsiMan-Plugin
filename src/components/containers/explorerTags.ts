@@ -81,6 +81,34 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 		});
 
 		svc.registerAction({
+			id: 'tag.set',
+			nodeTypes: ['tag'],
+			surfaces: ['panel'],
+			label: (ctx) => `Set tag "#${(ctx.node.meta as TagMeta).tagPath}"`,
+			icon: 'lucide-plus-circle',
+			run: (ctx) => {
+				const node = ctx.node as TreeNode<TagMeta>;
+				this._setTagOnFiltered(node.meta.tagPath);
+			},
+		});
+
+		svc.registerAction({
+			id: 'tag.bindingNote',
+			nodeTypes: ['tag'],
+			surfaces: ['panel'],
+			label: 'Create / open binding note',
+			icon: 'lucide-link',
+			run: (ctx) => {
+				const node = ctx.node as TreeNode<TagMeta>;
+				void this.plugin.nodeBindingService?.bindOrCreate({
+					kind: 'tag',
+					label: node.meta.tagPath,
+					tagPath: node.meta.tagPath,
+				});
+			},
+		});
+
+		svc.registerAction({
 			id: 'tag.delete',
 			nodeTypes: ['tag'],
 			surfaces: ['panel'],
@@ -255,6 +283,18 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 
 	private _addTag(tagPath: string): void {
 		const change = buildTagAddChange(tagPath, this.operationScopeFiles());
+		if (change) void this.plugin.queueService.add(change);
+	}
+
+	/**
+	 * Phase 7 `set` action: queue a NATIVE_ADD_TAG (`add` action on tag
+	 * change) over every filtered file. The change builder skips files
+	 * that already have the tag via `tagListContains`, so the queued op
+	 * is silently a no-op for those entries.
+	 */
+	private _setTagOnFiltered(tagPath: string): void {
+		const filtered = [...(this.plugin.filterService.filteredFiles ?? [])] as TFile[];
+		const change = buildTagAddChange(tagPath, filtered);
 		if (change) void this.plugin.queueService.add(change);
 	}
 

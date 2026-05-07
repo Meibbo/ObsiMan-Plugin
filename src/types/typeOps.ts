@@ -9,6 +9,13 @@ export const DELETE_FILE = '_DELETE_FILE';
 export const FIND_REPLACE_CONTENT = '_FIND_REPLACE_CONTENT';
 export const REORDER_ALL = '_REORDER_ALL';
 export const APPLY_TEMPLATE = '_APPLY_TEMPLATE';
+/**
+ * Phase 7 (multifacet wave 2): append wikilinks to a file's body.
+ * The `logicFunc` returns `{ [APPEND_LINKS]: string[] }` carrying the
+ * wikilink fragments to add. The queue applier appends only links that
+ * are not already present in the body (idempotent on re-runs).
+ */
+export const APPEND_LINKS = '_APPEND_LINKS';
 
 export type PropertyAction = 'set' | 'rename' | 'delete' | 'clean_empty' | 'change_type' | 'add';
 
@@ -26,7 +33,8 @@ export type OpKind =
 	| 'apply_template'
 	| 'set_tag'
 	| 'delete_tag'
-	| 'add_tag';
+	| 'add_tag'
+	| 'append_links';
 
 export interface VirtualFileState {
 	file: TFile;

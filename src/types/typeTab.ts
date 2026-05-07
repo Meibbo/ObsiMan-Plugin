@@ -59,6 +59,11 @@ export const TTabs: TabConfig[] = [
 		labelKey: 'ops.tabs.layout',
 		icon: 'lucide-layout',
 	},
+	{
+		id: 'ops_log',
+		labelKey: 'tools.ops_log.title',
+		icon: 'lucide-activity',
+	},
 ];
 
 export type OpsTab = (typeof TTabs)[number]['id'];

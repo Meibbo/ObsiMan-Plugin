@@ -16,10 +16,41 @@ import {
 	FIND_REPLACE_CONTENT,
 	NATIVE_RENAME_PROP,
 	APPLY_TEMPLATE,
+	APPEND_LINKS,
 } from '../types/typeOps';
 import type { IOperationQueue } from '../types/typeContracts';
 import { translate } from '../index/i18n/lang';
 import { getActivePerfProbe } from '../dev/perfProbe';
+import type { BadgeKind } from './badgeRegistry';
+
+/**
+ * Descriptor for an op linked to a UI node, surfaced in the
+ * delete-conflict modal.
+ */
+export interface ConflictingOpDescriptor {
+	opId: string;
+	kind: BadgeKind;
+	label: string;
+	filePath?: string;
+}
+
+/**
+ * Modal-opener contract used by `requestDelete`. Returns whether the user
+ * confirmed the destructive action. The caller (UI shell) is responsible
+ * for actually rendering the modal.
+ */
+export type DeleteConflictModalOpener = (params: {
+	nodeId: string;
+	nodeLabel: string;
+	conflictingOps: ConflictingOpDescriptor[];
+}) => Promise<'confirm' | 'cancel'>;
+
+/**
+ * Result of `requestDelete`. `'no-op'` means there were no other queued
+ * ops to drop AND no delete factory was supplied, so the queue did not
+ * mutate.
+ */
+export type RequestDeleteResult = 'queued' | 'cancelled' | 'no-op';
 
 /**
  * Split a markdown file's raw content into its frontmatter object and body string.
@@ -115,6 +146,25 @@ export class OperationQueueService extends Component implements IOperationQueue 
 	 * Reactive list of pending changes (rune-backed).
 	 */
 	pending = $state<PendingChange[]>([]);
+
+	/**
+	 * Registry binding UI node ids to queued op descriptors. Populated by
+	 * adapters via `bindOpToNode`. Used by `requestDelete` to resolve
+	 * which queued ops conflict with a pending delete.
+	 *
+	 * The queue itself does not know about UI nodes (it is file-centric);
+	 * the adapter that adds an op is the source of truth for the node
+	 * binding. Entries are pruned when the corresponding op leaves the
+	 * queue (via `removeOp` / `clear`).
+	 */
+	private nodeOpRegistry = new Map<string, Map<string, ConflictingOpDescriptor>>();
+
+	/**
+	 * Optional modal opener installed by the UI shell. When unset,
+	 * `requestDelete` synthesises a `'cancel'` result for any conflict
+	 * (defensive default).
+	 */
+	deleteConflictModalOpener: DeleteConflictModalOpener | null = null;
 
 	get size(): number {
 		return this.logicalOpCount;
@@ -449,6 +499,23 @@ export class OperationQueueService extends Component implements IOperationQueue 
 				},
 			};
 		}
+		if (key === APPEND_LINKS) {
+			const links = (Array.isArray(value) ? (value as unknown[]) : []).map((v) => String(v));
+			return {
+				id,
+				changeId,
+				kind: 'append_links',
+				action,
+				details,
+				apply: (v) => {
+					const existing = v.body;
+					const missing = links.filter((link) => !existing.includes(link));
+					if (missing.length === 0) return;
+					const sep = existing.length === 0 || existing.endsWith('\n') ? '' : '\n';
+					v.body = `${existing}${sep}${missing.join('\n')}\n`;
+				},
+			};
+		}
 		if (key === APPLY_TEMPLATE) {
 			const templateContent = (change as TemplateChange).templateContent;
 			return {
@@ -547,7 +614,27 @@ export class OperationQueueService extends Component implements IOperationQueue 
 	clear(): void {
 		const hadTransactions = this.transactions.size > 0;
 		this.transactions.clear();
+		this.nodeOpRegistry.clear();
 		if (hadTransactions) this.emitChanged();
+	}
+
+	/**
+	 * Alias for `clear()` so the navbar double-click gesture and the
+	 * `vaultman:open-queue` family of commands speak the same vocabulary
+	 * as the rest of the multifacet wave 2 surfaces.
+	 */
+	clearAll(): void {
+		this.clear();
+	}
+
+	/**
+	 * Convenience wrapper around `execute()` for the
+	 * `vaultman:process-queue` command. Returns the same OperationResult
+	 * so callers can await completion. Errors propagate through the same
+	 * Notice-driven flow as `execute()`.
+	 */
+	processAll(): Promise<OperationResult> {
+		return this.execute();
 	}
 
 	removeFile(path: string): void {
@@ -680,6 +767,94 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		};
 		for (const op of vfs.ops) op.apply(scratch);
 		return serializeFile(scratch.fm, scratch.body);
+	}
+
+	/**
+	 * Bind a queued op to a UI node so the delete-conflict flow can list
+	 * it. Adapters should call this immediately after `add`/`addAsync`
+	 * for any op that should be undone if the user later confirms a
+	 * delete on that node.
+	 */
+	bindOpToNode(nodeId: string, descriptor: ConflictingOpDescriptor): void {
+		let entry = this.nodeOpRegistry.get(nodeId);
+		if (!entry) {
+			entry = new Map();
+			this.nodeOpRegistry.set(nodeId, entry);
+		}
+		entry.set(descriptor.opId, descriptor);
+	}
+
+	/** Returns the descriptors currently bound to a node. */
+	listOpsForNode(nodeId: string): ConflictingOpDescriptor[] {
+		const entry = this.nodeOpRegistry.get(nodeId);
+		if (!entry) return [];
+		return [...entry.values()];
+	}
+
+	/**
+	 * Drop every op bound to `nodeId` whose `kind` is in `kinds`. Returns
+	 * the descriptors that were dropped. If `kinds` is omitted, every
+	 * bound op for the node is dropped.
+	 */
+	dropForNode(nodeId: string, kinds?: readonly BadgeKind[]): ConflictingOpDescriptor[] {
+		const entry = this.nodeOpRegistry.get(nodeId);
+		if (!entry || entry.size === 0) return [];
+		const allow = kinds ? new Set(kinds) : null;
+		const dropped: ConflictingOpDescriptor[] = [];
+		const snapshot = [...entry.values()];
+		for (const desc of snapshot) {
+			if (allow && !allow.has(desc.kind)) continue;
+			// Resolve the path the op lives under, fall back to scanning
+			// every transaction.
+			if (desc.filePath) {
+				this.removeOp(desc.filePath, desc.opId, true);
+			} else {
+				this.remove(desc.opId);
+			}
+			entry.delete(desc.opId);
+			dropped.push(desc);
+		}
+		if (entry.size === 0) this.nodeOpRegistry.delete(nodeId);
+		if (dropped.length > 0) this.emitChanged();
+		return dropped;
+	}
+
+	/**
+	 * Top-level workflow for a delete request originating from a hover
+	 * badge. If the node has no other queued ops, `enqueueDelete` is
+	 * invoked immediately and the result is `'queued'`. Otherwise the
+	 * registered `DeleteConflictModalOpener` is asked to confirm; on
+	 * confirm, conflicting ops are dropped and `enqueueDelete` runs;
+	 * on cancel the queue is left untouched.
+	 *
+	 * `enqueueDelete` is supplied by the caller because the queue does
+	 * not know how to construct a `PendingChange` for an arbitrary
+	 * provider (file vs tag vs prop vs value). The caller decides.
+	 */
+	async requestDelete(params: {
+		nodeId: string;
+		nodeLabel: string;
+		enqueueDelete: () => void | Promise<void>;
+	}): Promise<RequestDeleteResult> {
+		const { nodeId, nodeLabel, enqueueDelete } = params;
+		const conflicting = this.listOpsForNode(nodeId).filter((desc) => desc.kind !== 'delete');
+		if (conflicting.length === 0) {
+			await enqueueDelete();
+			return 'queued';
+		}
+		const opener = this.deleteConflictModalOpener;
+		if (!opener) {
+			// No UI shell to open the modal — fail closed.
+			return 'cancelled';
+		}
+		const decision = await opener({ nodeId, nodeLabel, conflictingOps: conflicting });
+		if (decision !== 'confirm') return 'cancelled';
+		this.dropForNode(
+			nodeId,
+			conflicting.map((c) => c.kind),
+		);
+		await enqueueDelete();
+		return 'queued';
 	}
 
 	simulateChanges(): Map<

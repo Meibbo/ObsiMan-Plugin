@@ -1,9 +1,12 @@
 <script lang="ts">
+	import { Notice, TFolder } from 'obsidian';
 	import type { iVaultmanPlugin } from '../../types/typeSettings';
 	import { translate } from '../../index/i18n/lang';
 	import Toggle from '../primitives/Toggle.svelte';
 	import Dropdown from '../primitives/Dropdown.svelte';
 	import TextInput from '../primitives/TextInput.svelte';
+	import SettingsLeafToggle from './settingsLeafToggle.svelte';
+	import type { LeafDetachService } from '../../services/serviceLeafDetach';
 
 	let { plugin }: { plugin: iVaultmanPlugin } = $props();
 
@@ -45,6 +48,9 @@
 			contextMenuShowInEditorMenu: src.contextMenuShowInEditorMenu,
 			contextMenuShowInMoreOptions: src.contextMenuShowInMoreOptions,
 			contextMenuHideRules: src.contextMenuHideRules,
+			bindingNoteFolder: src.bindingNoteFolder ?? '',
+			opsLogRetention: src.opsLogRetention ?? 1000,
+			fnrRegexDefault: src.fnrRegexDefault === true,
 		};
 	}
 	let s = $state(initState());
@@ -80,6 +86,28 @@
 		const order = [...s.pageOrder];
 		order[pos] = value;
 		s.pageOrder = order;
+		persistSettings();
+	}
+
+	function onBindingNoteFolderInput(v: string): void {
+		s.bindingNoteFolder = v;
+		persistSettings();
+		const trimmed = v.trim();
+		if (trimmed.length === 0) return;
+		const file = plugin.app.vault.getAbstractFileByPath(trimmed);
+		if (!(file instanceof TFolder)) {
+			new Notice(
+				translate('settings.binding_note_folder.invalid').replace('{folder}', trimmed),
+			);
+		}
+	}
+
+	function onOpsLogRetentionInput(raw: string): void {
+		const parsed = Number.parseInt(raw, 10);
+		const clamped = Number.isFinite(parsed)
+			? Math.max(100, Math.min(10000, parsed))
+			: 1000;
+		s.opsLogRetention = clamped;
 		persistSettings();
 	}
 </script>
@@ -244,6 +272,42 @@
 
 	<!-- ── Layout ────────────────────────────────────────────────────── -->
 	<h3 class="vm-settings-heading">{translate('settings.layout.title')}</h3>
+
+	{#if (plugin as iVaultmanPlugin & { leafDetachService?: LeafDetachService }).leafDetachService}
+		<SettingsLeafToggle
+			leafDetach={(plugin as iVaultmanPlugin & { leafDetachService: LeafDetachService })
+				.leafDetachService}
+		/>
+	{/if}
+
+	<!-- ── Find & Replace / Binding notes / Ops log (multifacet wave 2) — -->
+	<TextInput
+		label={translate('settings.binding_note_folder')}
+		placeholder=""
+		value={s.bindingNoteFolder}
+		onInput={onBindingNoteFolderInput}
+	/>
+	<p class="vm-settings-desc">{translate('settings.binding_note_folder.desc')}</p>
+
+	<label class="vm-settings-row">
+		<span class="vm-settings-label">{translate('settings.ops_log_retention')}</span>
+		<input
+			type="number"
+			min="100"
+			max="10000"
+			step="100"
+			value={s.opsLogRetention}
+			oninput={(e) => onOpsLogRetentionInput((e.target as HTMLInputElement).value)}
+		/>
+	</label>
+	<p class="vm-settings-desc">{translate('settings.ops_log_retention.desc')}</p>
+
+	<Toggle
+		bind:checked={s.fnrRegexDefault}
+		label={translate('settings.fnr_regex_default')}
+		onChange={persistSettings}
+	/>
+	<p class="vm-settings-desc">{translate('settings.fnr_regex_default.desc')}</p>
 
 	<!-- ── Bases ─────────────────────────────────────────────────────── -->
 	<h3 class="vm-settings-heading">Bases</h3>

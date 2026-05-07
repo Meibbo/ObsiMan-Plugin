@@ -4,6 +4,7 @@ import type { FilterGroup, FilterNode, FilterRule, FilterTemplate } from '../typ
 import type { IFilterService, IFilesIndex } from '../types/typeContracts';
 import { evalNode } from '../utils/filter-evaluator';
 import { getActivePerfProbe } from '../dev/perfProbe';
+import { PerfMeter } from './perfMeter';
 
 /**
  * Manages the active filter tree and computes the filtered file set.
@@ -51,15 +52,18 @@ export class FilterService implements IFilterService {
 
 	private computeFiltered(): TFile[] {
 		const probe = getActivePerfProbe();
-		return (
-			probe?.measure(
-				'filterService.computeFiltered',
-				{
-					files: this.filesIndex.nodes.length,
-					filters: this.activeFilter.children.length,
-				},
-				() => this.computeFilteredInner(),
-			) ?? this.computeFilteredInner()
+		return PerfMeter.time(
+			'filter:eval',
+			() =>
+				probe?.measure(
+					'filterService.computeFiltered',
+					{
+						files: this.filesIndex.nodes.length,
+						filters: this.activeFilter.children.length,
+					},
+					() => this.computeFilteredInner(),
+				) ?? this.computeFilteredInner(),
+			'service',
 		);
 	}
 
@@ -102,6 +106,16 @@ export class FilterService implements IFilterService {
 		this._searchName = '';
 		this._searchFolder = '';
 		this.fire();
+	}
+
+	/**
+	 * Alias for `clearFilters()` to match the gesture/command vocabulary
+	 * used by the navbar double-click clear and the upcoming command
+	 * palette entries. Keeps the legacy name available so existing
+	 * callers keep working.
+	 */
+	clearAll(): void {
+		this.clearFilters();
 	}
 
 	/** Add a child node to the root group (or a given parent) */

@@ -1,4 +1,4 @@
-import type { TFile } from 'obsidian';
+import { Notice, type TFile } from 'obsidian';
 import { PropsLogic } from '../../logic/logicProps';
 import type { TreeNode, PropMeta, NodeBadge } from '../../types/typeNode';
 import { DELETE_PROP, NATIVE_RENAME_PROP } from '../../types/typeOps';
@@ -31,6 +31,12 @@ const TYPE_ICON_MAP: Record<string, string> = {
 
 export interface ExplorerPropsOptions {
 	startRenameHandoff?: (handoff: FnRRenameHandoff) => void;
+	/**
+	 * Phase 7: open the FnR island in `add-prop` mode pre-filled with the
+	 * `<propName>: ` template. The Svelte shell wires this to the
+	 * panel-scoped `FnRIslandService`.
+	 */
+	openPropSetIsland?: (propName: string) => void;
 }
 
 export class explorerProps implements ExplorerProvider<PropMeta> {
@@ -105,6 +111,74 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 						this._changePropType(node.meta.propName, type);
 				},
 			});
+		});
+
+		svc.registerAction({
+			id: 'prop.set',
+			nodeTypes: ['prop'],
+			surfaces: ['panel'],
+			label: (ctx) => `Set "${ctx.node.label}"`,
+			icon: 'lucide-plus-circle',
+			when: (ctx) => !(ctx.node.meta as PropMeta).isValueNode,
+			run: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				if (!meta.propName) {
+					new Notice('No prop selected');
+					return;
+				}
+				if (this.options.openPropSetIsland) {
+					this.options.openPropSetIsland(meta.propName);
+					return;
+				}
+				new Notice('Prop set requires the FnR island to be mounted.');
+			},
+		});
+
+		svc.registerAction({
+			id: 'prop.bindingNote',
+			nodeTypes: ['prop'],
+			surfaces: ['panel'],
+			label: 'Create / open binding note',
+			icon: 'lucide-link',
+			when: (ctx) => !(ctx.node.meta as PropMeta).isValueNode,
+			run: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				void this.plugin.nodeBindingService?.bindOrCreate({
+					kind: 'prop',
+					label: meta.propName,
+					propName: meta.propName,
+				});
+			},
+		});
+
+		svc.registerAction({
+			id: 'value.set',
+			nodeTypes: ['value'],
+			surfaces: ['panel'],
+			label: (ctx) => `Set value "${ctx.node.label}"`,
+			icon: 'lucide-plus-circle',
+			when: (ctx) => (ctx.node.meta as PropMeta).isValueNode,
+			run: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				this._setValueOnFiltered(meta.propName, meta.rawValue ?? meta.propName);
+			},
+		});
+
+		svc.registerAction({
+			id: 'value.bindingNote',
+			nodeTypes: ['value'],
+			surfaces: ['panel'],
+			label: 'Create / open binding note',
+			icon: 'lucide-link',
+			when: (ctx) => (ctx.node.meta as PropMeta).isValueNode,
+			run: (ctx) => {
+				const meta = ctx.node.meta as PropMeta;
+				void this.plugin.nodeBindingService?.bindOrCreate({
+					kind: 'value',
+					label: meta.rawValue ?? ctx.node.label,
+					propName: meta.propName,
+				});
+			},
 		});
 
 		svc.registerAction({
@@ -352,6 +426,27 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 				if (propName in fm) return null;
 				return { [propName]: '' };
 			},
+		});
+	}
+
+	/**
+	 * Phase 7 `set` value action: queue a `set_prop` change writing
+	 * `{ key: parentProp, value: label }` over every filtered file.
+	 * Existing keys are overwritten per spec.
+	 */
+	private _setValueOnFiltered(propName: string, value: string): void {
+		const filtered = [...(this.plugin.filterService.filteredFiles ?? [])] as TFile[];
+		if (filtered.length === 0 || !propName) return;
+		const canonicalName = this.canonicalPropName(propName);
+		void this.plugin.queueService.add({
+			type: 'property',
+			property: canonicalName,
+			action: 'set',
+			details: `Set ${canonicalName}: ${value}`,
+			files: filtered,
+			value,
+			customLogic: true,
+			logicFunc: () => ({ [canonicalName]: value }),
 		});
 	}
 

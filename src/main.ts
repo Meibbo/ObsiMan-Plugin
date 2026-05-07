@@ -44,6 +44,15 @@ import { OverlayStateService } from './services/serviceOverlayState.svelte';
 import { DecorationManager } from './services/serviceDecorate';
 import { ViewService } from './services/serviceViews.svelte';
 import { createPerfProbe } from './dev/perfProbe';
+import { registerVaultmanCommands } from './services/serviceCommands';
+import { PerfMeter } from './services/perfMeter';
+import { OpsLogService } from './services/serviceOpsLog.svelte';
+import { LeafDetachService } from './services/serviceLeafDetach';
+import { NodeBindingService } from './services/serviceNodeBinding';
+import { ALL_TAB_IDS, viewTypeFor, type TabId } from './registry/tabRegistry';
+import { VaultmanTabLeafView } from './types/typeTabLeaf';
+import type { FnRIslandService } from './services/serviceFnRIsland.svelte';
+import type { PanelExplorerImperativeApi } from './types/typeExplorer';
 import type {
 	IFilesIndex,
 	ITagsIndex,
@@ -86,9 +95,36 @@ export class VaultmanPlugin extends Plugin {
 	private statusBarEl!: HTMLElement;
 	private uninstallPerfProbe?: () => void;
 
+	/** Bounded ops-log buffer. Subscribes to PerfMeter + queue events. */
+	opsLogService!: OpsLogService;
+
+	/** Per-tab detach state (phase 6, multifacet wave 2). */
+	leafDetachService!: LeafDetachService;
+
+	/** Binding-note resolver (phase 7, multifacet wave 2). */
+	nodeBindingService!: NodeBindingService;
+
+	/**
+	 * Frame-level registries populated by mounted Svelte components so
+	 * the multifacet wave 2 commands can talk to the active panel
+	 * without a full reactive subscription.
+	 */
+	activeFnRIslandService: FnRIslandService | null = null;
+	activePanelExplorerApi: PanelExplorerImperativeApi | null = null;
+	openFiltersPopupHook: (() => void) | null = null;
+	openQueuePopupHook: (() => void) | null = null;
+	openViewMenuHook: (() => void) | null = null;
+	openSortMenuHook: (() => void) | null = null;
+
 	async onload(): Promise<void> {
+		PerfMeter.mark('vaultman:boot:start');
 		await this.loadSettings();
 		this.updateGlassBlur();
+
+		// Boot ops-log buffer eagerly so it captures records emitted during
+		// the rest of `onload`.
+		this.opsLogService = new OpsLogService({ retention: this.settings.opsLogRetention });
+		const pluginsBefore = snapshotInstalledPlugins(this.app);
 
 		this.filesIndex = createFilesIndex(this.app);
 		this.tagsIndex = createTagsIndex(this.app);
@@ -138,6 +174,18 @@ export class VaultmanPlugin extends Plugin {
 		this.iconicService = new IconicService(this.app);
 		this.propertyTypeService = new PropertyTypeService(this.app);
 		this.contextMenuService = new ContextMenuService(this);
+		this.nodeBindingService = new NodeBindingService({
+			app: this.app,
+			getFolder: () => this.settings.bindingNoteFolder ?? '',
+			router: (token) => {
+				void this.filterService.addNode({
+					type: 'rule',
+					filterType: 'specific_value',
+					property: 'aliases',
+					values: [token],
+				});
+			},
+		});
 
 		this.addChild(this.propertyIndex);
 		this.addChild(this.queueService);
@@ -160,6 +208,31 @@ export class VaultmanPlugin extends Plugin {
 
 		this.registerView(TYPE_FRAME_VM, (leaf) => new VaultmanFrame(leaf, this));
 
+		// Independent leaf view-types — registered up-front so saved
+		// workspace state can re-instantiate them (phase 6).
+		for (const tabId of ALL_TAB_IDS) {
+			this.registerView(viewTypeFor(tabId), (leaf) => new VaultmanTabLeafView(leaf, tabId));
+		}
+
+		// LeafDetachService — owns persisted detach flags (independent of
+		// Obsidian's workspace file). Spawning is deferred to
+		// `onLayoutReady` so it does not race the workspace replay.
+		this.leafDetachService = new LeafDetachService({
+			store: {
+				loadData: () => this.loadData(),
+				saveData: (next: unknown) => this.saveData(next),
+			},
+			host: {
+				spawnLeaf: (tabId: TabId) => this.spawnTabLeaf(tabId),
+				closeLeaf: (tabId: TabId) => this.closeTabLeaf(tabId),
+			},
+		});
+		await this.leafDetachService.load();
+
+		// Legacy `apply-queue` is preserved for backwards compatibility
+		// with users who already bound a hotkey to it. The new
+		// `vaultman:process-queue` command is the canonical id going
+		// forward.
 		this.addCommand({
 			id: 'apply-queue',
 			name: translate('command.apply_queue'),
@@ -172,20 +245,64 @@ export class VaultmanPlugin extends Plugin {
 			},
 		});
 
-		this.addCommand({
-			id: 'open',
-			name: translate('plugin.open'),
-			callback: () => {
-				void this.activateView();
-			},
+		// Multifacet wave 2 quick-command set (spec shard 03).
+		registerVaultmanCommands(this, {
+			app: this.app,
+			queueService: this.queueService,
+			activateView: () => this.activateView(),
+			getVaultmanLeaf: () => this.app.workspace.getLeavesOfType(TYPE_FRAME_VM)[0] ?? null,
+			getActiveFnRIslandService: () => this.activeFnRIslandService,
+			getActivePanelExplorerApi: () => this.activePanelExplorerApi,
+			openFiltersPopup: () => this.openFiltersPopupHook?.(),
+			openQueuePopup: () => this.openQueuePopupHook?.(),
+			openViewMenu: () => this.openViewMenuHook?.(),
+			openSortMenu: () => this.openSortMenuHook?.(),
 		});
 
 		this.addSettingTab(new VaultmanSettingsTab(this.app, this));
+
+		this.opsLogService.bind({ queue: this.queueService });
+
+		this.app.workspace.onLayoutReady(() => {
+			PerfMeter.mark('vaultman:boot:end');
+			const pluginsAfter = snapshotInstalledPlugins(this.app);
+			emitPluginDiff(pluginsBefore, pluginsAfter);
+			// Replay independent leaves AFTER Obsidian has finished its
+			// own workspace replay. `restore()` is idempotent so a stale
+			// workspace file cannot double-spawn.
+			void this.leafDetachService.restore();
+		});
+	}
+
+	/**
+	 * Spawn a workspace leaf for the given canonical TabId. Idempotent:
+	 * if a leaf of this view-type already exists, reveal it instead.
+	 */
+	async spawnTabLeaf(tabId: TabId): Promise<void> {
+		const viewType = viewTypeFor(tabId);
+		const { workspace } = this.app;
+		const existing = workspace.getLeavesOfType(viewType)[0];
+		if (existing) {
+			workspace.revealLeaf(existing);
+			return;
+		}
+		const leaf = workspace.getLeaf('tab');
+		if (!leaf) return;
+		await leaf.setViewState({ type: viewType, active: true });
+		workspace.revealLeaf(leaf);
+	}
+
+	/** Detach (close) every leaf of the given canonical TabId's view-type. */
+	async closeTabLeaf(tabId: TabId): Promise<void> {
+		const viewType = viewTypeFor(tabId);
+		const leaves = this.app.workspace.getLeavesOfType(viewType);
+		for (const leaf of leaves) leaf.detach();
 	}
 
 	onunload(): void {
 		this.uninstallPerfProbe?.();
 		this.uninstallPerfProbe = undefined;
+		this.opsLogService?.dispose();
 		this.filterService.destroy();
 	}
 
@@ -264,3 +381,31 @@ export class VaultmanPlugin extends Plugin {
 }
 
 export default VaultmanPlugin;
+
+/**
+ * Best-effort snapshot of installed plugin ids. Obsidian does not expose
+ * per-plugin load events, so we approximate by diffing snapshots taken
+ * at `onload` start vs `onLayoutReady`. Records are best-effort and may
+ * miss plugins that load outside the window.
+ */
+function snapshotInstalledPlugins(app: unknown): Set<string> {
+	try {
+		const plugins = (app as { plugins?: { plugins?: Record<string, unknown> } }).plugins?.plugins;
+		if (!plugins) return new Set();
+		return new Set(Object.keys(plugins));
+	} catch {
+		return new Set();
+	}
+}
+
+function emitPluginDiff(before: Set<string>, after: Set<string>): void {
+	let recorded = 0;
+	for (const id of after) {
+		if (before.has(id)) continue;
+		PerfMeter.mark(`plugin:loaded:${id}`, 'plugin', { pluginId: id });
+		recorded += 1;
+	}
+	if (recorded === 0 && after.size === before.size) {
+		PerfMeter.mark('plugin:loaded:not-measurable', 'plugin');
+	}
+}

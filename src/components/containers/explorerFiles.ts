@@ -7,7 +7,10 @@ import { FileRenameModal } from '../../modals/modalFileRename';
 import { FileMoveModal } from '../../modals/modalFileMove';
 import { PropertyManagerModal } from '../../modals/modalPropertyManager';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
-import { buildFileDeleteChange } from '../../services/serviceFileQueue';
+import {
+	buildAppendLinksChange,
+	buildFileDeleteChange,
+} from '../../services/serviceFileQueue';
 import { createFnRState, startFileRenameHandoff } from '../../services/serviceFnR';
 import type { FnRRenameHandoff } from '../../types/typeFnR';
 import { getActivePerfProbe } from '../../dev/perfProbe';
@@ -75,6 +78,23 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 				for (const file of this.contextFiles(ctx)) {
 					void this.plugin.queueService.add(buildFileDeleteChange(file));
 				}
+			},
+		});
+
+		svc.registerAction({
+			id: 'file.set',
+			nodeTypes: ['file'],
+			surfaces: ['panel'],
+			label: 'Set (append link)',
+			icon: 'lucide-link',
+			run: (ctx: MenuCtx) => {
+				const sourceFiles = this.contextFiles(ctx);
+				if (sourceFiles.length === 0) return;
+				const filtered = [...(this.plugin.filterService.filteredFiles ?? [])] as TFile[];
+				if (filtered.length === 0) return;
+				const links = sourceFiles.map((f) => `[[${f.basename}]]`);
+				const change = buildAppendLinksChange(filtered, links);
+				if (change) void this.plugin.queueService.add(change);
 			},
 		});
 

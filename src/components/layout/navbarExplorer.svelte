@@ -8,9 +8,28 @@
 	import { SEARCH_SEMANTICS_SOURCES } from '../frame/frameSearchSources';
 	import type { ActiveFnRRenameHandoff, FnRState } from '../../types/typeFnR';
 	import type { ExplorerExpansionSummary } from '../../types/typeExplorer';
+	import { FnRIslandService, type FnRIslandMode } from '../../services/serviceFnRIsland.svelte';
+	import { getAddOpBuilder } from '../../registry/explorerAddOps';
+	import type { PendingChange } from '../../types/typeOps';
 
 	type FiltersTab = 'props' | 'files' | 'tags' | 'content';
 	type HeaderMode = 'header' | 'sort' | 'viewmode';
+
+	// Map an explorer tab id to the kind expected by `getAddOpBuilder`.
+	function tabToExplorerKind(tab: FiltersTab): string {
+		if (tab === 'tags') return 'tag';
+		if (tab === 'props') return 'prop';
+		if (tab === 'files') return 'file';
+		return 'content';
+	}
+
+	const MODES: FnRIslandMode[] = ['search', 'rename', 'replace', 'add'];
+	const MODE_LABELS: Record<FnRIslandMode, string> = {
+		search: 'search',
+		rename: 'rename',
+		replace: 'replace',
+		add: 'add',
+	};
 
 	let {
 		activeTab,
@@ -34,6 +53,8 @@
 		onToggleNodeExpansion,
 		icon,
 		addOpCount = 0,
+		fnrIslandService,
+		onCrear,
 	}: {
 		activeTab: FiltersTab;
 		filtersSearch: string;
@@ -59,6 +80,8 @@
 		onToggleNodeExpansion?: () => void;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 		addOpCount?: number;
+		fnrIslandService?: FnRIslandService;
+		onCrear?: (change: PendingChange) => void;
 	} = $props();
 
 	const CATEGORY_LABELS: Record<FiltersTab, [string, string]> = {
@@ -78,6 +101,38 @@
 	let searchFocused = $state(false);
 	let helpOpen = $state(false);
 	let renameInput = $state<HTMLInputElement | undefined>();
+	let toolbarRoot = $state<HTMLDivElement | undefined>();
+	let searchboxRoot = $state<HTMLDivElement | undefined>();
+
+	// Local mirror of the rune service so the template stays reactive when
+	// the parent forwards a service instance.
+	let islandSnapshotVersion = $state(0);
+	$effect(() => {
+		if (!fnrIslandService) return;
+		return fnrIslandService.subscribe(() => {
+			islandSnapshotVersion += 1;
+		});
+	});
+	const islandSnapshot = $derived.by(() => {
+		void islandSnapshotVersion;
+		return fnrIslandService?.snapshot() ?? null;
+	});
+	const islandMode = $derived<FnRIslandMode>(islandSnapshot?.mode ?? 'search');
+	const islandExpanded = $derived(islandSnapshot?.expanded ?? false);
+	const islandFlags = $derived(
+		islandSnapshot?.flags ?? { matchCase: false, wholeWord: false, regex: false },
+	);
+	const islandTokenErrors = $derived(islandSnapshot?.errors ?? []);
+	const islandRegexError = $derived(islandSnapshot?.regexError ?? null);
+	const hasIslandErrors = $derived(
+		islandTokenErrors.length > 0 || islandRegexError !== null,
+	);
+	const islandErrorMessage = $derived.by(() => {
+		if (islandRegexError) return `regex: ${islandRegexError}`;
+		if (islandTokenErrors.length > 0) return islandTokenErrors[0].message;
+		return '';
+	});
+
 	const historyItems = $derived(searchHistory.slice(0, 3));
 	const activeRename = $derived.by((): ActiveFnRRenameHandoff | null => {
 		const rename = fnrState?.rename;
@@ -87,6 +142,27 @@
 	const renameFocusKey = $derived(
 		activeRename ? `${activeRename.sourceKind}:${activeRename.original}` : '',
 	);
+
+	// `crear` button availability is gated by the explorer registry. When a
+	// builder exists the button is enabled; otherwise it stays disabled with a
+	// localised tooltip explaining the explorer kind has no add semantics yet.
+	const addBuilder = $derived(getAddOpBuilder(tabToExplorerKind(activeTab)));
+	const crearDisabled = $derived(
+		!addBuilder || filtersSearch.trim().length === 0 || hasIslandErrors,
+	);
+	const crearTooltip = $derived(
+		!addBuilder
+			? 'no soportado por este explorer'
+			: hasIslandErrors
+				? islandErrorMessage
+				: translate('filter.search_placeholder'),
+	);
+
+	function toggleIslandFlag(flag: 'matchCase' | 'wholeWord' | 'regex') {
+		if (!fnrIslandService) return;
+		const next = !islandFlags[flag];
+		fnrIslandService.setFlag(flag, next);
+	}
 
 	function openSortPopup() {
 		headerExitDir = 'right';
@@ -110,6 +186,7 @@
 	function updateFiltersSearch(term: string) {
 		filtersSearch = term;
 		onSearchChange?.(term);
+		fnrIslandService?.setQuery(term);
 	}
 
 	function commitSearchHistory(term = filtersSearch) {
@@ -120,6 +197,31 @@
 		updateFiltersSearch(term);
 		commitSearchHistory(term);
 		searchFocused = false;
+	}
+
+	function cycleIslandMode() {
+		if (!fnrIslandService) return;
+		const idx = MODES.indexOf(islandMode);
+		const next = MODES[(idx + 1) % MODES.length];
+		fnrIslandService.setMode(next);
+		// Rename/replace expand the island into a toolbar takeover; the other
+		// modes never expand from the pill click.
+		if (next === 'rename' || next === 'replace') {
+			fnrIslandService.expand();
+		} else if (islandExpanded) {
+			fnrIslandService.collapse();
+		}
+	}
+
+	function handleCrearClick() {
+		if (crearDisabled || !addBuilder) return;
+		const change = addBuilder(filtersSearch.trim());
+		if (!change) return;
+		fnrIslandService?.setMode('add');
+		fnrIslandService?.submit();
+		onCrear?.(change);
+		// Clear the searchbox after a successful crear so the user can chain.
+		updateFiltersSearch('');
 	}
 
 	function renameContext(rename: ActiveFnRRenameHandoff): string {
@@ -143,7 +245,22 @@
 		}
 		if (event.key === 'Escape') {
 			onRenameCancel?.();
+			fnrIslandService?.collapse();
 		}
+	}
+
+	function handleSearchboxKeydown(event: KeyboardEvent) {
+		if (event.key !== 'Escape') return;
+		if (fnrIslandService && islandExpanded) {
+			fnrIslandService.collapse();
+		}
+	}
+
+	function handleDocumentPointerDown(event: MouseEvent) {
+		if (!fnrIslandService || !islandExpanded) return;
+		const target = event.target instanceof Node ? event.target : null;
+		if (target && searchboxRoot?.contains(target)) return;
+		fnrIslandService.collapse();
 	}
 
 	$effect(() => {
@@ -153,25 +270,58 @@
 			renameInput?.select();
 		});
 	});
+
+	// Auto-expand into the toolbar takeover whenever a rename handoff arrives,
+	// so the legacy parent contract still drives the visual takeover even
+	// without the parent owning the FnRIslandService directly.
+	$effect(() => {
+		if (!fnrIslandService) return;
+		if (activeRename) {
+			fnrIslandService.setMode('rename');
+			fnrIslandService.expand();
+		}
+	});
 </script>
 
-<div class="vm-navbar-filters vm-glass vm-glass--top">
+<svelte:document onpointerdown={handleDocumentPointerDown} />
+
+<div
+	class="vm-navbar-filters vm-glass vm-glass--top"
+	class:vm-toolbar-takeover={islandExpanded}
+	bind:this={toolbarRoot}
+>
 	<div class="vm-filters-header-wrap">
 		{#if headerMode === 'header'}
 			<div class="vm-filters-header">
 				<div
-					class="vm-nav-icon is-active"
-					role="button"
-					tabindex="0"
-					aria-label={translate('filter.viewmode_btn')}
-					onclick={openViewModePopup}
-					onkeydown={(e: KeyboardEvent) => {
-						if (e.key === 'Enter' || e.key === ' ') openViewModePopup();
-					}}
-					use:icon={'lucide-layout-list'}
-				></div>
-				<div class="vm-filters-header-search-wrap">
+					class="vm-filters-header-search-wrap"
+					bind:this={searchboxRoot}
+					onkeydown={handleSearchboxKeydown}
+					role="presentation"
+				>
+					{#if fnrIslandService && hasIslandErrors}
+						<div
+							class="vm-filters-search-error"
+							role="alert"
+							aria-live="polite"
+							data-error-kind={islandRegexError ? 'regex' : 'token'}
+						>
+							{islandErrorMessage}
+						</div>
+					{/if}
 					<div class="vm-filters-header-search-pill">
+						{#if fnrIslandService}
+							<button
+								type="button"
+								class="vm-filters-search-modepill"
+								aria-label={translate('filter.search_mode')}
+								title={translate('filter.search_mode')}
+								data-mode={islandMode}
+								onclick={cycleIslandMode}
+							>
+								<span>{MODE_LABELS[islandMode]}</span>
+							</button>
+						{/if}
 						<input
 							class="vm-filters-search-input"
 							type="text"
@@ -219,7 +369,90 @@
 						>
 							<span>{currentCategoryLabel}</span>
 						</button>
+						{#if fnrIslandService}
+							<div
+								class="vm-filters-search-flags"
+								role="group"
+								aria-label="search modifiers"
+							>
+								<button
+									type="button"
+									class="vm-filters-search-flag"
+									class:is-active={islandFlags.matchCase}
+									aria-label="match case"
+									aria-pressed={islandFlags.matchCase}
+									title="match case"
+									data-flag="matchCase"
+									onclick={() => toggleIslandFlag('matchCase')}
+								>Aa</button>
+								<button
+									type="button"
+									class="vm-filters-search-flag"
+									class:is-active={islandFlags.wholeWord}
+									class:is-disabled={islandFlags.regex}
+									aria-label="whole word"
+									aria-pressed={islandFlags.wholeWord}
+									title="whole word"
+									data-flag="wholeWord"
+									disabled={islandFlags.regex}
+									onclick={() => toggleIslandFlag('wholeWord')}
+								>W</button>
+								<button
+									type="button"
+									class="vm-filters-search-flag"
+									class:is-active={islandFlags.regex}
+									aria-label="regex (JS)"
+									aria-pressed={islandFlags.regex}
+									title="regex (JS)"
+									data-flag="regex"
+									onclick={() => toggleIslandFlag('regex')}
+								>.*</button>
+							</div>
+						{/if}
 					</div>
+					{#if activeRename}
+						<div
+							class="vm-fnr-island vm-fnr-rename"
+							aria-label={translate('fnr.rename.title')}
+							title={renameContext(activeRename)}
+						>
+							<div class="vm-fnr-row">
+								<input
+									bind:this={renameInput}
+									class="vm-fnr-input"
+									type="text"
+									autocomplete="off"
+									autocorrect="off"
+									autocapitalize="off"
+									spellcheck="false"
+									aria-label={translate('fnr.rename.replacement')}
+									title={renameContext(activeRename)}
+									placeholder={translate('prop.new_name')}
+									value={activeRename.replacement}
+									onkeydown={handleRenameKeydown}
+									oninput={(event) =>
+										onRenameReplacementChange?.((event.currentTarget as HTMLInputElement).value)}
+								/>
+								<button
+									class="vm-fnr-action"
+									type="button"
+									disabled={activeRename.status !== 'ready'}
+									aria-label={translate('fnr.rename.queue')}
+									title={translate('fnr.rename.queue')}
+									use:icon={'lucide-check'}
+									onclick={onRenameConfirm}
+								></button>
+								<button
+									class="vm-fnr-action"
+									type="button"
+									aria-label={translate('fnr.rename.cancel')}
+									title={translate('fnr.rename.cancel')}
+									use:icon={'lucide-x'}
+									onclick={onRenameCancel}
+								></button>
+							</div>
+						</div>
+					{/if}
 					{#if searchFocused && historyItems.length > 0}
 						<div
 							class="vm-filters-search-history"
@@ -240,6 +473,20 @@
 						</div>
 					{/if}
 				</div>
+				{#if fnrIslandService}
+					<button
+						type="button"
+						class="vm-filters-crear"
+						class:is-disabled={crearDisabled}
+						aria-label="crear"
+						title={crearTooltip}
+						disabled={crearDisabled}
+						onclick={handleCrearClick}
+					>
+						<span class="vm-filters-crear-icon" use:icon={'lucide-plus'}></span>
+						<span class="vm-filters-crear-label">crear</span>
+					</button>
+				{/if}
 				<div class="vm-filters-help-wrap">
 					<button
 						class="vm-filters-search-help"
@@ -261,17 +508,30 @@
 						</div>
 					{/if}
 				</div>
-				<div
-					class="vm-nav-icon is-active"
-					role="button"
-					tabindex="0"
-					aria-label={translate('filter.sort_btn')}
-					onclick={openSortPopup}
-					onkeydown={(e: KeyboardEvent) => {
-						if (e.key === 'Enter' || e.key === ' ') openSortPopup();
-					}}
-					use:icon={'lucide-arrow-up-down'}
-				></div>
+				<div class="vm-toolbar-menu-min" role="group" aria-label={translate('filter.search_mode')}>
+					<div
+						class="vm-nav-icon vm-nav-icon-min is-active"
+						role="button"
+						tabindex="0"
+						aria-label={translate('filter.viewmode_btn')}
+						onclick={openViewModePopup}
+						onkeydown={(e: KeyboardEvent) => {
+							if (e.key === 'Enter' || e.key === ' ') openViewModePopup();
+						}}
+						use:icon={'lucide-layout-list'}
+					></div>
+					<div
+						class="vm-nav-icon vm-nav-icon-min is-active"
+						role="button"
+						tabindex="0"
+						aria-label={translate('filter.sort_btn')}
+						onclick={openSortPopup}
+						onkeydown={(e: KeyboardEvent) => {
+							if (e.key === 'Enter' || e.key === ' ') openSortPopup();
+						}}
+						use:icon={'lucide-arrow-up-down'}
+					></div>
+				</div>
 			</div>
 		{:else if headerMode === 'sort'}
 			<div
@@ -307,49 +567,6 @@
 					{addOpCount}
 					{icon}
 				/>
-			</div>
-		{/if}
-		{#if activeRename}
-			<div
-				class="vm-fnr-island vm-fnr-rename"
-				aria-label={translate('fnr.rename.title')}
-				title={renameContext(activeRename)}
-			>
-				<div class="vm-fnr-row">
-					<input
-						bind:this={renameInput}
-						class="vm-fnr-input"
-						type="text"
-						autocomplete="off"
-						autocorrect="off"
-						autocapitalize="off"
-						spellcheck="false"
-						aria-label={translate('fnr.rename.replacement')}
-						title={renameContext(activeRename)}
-						placeholder={translate('prop.new_name')}
-						value={activeRename.replacement}
-						onkeydown={handleRenameKeydown}
-						oninput={(event) =>
-							onRenameReplacementChange?.((event.currentTarget as HTMLInputElement).value)}
-					/>
-					<button
-						class="vm-fnr-action"
-						type="button"
-						disabled={activeRename.status !== 'ready'}
-						aria-label={translate('fnr.rename.queue')}
-						title={translate('fnr.rename.queue')}
-						use:icon={'lucide-check'}
-						onclick={onRenameConfirm}
-					></button>
-					<button
-						class="vm-fnr-action"
-						type="button"
-						aria-label={translate('fnr.rename.cancel')}
-						title={translate('fnr.rename.cancel')}
-						use:icon={'lucide-x'}
-						onclick={onRenameCancel}
-					></button>
-				</div>
 			</div>
 		{/if}
 	</div>

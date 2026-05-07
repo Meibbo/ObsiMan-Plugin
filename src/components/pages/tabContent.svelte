@@ -45,6 +45,9 @@
 	const contentExplorer = $derived(new explorerContent(plugin));
 	let contentVersion = $state(0);
 	let helpOpen = $state(false);
+	// Local pill mode for the collapsed single-input row. Pill toggles the
+	// input between binding `query` (search) and `fnrState.replace` (replace).
+	let pillMode = $state<'search' | 'replace'>('search');
 
 	const scopeFiles = $derived.by(() => resolveFnRScopeFiles(fnrState.scope));
 	const scopeLabel = $derived(
@@ -113,18 +116,46 @@
 <div class="vm-content-tab">
 	<div class="vm-content-fnr" aria-label={translate('fnr.advanced')}>
 		<div class="vm-content-fnr-row">
-			<input
-				class="vm-content-fnr-input vm-content-find"
-				type="text"
-				autocomplete="off"
-				autocorrect="off"
-				autocapitalize="off"
-				spellcheck="false"
-				aria-label={translate('content.find_placeholder')}
-				placeholder={translate('content.find_placeholder')}
-				value={query}
-				oninput={(e) => updateQuery((e.currentTarget as HTMLInputElement).value)}
-			/>
+			<button
+				type="button"
+				class="vm-content-fnr-modepill"
+				data-mode={pillMode}
+				aria-label={translate('filter.search_mode')}
+				title={translate('filter.search_mode')}
+				onclick={() => {
+					pillMode = pillMode === 'search' ? 'replace' : 'search';
+				}}
+			>
+				<span>{pillMode}</span>
+			</button>
+			{#if pillMode === 'search'}
+				<input
+					class="vm-content-fnr-input vm-content-find"
+					type="text"
+					autocomplete="off"
+					autocorrect="off"
+					autocapitalize="off"
+					spellcheck="false"
+					aria-label={translate('content.find_placeholder')}
+					placeholder={translate('content.find_placeholder')}
+					value={query}
+					oninput={(e) => updateQuery((e.currentTarget as HTMLInputElement).value)}
+				/>
+			{:else}
+				<input
+					class="vm-content-fnr-input vm-content-replace"
+					type="text"
+					autocomplete="off"
+					autocorrect="off"
+					autocapitalize="off"
+					spellcheck="false"
+					aria-label={translate('content.replace_placeholder')}
+					placeholder={translate('content.replace_placeholder')}
+					value={fnrState.replace}
+					oninput={(e) =>
+						updateFnRState({ replace: (e.currentTarget as HTMLInputElement).value })}
+				/>
+			{/if}
 			<button
 				class="vm-content-fnr-icon"
 				aria-label={translate('filter.search_help')}
@@ -143,21 +174,6 @@
 					{/each}
 				</div>
 			{/if}
-		</div>
-
-		<div class="vm-content-fnr-row">
-			<input
-				class="vm-content-fnr-input"
-				type="text"
-				autocomplete="off"
-				autocorrect="off"
-				autocapitalize="off"
-				spellcheck="false"
-				aria-label={translate('content.replace_placeholder')}
-				placeholder={translate('content.replace_placeholder')}
-				value={fnrState.replace}
-				oninput={(e) => updateFnRState({ replace: (e.currentTarget as HTMLInputElement).value })}
-			/>
 		</div>
 
 		<div class="vm-content-fnr-row vm-content-fnr-options">

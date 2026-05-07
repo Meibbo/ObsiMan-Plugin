@@ -6,11 +6,11 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-status.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-07T01:02:22
+updated: 2026-05-07T02:00:00
 tags:
   - agent/current
 created_by: dec
-updated_by: codex
+updated_by: claude
 ---
 
 # Current Status
@@ -46,6 +46,10 @@ Archived completed/superseded status:
   [[docs/work/hardening/plans/2026-05-06-node-selection-service/index|Node selection service implementation plan]].
 - Current multifaceted follow-up plan:
   [[docs/work/hardening/plans/2026-05-07-node-expansion-keyboard-grid/index|Node expansion, keyboard navigation, and hierarchical grid plan]].
+- New active spec:
+  [[docs/work/hardening/specs/2026-05-07-multifacet-2/index|Multifacet wave 2 spec]].
+- New active plan:
+  [[docs/work/hardening/plans/2026-05-07-multifacet-2/index|Multifacet wave 2 implementation plan]].
 - Current selection debug and TanStack assimilation record:
   [[docs/work/hardening/research/2026-05-06-selection-tanstack-virtualizer-debug/index|Selection hang and TanStack virtualizer assimilation]].
 - Standing engineering context:
@@ -124,6 +128,161 @@ Archived completed/superseded status:
 - 2026-05-07 node expansion continuation implemented and verified the tree
   reliability cut, tree `ArrowLeft`/`ArrowRight` semantics, generic sort-view
   expand/collapse-all, and default grid folder navigation.
+- 2026-05-07 multifacet-2 phase 1a complete: `FnRIslandService` (11/11 unit
+  tests) plus searchbox-mounted FnR island, mode pill, `crear` button (gated
+  by `src/registry/explorerAddOps.ts`), toolbar takeover via opacity +
+  pointer-events on `.vm-toolbar-takeover`, Esc + outside-click collapse, and
+  the legacy rename handoff input relocated INSIDE the searchbox row. New
+  tests `test/unit/registry/explorerAddOps.test.ts` (8/8) and
+  `test/component/{searchboxIsland,panelExplorerCrear}.test.ts` (5/5) pass.
+- 2026-05-07 multifacet-2 phase 1b verified: `tabContent.svelte` already
+  collapsed to one `.vm-content-fnr-input` plus mode pill, and
+  `navbarExplorer.svelte` already places view/sort right of `crear` inside
+  `.vm-toolbar-menu-min`. Existing tests
+  `test/component/explorerContentSingleInput.test.ts` (2/2) and
+  `test/component/navbarToolbarMenuPlacement.test.ts` (1/1) pass without
+  implementation changes; plan shard 01b checkboxes flipped to `[x]`.
+- 2026-05-07 multifacet-2 phase 5 DONE: `useDoubleClick` helper +
+  `FilterService.clearAll` / `OperationQueueService.{clearAll,processAll}`
+  + `FabDef.onDoubleClick` wired in `navbarPillFab.svelte` and
+  `framePages.ts`. New `serviceCommands.ts` registers 7 `vaultman:*`
+  commands with `checkCallback` greying; `vaultman:open` calls
+  `panelExplorer.focusFirstNode()` (3-frame rAF retry). Tests:
+  `serviceCommandsRegistration` 6/6 + `navbarPill/QueueDoubleClickClear`
+  4/4. lint 0/0, build green, `git diff --check` exit 0. CLI smoke
+  deferred per spec.
+- 2026-05-07 multifacet-2 phase 6 DONE: independent workspace
+  leaves with plugin-data persistence. New
+  `src/registry/tabRegistry.ts` (TabId, DETACHABLE,
+  `viewTypeFor`, inner↔canonical translation). New
+  `src/services/serviceLeafDetach.ts` (load/save via plugin
+  data key `independentLeaves`, `detach`/`attach` wrapped in
+  `PerfMeter.timeAsync('leaf:detach:<id>'/'leaf:attach:<id>')`,
+  idempotent `restore()` deferred to `onLayoutReady`).
+  Generic `VaultmanTabLeafView` (`src/types/typeTabLeaf.ts`)
+  registered up-front for every TabId. `main.ts` wires the
+  service, registers all view-types, and calls
+  `restore()` after Obsidian's workspace replay. New
+  components `tabViewMenuDetach.svelte` (label flips
+  detach↔attach) and `settingsLeafToggle.svelte` (global
+  all-tabs toggle) both consume `LeafDetachService`. i18n
+  keys `viewmenu.detach_to_leaf`, `viewmenu.return_to_panel`,
+  `settings.leaf_toggle.all_independent` added (en+es).
+  `independentLeaves: Record<string, boolean>` field added
+  to `typeSettings.ts` (default `{}`). Tests: unit 8/8
+  (`serviceLeafDetach.test.ts`), component 6/6
+  (`tabViewMenuDetach` 3 + `settingsLeafToggle` 3).
+  Phase 4 regression `perfMeter.test.ts` + `serviceOpsLog.test.ts`
+  green (13/13). lint 0/0, build green, scoped
+  `git diff --check` exit 0. Plan shard 06 checkboxes flipped.
+  Smoke test deferred per spec. No private-API monkey-patch.
+- 2026-05-07 multifacet-2 phase 4 DONE: delete-conflict modal +
+  ops-log tab + `PerfMeter`. New `src/services/perfMeter.ts`,
+  `src/services/serviceOpsLog.svelte.ts` (ring buffer, default
+  cap 1000, configurable via `opsLogRetention` setting),
+  `src/components/modals/modalDeleteConflict.svelte`,
+  `src/components/pages/pageToolsOpsLog.svelte` (new `ops_log`
+  tab in `pageTools`). Queue gained
+  `bindOpToNode`/`listOpsForNode`/`dropForNode(nodeId,kinds)` plus
+  async `requestDelete({ nodeId, nodeLabel, enqueueDelete })`
+  (fails closed when no modal opener registered).
+  `panelExplorer.svelte` routes hover-delete through
+  `requestDelete` and forwards other kinds via new
+  `ExplorerProvider.handleHoverBadge` opt-in. `main.ts` emits
+  `vaultman:boot:{start,end}` marks, diffs `app.plugins.plugins`
+  before/after for `plugin:loaded:<id>` (records
+  `plugin:loaded:not-measurable` when diff empty), wraps each
+  `serviceCommands.ts` callback in `PerfMeter.timeAsync`, and
+  times `serviceFilter.computeFiltered` + `FnRIslandService.submit`.
+  i18n keys added in en/es. Tests: 19/19 new unit
+  (`serviceQueueDeletePurge` 6, `perfMeter` 6, `serviceOpsLog` 7)
+  + 11/11 new component (`modalDeleteConflict` 4,
+  `panelExplorerDeleteConflict` 2, `pageToolsOpsLog` 5).
+  Regression `badgeRegistry` 12/12 +
+  `panelExplorerBadgeCollision` 4/4 green. lint 0/0, build green,
+  `git diff --check` clean. Plan shard 04 checkboxes flipped.
+  Pre-existing `serviceQueue.test.ts` import error unrelated to
+  this phase (references missing `serviceFnR.svelte` path).
+
+- 2026-05-07 multifacet-2 phase 8 DONE (wave 2 complete): Settings UI
+  surfaces `bindingNoteFolder` (with TFolder existence Notice
+  validation), `opsLogRetention` (numeric input clamped 100–10000),
+  `fnrRegexDefault` (Toggle), and the existing `settingsLeafToggle`
+  for `independentLeaves`. `FnRIslandService` constructor accepts
+  `initialFlags`; `pageFilters.svelte` seeds `regex` from
+  `plugin.settings.fnrRegexDefault`. `typeSettings.ts` gained
+  `fnrRegexDefault?: boolean` (default `false`). i18n keys added in
+  en+es: `settings.binding_note_folder.invalid`,
+  `settings.ops_log_retention(.desc)`,
+  `settings.fnr_regex_default(.desc)`. SCSS + reduced-motion guards
+  audited — no consolidation required, guards intact. `styles.css`
+  regenerated. Final verification: focused unit 13/13 files
+  (126 tests), focused component 17/17 files (53 tests), regression
+  baseline 6/7 green (pageFiltersRenameHandoff keeps documented
+  pre-existing 1 failure). `pnpm exec vp build` 107 kB CSS / 410 kB
+  JS (gzip 15.4 / 122 kB). `pnpm exec vp lint` 0/0. Obsidian CLI
+  smoke: plugin reload clean, `dev:errors` "No errors captured.",
+  `vaultman:open` executed cleanly. Multifacet wave 2 DONE.
+
+- 2026-05-07 multifacet-2 phase 7 DONE: `src/services/serviceNodeBinding.ts`
+  with `bindOrCreate(node)` resolves the 0/1/N alias-match flow
+  per spec. New op kind `append_links` + sentinel `APPEND_LINKS`
+  plumbed through `typeOps.ts`, `OperationQueueService` (idempotent
+  — skips links already in body), and `buildAppendLinksChange`.
+  `serviceFnRPropSet.ts` exposes `prefillPropSetIsland` /
+  `parsePropSetSubmission` / `buildPropSetChange`; `FnRIslandMode`
+  gains `add-prop`. New cmenu entries: `tag.set` +
+  `tag.bindingNote` on `explorerTags`; `prop.set` +
+  `prop.bindingNote` + `value.set` + `value.bindingNote` on
+  `explorerProps`; `file.set` on `explorerFiles`.
+  `bindingNoteFolder?: string` appended to `VaultmanSettings`
+  (default `''`) alongside phase 6's `independentLeaves`.
+  `main.ts` constructs `nodeBindingService` with a router that
+  adds an `aliases` rule via `filterService.addNode`. Tests:
+  17/17 unit (`serviceNodeBinding` 12, `serviceFnRPropSet` 5);
+  8/8 component (`cmenuSetAction` 4, `cmenuCreateBindingNote` 4).
+  Regression `serviceFnRIsland` 11/11, `explorerAddOps` 8/8,
+  `serviceQueueDeletePurge` 6/6 green. lint 0/0, build green
+  (407 kB / gzip 121 kB), scoped `git diff --check` exit 0. Plan
+  shard 07 checkboxes flipped. Settings UI exposure deferred
+  (no UI exists yet for sibling phase 4-6 settings either).
+
+- 2026-05-07 multifacet-2 phase 3 DONE: `src/services/badgeRegistry.ts`
+  exports `BadgeKind`, `ORDER`, `visibleHoverBadges`, `activeBadges`,
+  plus `badgeKindFromOpKind` / `badgeKindFromNodeBadge` helpers. Hover
+  render is opt-in (views render hover badges only when
+  `activeOpsByNode` is provided) so existing `viewTreeDecorations`
+  regression test stays green without edits. `viewTree.svelte` and
+  `ViewNodeGrid.svelte` consume the registry; new `is-hover-badge`
+  styles live in `src/styles/components/_badges.scss` scoped via
+  `.is-hover-badge` (faint icon-only, active = text+icon). Hover-zone
+  visibility is gated on row/tile `:hover` / `:focus-within` in
+  `_virtual-list.scss` and `_grid.scss`. `panelExplorer.svelte`
+  subscribes to `queueService.on('changed')`, increments a
+  `queueVersion` counter, and rebuilds `activeOpsByNode` via
+  `$derived.by` keyed on that counter (no render loop). Tests:
+  `badgeRegistry` 12/12, `viewTreeHoverBadges` 4/4,
+  `viewGridHoverBadges` 3/3, `panelExplorerBadgeCollision` 4/4.
+  Regression: `viewTreeDecorations` 6/6, `panelExplorerSelection` 6/6,
+  `navbarPillFabBadges` green. lint 0/0, build green, scoped
+  `git diff --check` exit 0.
+- 2026-05-07 multifacet-2 phase 2 complete: tests backfilled for the
+  pre-existing `serviceFnRTemplate.ts` and `serviceFnRDateParser.ts`
+  (TDD violation in prior subagent's run). Three new unit suites pass
+  (`serviceFnRTemplate` 20, `serviceFnRDateParser` 12,
+  `serviceFnRTokenAllowlist` 6 → 38 net new) plus the existing
+  `serviceFnRIsland` 11 and `explorerAddOps` 8 stay green (64/64
+  required unit total). Searchbox island now exposes `Aa` / `W` / `.*`
+  flag toggles wired to `FnRIslandService.setFlag` with mutual
+  exclusion (regex ON disables wholeWord), and an inline
+  `vm-filters-search-error` block surfaces token / regex validation
+  errors above the pill. `crear` auto-disables while errors exist.
+  New `test/component/searchboxIslandFlags.test.ts` (5 tests) plus
+  the four other component suites pass (13/13 component required).
+  `pnpm exec vp build` and `pnpm exec vp lint` green; scoped
+  `git diff --check` exit 0. Stub tokens (EXIF, ID3, doc, checksum)
+  resolve to empty + warn until external parsers ship; every other
+  token in the spec resolves.
 - Inline grid expansion remains intentionally gated: Settings shows the option
   disabled, and raw `gridHierarchyMode: 'inline'` resolves to folder mode.
 - Final Obsidian CLI smoke after the TanStack build selected a tree row and a

@@ -342,11 +342,27 @@ body.vm-resizing {
 	will-change: transform;
 }
 
+.vm-node-grid-hover-badge-zone {
+	grid-column: 1 / -1;
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.12s ease;
+}
+
 .vm-node-grid-tile {
 	display: grid;
 	grid-template-columns: 22px minmax(0, 1fr);
 	align-items: center;
 	gap: 8px;
+
+	&:hover .vm-node-grid-hover-badge-zone,
+	&:focus-within .vm-node-grid-hover-badge-zone {
+		opacity: 1;
+		pointer-events: auto;
+	}
 	min-height: 54px;
 	padding: 8px;
 	border: $vm-border-width solid $vm-border-color;

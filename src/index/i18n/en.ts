@@ -7,6 +7,44 @@ export const en: Record<string, string> = {
 	'plugin.description': 'Bulk property editor and vault management tool',
 	'plugin.open': 'Open Vaultman',
 	'common.close': 'Close',
+	'common.cancel': 'Cancel',
+	'common.confirm': 'Confirm',
+
+	// Modals
+	'modal.delete_conflict.title': 'Conflicting operations',
+	'modal.delete_conflict.body':
+		'This will discard the queued operations [{ops}] on {label}. Continue?',
+
+	// Tools
+	'tools.ops_log.title': 'Ops log',
+	'tools.ops_log.clear': 'Clear log',
+	'tools.ops_log.filter_kind': 'Filter by kind',
+	'tools.ops_log.filter_label': 'Filter by label',
+	'tools.ops_log.empty': 'No records yet.',
+
+	// View menu — independent leaves (phase 6 multifacet wave 2)
+	'viewmenu.detach_to_leaf': 'Detach to leaf',
+	'viewmenu.return_to_panel': 'Return to panel',
+	'settings.leaf_toggle.all_independent': 'All tabs as independent leaves',
+
+	// Phase 7 — binding notes & set action
+	'cmenu.binding_note.create_or_open': 'Create / open binding note',
+	'cmenu.set.tag': 'Set tag',
+	'cmenu.set.prop': 'Set property',
+	'cmenu.set.value': 'Set value',
+	'cmenu.set.file': 'Set (append link)',
+	'binding_note.notice.routed': '{count} notes share this alias. Filtering…',
+	'settings.binding_note_folder': 'Binding note folder',
+	'settings.binding_note_folder.desc':
+		'Folder where new binding notes are created. Empty = vault root.',
+	'settings.binding_note_folder.invalid':
+		'Folder "{folder}" does not exist in this vault.',
+	'settings.ops_log_retention': 'Ops-log retention',
+	'settings.ops_log_retention.desc':
+		'Maximum number of records kept by the ops-log ring buffer (100–10000).',
+	'settings.fnr_regex_default': 'Find & Replace regex by default',
+	'settings.fnr_regex_default.desc':
+		'When on, new Find & Replace islands start with the regex flag enabled.',
 
 	// Sections
 	'section.filters': 'Filters',

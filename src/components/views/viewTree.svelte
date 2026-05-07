@@ -6,6 +6,27 @@
 	import { getActivePerfProbe } from '../../dev/perfProbe';
 	import type { FlatNode } from '../../services/serviceVirtualizer.svelte';
 	import HighlightText from '../primitives/HighlightText.svelte';
+	import {
+		visibleHoverBadges,
+		type ActiveOpsByNode,
+		type BadgeKind,
+	} from '../../services/badgeRegistry';
+
+	const HOVER_BADGE_ICONS: Record<BadgeKind, string> = {
+		set: 'lucide-pencil-line',
+		rename: 'lucide-text-cursor-input',
+		convert: 'lucide-replace',
+		delete: 'lucide-trash-2',
+		filter: 'lucide-filter',
+	};
+
+	const HOVER_BADGE_LABELS: Record<BadgeKind, string> = {
+		set: 'Set',
+		rename: 'Rename',
+		convert: 'Convert',
+		delete: 'Delete',
+		filter: 'Filter',
+	};
 
 	const TREE_ROW_HEIGHT = 32;
 	const TREE_FALLBACK_WIDTH = 320;
@@ -30,6 +51,8 @@
 		onRename?: (id: string, newLabel: string) => void;
 		onCancelRename?: () => void;
 		onBadgeDoubleClick?: (queueIndex: number) => void;
+		onHoverBadgeAction?: (id: string, kind: BadgeKind, e: MouseEvent | KeyboardEvent) => void;
+		activeOpsByNode?: ActiveOpsByNode;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	}
 
@@ -51,8 +74,30 @@
 		onRename,
 		onCancelRename,
 		onBadgeDoubleClick,
+		onHoverBadgeAction,
+		activeOpsByNode,
 		icon,
 	}: Props = $props();
+
+	function hoverBadgesFor(node: TreeNode): BadgeKind[] {
+		// Hover badges are an opt-in feature. Adapters that have not wired
+		// the registry yet (or unit tests that mount the view in isolation)
+		// pass no `activeOpsByNode` and we render no hover badges.
+		if (!activeOpsByNode) return [];
+		return visibleHoverBadges({ id: node.id }, activeOpsByNode);
+	}
+
+	function handleHoverBadgePress(e: MouseEvent | KeyboardEvent, id: string, kind: BadgeKind) {
+		e.stopPropagation();
+		e.preventDefault();
+		onHoverBadgeAction?.(id, kind, e);
+	}
+
+	function handleHoverBadgeKeydown(e: KeyboardEvent, id: string, kind: BadgeKind) {
+		if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+			handleHoverBadgePress(e, id, kind);
+		}
+	}
 
 	let outerEl: HTMLDivElement | undefined = $state();
 	let rowHeight = $state(TREE_ROW_HEIGHT);
@@ -400,6 +445,7 @@
 			{@const isFocused = focusedId === node.id}
 			{@const directBadges = ownBadges(node)}
 			{@const childBadges = inheritedBadges(node)}
+			{@const hoverBadges = hoverBadgesFor(node)}
 
 			<div
 				class="vm-tree-virtual-row {node.cls ?? ''}"
@@ -473,8 +519,26 @@
 					{/if}
 
 					<!-- Badges / Counts -->
-					{#if (node.count != null && node.count > 0) || directBadges.length > 0 || childBadges.length > 0}
+					{#if (node.count != null && node.count > 0) || directBadges.length > 0 || childBadges.length > 0 || hoverBadges.length > 0}
 						<div class="vm-tree-badge-zone">
+							{#if hoverBadges.length > 0}
+								<div class="vm-tree-hover-badge-zone">
+									{#each hoverBadges as kind (kind)}
+										<div
+											class="vm-badge is-hover-badge is-actionable"
+											data-hover-kind={kind}
+											role="button"
+											tabindex="0"
+											title={HOVER_BADGE_LABELS[kind]}
+											aria-label={HOVER_BADGE_LABELS[kind]}
+											onclick={(e) => handleHoverBadgePress(e, node.id, kind)}
+											onkeydown={(e) => handleHoverBadgeKeydown(e, node.id, kind)}
+										>
+											<span class="vm-badge-icon" use:icon={HOVER_BADGE_ICONS[kind]}></span>
+										</div>
+									{/each}
+								</div>
+							{/if}
 							{#if directBadges.length > 0}
 								{#each directBadges as badge, badgeIndex (badgeKey(badge, badgeIndex))}
 									<div

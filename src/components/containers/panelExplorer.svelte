@@ -8,6 +8,7 @@
 		ExplorerExpansionSummary,
 		ExplorerProvider,
 		ExplorerViewMode,
+		PanelExplorerImperativeApi,
 	} from '../../types/typeExplorer';
 	import type { INodeSelectionService, NodeSelectionSnapshot } from '../../types/typeSelection';
 	import type { ViewEmptyState } from '../../types/typeViews';
@@ -20,6 +21,11 @@
 	import type { TreeNode } from '../../types/typeNode';
 	import { bubbleHiddenTreeBadges } from '../../utils/utilBadgeBubbling';
 	import { collectAutoExpandedIds, resolveExpandedIds } from '../../utils/utilExplorerExpansion';
+	import {
+		badgeKindFromNodeBadge,
+		type ActiveOpsByNode,
+		type BadgeKind,
+	} from '../../services/badgeRegistry';
 
 	let {
 		plugin,
@@ -35,6 +41,7 @@
 		selectedFiles = $bindable(new Set<string>()),
 		nodeExpansionCommand = null,
 		onNodeExpansionSummaryChange,
+		onImperativeApiReady,
 		icon,
 	}: {
 		plugin: VaultmanPlugin;
@@ -50,8 +57,15 @@
 		selectedFiles?: Set<string>;
 		nodeExpansionCommand?: ExplorerExpansionCommand | null;
 		onNodeExpansionSummaryChange?: (summary: ExplorerExpansionSummary) => void;
+		/**
+		 * Receives the panel's imperative API (currently `focusFirstNode`).
+		 * Used by the `vaultman:open` command to land keyboard focus on the
+		 * first virtual row immediately after revealing the leaf.
+		 */
+		onImperativeApiReady?: (api: PanelExplorerImperativeApi) => void;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	} = $props();
+
 
 	let nodes = $state<TreeNode<TMeta>[]>([]);
 	let flatFiles = $state<TFile[]>([]);
@@ -112,6 +126,37 @@
 	let lastCommittedSelectionKey = '';
 	let lastExpansionSummaryKey = '';
 	let lastExpansionCommandSerial = -1;
+	let queueVersion = $state(0);
+	const activeOpsByNode: ActiveOpsByNode = $derived.by(() => {
+		// Touch the queue version counter so this derivation re-runs whenever
+		// the queue mutates. Memoizing on the version avoids render loops:
+		// the map only rebuilds when the queue actually changed.
+		void queueVersion;
+		const map = new Map<string, Set<BadgeKind>>();
+		const walk = (list: TreeNode<TMeta>[]): void => {
+			for (const node of list) {
+				const kinds = new Set<BadgeKind>();
+				for (const badge of node.badges ?? []) {
+					if (badge.isInherited || badge.quickAction) continue;
+					const kind = badgeKindFromNodeBadge(badge);
+					if (kind) kinds.add(kind);
+				}
+				if (kinds.size > 0) map.set(node.id, kinds);
+				if (node.children) walk(node.children);
+			}
+		};
+		walk(nodes);
+		return map;
+	});
+
+	$effect(() => {
+		const queue = (plugin as VaultmanPlugin & { queueService?: { on?: (e: 'changed', cb: () => void) => () => void } }).queueService;
+		if (!queue?.on) return;
+		const off = queue.on('changed', () => {
+			queueVersion += 1;
+		});
+		return () => off();
+	});
 
 	$effect(() => {
 		// React directly to prop changes
@@ -335,6 +380,25 @@
 		plugin.queueService.remove(operation.id);
 	}
 
+	function handleHoverBadgeAction(id: string, kind: BadgeKind) {
+		const node = findNodeById(nodes, id);
+		if (!node) return;
+		if (kind !== 'delete') {
+			// Non-delete hover badges are forwarded to the provider so each
+			// adapter can decide how to dispatch them. Providers that have
+			// not opted in are no-ops.
+			provider.handleHoverBadge?.(node, kind);
+			return;
+		}
+		// Delete is special-cased through `requestDelete` so the queue can
+		// open the conflict modal when other ops already touch this node.
+		void plugin.queueService.requestDelete({
+			nodeId: id,
+			nodeLabel: node.label,
+			enqueueDelete: () => provider.handleHoverBadge?.(node, 'delete'),
+		});
+	}
+
 	function findNodeById(nodes: TreeNode<TMeta>[], id: string): TreeNode<TMeta> | undefined {
 		for (const n of nodes) {
 			if (n.id === id) return n;
@@ -546,6 +610,71 @@
 		commitSelection(selectionService.clear(provider.id));
 	}
 
+	/**
+	 * Land keyboard focus on the first virtual row (or grid tile). Used
+	 * by `vaultman:open` so arrow keys navigate immediately after the
+	 * command reveals the panel. TanStack lazy-mounts rows during the
+	 * first measure pass, so this retries up to three animation frames
+	 * before giving up. Returns true on success, false on failure.
+	 */
+	function focusFirstNode(): boolean {
+		const ids = visibleNodeIds();
+		if (ids.length === 0) return false;
+		const firstId = ids[0];
+		// Move selection focus through the service so the navigator
+		// keyboard handler picks up where the command left off.
+		commitSelection(selectionService.selectPointer(provider.id, ids, firstId));
+		selectionService.setFocused(provider.id, firstId);
+
+		const tryDomFocus = (attempt: number): boolean => {
+			if (!rootEl) return false;
+			const candidate =
+				rootEl.querySelector<HTMLElement>(
+					`[data-node-id="${cssEscape(firstId)}"]`,
+				) ??
+				rootEl.querySelector<HTMLElement>('[role="treeitem"], [role="row"], [role="gridcell"]');
+			if (candidate) {
+				candidate.focus({ preventScroll: false });
+				return true;
+			}
+			if (attempt >= 3) return false;
+			activeWindow.requestAnimationFrame(() => {
+				tryDomFocus(attempt + 1);
+			});
+			return false;
+		};
+		// Defer to the next animation frame so any pending TanStack mount
+		// settles before we try to grab focus.
+		activeWindow.requestAnimationFrame(() => {
+			tryDomFocus(0);
+		});
+		return true;
+	}
+
+	function cssEscape(value: string): string {
+		if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') return CSS.escape(value);
+		return value.replace(/[^a-zA-Z0-9_-]/g, (ch) => `\\${ch}`);
+	}
+
+	$effect(() => {
+		const api: PanelExplorerImperativeApi = { focusFirstNode };
+		onImperativeApiReady?.(api);
+		if (!active) return;
+		// Auto-register with the plugin so commands (e.g. `vaultman:open`)
+		// can drive the active panel without threading callbacks through
+		// every tab wrapper. Cleared on teardown so stale refs do not
+		// outlive the mount.
+		const host = plugin as VaultmanPlugin & {
+			activePanelExplorerApi?: PanelExplorerImperativeApi | null;
+		};
+		host.activePanelExplorerApi = api;
+		return () => {
+			if (host.activePanelExplorerApi === api) {
+				host.activePanelExplorerApi = null;
+			}
+		};
+	});
+
 	function handleDocumentClick(e: MouseEvent) {
 		if (!active || !rootEl) return;
 		const target = e.target instanceof Node ? e.target : null;
@@ -625,6 +754,8 @@
 					onContextMenu={handleContextMenu}
 					onRowKeydown={handleRowKeydown}
 					onBadgeDoubleClick={handleBadgeClick}
+					onHoverBadgeAction={handleHoverBadgeAction}
+					{activeOpsByNode}
 					{icon}
 				/>
 			{/if}
@@ -659,6 +790,8 @@
 					onBoxSelect={handleBoxSelect}
 					onContextMenu={handleContextMenu}
 					onTileKeydown={handleRowKeydown}
+					onHoverBadgeAction={handleHoverBadgeAction}
+					{activeOpsByNode}
 					{icon}
 				/>
 			{/if}

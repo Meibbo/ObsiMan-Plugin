@@ -229,3 +229,51 @@
 		color: $vm-color-accent;
 	}
 }
+
+// Toolbar takeover: when the FnR island is expanded, dim and disable the
+// surrounding navbar/toolbar menus without removing them from layout. Using
+// opacity + pointer-events keeps the TanStack virtualizer measure passes
+// stable (display:none would invalidate cached row dimensions).
+.vm-toolbar-takeover {
+	.vm-nav-icon,
+	.vm-filters-help-wrap,
+	.vm-filters-crear,
+	.vm-toolbar-menu-min {
+		opacity: 0.35;
+		pointer-events: none;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.vm-nav-icon,
+		.vm-filters-help-wrap,
+		.vm-filters-crear,
+		.vm-toolbar-menu-min {
+			transition: none;
+		}
+	}
+}
+
+// Minimalist right-side toolbar menu cluster: groups view + sort buttons to
+// the right of the searchbox/crear button. Uses flex order via natural DOM
+// order — no absolute positioning, so the TanStack virtualizer's measured
+// area stays untouched. Compact icons reduce visual weight per phase 1b.
+.vm-toolbar-menu-min {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	flex: 0 0 auto;
+	margin-left: auto;
+
+	.vm-nav-icon-min {
+		width: 22px;
+		height: 22px;
+		padding: 2px;
+		border-radius: $vm-radius-s;
+		opacity: 0.75;
+		transition: opacity 0.12s ease;
+
+		&:hover {
+			opacity: 1;
+		}
+	}
+}

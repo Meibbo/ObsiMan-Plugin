@@ -58,6 +58,7 @@ export function createFramePageFabs(
 				icon: 'lucide-list-checks',
 				label: translate('ops.queue'),
 				action: toggleQueueIsland,
+				onDoubleClick: () => plugin.queueService.clearAll(),
 				badgeKind: 'queue',
 			},
 			right: null,
@@ -77,6 +78,7 @@ export function createFramePageFabs(
 				icon: 'lucide-list-checks',
 				label: translate('ops.queue'),
 				action: toggleQueueIsland,
+				onDoubleClick: () => plugin.queueService.clearAll(),
 				badgeKind: 'queue',
 			},
 			right: options.filtersBaseChooseMode
@@ -89,6 +91,7 @@ export function createFramePageFabs(
 						icon: 'lucide-sparkles',
 						label: translate('filters.active'),
 						action: toggleFiltersIsland,
+						onDoubleClick: () => plugin.filterService.clearAll(),
 						badgeKind: 'filters',
 					},
 		},

@@ -3,6 +3,8 @@
 	import { translate } from '../../index/i18n/lang';
 	import { TTabs } from '../../types/typeTab'; //, type OpsTab
 	import { MenuCuratorPanel } from '../containers/panelCurator';
+	import PageToolsOpsLog from './pageToolsOpsLog.svelte';
+	import type { OpsLogService } from '../../services/serviceOpsLog.svelte';
 	// import { NavbarTabs } from "../layout/navbarTabs.svelte";
 	// import TabLinter from "./tabLinter.svelte";
 	// ─── Props ───────────────────────────────────────────────────────────────
@@ -80,5 +82,14 @@
 	<!-- Layout tab -->
 	<div class="vm-tab-content" class:is-active={opsTab === 'layout'}>
 		<div class="vm-layout-curator" use:mountCurator></div>
+	</div>
+
+	<!-- Ops log tab -->
+	<div class="vm-tab-content" class:is-active={opsTab === 'ops_log'}>
+		{#if (plugin as VaultmanPlugin & { opsLogService?: OpsLogService }).opsLogService}
+			<PageToolsOpsLog
+				opsLog={(plugin as VaultmanPlugin & { opsLogService: OpsLogService }).opsLogService}
+			/>
+		{/if}
 	</div>
 </div>

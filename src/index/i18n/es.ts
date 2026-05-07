@@ -4,6 +4,44 @@ export const es: Record<string, string> = {
 	'plugin.description': 'Editor masivo de propiedades y herramienta de gestión de vault',
 	'plugin.open': 'Abrir Vaultman',
 	'common.close': 'Cerrar',
+	'common.cancel': 'Cancelar',
+	'common.confirm': 'Confirmar',
+
+	// Modales
+	'modal.delete_conflict.title': 'Operaciones en conflicto',
+	'modal.delete_conflict.body':
+		'Esto descartará las operaciones [{ops}] sobre {label}. ¿Continuar?',
+
+	// Herramientas
+	'tools.ops_log.title': 'Registro de operaciones',
+	'tools.ops_log.clear': 'Limpiar registro',
+	'tools.ops_log.filter_kind': 'Filtrar por tipo',
+	'tools.ops_log.filter_label': 'Filtrar por etiqueta',
+	'tools.ops_log.empty': 'Sin registros todavía.',
+
+	// View menu — independent leaves (phase 6 multifacet wave 2)
+	'viewmenu.detach_to_leaf': 'Despegar a panel',
+	'viewmenu.return_to_panel': 'Devolver al panel',
+	'settings.leaf_toggle.all_independent': 'Todas las pestañas como paneles independientes',
+
+	// Phase 7 — binding notes & set action
+	'cmenu.binding_note.create_or_open': 'Crear / abrir nota de enlace',
+	'cmenu.set.tag': 'Establecer etiqueta',
+	'cmenu.set.prop': 'Establecer propiedad',
+	'cmenu.set.value': 'Establecer valor',
+	'cmenu.set.file': 'Set (añadir enlace)',
+	'binding_note.notice.routed': 'Hay {count} notas con este alias. Filtrando…',
+	'settings.binding_note_folder': 'Carpeta de notas de enlace',
+	'settings.binding_note_folder.desc':
+		'Carpeta donde se crean las nuevas notas de enlace. Vacío = raíz del vault.',
+	'settings.binding_note_folder.invalid':
+		'La carpeta "{folder}" no existe en este vault.',
+	'settings.ops_log_retention': 'Retención del registro de operaciones',
+	'settings.ops_log_retention.desc':
+		'Número máximo de registros del ring buffer del registro de operaciones (100–10000).',
+	'settings.fnr_regex_default': 'Buscar y reemplazar con regex por defecto',
+	'settings.fnr_regex_default.desc':
+		'Si está activo, las nuevas islas de Buscar y reemplazar empiezan con la opción regex activada.',
 
 	// Sections
 	'section.filters': 'Filtros',

@@ -3,6 +3,27 @@
 	import { createVirtualizer } from '@tanstack/svelte-virtual';
 	import type { Rect, Virtualizer } from '@tanstack/svelte-virtual';
 	import type { TreeNode } from '../../types/typeNode';
+	import {
+		visibleHoverBadges,
+		type ActiveOpsByNode,
+		type BadgeKind,
+	} from '../../services/badgeRegistry';
+
+	const HOVER_BADGE_ICONS: Record<BadgeKind, string> = {
+		set: 'lucide-pencil-line',
+		rename: 'lucide-text-cursor-input',
+		convert: 'lucide-replace',
+		delete: 'lucide-trash-2',
+		filter: 'lucide-filter',
+	};
+
+	const HOVER_BADGE_LABELS: Record<BadgeKind, string> = {
+		set: 'Set',
+		rename: 'Rename',
+		convert: 'Convert',
+		delete: 'Delete',
+		filter: 'Filter',
+	};
 
 	const GRID_TILE_MIN_WIDTH = 128;
 	const GRID_TILE_HEIGHT = 54;
@@ -23,6 +44,8 @@
 		onBoxSelect?: (ids: string[], e: PointerEvent) => void;
 		onContextMenu: (id: string, e: MouseEvent) => void;
 		onTileKeydown?: (id: string, e: KeyboardEvent) => void;
+		onHoverBadgeAction?: (id: string, kind: BadgeKind, e: MouseEvent | KeyboardEvent) => void;
+		activeOpsByNode?: ActiveOpsByNode;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	}
 
@@ -36,8 +59,27 @@
 		onBoxSelect,
 		onContextMenu,
 		onTileKeydown,
+		onHoverBadgeAction,
+		activeOpsByNode,
 		icon,
 	}: Props = $props();
+
+	function hoverBadgesFor(node: TreeNode): BadgeKind[] {
+		if (!activeOpsByNode) return [];
+		return visibleHoverBadges({ id: node.id }, activeOpsByNode);
+	}
+
+	function handleHoverBadgePress(e: MouseEvent | KeyboardEvent, id: string, kind: BadgeKind) {
+		e.stopPropagation();
+		e.preventDefault();
+		onHoverBadgeAction?.(id, kind, e);
+	}
+
+	function handleHoverBadgeKeydown(e: KeyboardEvent, id: string, kind: BadgeKind) {
+		if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+			handleHoverBadgePress(e, id, kind);
+		}
+	}
 
 	let outerEl: HTMLDivElement | undefined = $state();
 	let gridWidth = $state(GRID_FALLBACK_WIDTH);
@@ -157,7 +199,9 @@
 
 	function shouldIgnoreBoxStart(target: EventTarget | null): boolean {
 		const el = target instanceof HTMLElement ? target : null;
-		return Boolean(el?.closest('input, textarea, select, button, [role="button"]'));
+		return Boolean(
+			el?.closest('input, textarea, select, button, .vm-badge, [role="button"]'),
+		);
 	}
 
 	function makeSelectionBox(startX: number, startY: number, endX: number, endY: number) {
@@ -290,6 +334,7 @@
 					{@const isSelected = selectedIds?.has(node.id) ?? false}
 					{@const isFocused = focusedId === node.id}
 					{@const isActive = activeId === node.id}
+					{@const hoverBadges = hoverBadgesFor(node)}
 					<div
 						class="vm-node-grid-tile {node.cls ?? ''}"
 						class:is-selected={isSelected}
@@ -317,6 +362,24 @@
 						>
 							{node.label}
 						</button>
+						{#if hoverBadges.length > 0}
+							<div class="vm-node-grid-hover-badge-zone">
+								{#each hoverBadges as kind (kind)}
+									<div
+										class="vm-badge is-hover-badge is-actionable"
+										data-hover-kind={kind}
+										role="button"
+										tabindex="0"
+										title={HOVER_BADGE_LABELS[kind]}
+										aria-label={HOVER_BADGE_LABELS[kind]}
+										onclick={(e) => handleHoverBadgePress(e, node.id, kind)}
+										onkeydown={(e) => handleHoverBadgeKeydown(e, node.id, kind)}
+									>
+										<span class="vm-badge-icon" use:icon={HOVER_BADGE_ICONS[kind]}></span>
+									</div>
+								{/each}
+							</div>
+						{/if}
 					</div>
 				{/each}
 			</div>

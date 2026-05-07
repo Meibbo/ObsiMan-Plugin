@@ -22,6 +22,13 @@ export interface FabDef {
 	icon: string;
 	label: string;
 	action: () => void;
+	/**
+	 * Optional double-click handler. When defined the FAB uses the
+	 * `useDoubleClick` helper to distinguish single from double clicks
+	 * (250 ms debounce). Used by the navbar pill / queue badge double
+	 * click clear gestures.
+	 */
+	onDoubleClick?: () => void;
 	isPlaceholder?: boolean;
 	badgeKind?: 'queue' | 'filters';
 }

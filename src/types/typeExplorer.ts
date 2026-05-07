@@ -16,6 +16,15 @@ export interface ExplorerExpansionSummary {
 	hasExpandedParents: boolean;
 }
 
+/**
+ * Imperative API exposed by `panelExplorer.svelte` for commands and other
+ * outside agents that need to bypass the normal reactive flow. Kept
+ * narrow: only verbs the `vaultman:open*` commands need.
+ */
+export interface PanelExplorerImperativeApi {
+	focusFirstNode(): boolean;
+}
+
 export interface ExplorerProvider<TMeta = unknown> {
 	id: string;
 	empty?: ViewEmptyState;
@@ -30,6 +39,12 @@ export interface ExplorerProvider<TMeta = unknown> {
 	handleContextMenu(node: TreeNode<TMeta>, e: MouseEvent, selectedNodes?: TreeNode<TMeta>[]): void;
 	getNodeType?(node: TreeNode<TMeta>): MenuCtx['nodeType'];
 	handleBadgeDoubleClick?(queueIndex: number): void;
+	/**
+	 * Optional hook invoked when a hover badge is clicked. The kind is one
+	 * of the canonical `BadgeKind`s. Providers that opt in can dispatch
+	 * the corresponding action (queue a delete, open filter editor, etc.).
+	 */
+	handleHoverBadge?(node: TreeNode<TMeta>, kind: string): void;
 	onRename?(id: string, newLabel: string): void;
 	onCancelRename?(): void;
 	destroy?(): void;

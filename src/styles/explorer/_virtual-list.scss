@@ -96,12 +96,26 @@
 			transform: scale(0.85);
 		}
 
+		.vm-tree-hover-badge-zone {
+			display: inline-flex;
+			align-items: center;
+			gap: 2px;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.12s ease;
+		}
+
 		&:hover .vm-tree-row-surface,
 		&:focus-within .vm-tree-row-surface {
 			.vm-badge.is-quick-action {
 				opacity: 1;
 				pointer-events: auto;
 				transform: scale(1);
+			}
+
+			.vm-tree-hover-badge-zone {
+				opacity: 1;
+				pointer-events: auto;
 			}
 		}
 	}

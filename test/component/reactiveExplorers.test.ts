@@ -144,6 +144,13 @@ describe('reactive explorer components', () => {
 		});
 		flushSync();
 
+		// The Content tab now exposes a single input that toggles between
+		// search and replace via the mode pill; click the pill to switch.
+		const modePill = target.querySelector<HTMLButtonElement>('.vm-content-fnr-modepill');
+		expect(modePill).toBeTruthy();
+		modePill!.click();
+		flushSync();
+
 		const replaceInput = target.querySelector<HTMLInputElement>(
 			'input[aria-label="Replace with…"]',
 		);

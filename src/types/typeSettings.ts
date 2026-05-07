@@ -77,6 +77,27 @@ export interface VaultmanSettings {
 	contextMenuShowInMoreOptions: boolean;
 	/** Rules for hiding native/third-party items from workspace context menus */
 	contextMenuHideRules: MenuHideRule[];
+	/** Maximum number of records retained by the ops-log ring buffer. */
+	opsLogRetention?: number;
+	/**
+	 * Per-tab detach flags persisted by `LeafDetachService`. Keys are
+	 * canonical `TabId` strings from `src/registry/tabRegistry.ts`.
+	 * Owned exclusively by `LeafDetachService` (phase 6, multifacet wave 2).
+	 */
+	independentLeaves?: Record<string, boolean>;
+	/**
+	 * Folder where new binding notes are created (Phase 7, multifacet
+	 * wave 2). Empty string means vault root. The Settings UI validates
+	 * the folder exists or offers to create it before saving.
+	 */
+	bindingNoteFolder?: string;
+	/**
+	 * Default state for the FnR island `regex` flag on instantiation
+	 * (Phase 8, multifacet wave 2). When true, new `FnRIslandService`
+	 * instances start with `flags.regex = true` (and `wholeWord = false`
+	 * because of mutual exclusion).
+	 */
+	fnrRegexDefault?: boolean;
 }
 
 /** Minimal interface used by VaultmanSettingsTab — breaks the main.ts circular import. */
@@ -120,4 +141,8 @@ export const DEFAULT_SETTINGS: VaultmanSettings = {
 	contextMenuShowInEditorMenu: true,
 	contextMenuShowInMoreOptions: true,
 	contextMenuHideRules: [],
+	opsLogRetention: 1000,
+	independentLeaves: {},
+	bindingNoteFolder: '',
+	fnrRegexDefault: false,
 };

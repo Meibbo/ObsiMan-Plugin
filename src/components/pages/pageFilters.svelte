@@ -39,6 +39,8 @@
 		type FiltersSearchTab,
 		type FiltersSearchState,
 	} from '../frame/frameFiltersSearch';
+	import { FnRIslandService } from '../../services/serviceFnRIsland.svelte';
+	import type { PendingChange } from '../../types/typeOps';
 	// TODO: por quÃ© setIcon?
 	import { setIcon } from 'obsidian';
 
@@ -130,6 +132,35 @@
 		filtersViewMode = 'tree';
 		void refreshBasesImportTargets();
 	});
+
+	// Panel-scoped FnR island service. Single instance per page so the
+	// searchbox-mounted island does not double-mount. Initial regex flag
+	// state honours the `fnrRegexDefault` setting (Phase 8 multifacet 2).
+	const fnrIslandService = new FnRIslandService({
+		initialFlags: { regex: plugin.settings.fnrRegexDefault === true },
+	});
+
+	$effect(() => {
+		fnrIslandService.setActiveExplorer(filtersActiveTab);
+	});
+
+	// Surface the panel-scoped FnR island service to the plugin so the
+	// `vaultman:open-find-replace-active-explorer` command can drive it.
+	// Cleared on unmount so stale refs do not survive a re-mount.
+	$effect(() => {
+		(plugin as VaultmanPlugin & {
+			activeFnRIslandService?: FnRIslandService | null;
+		}).activeFnRIslandService = fnrIslandService;
+		return () => {
+			(plugin as VaultmanPlugin & {
+				activeFnRIslandService?: FnRIslandService | null;
+			}).activeFnRIslandService = null;
+		};
+	});
+
+	function handleCrear(change: PendingChange): void {
+		void plugin.queueService.add(change);
+	}
 
 	function setActiveFiltersSearch(term: string): void {
 		filtersSearchByTab = setFiltersSearch(filtersSearchByTab, filtersActiveTab, term);
@@ -289,6 +320,8 @@
 	onToggleNodeExpansion={requestNodeExpansionToggle}
 	{addOpCount}
 	{icon}
+	{fnrIslandService}
+	onCrear={handleCrear}
 />
 
 <div
