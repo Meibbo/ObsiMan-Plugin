@@ -42,6 +42,10 @@ tags:
   timestamp as approximate in the handoff or use a timestamp script.
 - Use one `parent` property with a full-path Obsidian wikilink and initiative alias.
 - Do not use `parent_path`.
+- Include agent tracking in frontmatter:
+    - `created_by`: the agent name who created the document.
+    - `updated_by`: the agent name who last edited the document.
+    - Allowed agents: `codex`, `claude`, `gemini`, `antigravity`, `perplexity`, `dev`.
 - Keep indexes compact; shard large docs into folder manifests.
 - Shards may be thematic or continuation-based. Do not force a topic boundary
   just to satisfy a line limit. If one topic exceeds the page size, continue it

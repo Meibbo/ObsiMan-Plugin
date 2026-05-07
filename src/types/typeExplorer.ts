@@ -4,6 +4,18 @@ import type { MenuCtx } from './typeCtxMenu';
 import type { ExplorerViewMode, ViewEmptyState } from './typeViews';
 export type { ExplorerViewMode } from './typeViews';
 
+export type ExplorerExpansionAction = 'expand-all' | 'collapse-all';
+
+export interface ExplorerExpansionCommand {
+	serial: number;
+	action: ExplorerExpansionAction;
+}
+
+export interface ExplorerExpansionSummary {
+	canToggle: boolean;
+	hasExpandedParents: boolean;
+}
+
 export interface ExplorerProvider<TMeta = unknown> {
 	id: string;
 	empty?: ViewEmptyState;

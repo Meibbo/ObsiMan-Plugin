@@ -6,9 +6,11 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-handoff.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-06T20:59:51
+updated: 2026-05-07T01:02:22
 tags:
   - agent/current
+created_by: dec
+updated_by: codex
 ---
 
 # Current Handoff
@@ -20,6 +22,8 @@ Archived completed/superseded handoff:
 
 - Continue [[docs/work/hardening/specs/2026-05-06-node-selection-service/index|Node selection service and viewgrid spec]] and
   [[docs/work/hardening/plans/2026-05-06-node-selection-service/index|Node selection service implementation plan]].
+- Latest user-requested plan:
+  [[docs/work/hardening/plans/2026-05-07-node-expansion-keyboard-grid/index|Node expansion, keyboard navigation, and hierarchical grid plan]].
 - Latest continuation:
   [[docs/work/hardening/research/2026-05-06-selection-tanstack-virtualizer-debug/index|Selection hang and TanStack virtualizer assimilation]].
 - Read [[docs/current/engineering-context|engineering context]] with this file
@@ -35,13 +39,15 @@ Archived completed/superseded handoff:
 - Phase 4 viewgrid is implemented and verified in the current worktree.
 - Phase 5 visual accessibility and Phase 6 verification are implemented and
   verified in the current worktree.
-- Next recommended slice is outside this plan: resume the parser compatibility
-  work that was superseded by node selection/viewgrid.
+- Next recommended slice: either implement the gated inline grid expansion mode
+  or resume parser compatibility work superseded by node selection/viewgrid.
 - A3 navbar badges and quick actions is implemented and verified.
 - Bases parser compatibility resumed after wave A; safe file `.contains(...)`
   expressions are now supported.
 - Previous next slice was deeper Obsidian/Bases/Dataview parser compatibility;
-  latest user request supersedes it.
+  latest user request supersedes it with a plan for tree expand/collapse
+  diagnosis, tree keyboard left/right behavior, sort-view expand/collapse-all,
+  and hierarchical grid navigation.
 - Selection hang continuation is implemented: `panelExplorer.svelte` cuts the
   accidental Svelte effect tracking loop with `untrack`, `ViewService.subscribe`
   is real, and tree/grid rendering uses `@tanstack/svelte-virtual`.
@@ -139,6 +145,10 @@ Archived completed/superseded handoff:
   coverage uses real `ViewService` provider decoration, grid rows are
   virtualized, tree rows use TanStack virtualizer, and final Obsidian CLI smoke
   selected both tree and grid nodes with clean `dev:errors`.
+- 2026-05-07 implementation continuation to preserve: tree reliability,
+  `ArrowLeft`/`ArrowRight`, sort expand/collapse-all, and default grid folder
+  navigation are implemented and verified; inline grid expansion is intentionally
+  gated behind a disabled setting option and folder-mode runtime fallback.
 
 ## Verified Commands
 

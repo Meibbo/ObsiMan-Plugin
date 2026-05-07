@@ -2,30 +2,31 @@ import { describe, it, expect } from 'vitest';
 import { ViewService } from '../../../src/services/serviceViews.svelte';
 
 describe('ViewService "Zombie Runes" Audit', () => {
-	it("fires notifications even if the selection hasn't effectively changed (add existing)", () => {
+	it("does not notify when the selection hasn't effectively changed", () => {
 		const svc = new ViewService();
 		const explorerId = 'test-explorer';
+		let calls = 0;
+		svc.subscribe(explorerId, () => {
+			calls += 1;
+		});
 
 		svc.select(explorerId, 'node-1', 'add');
-		const countAfterFirst = svc._notificationCount;
-
-		// Adding the same node again
 		svc.select(explorerId, 'node-1', 'add');
 
-		// In a true signal/rune-based system, if the state is the same,
-		// subscribers shouldn't be notified.
-		expect(svc._notificationCount).toBeGreaterThan(countAfterFirst);
+		expect(calls).toBe(1);
 	});
 
-	it('fires notifications for toggling expanded state without checking if anything changed', () => {
+	it('notifies subscribers for each expanded state transition', () => {
 		const svc = new ViewService();
 		const explorerId = 'test-explorer';
+		let calls = 0;
+		svc.subscribe(explorerId, () => {
+			calls += 1;
+		});
 
-		const initial = svc._notificationCount;
 		svc.toggleExpanded(explorerId, 'node-1');
-		svc.toggleExpanded(explorerId, 'node-1'); // Should be back to initial state
+		svc.toggleExpanded(explorerId, 'node-1');
 
-		// Fired 2 notifications for a net-zero change
-		expect(svc._notificationCount).toBe(initial + 2);
+		expect(calls).toBe(2);
 	});
 });

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { translate } from '../../../index/i18n/lang';
+	import type { ExplorerExpansionSummary } from '../../../types/typeExplorer';
 
 	type FiltersTab = 'props' | 'files' | 'tags' | 'content';
 
@@ -92,7 +93,9 @@
 		sortDir = $bindable('asc'),
 		operationScope = $bindable('auto'),
 		filesShowSelectedOnly = $bindable(false),
+		nodeExpansionSummary = { canToggle: false, hasExpandedParents: false },
 		onOperationScopeChange,
+		onToggleNodeExpansion,
 		icon,
 	}: {
 		activeTab: FiltersTab;
@@ -101,7 +104,9 @@
 		sortDir: 'asc' | 'desc';
 		operationScope: 'auto' | 'selected' | 'filtered' | 'all';
 		filesShowSelectedOnly?: boolean;
+		nodeExpansionSummary?: ExplorerExpansionSummary;
 		onOperationScopeChange?: (value: 'auto' | 'selected' | 'filtered' | 'all') => void;
+		onToggleNodeExpansion?: () => void;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	} = $props();
 
@@ -146,6 +151,14 @@
 				? 'lucide-list-checks'
 				: 'lucide-list'
 			: 'lucide-chevrons-down',
+	);
+	const nodeExpansionLabel = $derived(
+		nodeExpansionSummary.hasExpandedParents
+			? translate('sort.collapse_all_nodes')
+			: translate('sort.expand_all_nodes'),
+	);
+	const nodeExpansionIcon = $derived(
+		nodeExpansionSummary.hasExpandedParents ? 'lucide-chevrons-up' : 'lucide-chevrons-down',
 	);
 
 	function toggleVertBottom() {
@@ -233,6 +246,22 @@
 				tabindex="0"
 				use:icon={'lucide-bookmark'}
 			></div>
+			{#if nodeExpansionSummary.canToggle}
+				<div
+					class="vm-sort-circle-btn"
+					class:is-active={nodeExpansionSummary.hasExpandedParents}
+					data-vm-sort-node-expansion
+					aria-label={nodeExpansionLabel}
+					title={nodeExpansionLabel}
+					onclick={() => onToggleNodeExpansion?.()}
+					onkeydown={(e: KeyboardEvent) => {
+						if (e.key === 'Enter' || e.key === ' ') onToggleNodeExpansion?.();
+					}}
+					role="button"
+					tabindex="0"
+					use:icon={nodeExpansionIcon}
+				></div>
+			{/if}
 			<div
 				class="vm-sort-close-btn clickable-icon"
 				aria-label={translate('sort.close')}

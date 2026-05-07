@@ -246,6 +246,81 @@ body.vm-resizing {
 	box-sizing: border-box;
 }
 
+.vm-grid-nav-toolbar {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: center;
+	gap: 8px;
+	padding: 6px 8px;
+	border-bottom: 1px solid $vm-border-color;
+	background: color-mix(in srgb, $vm-bg-secondary 86%, transparent);
+}
+
+.vm-grid-nav-buttons {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.vm-grid-nav-button {
+	@include flex-center;
+	width: 26px;
+	height: 26px;
+	padding: 0;
+	border: 0;
+	border-radius: 6px;
+	color: $vm-text-muted;
+	background: transparent;
+
+	&:not(:disabled):hover,
+	&:not(:disabled):focus-visible {
+		color: $vm-text-normal;
+		background: $vm-bg-modifier-hover;
+	}
+
+	&:disabled {
+		opacity: 0.34;
+		cursor: default;
+	}
+}
+
+.vm-grid-breadcrumbs {
+	display: flex;
+	align-items: center;
+	gap: 3px;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.vm-grid-crumb {
+	min-width: 0;
+	max-width: 14rem;
+	padding: 3px 6px;
+	border: 0;
+	border-radius: 6px;
+	overflow: hidden;
+	color: $vm-text-muted;
+	background: transparent;
+	text-overflow: ellipsis;
+
+	&:hover,
+	&:focus-visible {
+		color: $vm-text-normal;
+		background: $vm-bg-modifier-hover;
+	}
+
+	&.is-current {
+		color: $vm-text-normal;
+		font-weight: 500;
+	}
+}
+
+.vm-grid-crumb-separator {
+	color: $vm-text-muted;
+	opacity: 0.6;
+}
+
 .vm-node-grid-inner {
 	position: relative;
 	width: 100%;

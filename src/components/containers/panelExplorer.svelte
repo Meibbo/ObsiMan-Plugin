@@ -3,9 +3,15 @@
 	import { untrack } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import type { VaultmanPlugin } from '../../main';
-	import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
+	import type {
+		ExplorerExpansionCommand,
+		ExplorerExpansionSummary,
+		ExplorerProvider,
+		ExplorerViewMode,
+	} from '../../types/typeExplorer';
 	import type { INodeSelectionService, NodeSelectionSnapshot } from '../../types/typeSelection';
 	import type { ViewEmptyState } from '../../types/typeViews';
+	import GridNavigationToolbar from '../layout/GridNavigationToolbar.svelte';
 	import ViewTree from '../views/viewTree.svelte';
 	import ViewNodeGrid from '../views/ViewNodeGrid.svelte';
 	import ViewEmptyLanding from '../views/viewEmptyLanding.svelte';
@@ -27,6 +33,8 @@
 		active = true,
 		showSelectedOnly = false,
 		selectedFiles = $bindable(new Set<string>()),
+		nodeExpansionCommand = null,
+		onNodeExpansionSummaryChange,
 		icon,
 	}: {
 		plugin: VaultmanPlugin;
@@ -40,12 +48,18 @@
 		active?: boolean;
 		showSelectedOnly?: boolean;
 		selectedFiles?: Set<string>;
+		nodeExpansionCommand?: ExplorerExpansionCommand | null;
+		onNodeExpansionSummaryChange?: (summary: ExplorerExpansionSummary) => void;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	} = $props();
 
 	let nodes = $state<TreeNode<TMeta>[]>([]);
 	let flatFiles = $state<TFile[]>([]);
 	let rootEl: HTMLDivElement | undefined = $state();
+	let currentGridParentId = $state<string | null>(null);
+	let gridBackStack = $state<(string | null)[]>([]);
+	let gridForwardStack = $state<(string | null)[]>([]);
+	const inlineGridHierarchyEnabled = false;
 	const manualExpandedIds = new SvelteSet<string>();
 	const manualCollapsedIds = new SvelteSet<string>();
 	const fallbackSelectionService = new NodeSelectionService();
@@ -67,8 +81,27 @@
 			autoExpandedIds,
 		}),
 	);
+	const expandableNodeIds = $derived(collectExpandableNodeIds(nodes));
+	const hasExpandedParents = $derived(expandableNodeIds.some((id) => expandedIds.has(id)));
 	const displayNodes = $derived(resolveDisplayNodes(nodes, expandedIds));
-	const gridNodes = $derived(viewMode === 'grid' ? flattenTreeNodes(nodes) : []);
+	const gridHierarchyMode = $derived.by((): 'folder' | 'inline' => {
+		const configured = (plugin as VaultmanPlugin & {
+			settings?: { gridHierarchyMode?: 'folder' | 'inline' };
+		}).settings?.gridHierarchyMode;
+		if (configured === 'inline' && inlineGridHierarchyEnabled) return 'inline';
+		return 'folder';
+	});
+	const currentGridPath = $derived(
+		currentGridParentId ? findNodePath(nodes, currentGridParentId) : [],
+	);
+	const currentGridNodes = $derived(childrenForGridLocation(nodes, currentGridParentId));
+	const gridNodes = $derived(
+		viewMode === 'grid'
+			? gridHierarchyMode === 'folder'
+				? currentGridNodes
+				: flattenTreeNodes(nodes)
+			: [],
+	);
 	const emptyState = $derived.by(() => resolveEmptyState(viewMode, searchTerm, provider));
 	const fallbackItemCount = $derived(flatFiles.length + nodes.length);
 	const fallbackState = $derived.by(() =>
@@ -77,6 +110,8 @@
 	const isTreeEmpty = $derived(viewMode === 'tree' && nodes.length === 0);
 	const isGridEmpty = $derived(viewMode === 'grid' && gridNodes.length === 0);
 	let lastCommittedSelectionKey = '';
+	let lastExpansionSummaryKey = '';
+	let lastExpansionCommandSerial = -1;
 
 	$effect(() => {
 		// React directly to prop changes
@@ -112,6 +147,38 @@
 		if (!active) return;
 		const snapshot = selectionService.prune(provider.id, visibleNodeIds());
 		untrack(() => commitSelection(snapshot));
+	});
+
+	$effect(() => {
+		if (viewMode !== 'grid' || gridHierarchyMode !== 'folder') return;
+		if (currentGridParentId && !findNodeById(nodes, currentGridParentId)) {
+			currentGridParentId = null;
+			gridBackStack = [];
+			gridForwardStack = [];
+		}
+	});
+
+	$effect(() => {
+		const summary = {
+			canToggle: expandableNodeIds.length > 0,
+			hasExpandedParents,
+		};
+		const key = `${summary.canToggle}:${summary.hasExpandedParents}`;
+		if (key === lastExpansionSummaryKey) return;
+		lastExpansionSummaryKey = key;
+		onNodeExpansionSummaryChange?.(summary);
+	});
+
+	$effect(() => {
+		if (!nodeExpansionCommand || nodeExpansionCommand.serial === lastExpansionCommandSerial) {
+			return;
+		}
+		lastExpansionCommandSerial = nodeExpansionCommand.serial;
+		if (nodeExpansionCommand.action === 'expand-all') {
+			expandAllParents();
+		} else {
+			collapseAllParents();
+		}
 	});
 
 	function refreshData() {
@@ -164,6 +231,10 @@
 		const additive = e.ctrlKey || e.metaKey;
 		const range = e.shiftKey;
 		commitSelection(selectionService.selectPointer(provider.id, visibleNodeIds(), id, { additive, range }));
+		if (viewMode === 'grid' && gridHierarchyMode === 'folder' && node.children?.length) {
+			navigateGridTo(node.id);
+			return;
+		}
 		activateNode(node);
 	}
 
@@ -178,7 +249,14 @@
 	}
 
 	function handleRowKeydown(id: string, e: KeyboardEvent) {
-		if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+		if (viewMode === 'grid' && gridHierarchyMode === 'folder' && handleGridNavigationKeydown(e)) {
+			return;
+		}
+		if (viewMode === 'tree' && e.key === 'ArrowLeft') {
+			handleTreeArrowLeft(id, e);
+		} else if (viewMode === 'tree' && e.key === 'ArrowRight') {
+			handleTreeArrowRight(id, e);
+		} else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
 			e.preventDefault();
 			if (!focusedNodeId) selectionService.setFocused(provider.id, id);
 			commitSelection(
@@ -200,6 +278,47 @@
 			const node = findNodeById(nodes, id);
 			if (node) handlePrimaryAction(id, e as unknown as MouseEvent);
 		}
+	}
+
+	function handleGridNavigationKeydown(e: KeyboardEvent): boolean {
+		if (e.altKey && e.key === 'ArrowLeft') {
+			e.preventDefault();
+			navigateGridBack();
+			return true;
+		}
+		if (e.altKey && e.key === 'ArrowRight') {
+			e.preventDefault();
+			navigateGridForward();
+			return true;
+		}
+		if (e.key === 'Backspace' || (e.altKey && e.key === 'ArrowUp')) {
+			e.preventDefault();
+			navigateGridUp();
+			return true;
+		}
+		return false;
+	}
+
+	function handleTreeArrowLeft(id: string, e: KeyboardEvent) {
+		const node = findNodeById(nodes, id);
+		if (!node) return;
+		const hasChildren = !!node.children && node.children.length > 0;
+		if (hasChildren && expandedIds.has(id)) {
+			e.preventDefault();
+			collapseNode(id);
+			return;
+		}
+		const parentId = parentIdFor(nodes, id);
+		if (!parentId) return;
+		e.preventDefault();
+		commitSelection(selectionService.selectPointer(provider.id, visibleNodeIds(), parentId));
+	}
+
+	function handleTreeArrowRight(id: string, e: KeyboardEvent) {
+		const node = findNodeById(nodes, id);
+		if (!node?.children || node.children.length === 0 || expandedIds.has(id)) return;
+		e.preventDefault();
+		expandNode(id);
 	}
 
 	function activateNode(node: TreeNode<TMeta>) {
@@ -229,12 +348,28 @@
 
 	function toggleExpand(id: string) {
 		if (expandedIds.has(id)) {
-			manualExpandedIds.delete(id);
-			manualCollapsedIds.add(id);
+			collapseNode(id);
 		} else {
-			manualExpandedIds.add(id);
-			manualCollapsedIds.delete(id);
+			expandNode(id);
 		}
+	}
+
+	function expandNode(id: string) {
+		manualExpandedIds.add(id);
+		manualCollapsedIds.delete(id);
+	}
+
+	function collapseNode(id: string) {
+		manualExpandedIds.delete(id);
+		manualCollapsedIds.add(id);
+	}
+
+	function expandAllParents() {
+		for (const id of expandableNodeIds) expandNode(id);
+	}
+
+	function collapseAllParents() {
+		for (const id of expandableNodeIds) collapseNode(id);
 	}
 
 	function handleBoxSelect(ids: string[], e: PointerEvent) {
@@ -282,7 +417,7 @@
 	}
 
 	function visibleNodeIds(): string[] {
-		if (viewMode === 'grid') return flattenTreeNodes(nodes).map((node) => node.id);
+		if (viewMode === 'grid') return gridNodes.map((node) => node.id);
 		const ids: string[] = [];
 		const walk = (items: TreeNode<TMeta>[]) => {
 			for (const node of items) {
@@ -292,6 +427,50 @@
 		};
 		walk(nodes);
 		return ids;
+	}
+
+	function navigateGridTo(parentId: string | null, recordHistory = true) {
+		if (parentId === currentGridParentId) return;
+		if (recordHistory) {
+			gridBackStack = [...gridBackStack, currentGridParentId];
+			gridForwardStack = [];
+		}
+		currentGridParentId = parentId;
+		clearNodeSelection();
+	}
+
+	function navigateGridBack() {
+		if (gridBackStack.length === 0) return;
+		const previous = gridBackStack[gridBackStack.length - 1];
+		gridBackStack = gridBackStack.slice(0, -1);
+		gridForwardStack = [currentGridParentId, ...gridForwardStack];
+		currentGridParentId = previous;
+		clearNodeSelection();
+	}
+
+	function navigateGridForward() {
+		if (gridForwardStack.length === 0) return;
+		const next = gridForwardStack[0];
+		gridForwardStack = gridForwardStack.slice(1);
+		gridBackStack = [...gridBackStack, currentGridParentId];
+		currentGridParentId = next;
+		clearNodeSelection();
+	}
+
+	function navigateGridUp() {
+		if (!currentGridParentId) return;
+		const path = findNodePath(nodes, currentGridParentId);
+		const parent = path.length > 1 ? path[path.length - 2] : null;
+		navigateGridTo(parent?.id ?? null);
+	}
+
+	function refreshGridLocation() {
+		refreshData();
+		if (currentGridParentId && !findNodeById(nodes, currentGridParentId)) {
+			currentGridParentId = null;
+			gridBackStack = [];
+			gridForwardStack = [];
+		}
 	}
 
 	function flattenTreeNodes(items: TreeNode<TMeta>[]): TreeNode<TMeta>[] {
@@ -304,6 +483,51 @@
 		};
 		walk(items);
 		return out;
+	}
+
+	function collectExpandableNodeIds(items: TreeNode<TMeta>[]): string[] {
+		const ids: string[] = [];
+		const walk = (list: TreeNode<TMeta>[]) => {
+			for (const node of list) {
+				if (node.children && node.children.length > 0) {
+					ids.push(node.id);
+					walk(node.children);
+				}
+			}
+		};
+		walk(items);
+		return ids;
+	}
+
+	function parentIdFor(items: TreeNode<TMeta>[], childId: string): string | null {
+		for (const node of items) {
+			if (node.children?.some((child) => child.id === childId)) return node.id;
+			if (node.children) {
+				const found = parentIdFor(node.children, childId);
+				if (found) return found;
+			}
+		}
+		return null;
+	}
+
+	function findNodePath(items: TreeNode<TMeta>[], id: string): TreeNode<TMeta>[] {
+		for (const node of items) {
+			if (node.id === id) return [node];
+			if (node.children) {
+				const childPath = findNodePath(node.children, id);
+				if (childPath.length > 0) return [node, ...childPath];
+			}
+		}
+		return [];
+	}
+
+	function childrenForGridLocation(
+		items: TreeNode<TMeta>[],
+		parentId: string | null,
+	): TreeNode<TMeta>[] {
+		if (!parentId) return items;
+		const parent = findNodeById(items, parentId);
+		return parent?.children ? [...parent.children] : [];
 	}
 
 	function selectedNodesForContext(node: TreeNode<TMeta>): TreeNode<TMeta>[] {
@@ -407,6 +631,21 @@
 		</div>
 	{:else if viewMode === 'grid'}
 		<div class="vm-grid-container">
+			{#if gridHierarchyMode === 'folder'}
+				<GridNavigationToolbar
+					path={currentGridPath}
+					canBack={gridBackStack.length > 0}
+					canForward={gridForwardStack.length > 0}
+					canUp={currentGridParentId !== null}
+					onBack={navigateGridBack}
+					onForward={navigateGridForward}
+					onUp={navigateGridUp}
+					onRefresh={refreshGridLocation}
+					onNavigateRoot={() => navigateGridTo(null)}
+					onNavigateCrumb={(id) => navigateGridTo(id)}
+					{icon}
+				/>
+			{/if}
 			{#if isGridEmpty}
 				<ViewEmptyLanding state={emptyState} {icon} />
 			{:else}

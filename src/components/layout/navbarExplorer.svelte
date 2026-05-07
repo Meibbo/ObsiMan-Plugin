@@ -7,6 +7,7 @@
 	import { explorerTags } from '../containers/explorerTags';
 	import { SEARCH_SEMANTICS_SOURCES } from '../frame/frameSearchSources';
 	import type { ActiveFnRRenameHandoff, FnRState } from '../../types/typeFnR';
+	import type { ExplorerExpansionSummary } from '../../types/typeExplorer';
 
 	type FiltersTab = 'props' | 'files' | 'tags' | 'content';
 	type HeaderMode = 'header' | 'sort' | 'viewmode';
@@ -29,6 +30,8 @@
 		onRenameReplacementChange,
 		onRenameConfirm,
 		onRenameCancel,
+		nodeExpansionSummary = { canToggle: false, hasExpandedParents: false },
+		onToggleNodeExpansion,
 		icon,
 		addOpCount = 0,
 	}: {
@@ -52,6 +55,8 @@
 		onRenameReplacementChange?: (replacement: string) => void;
 		onRenameConfirm?: () => void;
 		onRenameCancel?: () => void;
+		nodeExpansionSummary?: ExplorerExpansionSummary;
+		onToggleNodeExpansion?: () => void;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 		addOpCount?: number;
 	} = $props();
@@ -281,6 +286,8 @@
 					bind:sortDir={sortDirection}
 					bind:operationScope
 					bind:filesShowSelectedOnly
+					{nodeExpansionSummary}
+					{onToggleNodeExpansion}
 					{onOperationScopeChange}
 					{icon}
 				/>

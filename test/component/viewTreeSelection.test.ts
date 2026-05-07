@@ -11,6 +11,17 @@ describe('ViewTree selection gestures', () => {
 		target = document.createElement('div');
 		document.body.appendChild(target);
 		vi.stubGlobal(
+			'PointerEvent',
+			class extends MouseEvent {
+				pointerId: number;
+
+				constructor(type: string, init: PointerEventInit = {}) {
+					super(type, init);
+					this.pointerId = init.pointerId ?? 1;
+				}
+			},
+		);
+		vi.stubGlobal(
 			'ResizeObserver',
 			class {
 				observe(): void {}
@@ -88,6 +99,67 @@ describe('ViewTree selection gestures', () => {
 		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
 	});
 
+	it('clicking the chevron toggles expansion from selected and active rows', () => {
+		const handlers = renderTree(
+			[
+				{
+					id: 'parent',
+					label: 'Parent',
+					depth: 0,
+					meta: {},
+					children: [{ id: 'child', label: 'Child', depth: 1, meta: {} }],
+				},
+			],
+			{
+				expandedIds: new Set(['parent']),
+				selectedIds: new Set(['parent']),
+				activeFilterIds: new Set(['parent']),
+				focusedId: 'parent',
+			},
+		);
+
+		(target.querySelector('.vm-tree-toggle') as HTMLElement).click();
+
+		expect(handlers.onToggle).toHaveBeenCalledOnce();
+		expect(handlers.onToggle).toHaveBeenCalledWith('parent');
+		expect(handlers.onRowClick).not.toHaveBeenCalled();
+		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
+	});
+
+	it('does not let a completed selection rectangle swallow the next chevron click', () => {
+		const handlers = renderTree(
+			[
+				{
+					id: 'parent',
+					label: 'Parent',
+					depth: 0,
+					meta: {},
+					children: [{ id: 'child', label: 'Child', depth: 1, meta: {} }],
+				},
+			],
+			{ expandedIds: new Set(['parent']) },
+		);
+		const tree = target.querySelector('.vm-tree-virtual-outer') as HTMLElement;
+		Object.assign(tree, {
+			setPointerCapture: vi.fn(),
+			releasePointerCapture: vi.fn(),
+			hasPointerCapture: vi.fn(() => true),
+		});
+		vi.spyOn(tree, 'getBoundingClientRect').mockReturnValue(rect(0, 0, 240, 120));
+
+		tree.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 0, clientY: 0 }));
+		tree.dispatchEvent(
+			new PointerEvent('pointermove', { bubbles: true, clientX: 220, clientY: 64 }),
+		);
+		tree.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, clientX: 220, clientY: 64 }));
+		(target.querySelector('.vm-tree-toggle') as HTMLElement).click();
+		(target.querySelector('.vm-tree-toggle') as HTMLElement).click();
+
+		expect(handlers.onToggle).toHaveBeenCalledTimes(2);
+		expect(handlers.onRowClick).not.toHaveBeenCalled();
+		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
+	});
+
 	it('clicking an actionable badge only runs the badge action', () => {
 		const onBadgeAction = vi.fn();
 		const handlers = renderTree([
@@ -110,6 +182,63 @@ describe('ViewTree selection gestures', () => {
 		(target.querySelector('.vm-badge.is-quick-action') as HTMLElement).click();
 
 		expect(onBadgeAction).toHaveBeenCalledOnce();
+		expect(handlers.onRowClick).not.toHaveBeenCalled();
+		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
+	});
+
+	it('keeps inherited badge actions and chevron expansion isolated on collapsed parents', () => {
+		const handlers = renderTree([
+			{
+				id: 'parent',
+				label: 'Parent',
+				depth: 0,
+				meta: {},
+				badges: [
+					{
+						text: 'Hidden',
+						icon: 'lucide-trash-2',
+						isInherited: true,
+						queueIndex: 2,
+					},
+				],
+				children: [{ id: 'child', label: 'Child', depth: 1, meta: {} }],
+			},
+		]);
+
+		(target.querySelector('.vm-tree-child-badge-pill .vm-badge') as HTMLElement).click();
+		(target.querySelector('.vm-tree-toggle') as HTMLElement).click();
+
+		expect(handlers.onToggle).toHaveBeenCalledOnce();
+		expect(handlers.onToggle).toHaveBeenCalledWith('parent');
+		expect(handlers.onRowClick).not.toHaveBeenCalled();
+		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
+	});
+
+	it('keeps parent quick-action badges and chevron expansion isolated', () => {
+		const onBadgeAction = vi.fn();
+		const handlers = renderTree([
+			{
+				id: 'parent',
+				label: 'Parent',
+				depth: 0,
+				meta: {},
+				badges: [
+					{
+						text: 'Add',
+						icon: 'lucide-plus',
+						quickAction: true,
+						onClick: onBadgeAction,
+					},
+				],
+				children: [{ id: 'child', label: 'Child', depth: 1, meta: {} }],
+			},
+		]);
+
+		(target.querySelector('.vm-badge.is-quick-action') as HTMLElement).click();
+		(target.querySelector('.vm-tree-toggle') as HTMLElement).click();
+
+		expect(onBadgeAction).toHaveBeenCalledOnce();
+		expect(handlers.onToggle).toHaveBeenCalledOnce();
 		expect(handlers.onRowClick).not.toHaveBeenCalled();
 		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
 	});
@@ -209,3 +338,17 @@ describe('ViewTree selection gestures', () => {
 		expect(focused.classList.contains('is-focused')).toBe(true);
 	});
 });
+
+function rect(left: number, top: number, right: number, bottom: number): DOMRect {
+	return {
+		x: left,
+		y: top,
+		left,
+		top,
+		right,
+		bottom,
+		width: right - left,
+		height: bottom - top,
+		toJSON: () => ({}),
+	} as DOMRect;
+}

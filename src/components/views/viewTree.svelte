@@ -76,6 +76,9 @@
 		initialRect: { width: TREE_FALLBACK_WIDTH, height: TREE_FALLBACK_HEIGHT },
 	});
 	const virtualRows = $derived($rowVirtualizer.getVirtualItems());
+	const renderedVirtualRows = $derived(
+		virtualRows.filter((virtualRow) => virtualRow.index < flatArray.length),
+	);
 	const totalH = $derived($rowVirtualizer.getTotalSize());
 
 	$effect(() => {
@@ -386,7 +389,7 @@
 	tabindex="-1"
 >
 	<div class="vm-tree-virtual-inner" style="--vm-tree-total-h: {totalH}px">
-		{#each virtualRows as virtualRow (virtualRow.key)}
+		{#each renderedVirtualRows as virtualRow (virtualRow.key)}
 			{@const flat = flatArray[virtualRow.index]}
 			{@const node = flat.node}
 			{@const isActive = activeFilterIds?.has(node.id) ?? false}

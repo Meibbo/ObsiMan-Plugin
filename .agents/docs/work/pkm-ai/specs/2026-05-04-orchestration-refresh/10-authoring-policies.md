@@ -35,6 +35,17 @@ parent: "[[docs/work/pkm-ai/specs/topic/index|pkm-ai]]"
 
 Do not add a second verbose parent path field.
 
+## Agent Tracking
+
+Every agent-generated document must include tracking properties in the frontmatter:
+
+```yaml
+created_by: agent-name
+updated_by: agent-name
+```
+
+Allowed agent names: `codex`, `claude`, `gemini`, `antigravity`, `perplexity`, `dec`.
+
 ## Policy Enforcement
 
 Agents may forget detailed conventions. Therefore health scripts must verify

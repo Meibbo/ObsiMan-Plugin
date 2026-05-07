@@ -311,6 +311,9 @@ export const es: Record<string, string> = {
 	'explorer.sort.section_values': 'Valores',
 	'explorer.sort.value_name': 'Por nombre',
 	'explorer.sort.value_count': 'Por ocurrencias',
+	'sort.expand_all_nodes': 'Expandir todo',
+	'sort.collapse_all_nodes': 'Colapsar todo',
+	'sort.toggle_node_expansion': 'Alternar expansión de nodos',
 
 	// Grid settings
 	'settings.grid_render_mode': 'Modo de renderizado de la tabla',
@@ -318,6 +321,9 @@ export const es: Record<string, string> = {
 	'settings.grid_render_mode.plain': 'Texto plano',
 	'settings.grid_render_mode.chunk': 'Vista previa (por bloques)',
 	'settings.grid_render_mode.all': 'Vista previa (todo a la vez)',
+	'settings.grid_hierarchy_mode': 'Modo de jerarquía del grid',
+	'settings.grid_hierarchy_mode.folder': 'Navegación por carpetas',
+	'settings.grid_hierarchy_mode.inline': 'Expansión inline',
 	'settings.grid_editable_columns': 'Columnas editables',
 	'settings.grid_editable_columns.desc':
 		'Columnas que permiten edición en línea (separadas por coma, incluir "name" para renombrar)',

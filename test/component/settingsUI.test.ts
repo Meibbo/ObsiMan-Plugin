@@ -86,4 +86,24 @@ describe('SettingsUI mount (regression: effect_update_depth_exceeded)', () => {
 
 		expect(JSON.stringify(plugin.settings)).toBe(before);
 	});
+
+	it('renders the grid hierarchy mode setting without autosaving on mount', () => {
+		const plugin = makeFakePlugin();
+
+		app = mount(SettingsUI as unknown as Component<{ plugin: iVaultmanPlugin }>, {
+			target,
+			props: { plugin: plugin as unknown as iVaultmanPlugin },
+		});
+		flushSync();
+
+		expect(target.textContent).toContain('Grid hierarchy mode');
+		expect(target.textContent).toContain('Folder navigation');
+		expect(target.textContent).toContain('Inline expansion');
+		const inlineOption = [...target.querySelectorAll('option')].find(
+			(option) => option.textContent === 'Inline expansion',
+		);
+		expect(inlineOption?.disabled).toBe(true);
+		expect(plugin.saveSettings).not.toHaveBeenCalled();
+		expect(plugin.settings.gridHierarchyMode).toBe('folder');
+	});
 });

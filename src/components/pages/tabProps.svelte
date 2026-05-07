@@ -3,6 +3,10 @@
 	import { explorerProps } from '../containers/explorerProps';
 	import PanelExplorer from '../containers/panelExplorer.svelte';
 	import type { VaultmanPlugin } from '../../main';
+	import type {
+		ExplorerExpansionCommand,
+		ExplorerExpansionSummary,
+	} from '../../types/typeExplorer';
 	import type { FnRRenameHandoff } from '../../types/typeFnR';
 	import { setIcon } from 'obsidian';
 
@@ -15,6 +19,8 @@
 		viewMode = $bindable('tree'),
 		active = true,
 		explorer = $bindable(),
+		nodeExpansionCommand = null,
+		onNodeExpansionSummaryChange,
 		startRenameHandoff,
 	}: {
 		plugin: VaultmanPlugin;
@@ -25,6 +31,8 @@
 		viewMode?: any;
 		active?: boolean;
 		explorer: explorerProps | undefined;
+		nodeExpansionCommand?: ExplorerExpansionCommand | null;
+		onNodeExpansionSummaryChange?: (summary: ExplorerExpansionSummary) => void;
 		startRenameHandoff?: (handoff: FnRRenameHandoff) => void;
 	} = $props();
 
@@ -57,6 +65,8 @@
 			bind:sortBy
 			bind:sortDirection
 			{active}
+			{nodeExpansionCommand}
+			{onNodeExpansionSummaryChange}
 			{icon}
 		/>
 	{/if}

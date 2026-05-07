@@ -24,6 +24,10 @@
 		updateRenameHandoffReplacement,
 	} from '../../services/serviceFnR';
 	import type { ActiveFnRRenameHandoff, FnRRenameHandoff, FnRState } from '../../types/typeFnR';
+	import type {
+		ExplorerExpansionCommand,
+		ExplorerExpansionSummary,
+	} from '../../types/typeExplorer';
 	import type { FilterGroup } from '../../types/typeFilter';
 	import type { BasesImportTarget } from '../../types/typeBasesInterop';
 	import {
@@ -91,6 +95,17 @@
 	);
 	let basesImportVersion = $state(0);
 	let lastBasesImportPreview = $state<ReturnType<typeof previewBasesImport> | null>(null);
+	let nodeExpansionSerial = $state(0);
+	let nodeExpansionSummaries = $state<Record<FiltersSearchTab, ExplorerExpansionSummary>>(
+		createExpansionSummaryState(),
+	);
+	let nodeExpansionCommands = $state<Record<FiltersSearchTab, ExplorerExpansionCommand | null>>(
+		createExpansionCommandState(),
+	);
+
+	const activeNodeExpansionSummary = $derived(
+		nodeExpansionSummaries[filtersActiveTab] ?? emptyExpansionSummary(),
+	);
 
 	function icon(el: HTMLElement, name: string) {
 		setIcon(el, name);
@@ -122,6 +137,29 @@
 
 	function commitActiveFiltersSearch(term: string): void {
 		filtersSearchByTab = addFiltersSearchHistory(filtersSearchByTab, filtersActiveTab, term);
+	}
+
+	function setNodeExpansionSummary(tab: FiltersSearchTab, summary: ExplorerExpansionSummary): void {
+		const current = nodeExpansionSummaries[tab];
+		if (
+			current?.canToggle === summary.canToggle &&
+			current?.hasExpandedParents === summary.hasExpandedParents
+		) {
+			return;
+		}
+		nodeExpansionSummaries = { ...nodeExpansionSummaries, [tab]: summary };
+	}
+
+	function requestNodeExpansionToggle(): void {
+		if (!activeNodeExpansionSummary.canToggle) return;
+		nodeExpansionSerial += 1;
+		nodeExpansionCommands = {
+			...nodeExpansionCommands,
+			[filtersActiveTab]: {
+				serial: nodeExpansionSerial,
+				action: activeNodeExpansionSummary.hasExpandedParents ? 'collapse-all' : 'expand-all',
+			},
+		};
 	}
 
 	function setContentSearch(term: string): void {
@@ -194,6 +232,28 @@
 	function isActiveRenameHandoff(handoff: FnRRenameHandoff): handoff is ActiveFnRRenameHandoff {
 		return handoff.status === 'editing' || handoff.status === 'ready';
 	}
+
+	function emptyExpansionSummary(): ExplorerExpansionSummary {
+		return { canToggle: false, hasExpandedParents: false };
+	}
+
+	function createExpansionSummaryState(): Record<FiltersSearchTab, ExplorerExpansionSummary> {
+		return {
+			props: emptyExpansionSummary(),
+			files: emptyExpansionSummary(),
+			tags: emptyExpansionSummary(),
+			content: emptyExpansionSummary(),
+		};
+	}
+
+	function createExpansionCommandState(): Record<FiltersSearchTab, ExplorerExpansionCommand | null> {
+		return {
+			props: null,
+			files: null,
+			tags: null,
+			content: null,
+		};
+	}
 </script>
 
 <NavbarTabs
@@ -225,6 +285,8 @@
 	onRenameReplacementChange={updateRenameReplacement}
 	onRenameConfirm={queueRename}
 	onRenameCancel={cancelRename}
+	nodeExpansionSummary={activeNodeExpansionSummary}
+	onToggleNodeExpansion={requestNodeExpansionToggle}
 	{addOpCount}
 	{icon}
 />
@@ -246,6 +308,8 @@
 					searchMode={filtersSearchCategory.files}
 					bind:sortBy={filtersSortBy}
 					bind:sortDirection={filtersSortDir}
+					nodeExpansionCommand={nodeExpansionCommands.files}
+					onNodeExpansionSummaryChange={(summary) => setNodeExpansionSummary('files', summary)}
 					{icon}
 				/>
 			{/key}
@@ -261,6 +325,8 @@
 				bind:viewMode={filtersViewMode}
 				bind:explorer={propExplorer}
 				active={filtersActiveTab === 'props'}
+				nodeExpansionCommand={nodeExpansionCommands.props}
+				onNodeExpansionSummaryChange={(summary) => setNodeExpansionSummary('props', summary)}
 				{startRenameHandoff}
 			/>
 		</div>
@@ -277,6 +343,8 @@
 				showSelectedOnly={filesShowSelectedOnly}
 				onSelectionChange={(c) => (selectedCount = c)}
 				active={filtersActiveTab === 'files'}
+				nodeExpansionCommand={nodeExpansionCommands.files}
+				onNodeExpansionSummaryChange={(summary) => setNodeExpansionSummary('files', summary)}
 				{startRenameHandoff}
 			/>
 		</div>
@@ -290,6 +358,8 @@
 				bind:viewMode={filtersViewMode}
 				bind:explorer={tagsExplorer}
 				active={filtersActiveTab === 'tags'}
+				nodeExpansionCommand={nodeExpansionCommands.tags}
+				onNodeExpansionSummaryChange={(summary) => setNodeExpansionSummary('tags', summary)}
 				{startRenameHandoff}
 			/>
 		</div>
@@ -304,6 +374,8 @@
 				bind:sortDirection={filtersSortDir}
 				bind:viewMode={filtersViewMode}
 				active={filtersActiveTab === 'content'}
+				nodeExpansionCommand={nodeExpansionCommands.content}
+				onNodeExpansionSummaryChange={(summary) => setNodeExpansionSummary('content', summary)}
 				{icon}
 			/>
 		</div>

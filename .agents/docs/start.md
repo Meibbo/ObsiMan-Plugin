@@ -7,6 +7,8 @@ created: 2026-05-04T01:36:20
 updated: 2026-05-04T16:12:00
 tags:
   - agent/router
+created_by: dev
+updated_by: antigravity
 ---
 
 # Agent Start Router

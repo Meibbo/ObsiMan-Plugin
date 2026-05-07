@@ -7,7 +7,7 @@
 		onChange,
 	}: {
 		value: T;
-		options: { value: T; label: string }[];
+		options: { value: T; label: string; disabled?: boolean }[];
 		label?: string;
 		disabled?: boolean;
 		onChange?: (next: T) => void;
@@ -26,7 +26,7 @@
 	{#if label}<span class="vm-dropdown-label">{label}</span>{/if}
 	<select bind:value {disabled} onchange={handleChange}>
 		{#each options as opt (String(opt.value))}
-			<option value={opt.value}>{opt.label}</option>
+			<option value={opt.value} disabled={opt.disabled}>{opt.label}</option>
 		{/each}
 	</select>
 </label>

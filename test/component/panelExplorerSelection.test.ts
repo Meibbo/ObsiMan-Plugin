@@ -18,6 +18,33 @@ function nodes(): TreeNode[] {
 	];
 }
 
+function nestedNodes(): TreeNode[] {
+	return [
+		{
+			id: 'parent',
+			label: 'Parent',
+			depth: 0,
+			meta: {},
+			icon: 'lucide-folder',
+			children: [{ id: 'child', label: 'Child', depth: 1, meta: {}, icon: 'lucide-file' }],
+		},
+		{ id: 'sibling', label: 'Sibling', depth: 0, meta: {}, icon: 'lucide-file' },
+	];
+}
+
+function largeNestedNodes(): TreeNode[] {
+	return [
+		...nestedNodes(),
+		...Array.from({ length: 8 }, (_, index) => ({
+			id: `leaf-${index}`,
+			label: `Leaf ${index}`,
+			depth: 0,
+			meta: {},
+			icon: 'lucide-file',
+		})),
+	];
+}
+
 function plugin(
 	selectionService = new NodeSelectionService(),
 	viewService: VaultmanPlugin['viewService'] = {
@@ -79,6 +106,8 @@ describe('PanelExplorer tree selection adapter', () => {
 			selectionService?: NodeSelectionService;
 			provider?: ExplorerProvider;
 			viewMode?: ExplorerViewMode;
+			nodeExpansionCommand?: unknown;
+			onNodeExpansionSummaryChange?: (summary: unknown) => void;
 		} = {},
 	) {
 		const selectionService = options.selectionService ?? new NodeSelectionService();
@@ -90,6 +119,8 @@ describe('PanelExplorer tree selection adapter', () => {
 				plugin: pluginStub,
 				provider: providerStub,
 				viewMode: options.viewMode ?? 'tree',
+				nodeExpansionCommand: options.nodeExpansionCommand,
+				onNodeExpansionSummaryChange: options.onNodeExpansionSummaryChange,
 				icon: vi.fn(() => ({ update: vi.fn() })),
 			},
 		});
@@ -191,6 +222,130 @@ describe('PanelExplorer tree selection adapter', () => {
 		expect(target.querySelector('[data-id="alpha"]')?.getAttribute('aria-selected')).toBe('false');
 	});
 
+	it('grid folder mode shows root parents without flattening descendants', () => {
+		renderPanel({
+			viewMode: 'grid',
+			provider: provider({ getTree: vi.fn(() => nestedNodes()) }),
+		});
+
+		expect(target.querySelector('[data-id="parent"]')).not.toBeNull();
+		expect(target.querySelector('[data-id="sibling"]')).not.toBeNull();
+		expect(target.querySelector('[data-id="child"]')).toBeNull();
+	});
+
+	it('gates inline grid hierarchy to folder navigation until inline expansion is implemented', () => {
+		const selectionService = new NodeSelectionService();
+		const pluginStub = plugin(selectionService);
+		pluginStub.settings = { ...pluginStub.settings, gridHierarchyMode: 'inline' };
+
+		mount(PanelExplorer as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: {
+				plugin: pluginStub,
+				provider: provider({ getTree: vi.fn(() => nestedNodes()) }),
+				viewMode: 'grid',
+				icon: vi.fn(() => ({ update: vi.fn() })),
+			},
+		});
+		flushSync();
+
+		expect(target.querySelector('.vm-grid-nav-toolbar')).not.toBeNull();
+		expect(target.querySelector('[data-id="parent"]')).not.toBeNull();
+		expect(target.querySelector('[data-id="child"]')).toBeNull();
+	});
+
+	it('grid folder mode opens parent tiles into their child nodes and keeps leaf activation', () => {
+		const providerStub = provider({ getTree: vi.fn(() => nestedNodes()) });
+		renderPanel({ viewMode: 'grid', provider: providerStub });
+
+		(target.querySelector('[data-id="parent"] .vm-node-grid-label') as HTMLElement).click();
+		flushSync();
+
+		expect(target.querySelector('[data-id="parent"]')).toBeNull();
+		expect(target.querySelector('[data-id="sibling"]')).toBeNull();
+		expect(target.querySelector('[data-id="child"]')).not.toBeNull();
+		expect(providerStub.handleNodeClick).not.toHaveBeenCalled();
+
+		(target.querySelector('[data-id="child"] .vm-node-grid-label') as HTMLElement).click();
+		flushSync();
+
+		expect(providerStub.handleNodeClick).toHaveBeenCalledOnce();
+		expect(providerStub.handleNodeClick).toHaveBeenCalledWith(
+			expect.objectContaining({ id: 'child' }),
+		);
+	});
+
+	it('grid folder navigation toolbar supports up, back, forward, refresh, and root crumbs', () => {
+		renderPanel({
+			viewMode: 'grid',
+			provider: provider({ getTree: vi.fn(() => nestedNodes()) }),
+		});
+
+		expect(target.querySelector('.vm-grid-nav-toolbar')).not.toBeNull();
+		(target.querySelector('[data-id="parent"] .vm-node-grid-label') as HTMLElement).click();
+		flushSync();
+		expect(target.querySelector('[data-id="child"]')).not.toBeNull();
+
+		(target.querySelector('[data-vm-grid-nav="up"]') as HTMLButtonElement).click();
+		flushSync();
+		expect(target.querySelector('[data-id="parent"]')).not.toBeNull();
+		expect(target.querySelector('[data-id="child"]')).toBeNull();
+
+		(target.querySelector('[data-vm-grid-nav="back"]') as HTMLButtonElement).click();
+		flushSync();
+		expect(target.querySelector('[data-id="child"]')).not.toBeNull();
+
+		(target.querySelector('[data-vm-grid-nav="forward"]') as HTMLButtonElement).click();
+		flushSync();
+		expect(target.querySelector('[data-id="parent"]')).not.toBeNull();
+
+		(target.querySelector('[data-id="parent"] .vm-node-grid-label') as HTMLElement).click();
+		flushSync();
+		(target.querySelector('[data-vm-grid-crumb="root"]') as HTMLButtonElement).click();
+		flushSync();
+		expect(target.querySelector('[data-id="parent"]')).not.toBeNull();
+
+		(target.querySelector('[data-vm-grid-nav="refresh"]') as HTMLButtonElement).click();
+		flushSync();
+		expect(target.querySelector('[data-id="parent"]')).not.toBeNull();
+	});
+
+	it('grid folder keyboard navigation opens parents and moves through history', () => {
+		renderPanel({
+			viewMode: 'grid',
+			provider: provider({ getTree: vi.fn(() => nestedNodes()) }),
+		});
+
+		(target.querySelector('[data-id="parent"]') as HTMLElement).dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }),
+		);
+		flushSync();
+		expect(target.querySelector('[data-id="child"]')).not.toBeNull();
+
+		(target.querySelector('[data-id="child"]') as HTMLElement).dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true }),
+		);
+		flushSync();
+		expect(target.querySelector('[data-id="parent"]')).not.toBeNull();
+		expect(target.querySelector('[data-id="child"]')).toBeNull();
+
+		(target.querySelector('[data-id="parent"]') as HTMLElement).dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }),
+		);
+		flushSync();
+		(target.querySelector('[data-id="child"]') as HTMLElement).dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'ArrowLeft', altKey: true, bubbles: true }),
+		);
+		flushSync();
+		expect(target.querySelector('[data-id="parent"]')).not.toBeNull();
+
+		(target.querySelector('[data-id="parent"]') as HTMLElement).dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'ArrowRight', altKey: true, bubbles: true }),
+		);
+		flushSync();
+		expect(target.querySelector('[data-id="child"]')).not.toBeNull();
+	});
+
 	it('does not refresh provider trees from reactive ViewService decoration when selecting a row', () => {
 		const selectionService = new NodeSelectionService();
 		const viewService = new ViewService();
@@ -239,5 +394,103 @@ describe('PanelExplorer tree selection adapter', () => {
 				.selection.ids,
 		]).toEqual(['alpha']);
 		expect(providerStub.getTree).toHaveBeenCalledTimes(1);
+	});
+
+	it('ArrowLeft on a child moves selection and focus to its parent, then collapses the parent', () => {
+		const { selectionService } = renderPanel({
+			provider: provider({ getTree: vi.fn(() => nestedNodes()) }),
+		});
+
+		(target.querySelector('[data-id="child"]') as HTMLElement).click();
+		flushSync();
+		(target.querySelector('[data-id="child"]') as HTMLElement).dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }),
+		);
+		flushSync();
+
+		let snapshot = selectionService.snapshot(EXPLORER_ID);
+		expect([...snapshot.ids]).toEqual(['parent']);
+		expect(snapshot.focusedId).toBe('parent');
+		expect(target.querySelector('[data-id="parent"]')?.getAttribute('aria-expanded')).toBe('true');
+
+		(target.querySelector('[data-id="parent"]') as HTMLElement).dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }),
+		);
+		flushSync();
+
+		snapshot = selectionService.snapshot(EXPLORER_ID);
+		expect([...snapshot.ids]).toEqual(['parent']);
+		expect(snapshot.focusedId).toBe('parent');
+		expect(target.querySelector('[data-id="parent"]')?.getAttribute('aria-expanded')).toBe('false');
+		expect(target.querySelector('[data-id="child"]')).toBeNull();
+	});
+
+	it('ArrowRight on a collapsed parent expands it without activating the provider', () => {
+		const providerStub = provider({ getTree: vi.fn(() => largeNestedNodes()) });
+		const { selectionService } = renderPanel({ provider: providerStub });
+		const parent = target.querySelector('[data-id="parent"]') as HTMLElement;
+
+		expect(parent.getAttribute('aria-expanded')).toBe('false');
+		expect(target.querySelector('[data-id="child"]')).toBeNull();
+
+		parent.click();
+		flushSync();
+		parent.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+		flushSync();
+
+		expect(selectionService.snapshot(EXPLORER_ID).focusedId).toBe('parent');
+		expect(target.querySelector('[data-id="parent"]')?.getAttribute('aria-expanded')).toBe('true');
+		expect(target.querySelector('[data-id="child"]')).not.toBeNull();
+		expect(providerStub.handleNodeClick).not.toHaveBeenCalled();
+	});
+
+	it('ArrowRight on a leaf preserves selection without activating the provider', () => {
+		const providerStub = provider();
+		const { selectionService } = renderPanel({ provider: providerStub });
+
+		(target.querySelector('[data-id="alpha"]') as HTMLElement).click();
+		flushSync();
+		(target.querySelector('[data-id="alpha"]') as HTMLElement).dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }),
+		);
+		flushSync();
+
+		expect([...selectionService.snapshot(EXPLORER_ID).ids]).toEqual(['alpha']);
+		expect(selectionService.snapshot(EXPLORER_ID).focusedId).toBe('alpha');
+		expect(providerStub.handleNodeClick).not.toHaveBeenCalled();
+	});
+
+	it('collapses all expanded parent nodes from a generic expansion command', () => {
+		renderPanel({
+			provider: provider({ getTree: vi.fn(() => nestedNodes()) }),
+			nodeExpansionCommand: { serial: 1, action: 'collapse-all' },
+		});
+
+		expect(target.querySelector('[data-id="parent"]')?.getAttribute('aria-expanded')).toBe('false');
+		expect(target.querySelector('[data-id="child"]')).toBeNull();
+	});
+
+	it('expands all parent nodes from a generic expansion command', () => {
+		renderPanel({
+			provider: provider({ getTree: vi.fn(() => largeNestedNodes()) }),
+			nodeExpansionCommand: { serial: 1, action: 'expand-all' },
+		});
+
+		expect(target.querySelector('[data-id="parent"]')?.getAttribute('aria-expanded')).toBe('true');
+		expect(target.querySelector('[data-id="child"]')).not.toBeNull();
+	});
+
+	it('reports whether the active explorer can toggle parent expansion', () => {
+		const onNodeExpansionSummaryChange = vi.fn();
+
+		renderPanel({
+			provider: provider({ getTree: vi.fn(() => nestedNodes()) }),
+			onNodeExpansionSummaryChange,
+		});
+
+		expect(onNodeExpansionSummaryChange).toHaveBeenLastCalledWith({
+			canToggle: true,
+			hasExpandedParents: true,
+		});
 	});
 });

@@ -3,6 +3,10 @@
 	import type { TFile } from 'obsidian';
 	import type { VaultmanPlugin } from '../../main';
 	import type { ExplorerViewMode } from '../../types/typeExplorer';
+	import type {
+		ExplorerExpansionCommand,
+		ExplorerExpansionSummary,
+	} from '../../types/typeExplorer';
 	import type { FnRScope, FnRState } from '../../types/typeFnR';
 	import { buildContentReplaceChange, createFnRState } from '../../services/serviceFnR';
 	import { translate } from '../../index/i18n/lang';
@@ -20,6 +24,8 @@
 		sortDirection = $bindable('asc'),
 		viewMode = $bindable('tree'),
 		active = true,
+		nodeExpansionCommand = null,
+		onNodeExpansionSummaryChange,
 		icon = defaultIcon,
 	}: {
 		plugin: VaultmanPlugin;
@@ -31,6 +37,8 @@
 		sortDirection?: 'asc' | 'desc';
 		viewMode?: ExplorerViewMode;
 		active?: boolean;
+		nodeExpansionCommand?: ExplorerExpansionCommand | null;
+		onNodeExpansionSummaryChange?: (summary: ExplorerExpansionSummary) => void;
 		icon?: (node: HTMLElement, name: string) => { update(n: string): void };
 	} = $props();
 
@@ -213,6 +221,8 @@
 				bind:sortDirection
 				bind:viewMode
 				{active}
+				{nodeExpansionCommand}
+				{onNodeExpansionSummaryChange}
 				{icon}
 			/>
 		{/key}

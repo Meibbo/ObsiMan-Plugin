@@ -7,6 +7,8 @@ created: 2026-05-04T01:36:20
 updated: 2026-05-04T01:36:20
 tags:
   - agent/index
+created_by: dec
+updated_by: antigravity
 ---
 
 # Agent Docs Map

@@ -36,6 +36,7 @@
 			filtersShowTabLabels: src.filtersShowTabLabels,
 			filtersTabLabelsMigrated: src.filtersTabLabelsMigrated,
 			gridRenderMode: (src.gridRenderMode ?? 'plain') as 'plain' | 'chunk' | 'all',
+			gridHierarchyMode: 'folder',
 			gridEditableColumns: [...(src.gridEditableColumns ?? [])],
 			gridLivePreviewColumns: [...(src.gridLivePreviewColumns ?? [])],
 			gridColumns: [...(src.gridColumns ?? [])],
@@ -302,6 +303,19 @@
 			{ value: 'chunk', label: translate('settings.grid_render_mode.chunk') },
 			{ value: 'all', label: translate('settings.grid_render_mode.all') },
 		]}
+	/>
+	<Dropdown
+		label={translate('settings.grid_hierarchy_mode')}
+		bind:value={s.gridHierarchyMode}
+		onChange={persistSettings}
+			options={[
+				{ value: 'folder', label: translate('settings.grid_hierarchy_mode.folder') },
+				{
+					value: 'inline',
+					label: translate('settings.grid_hierarchy_mode.inline'),
+					disabled: true,
+				},
+			]}
 	/>
 	<TextInput
 		label={translate('settings.grid_editable_columns')}

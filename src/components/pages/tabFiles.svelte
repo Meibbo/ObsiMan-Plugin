@@ -3,6 +3,10 @@
 	import { explorerFiles } from '../containers/explorerFiles';
 	import PanelExplorer from '../containers/panelExplorer.svelte';
 	import type { VaultmanPlugin } from '../../main';
+	import type {
+		ExplorerExpansionCommand,
+		ExplorerExpansionSummary,
+	} from '../../types/typeExplorer';
 	import type { FnRRenameHandoff } from '../../types/typeFnR';
 	import { setIcon } from 'obsidian';
 
@@ -18,6 +22,8 @@
 		showSelectedOnly = false,
 		selectedFilePaths = $bindable(new Set<string>()),
 		onSelectionChange,
+		nodeExpansionCommand = null,
+		onNodeExpansionSummaryChange,
 		startRenameHandoff,
 	}: {
 		plugin: VaultmanPlugin;
@@ -31,6 +37,8 @@
 		showSelectedOnly?: boolean;
 		selectedFilePaths: Set<string>;
 		onSelectionChange?: (count: number) => void;
+		nodeExpansionCommand?: ExplorerExpansionCommand | null;
+		onNodeExpansionSummaryChange?: (summary: ExplorerExpansionSummary) => void;
 		startRenameHandoff?: (handoff: FnRRenameHandoff) => void;
 	} = $props();
 
@@ -64,6 +72,8 @@
 			bind:sortDirection
 			{active}
 			{showSelectedOnly}
+			{nodeExpansionCommand}
+			{onNodeExpansionSummaryChange}
 			{icon}
 			bind:selectedFiles={selectedFilePaths}
 		/>

@@ -59,6 +59,8 @@ export interface VaultmanSettings {
 	filtersTabLabelsMigrated?: boolean;
 	/** Property grid render mode */
 	gridRenderMode?: 'plain' | 'chunk' | 'all';
+	/** How hierarchical nodes are represented in the grid */
+	gridHierarchyMode?: 'folder' | 'inline';
 	/** Columns that allow inline editing in the grid */
 	gridEditableColumns?: string[];
 	/** Columns that use live preview in the grid */
@@ -113,6 +115,7 @@ export const DEFAULT_SETTINGS: VaultmanSettings = {
 	viewMode: 'list',
 	filtersShowTabLabels: true,
 	filtersTabLabelsMigrated: true,
+	gridHierarchyMode: 'folder',
 	contextMenuShowInFileMenu: true,
 	contextMenuShowInEditorMenu: true,
 	contextMenuShowInMoreOptions: true,

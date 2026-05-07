@@ -6,9 +6,11 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-status.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-06T20:59:51
+updated: 2026-05-07T01:02:22
 tags:
   - agent/current
+created_by: dec
+updated_by: codex
 ---
 
 # Current Status
@@ -42,6 +44,8 @@ Archived completed/superseded status:
   [[docs/work/hardening/specs/2026-05-06-node-selection-service/index|Node selection service and viewgrid spec]].
 - Current active plan:
   [[docs/work/hardening/plans/2026-05-06-node-selection-service/index|Node selection service implementation plan]].
+- Current multifaceted follow-up plan:
+  [[docs/work/hardening/plans/2026-05-07-node-expansion-keyboard-grid/index|Node expansion, keyboard navigation, and hierarchical grid plan]].
 - Current selection debug and TanStack assimilation record:
   [[docs/work/hardening/research/2026-05-06-selection-tanstack-virtualizer-debug/index|Selection hang and TanStack virtualizer assimilation]].
 - Standing engineering context:
@@ -64,7 +68,8 @@ Archived completed/superseded status:
   Vaultman file rules.
 - Previous next slice was deeper Obsidian/Bases/Dataview parser compatibility.
   The user's latest request supersedes that with node selection service and
-  viewgrid planning.
+  viewgrid planning; the latest continuation is now the 2026-05-07 expansion,
+  keyboard, and grid hierarchy plan linked above.
 
 ## Current Verification
 
@@ -116,6 +121,11 @@ Archived completed/superseded status:
   cutting accidental Svelte effect tracking in `panelExplorer.svelte`, making
   `ViewService.subscribe()` real, and migrating tree/grid windowing to
   `@tanstack/svelte-virtual`.
+- 2026-05-07 node expansion continuation implemented and verified the tree
+  reliability cut, tree `ArrowLeft`/`ArrowRight` semantics, generic sort-view
+  expand/collapse-all, and default grid folder navigation.
+- Inline grid expansion remains intentionally gated: Settings shows the option
+  disabled, and raw `gridHierarchyMode: 'inline'` resolves to folder mode.
 - Final Obsidian CLI smoke after the TanStack build selected a tree row and a
   grid tile without hanging; `dev:errors` was clean after log analysis.
 - Lint cleanup resolved the previous three warning residuals in
@@ -134,6 +144,7 @@ Archived completed/superseded status:
 - [[docs/work/pkm-ai/items/vm-0002-current-docs-as-route-indexes|current docs as route indexes]]
 - [[docs/work/hardening/specs/2026-05-06-node-selection-service/index|Node selection service and viewgrid spec]]
 - [[docs/work/hardening/plans/2026-05-06-node-selection-service/index|Node selection service plan]]
+- [[docs/work/hardening/plans/2026-05-07-node-expansion-keyboard-grid/index|Node expansion, keyboard navigation, and hierarchical grid plan]]
 - [[docs/work/hardening/research/2026-05-06-selection-tanstack-virtualizer-debug/index|Selection hang and TanStack virtualizer assimilation]]
 - [[docs/work/hardening/specs/2026-05-05-bases-interop-slice-1/index|Bases interop slice 1]]
 - [[docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|CMenu queue repair plan]]
