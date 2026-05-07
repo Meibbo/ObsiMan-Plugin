@@ -41,7 +41,10 @@
 	} from './framePages';
 	import { FrameViewportController } from './frameViewport';
 	import { FrameNavReorderController } from './frameNavReorder.svelte';
-	import { FrameOverlayController } from './frameOverlays.svelte';
+	import {
+		FrameOverlayController,
+		installFrameOverlayCommandHooks,
+	} from './frameOverlays.svelte';
 	import { createMoveChanges, createMovePreviews } from './frameMoves';
 	import {
 		createFiltersSearchState,
@@ -77,6 +80,8 @@
 	const pageLabels: Record<string, string> = createFramePageLabels();
 	const pageIcons: Record<string, string> = createFramePageIcons();
 	const overlays = initialFrameState.overlays;
+
+	$effect(() => installFrameOverlayCommandHooks(plugin, overlays));
 
 	// â”€â”€â”€ Per-page FAB definitions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 

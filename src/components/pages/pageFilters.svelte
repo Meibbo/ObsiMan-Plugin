@@ -44,6 +44,11 @@
 	// TODO: por quÃ© setIcon?
 	import { setIcon } from 'obsidian';
 
+	type NavbarExplorerApi = {
+		openViewMenu: () => void;
+		openSortMenu: () => void;
+	};
+
 	let {
 		plugin,
 		filtersActiveTab = $bindable('props'),
@@ -139,6 +144,7 @@
 	const fnrIslandService = new FnRIslandService({
 		initialFlags: { regex: plugin.settings.fnrRegexDefault === true },
 	});
+	let navbarExplorerApi = $state<NavbarExplorerApi | null>(null);
 
 	$effect(() => {
 		fnrIslandService.setActiveExplorer(filtersActiveTab);
@@ -155,6 +161,19 @@
 			(plugin as VaultmanPlugin & {
 				activeFnRIslandService?: FnRIslandService | null;
 			}).activeFnRIslandService = null;
+		};
+	});
+
+	$effect(() => {
+		const openViewMenu = () => navbarExplorerApi?.openViewMenu();
+		const openSortMenu = () => navbarExplorerApi?.openSortMenu();
+
+		plugin.openViewMenuHook = openViewMenu;
+		plugin.openSortMenuHook = openSortMenu;
+
+		return () => {
+			if (plugin.openViewMenuHook === openViewMenu) plugin.openViewMenuHook = null;
+			if (plugin.openSortMenuHook === openSortMenu) plugin.openSortMenuHook = null;
 		};
 	});
 
@@ -296,6 +315,7 @@
 />
 
 <NavbarExplorer
+	bind:this={navbarExplorerApi}
 	activeTab={filtersActiveTab}
 	filtersSearch={activeFiltersSearch}
 	onSearchChange={setActiveFiltersSearch}

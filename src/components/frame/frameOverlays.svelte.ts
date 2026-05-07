@@ -88,3 +88,25 @@ export class FrameOverlayController {
 		this.plugin.overlayState.popById('active-filters');
 	}
 }
+
+type FrameOverlayCommandHookHost = VaultmanPlugin & {
+	openQueuePopupHook?: (() => void) | null;
+	openFiltersPopupHook?: (() => void) | null;
+};
+
+export function installFrameOverlayCommandHooks(
+	plugin: VaultmanPlugin,
+	overlays: Pick<FrameOverlayController, 'toggleQueueIsland' | 'toggleFiltersIsland'>,
+): () => void {
+	const host = plugin as FrameOverlayCommandHookHost;
+	const openQueuePopup = () => overlays.toggleQueueIsland();
+	const openFiltersPopup = () => overlays.toggleFiltersIsland();
+
+	host.openQueuePopupHook = openQueuePopup;
+	host.openFiltersPopupHook = openFiltersPopup;
+
+	return () => {
+		if (host.openQueuePopupHook === openQueuePopup) host.openQueuePopupHook = null;
+		if (host.openFiltersPopupHook === openFiltersPopup) host.openFiltersPopupHook = null;
+	};
+}

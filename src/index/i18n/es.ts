@@ -368,6 +368,7 @@ export const es: Record<string, string> = {
 	'settings.base_file': 'Ruta del archivo base',
 	'settings.base_file.desc':
 		'Ruta a un archivo .base para sincronización bidireccional con Obsidian Bases',
+	'viewmode.mode.table': 'Tabla',
 	'viewmode.add_mode': 'Modo AGREGAR',
 	'filter.search_help': 'Ayuda de semántica de búsqueda',
 	'filter.search_read_more': 'Leer más',

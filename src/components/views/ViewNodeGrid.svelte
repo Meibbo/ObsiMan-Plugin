@@ -33,12 +33,23 @@
 	const GRID_FALLBACK_HEIGHT = 360;
 	const GRID_OVERSCAN = 3;
 	const GRID_ROW_HEIGHT = GRID_TILE_HEIGHT + GRID_GAP;
+	const EMPTY_EXPANDED_IDS: ReadonlySet<string> = new Set();
+
+	type HierarchyMode = 'folder' | 'inline';
+
+	interface GridRow {
+		key: string;
+		nodes: TreeNode[];
+		height: number;
+	}
 
 	interface Props {
 		nodes: TreeNode[];
 		selectedIds?: Set<string>;
 		focusedId?: string | null;
 		activeId?: string | null;
+		hierarchyMode?: HierarchyMode;
+		expandedIds?: ReadonlySet<string>;
 		onTileClick: (id: string, e: MouseEvent) => void;
 		onPrimaryAction?: (id: string, e: MouseEvent) => void;
 		onBoxSelect?: (ids: string[], e: PointerEvent) => void;
@@ -46,6 +57,7 @@
 		onTileKeydown?: (id: string, e: KeyboardEvent) => void;
 		onHoverBadgeAction?: (id: string, kind: BadgeKind, e: MouseEvent | KeyboardEvent) => void;
 		activeOpsByNode?: ActiveOpsByNode;
+		onToggleExpand?: (id: string, e: MouseEvent | KeyboardEvent) => void;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	}
 
@@ -54,6 +66,8 @@
 		selectedIds,
 		focusedId,
 		activeId,
+		hierarchyMode = 'folder',
+		expandedIds = EMPTY_EXPANDED_IDS,
 		onTileClick,
 		onPrimaryAction,
 		onBoxSelect,
@@ -61,6 +75,7 @@
 		onTileKeydown,
 		onHoverBadgeAction,
 		activeOpsByNode,
+		onToggleExpand,
 		icon,
 	}: Props = $props();
 
@@ -94,7 +109,7 @@
 	let suppressNextClick = false;
 	let gridMetricsFrame: number | null = null;
 
-	const rowCount = $derived(Math.ceil(nodes.length / columnCount));
+	const gridRows = $derived(buildGridRows(nodes, columnCount, hierarchyMode, expandedIds));
 	const rowVirtualizer = createVirtualizer<HTMLDivElement, HTMLDivElement>({
 		count: 0,
 		getScrollElement: () => outerEl ?? null,
@@ -104,20 +119,22 @@
 		initialRect: { width: GRID_FALLBACK_WIDTH, height: GRID_FALLBACK_HEIGHT },
 	});
 	const virtualRows = $derived($rowVirtualizer.getVirtualItems());
+	const renderedRows = $derived(virtualRows.filter((row) => row.index < gridRows.length));
 	const totalHeight = $derived($rowVirtualizer.getTotalSize() + GRID_PADDING * 2);
 
 	$effect(() => {
-		const count = rowCount;
+		const rows = gridRows;
+		const count = rows.length;
 		const scrollElement = outerEl;
 		const width = gridWidth;
 		untrack(() =>
 			$rowVirtualizer.setOptions({
-			count,
-			getScrollElement: () => scrollElement ?? null,
-			estimateSize: () => GRID_ROW_HEIGHT,
-			observeElementRect: observeGridRect,
-			overscan: GRID_OVERSCAN,
-			initialRect: { width, height: GRID_FALLBACK_HEIGHT },
+				count,
+				getScrollElement: () => scrollElement ?? null,
+				estimateSize: (index) => rows[index]?.height ?? GRID_ROW_HEIGHT,
+				observeElementRect: observeGridRect,
+				overscan: GRID_OVERSCAN,
+				initialRect: { width, height: GRID_FALLBACK_HEIGHT },
 			}),
 		);
 	});
@@ -147,6 +164,12 @@
 
 	function handleTileKeydown(id: string, e: KeyboardEvent) {
 		onTileKeydown?.(id, e);
+	}
+
+	function handleToggleExpand(id: string, e: MouseEvent | KeyboardEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+		onToggleExpand?.(id, e);
 	}
 
 	function handlePointerDown(e: PointerEvent) {
@@ -220,11 +243,21 @@
 
 	function intersectingTileIds(box: NonNullable<typeof selectionBox>): string[] {
 		const ids: string[] = [];
-		const metrics = gridMetrics();
-		const boxRect = rectFromBox(box);
-		for (let index = 0; index < nodes.length; index += 1) {
-			const tileRect = tileRectFor(index, metrics);
-			if (rectsIntersect(boxRect, tileRect)) ids.push(nodes[index].id);
+		if (!outerEl) return ids;
+		const outerRect = outerEl.getBoundingClientRect();
+		const boxRect = new DOMRect(
+			outerRect.left + box.left - outerEl.scrollLeft,
+			outerRect.top + box.top - outerEl.scrollTop,
+			box.width,
+			box.height,
+		);
+		const tiles = outerEl.querySelectorAll<HTMLElement>('.vm-node-grid-tile[data-id]');
+		for (const tile of tiles) {
+			const id = tile.dataset.id;
+			if (!id) continue;
+			const tileRect = tile.getBoundingClientRect();
+			if (tileRect.width <= 0 || tileRect.height <= 0) continue;
+			if (rectsIntersect(boxRect, tileRect)) ids.push(id);
 		}
 		return ids;
 	}
@@ -284,30 +317,178 @@
 		return Math.max(1, Math.floor((contentWidth + GRID_GAP) / (GRID_TILE_MIN_WIDTH + GRID_GAP)));
 	}
 
-	function gridMetrics() {
-		const columns = columnCount;
-		const width = outerEl?.clientWidth || gridWidth || GRID_FALLBACK_WIDTH;
-		const contentWidth = Math.max(GRID_TILE_MIN_WIDTH, width - GRID_PADDING * 2);
-		const tileWidth = (contentWidth - GRID_GAP * (columns - 1)) / columns;
-		return { columns, tileWidth };
-	}
-
-	function tileRectFor(index: number, metrics: ReturnType<typeof gridMetrics>): DOMRect {
-		const row = Math.floor(index / metrics.columns);
-		const column = index % metrics.columns;
-		const left = GRID_PADDING + column * (metrics.tileWidth + GRID_GAP);
-		const top = GRID_PADDING + row * GRID_ROW_HEIGHT;
-		return new DOMRect(left, top, metrics.tileWidth, GRID_TILE_HEIGHT);
-	}
-
-	function rectFromBox(box: NonNullable<typeof selectionBox>): DOMRect {
-		return new DOMRect(box.left, box.top, box.width, box.height);
-	}
-
 	function rectsIntersect(a: DOMRect, b: DOMRect): boolean {
 		return a.left <= b.right && a.right >= b.left && a.top <= b.bottom && a.bottom >= b.top;
 	}
+
+	function buildGridRows(
+		items: TreeNode[],
+		columns: number,
+		mode: HierarchyMode,
+		expanded: ReadonlySet<string>,
+	): GridRow[] {
+		const safeColumns = Math.max(1, columns);
+		const rows: GridRow[] = [];
+		for (let index = 0; index < items.length; index += safeColumns) {
+			const rowNodes = items.slice(index, index + safeColumns);
+			rows.push({
+				key: rowNodes.map((node) => node.id).join('\u0000'),
+				nodes: rowNodes,
+				height: gridRowHeight(rowNodes, safeColumns, mode, expanded),
+			});
+		}
+		return rows;
+	}
+
+	function gridRowHeight(
+		rowNodes: TreeNode[],
+		columns: number,
+		mode: HierarchyMode,
+		expanded: ReadonlySet<string>,
+	): number {
+		if (mode !== 'inline') return GRID_TILE_HEIGHT;
+		return rowNodes.reduce(
+			(height, node) => height + expandedPanelHeight(node, columns, expanded),
+			GRID_TILE_HEIGHT,
+		);
+	}
+
+	function expandedPanelHeight(
+		node: TreeNode,
+		columns: number,
+		expanded: ReadonlySet<string>,
+	): number {
+		if (!node.children?.length || !expanded.has(node.id)) return 0;
+		const childRows = chunkNodes(node.children, columns);
+		const rowsHeight = childRows.reduce((height, rowNodes, index) => {
+			const rowHeight = gridRowHeight(rowNodes, columns, 'inline', expanded);
+			return height + rowHeight + (index === childRows.length - 1 ? 0 : GRID_GAP);
+		}, 0);
+		return GRID_GAP + GRID_PADDING * 2 + rowsHeight;
+	}
+
+	function chunkNodes(items: TreeNode[], columns: number): TreeNode[][] {
+		const safeColumns = Math.max(1, columns);
+		const chunks: TreeNode[][] = [];
+		for (let index = 0; index < items.length; index += safeColumns) {
+			chunks.push(items.slice(index, index + safeColumns));
+		}
+		return chunks;
+	}
+
+	function hasChildren(node: TreeNode): boolean {
+		return !!node.children && node.children.length > 0;
+	}
+
+	function inlineRowKey(rowNodes: TreeNode[], rowIndex: number): string {
+		return `${rowIndex}:${rowNodes.map((node) => node.id).join('\u0000')}`;
+	}
 </script>
+
+{#snippet nodeTile(node: TreeNode)}
+	{@const nodeHasChildren = hasChildren(node)}
+	{@const nodeExpanded = nodeHasChildren && expandedIds.has(node.id)}
+	{@const isSelected = selectedIds?.has(node.id) ?? false}
+	{@const isFocused = focusedId === node.id}
+	{@const isActive = activeId === node.id}
+	{@const hoverBadges = hoverBadgesFor(node)}
+	<div
+		class="vm-node-grid-tile {node.cls ?? ''}"
+		class:is-selected={isSelected}
+		class:is-focused={isFocused}
+		class:is-active={isActive}
+		class:is-active-node={isActive}
+		class:is-expanded={nodeExpanded}
+		class:is-inline-hierarchy={hierarchyMode === 'inline'}
+		data-id={node.id}
+		onclick={(e) => handleTileClick(node.id, e)}
+		oncontextmenu={(e) => onContextMenu(node.id, e)}
+		onkeydown={(e) => handleTileKeydown(node.id, e)}
+		role="gridcell"
+		tabindex="0"
+		aria-selected={isSelected}
+		aria-expanded={hierarchyMode === 'inline' && nodeHasChildren ? nodeExpanded : undefined}
+	>
+		{#if hierarchyMode === 'inline'}
+			{#if nodeHasChildren}
+				<button
+					type="button"
+					class="vm-node-grid-toggle"
+					data-vm-node-grid-toggle={node.id}
+					aria-label={nodeExpanded ? `Collapse ${node.label}` : `Expand ${node.label}`}
+					aria-expanded={nodeExpanded}
+					onclick={(e) => handleToggleExpand(node.id, e)}
+				>
+					<span use:icon={nodeExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right'}></span>
+				</button>
+			{:else}
+				<span class="vm-node-grid-toggle-placeholder" aria-hidden="true"></span>
+			{/if}
+		{/if}
+		{#if node.icon}
+			<span class="vm-node-grid-icon" use:icon={node.icon}></span>
+		{:else if hierarchyMode === 'inline'}
+			<span class="vm-node-grid-icon-placeholder" aria-hidden="true"></span>
+		{/if}
+		<button
+			type="button"
+			class="vm-node-grid-label"
+			onclick={(e) => {
+				e.stopPropagation();
+				onPrimaryAction?.(node.id, e);
+			}}
+		>
+			{node.label}
+		</button>
+		{#if hoverBadges.length > 0}
+			<div class="vm-node-grid-hover-badge-zone">
+				{#each hoverBadges as kind (kind)}
+					<div
+						class="vm-badge is-hover-badge is-actionable"
+						data-hover-kind={kind}
+						role="button"
+						tabindex="0"
+						title={HOVER_BADGE_LABELS[kind]}
+						aria-label={HOVER_BADGE_LABELS[kind]}
+						onclick={(e) => handleHoverBadgePress(e, node.id, kind)}
+						onkeydown={(e) => handleHoverBadgeKeydown(e, node.id, kind)}
+					>
+						<span class="vm-badge-icon" use:icon={HOVER_BADGE_ICONS[kind]}></span>
+					</div>
+				{/each}
+			</div>
+		{/if}
+	</div>
+{/snippet}
+
+{#snippet inlinePanel(node: TreeNode, depth: number)}
+	{#if hierarchyMode === 'inline' && node.children?.length && expandedIds.has(node.id)}
+		<div
+			class="vm-node-grid-inline-panel"
+			data-vm-node-grid-inline-panel={node.id}
+			style="--vm-node-grid-inline-depth: {depth}"
+		>
+			{@render inlineRows(node.children, depth)}
+		</div>
+	{/if}
+{/snippet}
+
+{#snippet inlineRows(items: TreeNode[], depth: number)}
+	<div class="vm-node-grid-inline-rows">
+		{#each chunkNodes(items, columnCount) as rowNodes, rowIndex (inlineRowKey(rowNodes, rowIndex))}
+			<div class="vm-node-grid-inline-row" style="--vm-node-grid-inline-depth: {depth}">
+				<div class="vm-node-grid-inline-row-tiles">
+					{#each rowNodes as node (node.id)}
+						{@render nodeTile(node)}
+					{/each}
+				</div>
+				{#each rowNodes as node (node.id)}
+					{@render inlinePanel(node, depth + 1)}
+				{/each}
+			</div>
+		{/each}
+	</div>
+{/snippet}
 
 <div
 	bind:this={outerEl}
@@ -324,65 +505,24 @@
 		class="vm-node-grid-inner"
 		style="--vm-node-grid-total-h: {totalHeight}px; --vm-node-grid-columns: {columnCount}"
 	>
-		{#each virtualRows as virtualRow (virtualRow.key)}
-			{@const rowNodes = nodes.slice(
-				virtualRow.index * columnCount,
-				virtualRow.index * columnCount + columnCount,
-			)}
-			<div class="vm-node-grid-row" style="--vm-node-grid-y: {virtualRow.start + GRID_PADDING}px">
-				{#each rowNodes as node (node.id)}
-					{@const isSelected = selectedIds?.has(node.id) ?? false}
-					{@const isFocused = focusedId === node.id}
-					{@const isActive = activeId === node.id}
-					{@const hoverBadges = hoverBadgesFor(node)}
-					<div
-						class="vm-node-grid-tile {node.cls ?? ''}"
-						class:is-selected={isSelected}
-						class:is-focused={isFocused}
-						class:is-active={isActive}
-						class:is-active-node={isActive}
-						data-id={node.id}
-						onclick={(e) => handleTileClick(node.id, e)}
-						oncontextmenu={(e) => onContextMenu(node.id, e)}
-						onkeydown={(e) => handleTileKeydown(node.id, e)}
-						role="gridcell"
-						tabindex="0"
-						aria-selected={isSelected}
-					>
-						{#if node.icon}
-							<span class="vm-node-grid-icon" use:icon={node.icon}></span>
-						{/if}
-						<button
-							type="button"
-							class="vm-node-grid-label"
-							onclick={(e) => {
-								e.stopPropagation();
-								onPrimaryAction?.(node.id, e);
-							}}
-						>
-							{node.label}
-						</button>
-						{#if hoverBadges.length > 0}
-							<div class="vm-node-grid-hover-badge-zone">
-								{#each hoverBadges as kind (kind)}
-									<div
-										class="vm-badge is-hover-badge is-actionable"
-										data-hover-kind={kind}
-										role="button"
-										tabindex="0"
-										title={HOVER_BADGE_LABELS[kind]}
-										aria-label={HOVER_BADGE_LABELS[kind]}
-										onclick={(e) => handleHoverBadgePress(e, node.id, kind)}
-										onkeydown={(e) => handleHoverBadgeKeydown(e, node.id, kind)}
-									>
-										<span class="vm-badge-icon" use:icon={HOVER_BADGE_ICONS[kind]}></span>
-									</div>
-								{/each}
-							</div>
-						{/if}
+		{#each renderedRows as virtualRow (virtualRow.key)}
+			{@const row = gridRows[virtualRow.index]}
+			{#if row}
+				<div
+					class="vm-node-grid-row"
+					style="--vm-node-grid-y: {virtualRow.start +
+						GRID_PADDING}px; --vm-node-grid-row-h: {row.height}px"
+				>
+					<div class="vm-node-grid-row-tiles">
+						{#each row.nodes as node (node.id)}
+							{@render nodeTile(node)}
+						{/each}
 					</div>
-				{/each}
-			</div>
+					{#each row.nodes as node (node.id)}
+						{@render inlinePanel(node, 1)}
+					{/each}
+				</div>
+			{/if}
 		{/each}
 	</div>
 	{#if selectionBox}

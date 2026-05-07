@@ -39,7 +39,7 @@
 			filtersShowTabLabels: src.filtersShowTabLabels,
 			filtersTabLabelsMigrated: src.filtersTabLabelsMigrated,
 			gridRenderMode: (src.gridRenderMode ?? 'plain') as 'plain' | 'chunk' | 'all',
-			gridHierarchyMode: 'folder',
+			gridHierarchyMode: (src.gridHierarchyMode ?? 'folder') as 'folder' | 'inline',
 			gridEditableColumns: [...(src.gridEditableColumns ?? [])],
 			gridLivePreviewColumns: [...(src.gridLivePreviewColumns ?? [])],
 			gridColumns: [...(src.gridColumns ?? [])],
@@ -273,13 +273,6 @@
 	<!-- ── Layout ────────────────────────────────────────────────────── -->
 	<h3 class="vm-settings-heading">{translate('settings.layout.title')}</h3>
 
-	{#if (plugin as iVaultmanPlugin & { leafDetachService?: LeafDetachService }).leafDetachService}
-		<SettingsLeafToggle
-			leafDetach={(plugin as iVaultmanPlugin & { leafDetachService: LeafDetachService })
-				.leafDetachService}
-		/>
-	{/if}
-
 	<!-- ── Find & Replace / Binding notes / Ops log (multifacet wave 2) — -->
 	<TextInput
 		label={translate('settings.binding_note_folder')}
@@ -308,6 +301,13 @@
 		onChange={persistSettings}
 	/>
 	<p class="vm-settings-desc">{translate('settings.fnr_regex_default.desc')}</p>
+
+	{#if (plugin as iVaultmanPlugin & { leafDetachService?: LeafDetachService }).leafDetachService}
+		<SettingsLeafToggle
+			leafDetach={(plugin as iVaultmanPlugin & { leafDetachService: LeafDetachService })
+				.leafDetachService}
+		/>
+	{/if}
 
 	<!-- ── Bases ─────────────────────────────────────────────────────── -->
 	<h3 class="vm-settings-heading">Bases</h3>
@@ -372,14 +372,10 @@
 		label={translate('settings.grid_hierarchy_mode')}
 		bind:value={s.gridHierarchyMode}
 		onChange={persistSettings}
-			options={[
-				{ value: 'folder', label: translate('settings.grid_hierarchy_mode.folder') },
-				{
-					value: 'inline',
-					label: translate('settings.grid_hierarchy_mode.inline'),
-					disabled: true,
-				},
-			]}
+		options={[
+			{ value: 'folder', label: translate('settings.grid_hierarchy_mode.folder') },
+			{ value: 'inline', label: translate('settings.grid_hierarchy_mode.inline') },
+		]}
 	/>
 	<TextInput
 		label={translate('settings.grid_editable_columns')}

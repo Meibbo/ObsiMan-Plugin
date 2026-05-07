@@ -96,7 +96,16 @@ describe('PanelExplorer empty landing', () => {
 		expect(target.querySelector('[data-empty-kind="empty"]')).not.toBeNull();
 	});
 
-	it.each(['table', 'cards', 'list'] as const)(
+	it('renders the default empty landing for an empty table without mounting the table', () => {
+		app = render(target, { viewMode: 'table' });
+		flushSync();
+
+		expect(target.textContent).toContain('No items');
+		expect(target.querySelector('[data-empty-kind="empty"]')).not.toBeNull();
+		expect(target.querySelector('.vm-node-table')).toBeNull();
+	});
+
+	it.each(['cards', 'list'] as const)(
 		'renders a fallback empty landing for unsupported %s mode',
 		(viewMode) => {
 			app = render(target, { viewMode });
@@ -107,7 +116,7 @@ describe('PanelExplorer empty landing', () => {
 		},
 	);
 
-	it.each(['table', 'cards', 'list'] as const)(
+	it.each(['cards', 'list'] as const)(
 		'renders unavailable copy for unsupported %s mode when files exist',
 		(viewMode) => {
 			app = render(target, {

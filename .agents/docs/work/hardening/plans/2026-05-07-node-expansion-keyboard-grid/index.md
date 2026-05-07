@@ -1,10 +1,10 @@
 ---
 title: Node expansion, keyboard navigation, and hierarchical grid plan
 type: implementation-plan-index
-status: active
+status: completed
 parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|node-selection-service]]"
 created: 2026-05-07T00:00:00
-updated: 2026-05-07T01:02:22
+updated: 2026-05-07T02:25:00
 tags:
   - agent/plan
   - initiative/hardening
@@ -141,10 +141,10 @@ change, while still preserving the full grid design in this plan.
   parent activation opens that folder's children, leaf activation still delegates
   to providers, and the grid toolbar supports Back, Forward, Up, Refresh, and
   root breadcrumbs.
-- Inline grid expansion is intentionally gated, not implemented: Settings shows
-  the `Inline expansion` option disabled, and a raw `gridHierarchyMode:
-  'inline'` setting is treated as folder mode until variable-height inline
-  expansion is designed and implemented.
+- Inline grid expansion is implemented and verified: Settings persists
+  `gridHierarchyMode: 'inline'`, the runtime no longer gates the mode to folder
+  navigation, parent tiles render chevrons, collapsed children stay hidden, and
+  expanded parents render nested child grids with variable-height virtual rows.
 - `ViewService` zombie audit tests now assert the public `subscribe` contract
   instead of a removed private `_notificationCount` field.
 
@@ -152,15 +152,23 @@ change, while still preserving the full grid design in this plan.
 
 - Component: `viewTreeSelection`, `panelExplorerSelection`, `viewGridSelection`,
   `settingsUI`, and `overlaySortMenu` passed sequentially with
-  `--fileParallelism=false`.
+  `--fileParallelism=false`; the inline grid completion rerun passed
+  `viewGridSelection`, `panelExplorerSelection`, and `settingsUI` together with
+  36 tests.
 - Unit: `logicKeyboard`, `serviceViews`, and `serviceViewsZombie` passed.
-- Broad checks: `pnpm run check`, `pnpm run lint`, and `pnpm run build` passed.
+- Broad checks: `pnpm run check`, `pnpm run lint`, and `pnpm run build` passed;
+  `pnpm run build` hit the known transient `svelte` resolver issue once from
+  `src/types/typeFrame.ts`, then passed on immediate sequential rerun without
+  code changes.
 - Scoped `git diff --check` for touched implementation, style, and test files
   exited 0.
 - Obsidian CLI smoke passed after `obsidian plugin:reload id=vaultman`:
   chevron toggle, tree `ArrowLeft` parent/collapse flow, sort
   expand/collapse-all, grid folder navigation and Up navigation all worked;
-  `obsidian dev:errors` reported no captured errors.
+  the inline completion smoke reloaded/opened Vaultman with
+  `gridHierarchyMode: 'inline'`, cleared an unrelated older
+  `notebook-navigator` error, and `obsidian dev:errors` then reported no
+  captured errors.
 
 ## Stop Conditions
 
@@ -168,10 +176,9 @@ change, while still preserving the full grid design in this plan.
   at any reliable seam. Record the failed reproduction attempts before editing.
 - Stop if expansion commands would require hardcoding explorer provider ids in
   `overlaySortMenu.svelte`; add a generic bridge instead.
-- Stop if inline grid expansion requires variable row virtualization that cannot
-  be made stable in the current `ViewNodeGrid` structure. Ship folder-navigation
-  mode first and keep inline expansion behind the setting until virtualization
-  is solved.
+- Inline grid expansion now uses variable row virtualization in
+  `ViewNodeGrid.svelte`; reopen this stop condition only if future nested-grid
+  changes destabilize row measurement or selection geometry.
 - Stop if Windows File Explorer parity conflicts with existing Vaultman search,
   sort, or add-mode controls. Preserve Vaultman workflows and document the
   deliberate difference.

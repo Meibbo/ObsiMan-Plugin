@@ -6,11 +6,11 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-handoff.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-07T02:00:00
+updated: 2026-05-07T17:18:41
 tags:
   - agent/current
 created_by: dec
-updated_by: claude
+updated_by: codex
 ---
 
 # Current Handoff
@@ -26,6 +26,9 @@ Archived completed/superseded handoff:
   [[docs/work/hardening/plans/2026-05-07-node-expansion-keyboard-grid/index|Node expansion, keyboard navigation, and hierarchical grid plan]].
 - Latest continuation:
   [[docs/work/hardening/research/2026-05-06-selection-tanstack-virtualizer-debug/index|Selection hang and TanStack virtualizer assimilation]].
+- Current polish continuation:
+  [[docs/work/polish/specs/2026-05-07-tanstack-node-table/index|TanStack node table spec]] and
+  [[docs/work/polish/plans/2026-05-07-tanstack-node-table/index|TanStack node table plan]].
 - Read [[docs/current/engineering-context|engineering context]] with this file
   and status; `start.md` now links it explicitly.
 - User explicitly said to ignore the no-commit rule and active-doc compactness
@@ -39,8 +42,9 @@ Archived completed/superseded handoff:
 - Phase 4 viewgrid is implemented and verified in the current worktree.
 - Phase 5 visual accessibility and Phase 6 verification are implemented and
   verified in the current worktree.
-- Next recommended slice: either implement the gated inline grid expansion mode
-  or resume parser compatibility work superseded by node selection/viewgrid.
+- Next recommended slice: resume parser compatibility work superseded by node
+  selection/viewgrid, choose the next post-MVP table capability, or do a visual
+  polish pass on inline grid expansion.
 - Multifacet wave 2 phase 1a — DONE. UI integration shipped: searchbox
   hosts the mode pill, the rename island input, and the new `crear`
   button. `pageFilters.svelte` instantiates a single panel-scoped
@@ -226,6 +230,16 @@ Archived completed/superseded handoff:
   [[docs/archive/hardening/active-docs/2026-05-06T050935-current-handoff|2026-05-06 archive]].
   Active rule: keep handoff narrative under 200 lines and link to
   source records.
+- 2026-05-07 inline grid expansion changes to preserve:
+  Settings enables and persists `gridHierarchyMode: 'inline'`, grid parent
+  tiles show chevrons, collapsed children stay hidden, expanded parents render
+  nested child grids in variable-height virtual rows, and rectangle selection
+  includes expanded child tiles.
+- 2026-05-07 TanStack node table changes to preserve:
+  `@tanstack/table-core` local adapter, `ViewNodeTable.svelte`, table mode in
+  `panelExplorer.svelte`, table SCSS, view-menu Table route, provider-specific
+  columns for `props`/`tags`/`files`/`content`, adapter tests, component tests,
+  and the polish source records under `docs/work/polish/...`.
 - 2026-05-07 multifacet-2 phase 1a fresh changes: `FnRIslandService`,
   searchbox-mounted island, mode pill, `crear` button,
   `explorerAddOps` registry, and `.vm-toolbar-takeover` opacity +
@@ -304,6 +318,25 @@ Archived completed/superseded handoff:
   `--fileParallelism=false`; `pnpm exec vp build` and
   `pnpm exec vp lint` green; scoped `git diff --check` exit 0 on
   `navbarExplorer.svelte` plus four new test files.
+- 2026-05-07 inline completion red/green: scoped component tests for
+  `viewGridSelection`, `panelExplorerSelection`, and `settingsUI` first failed
+  on gated inline mode and missing inline renderer behavior, then passed
+  together with 36 tests.
+- 2026-05-07 inline completion broad checks: `pnpm run check`, `pnpm run lint`,
+  and `pnpm run build` passed. Build hit the known transient `svelte` resolver
+  issue once from `src/types/typeFrame.ts`, then passed on immediate sequential
+  rerun without code changes.
+- 2026-05-07 inline completion scoped whitespace:
+  `git diff --check -- src/components/views/ViewNodeGrid.svelte src/components/containers/panelExplorer.svelte src/components/settings/SettingsUI.svelte src/styles/data/_grid.scss styles.css test/component/viewGridSelection.test.ts test/component/panelExplorerSelection.test.ts test/component/settingsUI.test.ts`
+  exited 0.
+- 2026-05-07 inline completion Obsidian CLI smoke: `plugin:reload`,
+  `vaultman:open`, temporary `gridHierarchyMode: 'inline'` evaluation, and
+  `dev:errors` passed after clearing one unrelated older `notebook-navigator`
+  error.
+- 2026-05-07 TanStack node table verification: adapter unit tests, table
+  component tests, panel/overlay component tests, `pnpm run check`,
+  `pnpm run lint`, `pnpm run build`, scoped `git diff --check`, and Obsidian
+  CLI table-mode smoke passed in the source worktree records.
 
 ## Known Residuals
 

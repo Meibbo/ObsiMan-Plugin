@@ -10,6 +10,23 @@ function nodes(): TreeNode[] {
 	];
 }
 
+function hierarchicalNodes(): TreeNode[] {
+	return [
+		{
+			id: 'parent',
+			label: 'Parent',
+			depth: 0,
+			meta: {},
+			icon: 'lucide-folder',
+			children: [
+				{ id: 'child-a', label: 'Child A', depth: 1, meta: {}, icon: 'lucide-file' },
+				{ id: 'child-b', label: 'Child B', depth: 1, meta: {}, icon: 'lucide-file' },
+			],
+		},
+		{ id: 'sibling', label: 'Sibling', depth: 0, meta: {}, icon: 'lucide-file' },
+	];
+}
+
 function manyNodes(count: number): TreeNode[] {
 	return Array.from({ length: count }, (_, index) => ({
 		id: `node-${index}`,
@@ -59,6 +76,9 @@ describe('ViewNodeGrid selection gestures', () => {
 			onPrimaryAction: (id: string, e: MouseEvent) => void;
 			onContextMenu: (id: string, e: MouseEvent) => void;
 			onBoxSelect: (ids: string[], e: PointerEvent) => void;
+			hierarchyMode: 'folder' | 'inline';
+			expandedIds: Set<string>;
+			onToggleExpand: (id: string, e: MouseEvent | KeyboardEvent) => void;
 		}> = {},
 	) {
 		const defaults = {
@@ -67,6 +87,9 @@ describe('ViewNodeGrid selection gestures', () => {
 			onPrimaryAction: vi.fn(),
 			onContextMenu: vi.fn(),
 			onBoxSelect: vi.fn(),
+			hierarchyMode: 'folder',
+			expandedIds: new Set<string>(),
+			onToggleExpand: vi.fn(),
 			icon: vi.fn(() => ({ update: vi.fn() })),
 		};
 		app = mount(ViewNodeGrid as unknown as Component<Record<string, unknown>>, {
@@ -83,6 +106,7 @@ describe('ViewNodeGrid selection gestures', () => {
 			onPrimaryAction: props.onPrimaryAction ?? defaults.onPrimaryAction,
 			onContextMenu: props.onContextMenu ?? defaults.onContextMenu,
 			onBoxSelect: props.onBoxSelect ?? defaults.onBoxSelect,
+			onToggleExpand: props.onToggleExpand ?? defaults.onToggleExpand,
 		};
 	}
 
@@ -196,6 +220,83 @@ describe('ViewNodeGrid selection gestures', () => {
 
 		expect(handlers.onBoxSelect).toHaveBeenCalledOnce();
 		expect(handlers.onBoxSelect).toHaveBeenCalledWith(['alpha', 'beta'], expect.any(PointerEvent));
+	});
+
+	it('renders inline hierarchy chevrons without showing collapsed children', () => {
+		renderGrid({
+			nodes: hierarchicalNodes(),
+			hierarchyMode: 'inline',
+		});
+
+		const parent = target.querySelector('[data-id="parent"]') as HTMLElement;
+		const toggle = target.querySelector('[data-vm-node-grid-toggle="parent"]') as HTMLElement;
+
+		expect(parent).not.toBeNull();
+		expect(parent.getAttribute('aria-expanded')).toBe('false');
+		expect(toggle).not.toBeNull();
+		expect(target.querySelector('[data-id="child-a"]')).toBeNull();
+		expect(target.querySelector('[data-id="sibling"]')).not.toBeNull();
+	});
+
+	it('reports inline chevron expansion without selecting or activating the tile', () => {
+		const handlers = renderGrid({
+			nodes: hierarchicalNodes(),
+			hierarchyMode: 'inline',
+		});
+
+		(target.querySelector('[data-vm-node-grid-toggle="parent"]') as HTMLElement).click();
+
+		expect(handlers.onToggleExpand).toHaveBeenCalledOnce();
+		expect(handlers.onToggleExpand).toHaveBeenCalledWith('parent', expect.any(MouseEvent));
+		expect(handlers.onTileClick).not.toHaveBeenCalled();
+		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
+	});
+
+	it('shows expanded inline children in a nested grid while keeping sibling tiles visible', () => {
+		renderGrid({
+			nodes: hierarchicalNodes(),
+			hierarchyMode: 'inline',
+			expandedIds: new Set(['parent']),
+		});
+
+		expect(target.querySelector('[data-id="parent"]')?.getAttribute('aria-expanded')).toBe('true');
+		expect(target.querySelector('[data-vm-node-grid-inline-panel="parent"]')).not.toBeNull();
+		expect(target.querySelector('[data-id="child-a"]')).not.toBeNull();
+		expect(target.querySelector('[data-id="child-b"]')).not.toBeNull();
+		expect(target.querySelector('[data-id="sibling"]')).not.toBeNull();
+	});
+
+	it('rectangle selection includes expanded inline child tiles', () => {
+		const handlers = renderGrid({
+			nodes: hierarchicalNodes(),
+			hierarchyMode: 'inline',
+			expandedIds: new Set(['parent']),
+		});
+		const grid = target.querySelector('.vm-node-grid') as HTMLElement;
+		const parent = target.querySelector('[data-id="parent"]') as HTMLElement;
+		const child = target.querySelector('[data-id="child-a"]') as HTMLElement;
+		Object.assign(grid, {
+			setPointerCapture: vi.fn(),
+			releasePointerCapture: vi.fn(),
+			hasPointerCapture: vi.fn(() => true),
+		});
+		vi.spyOn(grid, 'getBoundingClientRect').mockReturnValue(rect(0, 0, 240, 180));
+		vi.spyOn(parent, 'getBoundingClientRect').mockReturnValue(rect(0, 0, 100, 60));
+		vi.spyOn(child, 'getBoundingClientRect').mockReturnValue(rect(0, 72, 100, 132));
+
+		grid.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 0, clientY: 0 }));
+		grid.dispatchEvent(
+			new PointerEvent('pointermove', { bubbles: true, clientX: 110, clientY: 140 }),
+		);
+		grid.dispatchEvent(
+			new PointerEvent('pointerup', { bubbles: true, clientX: 110, clientY: 140 }),
+		);
+
+		expect(handlers.onBoxSelect).toHaveBeenCalledOnce();
+		expect(handlers.onBoxSelect).toHaveBeenCalledWith(
+			['parent', 'child-a'],
+			expect.any(PointerEvent),
+		);
 	});
 });
 

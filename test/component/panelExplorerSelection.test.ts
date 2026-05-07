@@ -5,7 +5,7 @@ import { NodeSelectionService } from '../../src/services/serviceSelection.svelte
 import { ViewService } from '../../src/services/serviceViews.svelte';
 import type { VaultmanPlugin } from '../../src/main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../src/types/typeExplorer';
-import type { FileMeta, TreeNode } from '../../src/types/typeNode';
+import type { FileMeta, PropMeta, TreeNode } from '../../src/types/typeNode';
 import type { IViewService } from '../../src/types/typeViews';
 import { mockTFile } from '../helpers/obsidian-mocks';
 
@@ -106,12 +106,14 @@ describe('PanelExplorer tree selection adapter', () => {
 			selectionService?: NodeSelectionService;
 			provider?: ExplorerProvider;
 			viewMode?: ExplorerViewMode;
+			gridHierarchyMode?: 'folder' | 'inline';
 			nodeExpansionCommand?: unknown;
 			onNodeExpansionSummaryChange?: (summary: unknown) => void;
 		} = {},
 	) {
 		const selectionService = options.selectionService ?? new NodeSelectionService();
 		const pluginStub = plugin(selectionService);
+		pluginStub.settings = { ...pluginStub.settings, gridHierarchyMode: options.gridHierarchyMode };
 		const providerStub = options.provider ?? provider();
 		app = mount(PanelExplorer as unknown as Component<Record<string, unknown>>, {
 			target,
@@ -204,11 +206,7 @@ describe('PanelExplorer tree selection adapter', () => {
 		flushSync();
 
 		expect([...selectionService.snapshot('files').ids]).toEqual(['Notes/Alpha.md']);
-		expect(pluginStub.viewService.select).toHaveBeenCalledWith(
-			'files',
-			'Notes/Alpha.md',
-			'add',
-		);
+		expect(pluginStub.viewService.select).toHaveBeenCalledWith('files', 'Notes/Alpha.md', 'add');
 		expect(pluginStub.filterService.setSelectedFiles).toHaveBeenCalledWith([file]);
 	});
 
@@ -222,6 +220,94 @@ describe('PanelExplorer tree selection adapter', () => {
 		expect(target.querySelector('[data-id="alpha"]')?.getAttribute('aria-selected')).toBe('false');
 	});
 
+	it('table mode renders provider tree nodes instead of fallback copy', () => {
+		renderPanel({ viewMode: 'table' });
+
+		expect(target.querySelector('.vm-node-table')).not.toBeNull();
+		expect(target.textContent).toContain('Alpha');
+		expect(target.textContent).not.toContain('Table view not available');
+	});
+
+	it('table row click selects through the shared node selection service', () => {
+		const { pluginStub, selectionService } = renderPanel({ viewMode: 'table' });
+
+		(target.querySelector('[data-id="beta"]') as HTMLElement).click();
+		flushSync();
+
+		expect([...selectionService.snapshot(EXPLORER_ID).ids]).toEqual(['beta']);
+		expect(pluginStub.viewService.select).toHaveBeenCalledWith(EXPLORER_ID, 'beta', 'add');
+	});
+
+	it('table mode uses provider-specific property columns', () => {
+		const propTree: TreeNode<PropMeta>[] = [
+			{
+				id: 'status',
+				label: 'status',
+				count: 3,
+				depth: 0,
+				meta: { propName: 'status', propType: 'list', isValueNode: false },
+				children: [
+					{
+						id: 'status::draft',
+						label: 'draft',
+						count: 2,
+						depth: 1,
+						meta: {
+							propName: 'status',
+							propType: 'list',
+							isValueNode: true,
+							rawValue: 'draft',
+						},
+					},
+				],
+			},
+		];
+
+		renderPanel({
+			viewMode: 'table',
+			provider: provider({
+				id: 'props',
+				getTree: vi.fn(() => propTree),
+			}),
+		});
+
+		expect(target.querySelector('[data-vm-table-header="nodeKind"]')?.textContent).toContain(
+			'Kind',
+		);
+		expect(target.querySelector('[data-vm-table-header="propType"]')?.textContent).toContain(
+			'Type',
+		);
+		expect(target.querySelector('[data-vm-table-cell="status:nodeKind"]')?.textContent).toContain(
+			'Property',
+		);
+		expect(
+			target.querySelector('[data-vm-table-cell="status::draft:nodeKind"]')?.textContent,
+		).toContain('Value');
+		expect(target.querySelector('[data-vm-table-cell="status:propType"]')?.textContent).toContain(
+			'list',
+		);
+	});
+
+	it('table context menu receives same-type selected nodes', () => {
+		const providerStub = provider({
+			getNodeType: vi.fn((node) => (node.id === 'alpha' || node.id === 'beta' ? 'file' : 'tag')),
+		});
+		const { selectionService } = renderPanel({ viewMode: 'table', provider: providerStub });
+		selectionService.selectPointer(EXPLORER_ID, ['alpha', 'beta'], 'alpha');
+		selectionService.selectPointer(EXPLORER_ID, ['alpha', 'beta'], 'beta', { additive: true });
+		flushSync();
+
+		(target.querySelector('[data-id="beta"]') as HTMLElement).dispatchEvent(
+			new MouseEvent('contextmenu', { bubbles: true }),
+		);
+
+		expect(providerStub.handleContextMenu).toHaveBeenCalledWith(
+			expect.objectContaining({ id: 'beta' }),
+			expect.any(MouseEvent),
+			[expect.objectContaining({ id: 'alpha' }), expect.objectContaining({ id: 'beta' })],
+		);
+	});
+
 	it('grid folder mode shows root parents without flattening descendants', () => {
 		renderPanel({
 			viewMode: 'grid',
@@ -233,24 +319,47 @@ describe('PanelExplorer tree selection adapter', () => {
 		expect(target.querySelector('[data-id="child"]')).toBeNull();
 	});
 
-	it('gates inline grid hierarchy to folder navigation until inline expansion is implemented', () => {
-		const selectionService = new NodeSelectionService();
-		const pluginStub = plugin(selectionService);
-		pluginStub.settings = { ...pluginStub.settings, gridHierarchyMode: 'inline' };
-
-		mount(PanelExplorer as unknown as Component<Record<string, unknown>>, {
-			target,
-			props: {
-				plugin: pluginStub,
-				provider: provider({ getTree: vi.fn(() => nestedNodes()) }),
-				viewMode: 'grid',
-				icon: vi.fn(() => ({ update: vi.fn() })),
-			},
+	it('grid inline mode shows root tiles with chevrons and expands children in place', () => {
+		const providerStub = provider({ getTree: vi.fn(() => nestedNodes()) });
+		renderPanel({
+			viewMode: 'grid',
+			gridHierarchyMode: 'inline',
+			provider: providerStub,
 		});
+
+		expect(target.querySelector('.vm-grid-nav-toolbar')).toBeNull();
+		expect(target.querySelector('[data-id="parent"]')).not.toBeNull();
+		expect(target.querySelector('[data-id="sibling"]')).not.toBeNull();
+		expect(target.querySelector('[data-id="child"]')).toBeNull();
+
+		(target.querySelector('[data-vm-node-grid-toggle="parent"]') as HTMLElement).click();
 		flushSync();
 
-		expect(target.querySelector('.vm-grid-nav-toolbar')).not.toBeNull();
 		expect(target.querySelector('[data-id="parent"]')).not.toBeNull();
+		expect(target.querySelector('[data-id="sibling"]')).not.toBeNull();
+		expect(target.querySelector('[data-vm-node-grid-inline-panel="parent"]')).not.toBeNull();
+		expect(target.querySelector('[data-id="child"]')).not.toBeNull();
+		expect(providerStub.handleNodeClick).not.toHaveBeenCalled();
+	});
+
+	it('grid inline keyboard expands and collapses parent tiles without folder navigation', () => {
+		renderPanel({
+			viewMode: 'grid',
+			gridHierarchyMode: 'inline',
+			provider: provider({ getTree: vi.fn(() => nestedNodes()) }),
+		});
+
+		const parent = target.querySelector('[data-id="parent"]') as HTMLElement;
+		parent.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+		flushSync();
+
+		expect(target.querySelector('[data-id="parent"]')?.getAttribute('aria-expanded')).toBe('true');
+		expect(target.querySelector('[data-id="child"]')).not.toBeNull();
+
+		parent.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+		flushSync();
+
+		expect(target.querySelector('[data-id="parent"]')?.getAttribute('aria-expanded')).toBe('false');
 		expect(target.querySelector('[data-id="child"]')).toBeNull();
 	});
 

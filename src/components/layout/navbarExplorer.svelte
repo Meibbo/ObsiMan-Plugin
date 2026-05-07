@@ -172,6 +172,12 @@
 		headerExitDir = 'left';
 		headerMode = 'viewmode';
 	}
+	export function openSortMenu(): void {
+		openSortPopup();
+	}
+	export function openViewMenu(): void {
+		openViewModePopup();
+	}
 	function closeHeaderPopup() {
 		headerMode = 'header';
 	}

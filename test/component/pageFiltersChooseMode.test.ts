@@ -138,4 +138,30 @@ describe('PageFilters Bases choose mode', () => {
 		expect(target.textContent).toContain('Projects');
 		expect(target.textContent).toContain('Open Projects');
 	});
+
+	it('wires plugin command hooks to the navbar view and sort menus', () => {
+		const vm = plugin() as VaultmanPlugin & {
+			openViewMenuHook?: (() => void) | null;
+			openSortMenuHook?: (() => void) | null;
+		};
+		app = mount(PageFilters as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: {
+				plugin: vm,
+				filtersActiveTab: 'props',
+			},
+		});
+		flushSync();
+
+		expect(typeof vm.openViewMenuHook).toBe('function');
+		expect(typeof vm.openSortMenuHook).toBe('function');
+
+		vm.openViewMenuHook?.();
+		flushSync();
+		expect(target.querySelector('.vm-viewmode-popup')).toBeTruthy();
+
+		vm.openSortMenuHook?.();
+		flushSync();
+		expect(target.querySelector('.vm-sort-popup')).toBeTruthy();
+	});
 });

@@ -1,0 +1,119 @@
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+.vm-node-table {
+	position: relative;
+	height: 100%;
+	min-height: 0;
+	overflow: auto;
+	box-sizing: border-box;
+	background: color-mix(in srgb, $vm-bg-primary 94%, transparent);
+}
+
+.vm-node-table-inner {
+	position: relative;
+	min-width: 100%;
+	height: var(--vm-node-table-total-h, 0);
+}
+
+.vm-node-table-header {
+	position: sticky;
+	top: 0;
+	z-index: 3;
+	display: grid;
+	grid-template-columns: var(--vm-node-table-columns, minmax(180px, 1fr));
+	background: color-mix(in srgb, $vm-bg-secondary 92%, transparent);
+	border-bottom: $vm-border-width solid $vm-border-color;
+}
+
+.vm-node-table-header-cell {
+	min-width: 0;
+	padding: 6px 8px;
+	border: 0;
+	border-right: $vm-border-width solid color-mix(in srgb, $vm-border-color 72%, transparent);
+	background: transparent;
+	color: $vm-text-muted;
+	font-size: var(--font-ui-smaller);
+	font-weight: 700;
+	text-align: left;
+	text-transform: uppercase;
+	letter-spacing: 0;
+	@include text-ellipsis;
+
+	&:hover,
+	&:focus-visible {
+		color: $vm-text-normal;
+		background: $vm-bg-modifier-hover;
+		outline: none;
+	}
+}
+
+.vm-node-table-row {
+	position: absolute;
+	left: 0;
+	right: 0;
+	display: grid;
+	grid-template-columns: var(--vm-node-table-columns, minmax(180px, 1fr));
+	min-height: 30px;
+	transform: translateY(var(--vm-node-table-y, 0));
+	border-bottom: $vm-border-width solid color-mix(in srgb, $vm-border-color 70%, transparent);
+	box-sizing: border-box;
+	color: $vm-text-normal;
+}
+
+.vm-node-table-row:hover,
+.vm-node-table-row.is-active-node {
+	background: $vm-bg-modifier-hover;
+}
+
+.vm-node-table-row.is-selected {
+	background: color-mix(in srgb, $vm-color-accent 13%, $vm-bg-primary);
+	box-shadow: inset 3px 0 0 color-mix(in srgb, $vm-color-accent 78%, transparent);
+}
+
+.vm-node-table-row.is-focused {
+	outline: 1px solid color-mix(in srgb, $vm-color-accent 62%, transparent);
+	outline-offset: -1px;
+}
+
+.vm-node-table-cell {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
+	padding: 5px 8px;
+	border-right: $vm-border-width solid color-mix(in srgb, $vm-border-color 56%, transparent);
+	font-size: var(--font-ui-smaller);
+	@include text-ellipsis;
+}
+
+.vm-node-table-icon {
+	@include flex-center;
+	flex: 0 0 auto;
+	color: $vm-text-muted;
+}
+
+.vm-node-table-primary {
+	min-width: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+	@include text-ellipsis;
+}
+
+.vm-node-table-sort {
+	margin-left: 6px;
+	color: $vm-color-accent;
+	font-size: 0.86em;
+	text-transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.vm-node-table-row {
+		transition: none;
+	}
+}
