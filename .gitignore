@@ -1,5 +1,20 @@
-# Docs for the repo
+# Dev Compiled
+node_modules/
+coverage/
+img/
+dist/
+.obsidian/
+.vscode/
+.superpowers/
+main.js
+data.json
+settings.local.json
+.DS_Store
+.env
+*.mjs
+# Temporal ignore of the docs folder.
 docs/*
+# Agent Knowledge Management
 docs/superpowers/*
 docs/superpowers/audits/*
 !docs/superpowers
@@ -14,10 +29,7 @@ docs/superpowers/audits/*
 !docs/archive/superpowers
 !docs/archive/superpowers/specs
 !docs/archive/superpowers/specs/*.md
-node_modules/
-coverage/
-img/
-dist/
+# Agent Tools
 .agents/cache/
 .agents/cache/**
 .agents/tmp/
@@ -26,15 +38,6 @@ dist/
 !.agents/skills/vm-*/
 !.agents/skills/vm-*/**
 .claude/*
-.obsidian/
-.vscode/
-.superpowers/
-main.js
-data.json
-settings.local.json
-.DS_Store
-.env
-*.mjs
 !.agents/tools/
 !.agents/tools/pkm-ai/
 !.agents/tools/pkm-ai/**/*.mjs

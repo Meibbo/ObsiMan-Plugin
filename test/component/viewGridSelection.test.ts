@@ -10,6 +10,16 @@ function nodes(): TreeNode[] {
 	];
 }
 
+function manyNodes(count: number): TreeNode[] {
+	return Array.from({ length: count }, (_, index) => ({
+		id: `node-${index}`,
+		label: `Node ${index}`,
+		depth: 0,
+		meta: {},
+		icon: 'lucide-file',
+	}));
+}
+
 describe('ViewNodeGrid selection gestures', () => {
 	let target: HTMLDivElement;
 	let app: ReturnType<typeof mount> | null = null;
@@ -41,8 +51,10 @@ describe('ViewNodeGrid selection gestures', () => {
 
 	function renderGrid(
 		props: Partial<{
+			nodes: TreeNode[];
 			selectedIds: Set<string>;
 			focusedId: string | null;
+			activeId: string | null;
 			onTileClick: (id: string, e: MouseEvent) => void;
 			onPrimaryAction: (id: string, e: MouseEvent) => void;
 			onContextMenu: (id: string, e: MouseEvent) => void;
@@ -60,7 +72,7 @@ describe('ViewNodeGrid selection gestures', () => {
 		app = mount(ViewNodeGrid as unknown as Component<Record<string, unknown>>, {
 			target,
 			props: {
-				nodes: nodes(),
+				nodes: props.nodes ?? nodes(),
 				...defaults,
 				...props,
 			},
@@ -80,6 +92,16 @@ describe('ViewNodeGrid selection gestures', () => {
 		expect(target.querySelector('[data-id="alpha"]')?.textContent).toContain('Alpha');
 		expect(target.querySelector('[data-id="beta"]')?.textContent).toContain('Beta');
 		expect(target.querySelectorAll('.vm-node-grid-icon')).toHaveLength(2);
+	});
+
+	it('virtualizes large node sets instead of mounting every tile', () => {
+		const sourceNodes = manyNodes(200);
+
+		renderGrid({ nodes: sourceNodes });
+
+		const tiles = target.querySelectorAll('.vm-node-grid-tile');
+		expect(tiles.length).toBeGreaterThan(0);
+		expect(tiles.length).toBeLessThan(sourceNodes.length);
 	});
 
 	it('clicking a tile reports selection intent without running the primary action', () => {
@@ -116,6 +138,29 @@ describe('ViewNodeGrid selection gestures', () => {
 		const event = (handlers.onTileClick as ReturnType<typeof vi.fn>).mock.calls[0][1];
 		expect(event.ctrlKey).toBe(true);
 		expect(event.shiftKey).toBe(true);
+	});
+
+	it('exposes grid multi-selection roles with distinct selected, focused, and active-node states', () => {
+		renderGrid({
+			selectedIds: new Set(['alpha']),
+			focusedId: 'alpha',
+			activeId: 'beta',
+		});
+
+		const grid = target.querySelector('.vm-node-grid') as HTMLElement;
+		const alpha = target.querySelector('[data-id="alpha"]') as HTMLElement;
+		const beta = target.querySelector('[data-id="beta"]') as HTMLElement;
+
+		expect(grid.getAttribute('role')).toBe('grid');
+		expect(grid.getAttribute('aria-multiselectable')).toBe('true');
+		expect(alpha.getAttribute('role')).toBe('gridcell');
+		expect(alpha.getAttribute('aria-selected')).toBe('true');
+		expect(alpha.classList.contains('is-selected')).toBe(true);
+		expect(alpha.classList.contains('is-focused')).toBe(true);
+		expect(beta.getAttribute('role')).toBe('gridcell');
+		expect(beta.getAttribute('aria-selected')).toBe('false');
+		expect(beta.classList.contains('is-active-node')).toBe(true);
+		expect(beta.classList.contains('is-selected')).toBe(false);
 	});
 
 	it('forwards context menu intent from the target tile', () => {

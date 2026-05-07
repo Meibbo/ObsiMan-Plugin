@@ -1,5 +1,17 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
+	import { createVirtualizer } from '@tanstack/svelte-virtual';
+	import type { Rect, Virtualizer } from '@tanstack/svelte-virtual';
 	import type { TreeNode } from '../../types/typeNode';
+
+	const GRID_TILE_MIN_WIDTH = 128;
+	const GRID_TILE_HEIGHT = 54;
+	const GRID_GAP = 8;
+	const GRID_PADDING = 8;
+	const GRID_FALLBACK_WIDTH = 480;
+	const GRID_FALLBACK_HEIGHT = 360;
+	const GRID_OVERSCAN = 3;
+	const GRID_ROW_HEIGHT = GRID_TILE_HEIGHT + GRID_GAP;
 
 	interface Props {
 		nodes: TreeNode[];
@@ -28,6 +40,8 @@
 	}: Props = $props();
 
 	let outerEl: HTMLDivElement | undefined = $state();
+	let gridWidth = $state(GRID_FALLBACK_WIDTH);
+	let columnCount = $state(1);
 	let dragStart = $state<{ x: number; y: number; pointerId: number } | null>(null);
 	let selectionBox = $state<{
 		left: number;
@@ -36,6 +50,48 @@
 		height: number;
 	} | null>(null);
 	let suppressNextClick = false;
+	let gridMetricsFrame: number | null = null;
+
+	const rowCount = $derived(Math.ceil(nodes.length / columnCount));
+	const rowVirtualizer = createVirtualizer<HTMLDivElement, HTMLDivElement>({
+		count: 0,
+		getScrollElement: () => outerEl ?? null,
+		estimateSize: () => GRID_ROW_HEIGHT,
+		observeElementRect: observeGridRect,
+		overscan: GRID_OVERSCAN,
+		initialRect: { width: GRID_FALLBACK_WIDTH, height: GRID_FALLBACK_HEIGHT },
+	});
+	const virtualRows = $derived($rowVirtualizer.getVirtualItems());
+	const totalHeight = $derived($rowVirtualizer.getTotalSize() + GRID_PADDING * 2);
+
+	$effect(() => {
+		const count = rowCount;
+		const scrollElement = outerEl;
+		const width = gridWidth;
+		untrack(() =>
+			$rowVirtualizer.setOptions({
+			count,
+			getScrollElement: () => scrollElement ?? null,
+			estimateSize: () => GRID_ROW_HEIGHT,
+			observeElementRect: observeGridRect,
+			overscan: GRID_OVERSCAN,
+			initialRect: { width, height: GRID_FALLBACK_HEIGHT },
+			}),
+		);
+	});
+
+	$effect(() => {
+		if (!outerEl) return;
+		updateGridMetrics();
+		if (typeof ResizeObserver === 'undefined') return;
+		const ro = new ResizeObserver(scheduleGridMetricsUpdate);
+		ro.observe(outerEl);
+		return () => {
+			if (gridMetricsFrame !== null) cancelAnimationFrame(gridMetricsFrame);
+			gridMetricsFrame = null;
+			ro.disconnect();
+		};
+	});
 
 	function handleTileClick(id: string, e: MouseEvent) {
 		if (suppressNextClick) {
@@ -55,7 +111,7 @@
 		if (e.button !== 0 || !outerEl || shouldIgnoreBoxStart(e.target)) return;
 		dragStart = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
 		selectionBox = null;
-		outerEl.setPointerCapture(e.pointerId);
+		capturePointer(e.pointerId);
 	}
 
 	function handlePointerMove(e: PointerEvent) {
@@ -90,6 +146,15 @@
 		outerEl.releasePointerCapture(pointerId);
 	}
 
+	function capturePointer(pointerId: number) {
+		if (!outerEl) return;
+		try {
+			outerEl.setPointerCapture(pointerId);
+		} catch {
+			// Synthetic CLI/test pointer events do not always create a capturable pointer.
+		}
+	}
+
 	function shouldIgnoreBoxStart(target: EventTarget | null): boolean {
 		const el = target instanceof HTMLElement ? target : null;
 		return Boolean(el?.closest('input, textarea, select, button, [role="button"]'));
@@ -110,26 +175,89 @@
 	}
 
 	function intersectingTileIds(box: NonNullable<typeof selectionBox>): string[] {
-		if (!outerEl) return [];
-		const boxRect = selectionBoxViewportRect(box);
 		const ids: string[] = [];
-		for (const tile of outerEl.querySelectorAll<HTMLElement>('.vm-node-grid-tile[data-id]')) {
-			if (rectsIntersect(boxRect, tile.getBoundingClientRect())) {
-				const id = tile.dataset.id;
-				if (id) ids.push(id);
-			}
+		const metrics = gridMetrics();
+		const boxRect = rectFromBox(box);
+		for (let index = 0; index < nodes.length; index += 1) {
+			const tileRect = tileRectFor(index, metrics);
+			if (rectsIntersect(boxRect, tileRect)) ids.push(nodes[index].id);
 		}
 		return ids;
 	}
 
-	function selectionBoxViewportRect(box: NonNullable<typeof selectionBox>): DOMRect {
-		const outerRect = outerEl!.getBoundingClientRect();
-		return new DOMRect(
-			outerRect.left + box.left - outerEl!.scrollLeft,
-			outerRect.top + box.top - outerEl!.scrollTop,
-			box.width,
-			box.height,
-		);
+	function updateGridMetrics() {
+		const width = outerEl?.clientWidth || GRID_FALLBACK_WIDTH;
+		gridWidth = width;
+		columnCount = columnsForWidth(width);
+	}
+
+	function scheduleGridMetricsUpdate() {
+		if (typeof requestAnimationFrame === 'undefined') {
+			updateGridMetrics();
+			return;
+		}
+		if (gridMetricsFrame !== null) return;
+		gridMetricsFrame = requestAnimationFrame(() => {
+			gridMetricsFrame = null;
+			updateGridMetrics();
+		});
+	}
+
+	function observeGridRect(
+		_: Virtualizer<HTMLDivElement, HTMLDivElement>,
+		cb: (rect: Rect) => void,
+	): () => void {
+		let rectFrame: number | null = null;
+		const emit = () => {
+			cb({
+				width: outerEl?.clientWidth || gridWidth || GRID_FALLBACK_WIDTH,
+				height: outerEl?.clientHeight || GRID_FALLBACK_HEIGHT,
+			});
+		};
+		const schedule = () => {
+			if (typeof requestAnimationFrame === 'undefined') {
+				emit();
+				return;
+			}
+			if (rectFrame !== null) return;
+			rectFrame = requestAnimationFrame(() => {
+				rectFrame = null;
+				emit();
+			});
+		};
+		schedule();
+		if (!outerEl || typeof ResizeObserver === 'undefined') return () => {};
+		const ro = new ResizeObserver(schedule);
+		ro.observe(outerEl);
+		return () => {
+			if (rectFrame !== null) cancelAnimationFrame(rectFrame);
+			ro.disconnect();
+		};
+	}
+
+	function columnsForWidth(width: number): number {
+		const contentWidth = Math.max(GRID_TILE_MIN_WIDTH, width - GRID_PADDING * 2);
+		return Math.max(1, Math.floor((contentWidth + GRID_GAP) / (GRID_TILE_MIN_WIDTH + GRID_GAP)));
+	}
+
+	function gridMetrics() {
+		const columns = columnCount;
+		const width = outerEl?.clientWidth || gridWidth || GRID_FALLBACK_WIDTH;
+		const contentWidth = Math.max(GRID_TILE_MIN_WIDTH, width - GRID_PADDING * 2);
+		const tileWidth = (contentWidth - GRID_GAP * (columns - 1)) / columns;
+		return { columns, tileWidth };
+	}
+
+	function tileRectFor(index: number, metrics: ReturnType<typeof gridMetrics>): DOMRect {
+		const row = Math.floor(index / metrics.columns);
+		const column = index % metrics.columns;
+		const left = GRID_PADDING + column * (metrics.tileWidth + GRID_GAP);
+		const top = GRID_PADDING + row * GRID_ROW_HEIGHT;
+		return new DOMRect(left, top, metrics.tileWidth, GRID_TILE_HEIGHT);
+	}
+
+	function rectFromBox(box: NonNullable<typeof selectionBox>): DOMRect {
+		return new DOMRect(box.left, box.top, box.width, box.height);
 	}
 
 	function rectsIntersect(a: DOMRect, b: DOMRect): boolean {
@@ -148,38 +276,52 @@
 	onpointerup={handlePointerUp}
 	onpointercancel={handlePointerCancel}
 >
-	{#each nodes as node (node.id)}
-		{@const isSelected = selectedIds?.has(node.id) ?? false}
-		{@const isFocused = focusedId === node.id}
-		{@const isActive = activeId === node.id}
-		<div
-			class="vm-node-grid-tile {node.cls ?? ''}"
-			class:is-selected={isSelected}
-			class:is-focused={isFocused}
-			class:is-active={isActive}
-			data-id={node.id}
-			onclick={(e) => handleTileClick(node.id, e)}
-			oncontextmenu={(e) => onContextMenu(node.id, e)}
-			onkeydown={(e) => handleTileKeydown(node.id, e)}
-			role="gridcell"
-			tabindex="0"
-			aria-selected={isSelected}
-		>
-			{#if node.icon}
-				<span class="vm-node-grid-icon" use:icon={node.icon}></span>
-			{/if}
-			<button
-				type="button"
-				class="vm-node-grid-label"
-				onclick={(e) => {
-					e.stopPropagation();
-					onPrimaryAction?.(node.id, e);
-				}}
-			>
-				{node.label}
-			</button>
-		</div>
-	{/each}
+	<div
+		class="vm-node-grid-inner"
+		style="--vm-node-grid-total-h: {totalHeight}px; --vm-node-grid-columns: {columnCount}"
+	>
+		{#each virtualRows as virtualRow (virtualRow.key)}
+			{@const rowNodes = nodes.slice(
+				virtualRow.index * columnCount,
+				virtualRow.index * columnCount + columnCount,
+			)}
+			<div class="vm-node-grid-row" style="--vm-node-grid-y: {virtualRow.start + GRID_PADDING}px">
+				{#each rowNodes as node (node.id)}
+					{@const isSelected = selectedIds?.has(node.id) ?? false}
+					{@const isFocused = focusedId === node.id}
+					{@const isActive = activeId === node.id}
+					<div
+						class="vm-node-grid-tile {node.cls ?? ''}"
+						class:is-selected={isSelected}
+						class:is-focused={isFocused}
+						class:is-active={isActive}
+						class:is-active-node={isActive}
+						data-id={node.id}
+						onclick={(e) => handleTileClick(node.id, e)}
+						oncontextmenu={(e) => onContextMenu(node.id, e)}
+						onkeydown={(e) => handleTileKeydown(node.id, e)}
+						role="gridcell"
+						tabindex="0"
+						aria-selected={isSelected}
+					>
+						{#if node.icon}
+							<span class="vm-node-grid-icon" use:icon={node.icon}></span>
+						{/if}
+						<button
+							type="button"
+							class="vm-node-grid-label"
+							onclick={(e) => {
+								e.stopPropagation();
+								onPrimaryAction?.(node.id, e);
+							}}
+						>
+							{node.label}
+						</button>
+					</div>
+				{/each}
+			</div>
+		{/each}
+	</div>
 	{#if selectionBox}
 		<div
 			class="vm-selection-box"

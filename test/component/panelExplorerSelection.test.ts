@@ -2,9 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushSync, mount, unmount, type Component } from 'svelte';
 import PanelExplorer from '../../src/components/containers/panelExplorer.svelte';
 import { NodeSelectionService } from '../../src/services/serviceSelection.svelte';
+import { ViewService } from '../../src/services/serviceViews.svelte';
 import type { VaultmanPlugin } from '../../src/main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../src/types/typeExplorer';
 import type { FileMeta, TreeNode } from '../../src/types/typeNode';
+import type { IViewService } from '../../src/types/typeViews';
 import { mockTFile } from '../helpers/obsidian-mocks';
 
 const EXPLORER_ID = 'selection-test';
@@ -16,7 +18,14 @@ function nodes(): TreeNode[] {
 	];
 }
 
-function plugin(selectionService = new NodeSelectionService()): VaultmanPlugin {
+function plugin(
+	selectionService = new NodeSelectionService(),
+	viewService: VaultmanPlugin['viewService'] = {
+		clearSelection: vi.fn(),
+		select: vi.fn(),
+		setFocused: vi.fn(),
+	} as unknown as VaultmanPlugin['viewService'],
+): VaultmanPlugin {
 	return {
 		app: {},
 		propertyIndex: { fileCount: 0 },
@@ -24,11 +33,7 @@ function plugin(selectionService = new NodeSelectionService()): VaultmanPlugin {
 		activeFiltersIndex: { subscribe: vi.fn(() => vi.fn()) },
 		queueService: { remove: vi.fn() },
 		filterService: { setSelectedFiles: vi.fn() },
-		viewService: {
-			clearSelection: vi.fn(),
-			select: vi.fn(),
-			setFocused: vi.fn(),
-		},
+		viewService,
 		selectionService,
 	} as unknown as VaultmanPlugin;
 }
@@ -184,5 +189,55 @@ describe('PanelExplorer tree selection adapter', () => {
 
 		expect(target.querySelector('[data-id="beta"]')?.getAttribute('aria-selected')).toBe('true');
 		expect(target.querySelector('[data-id="alpha"]')?.getAttribute('aria-selected')).toBe('false');
+	});
+
+	it('does not refresh provider trees from reactive ViewService decoration when selecting a row', () => {
+		const selectionService = new NodeSelectionService();
+		const viewService = new ViewService();
+		const sourceNodes = nodes();
+		let forbidSelectionRefresh = false;
+		const providerStub = provider({
+			getTree: vi.fn(() => {
+				if (forbidSelectionRefresh) {
+					throw new Error('provider tree refreshed from selection mirror');
+				}
+				const model = viewService.getModel({
+					explorerId: EXPLORER_ID,
+					mode: 'tree',
+					nodes: sourceNodes,
+				});
+				return model.rows.map((row) => ({
+					...row.node,
+					cls: row.cls,
+					meta: {
+						layers: row.layers,
+					},
+				}));
+			}),
+		});
+		const pluginStub = plugin(selectionService, viewService as unknown as IViewService);
+		app = mount(PanelExplorer as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: {
+				plugin: pluginStub,
+				provider: providerStub,
+				viewMode: 'tree',
+				icon: vi.fn(() => ({ update: vi.fn() })),
+			},
+		});
+		flushSync();
+
+		forbidSelectionRefresh = true;
+		expect(() => {
+			(target.querySelector('[data-id="alpha"]') as HTMLElement).click();
+			flushSync();
+		}).not.toThrow();
+
+		expect([...selectionService.snapshot(EXPLORER_ID).ids]).toEqual(['alpha']);
+		expect([
+			...viewService.getModel({ explorerId: EXPLORER_ID, mode: 'tree', nodes: sourceNodes })
+				.selection.ids,
+		]).toEqual(['alpha']);
+		expect(providerStub.getTree).toHaveBeenCalledTimes(1);
 	});
 });

@@ -1,10 +1,10 @@
 ---
 title: Node selection service implementation plan
 type: implementation-plan-index
-status: draft
+status: completed
 parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|node-selection-service]]"
 created: 2026-05-06T07:05:00
-updated: 2026-05-06T07:05:00
+updated: 2026-05-06T19:21:11
 tags:
   - agent/plan
   - initiative/hardening

@@ -33,6 +33,7 @@ describe('ViewTree selection gestures', () => {
 		props: Partial<{
 			expandedIds: Set<string>;
 			selectedIds: Set<string>;
+			focusedId: string | null;
 			activeFilterIds: Set<string>;
 			onToggle: (id: string) => void;
 			onRowClick: (id: string, e: MouseEvent) => void;
@@ -180,5 +181,31 @@ describe('ViewTree selection gestures', () => {
 		expect(
 			target.querySelector('[data-id="active-filter"]')?.getAttribute('aria-selected'),
 		).toBe('false');
+	});
+
+	it('keeps selected, focused, and active-filter tree states distinct but coexisting', () => {
+		renderTree(
+			[
+				{ id: 'combined', label: 'Combined', depth: 0, meta: {} },
+				{ id: 'focused', label: 'Focused', depth: 0, meta: {} },
+			],
+			{
+				selectedIds: new Set(['combined']),
+				activeFilterIds: new Set(['combined']),
+				focusedId: 'focused',
+			},
+		);
+
+		const combined = target.querySelector('[data-id="combined"]') as HTMLElement;
+		const combinedSurface = combined.querySelector('.vm-tree-row-surface') as HTMLElement;
+		const focused = target.querySelector('[data-id="focused"]') as HTMLElement;
+
+		expect(combined.getAttribute('aria-selected')).toBe('true');
+		expect(combined.classList.contains('is-selected')).toBe(true);
+		expect(combined.classList.contains('is-active-filter')).toBe(true);
+		expect(combinedSurface.classList.contains('is-selected')).toBe(true);
+		expect(combinedSurface.classList.contains('is-active-filter')).toBe(true);
+		expect(focused.getAttribute('aria-selected')).toBe('false');
+		expect(focused.classList.contains('is-focused')).toBe(true);
 	});
 });

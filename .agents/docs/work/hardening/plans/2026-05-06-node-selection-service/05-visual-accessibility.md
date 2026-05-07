@@ -1,10 +1,10 @@
 ---
 title: Visual accessibility
 type: implementation-plan-shard
-status: draft
+status: completed
 parent: "[[docs/work/hardening/plans/2026-05-06-node-selection-service/index|node-selection-service-plan]]"
 created: 2026-05-06T07:05:00
-updated: 2026-05-06T07:05:00
+updated: 2026-05-06T19:21:11
 tags:
   - agent/plan
   - accessibility

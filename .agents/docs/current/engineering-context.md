@@ -4,7 +4,7 @@ type: agent-context
 status: active
 parent: "[[docs/current/status|current-status]]"
 created: 2026-05-06T07:05:00
-updated: 2026-05-06T07:05:00
+updated: 2026-05-06T19:25:53
 tags:
   - agent/current
   - agent/context
@@ -55,6 +55,9 @@ implementing Vaultman work.
 
 - Preserve technical detail in docs. Do not compress away context to satisfy an
   arbitrary line target.
+- Put complete active-work records in the relevant initiative folder and link
+  them from `current/status.md` or `current/handoff.md`; do not turn current
+  docs into compacted substitutes for the initiative record.
 - If a spec or plan is large, shard it. If sharding interrupts capture, write
   the detail first and shard later.
 - Current docs may temporarily exceed compactness rules when the user has

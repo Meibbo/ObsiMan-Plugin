@@ -1,5 +1,6 @@
 <script lang="ts" generics="TMeta = unknown">
 	import type { TFile } from 'obsidian';
+	import { untrack } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import type { VaultmanPlugin } from '../../main';
 	import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
@@ -75,6 +76,7 @@
 	);
 	const isTreeEmpty = $derived(viewMode === 'tree' && nodes.length === 0);
 	const isGridEmpty = $derived(viewMode === 'grid' && gridNodes.length === 0);
+	let lastCommittedSelectionKey = '';
 
 	$effect(() => {
 		// React directly to prop changes
@@ -84,7 +86,7 @@
 		provider.setViewMode?.(viewMode);
 		provider.setAddMode?.(addMode);
 		provider.setShowSelectedOnly?.(showSelectedOnly);
-		if (active) refreshData();
+		if (active) untrack(refreshData);
 	});
 
 	$effect(() => {
@@ -97,7 +99,7 @@
 
 	$effect(() => {
 		if (!active) return;
-		const refresh = () => refreshData();
+		const refresh = () => untrack(refreshData);
 		const unsubscribeOperations = plugin.operationsIndex.subscribe(refresh);
 		const unsubscribeActiveFilters = plugin.activeFiltersIndex.subscribe(refresh);
 		return () => {
@@ -108,7 +110,8 @@
 
 	$effect(() => {
 		if (!active) return;
-		commitSelection(selectionService.prune(provider.id, visibleNodeIds()));
+		const snapshot = selectionService.prune(provider.id, visibleNodeIds());
+		untrack(() => commitSelection(snapshot));
 	});
 
 	function refreshData() {
@@ -243,6 +246,9 @@
 	}
 
 	function commitSelection(snapshot: NodeSelectionSnapshot) {
+		const key = selectionKey(snapshot);
+		if (key === lastCommittedSelectionKey) return;
+		lastCommittedSelectionKey = key;
 		plugin.viewService.clearSelection(provider.id);
 		for (const id of snapshot.ids) plugin.viewService.select(provider.id, id, 'add');
 		plugin.viewService.setFocused(provider.id, snapshot.focusedId);
@@ -257,7 +263,16 @@
 			.filter((file): file is TFile => Boolean(file));
 		selectedFiles = new Set(files.map((file) => file.path));
 		plugin.filterService.setSelectedFiles(files);
-		if (showSelectedOnly) refreshData();
+		if (showSelectedOnly) untrack(refreshData);
+	}
+
+	function selectionKey(snapshot: NodeSelectionSnapshot): string {
+		return [
+			[...snapshot.ids].join('\u0000'),
+			snapshot.anchorId ?? '',
+			snapshot.focusedId ?? '',
+			snapshot.hoveredId ?? '',
+		].join('\u0001');
 	}
 
 	function nodeFile(node: TreeNode<TMeta>): TFile | null {

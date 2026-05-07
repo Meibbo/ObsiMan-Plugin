@@ -4,7 +4,7 @@ type: policy
 status: active
 parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-06T05:12:35
+updated: 2026-05-06T19:25:53
 tags:
   - agent/policy
 ---
@@ -17,11 +17,21 @@ tags:
   instruction to remove detail.
 - Preserve source detail first. Never compress, omit, summarize away, or delete
   technical context just to satisfy line limits.
-- `current/status.md` and `current/handoff.md` stay under 200 lines by linking
-  to shards or archives, not by losing information.
-- When current docs approach their limit, archive completed or superseded
-  material first and link the archive. Do not waste time micro-compressing
-  current files line-by-line just to satisfy the limit.
+- `current/status.md` and `current/handoff.md` are route indexes, not the
+  canonical place for implementation records, verification logs, or detailed
+  handoff history.
+- For non-trivial work, decisions, investigation notes, verification logs, or
+  handoff detail, create or update the complete source record inside the
+  relevant initiative folder (`docs/work/<initiative>/items/`, `specs/`,
+  `plans/`, `research/`, or `backlog/`). Put only a compact wikilink, current
+  state, next action, and blockers in `current/status.md` or
+  `current/handoff.md`.
+- If no named initiative fits, create the complete source record under
+  `docs/work/draft/` and link it from current docs until it is promoted.
+- When current docs approach their limit, first move active detail into the
+  relevant initiative source record. Archive only completed or superseded
+  historical material, then link the archive. Do not micro-compress current
+  files line-by-line just to satisfy the limit.
 - Line limits protect navigation. They do not authorize lossy summaries.
 - If a user asks for exhaustive capture, write the full detail without requiring
   them to separately say "do not omit detail".
@@ -37,12 +47,14 @@ tags:
   just to satisfy a line limit. If one topic exceeds the page size, continue it
   in `part-2`, `part-3`, or similarly named shards, then route the next topic to
   a separate shard.
-- Keep `current/handoff.md` compact; shard long handoff history into archive
-  handoff files and link them from the current handoff.
+- Keep `current/handoff.md` compact; route long handoff history to the active
+  initiative source record while work remains, or to an archive only when that
+  history is superseded.
 - Do not delete agent working memory when the user asked for archive; move it to
   `docs/archive/<initiative>/...` or record the replacement path.
-- When replacing a long active file, preserve the full source record first, then
-  create a route summary or shard manifest that links to the preserved detail.
+- When replacing a long active file, preserve the full source record first in
+  the relevant initiative or archive location, then create a route summary or
+  shard manifest that links to the preserved detail.
 - Before replacing `current/status.md`, `current/handoff.md`, specs, plans, or
   policies in a way that removes substantial content, run
   `tools/pkm-ai/archive-active-doc.mjs` and link the archive from the
@@ -82,4 +94,9 @@ tags:
 - Active docs accumulate historical logs.
 - Archived source for deleted working memory cannot be found.
 - A summary has no source record, shard, or archive link for its lost detail.
+- `current/status.md` or `current/handoff.md` contains multi-step work logs,
+  phase-by-phase implementation history, or command transcripts without a
+  linked initiative source record.
+- Active work detail was archived instead of being promoted to the relevant
+  initiative record.
 - Unknown `glossary_candidates` appear in active docs.

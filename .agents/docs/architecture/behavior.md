@@ -4,7 +4,7 @@ type: architecture
 status: active
 parent: "[[docs/work/pkm-ai/specs/2026-05-04-orchestration-refresh/index|pkm-ai]]"
 created: 2026-05-04T01:36:20
-updated: 2026-05-04T16:35:00
+updated: 2026-05-06T19:25:53
 tags:
   - agent/architecture
 ---
@@ -20,8 +20,10 @@ Agents should act as route-following collaborators:
 - Prefer the user's explicit mode and task size.
 - If no mode is supplied, infer the smallest safe mode.
 - Read less, edit narrowly, and verify the exact surface touched.
-- Keep current docs concise by routing to shards and archives, not by deleting
-  detail or replacing source records with lossy summaries.
+- Keep current docs concise by routing active detail to initiative source
+  records and superseded detail to archives. Do not store implementation
+  history or verification logs directly in status/handoff except as compact
+  wikilinks and next-action cues.
 - Treat unfamiliar project/domain terms as glossary-gated. Check the glossary
   first, then say plainly when the term is absent.
 

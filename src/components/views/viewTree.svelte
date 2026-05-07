@@ -1,8 +1,16 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
+	import { createVirtualizer } from '@tanstack/svelte-virtual';
+	import type { Rect, Virtualizer } from '@tanstack/svelte-virtual';
 	import type { NodeBadge, TreeNode } from '../../types/typeNode';
 	import { getActivePerfProbe } from '../../dev/perfProbe';
-	import { TreeVirtualizer } from '../../services/serviceVirtualizer.svelte';
+	import type { FlatNode } from '../../services/serviceVirtualizer.svelte';
 	import HighlightText from '../primitives/HighlightText.svelte';
+
+	const TREE_ROW_HEIGHT = 32;
+	const TREE_FALLBACK_WIDTH = 320;
+	const TREE_FALLBACK_HEIGHT = 400;
+	const TREE_OVERSCAN = 5;
 
 	interface Props {
 		nodes: TreeNode[];
@@ -46,9 +54,8 @@
 		icon,
 	}: Props = $props();
 
-	const virtualizer = new TreeVirtualizer();
-
 	let outerEl: HTMLDivElement | undefined = $state();
+	let rowHeight = $state(TREE_ROW_HEIGHT);
 	let dragStart = $state<{ x: number; y: number; pointerId: number } | null>(null);
 	let selectionBox = $state<{
 		left: number;
@@ -57,44 +64,64 @@
 		height: number;
 	} | null>(null);
 	let suppressNextClick = false;
+	let rowHeightFrame: number | null = null;
 
 	const flatArray = $derived(flattenMeasured(nodes, expandedIds));
-	const totalH = $derived(flatArray.length * virtualizer.rowHeight);
+	const rowVirtualizer = createVirtualizer<HTMLDivElement, HTMLDivElement>({
+		count: 0,
+		getScrollElement: () => outerEl ?? null,
+		estimateSize: () => rowHeight,
+		observeElementRect: observeTreeRect,
+		overscan: TREE_OVERSCAN,
+		initialRect: { width: TREE_FALLBACK_WIDTH, height: TREE_FALLBACK_HEIGHT },
+	});
+	const virtualRows = $derived($rowVirtualizer.getVirtualItems());
+	const totalH = $derived($rowVirtualizer.getTotalSize());
 
 	$effect(() => {
-		virtualizer.items = flatArray;
+		const count = flatArray.length;
+		const scrollElement = outerEl;
+		const height = rowHeight;
+		untrack(() =>
+			$rowVirtualizer.setOptions({
+				count,
+				getScrollElement: () => scrollElement ?? null,
+				estimateSize: () => height,
+				observeElementRect: observeTreeRect,
+				overscan: TREE_OVERSCAN,
+				initialRect: { width: TREE_FALLBACK_WIDTH, height: TREE_FALLBACK_HEIGHT },
+			}),
+		);
 	});
 
-	const win = $derived(virtualizer.window);
-	const visibleSlice = $derived(flatArray.slice(win.startIndex, win.endIndex));
-
-	function onScroll(e: Event) {
-		virtualizer.scrollTop = (e.currentTarget as HTMLDivElement).scrollTop;
+	function onScroll() {
 		getActivePerfProbe()?.count('viewTree.scroll', {
 			rows: flatArray.length,
-			visibleRows: visibleSlice.length,
+			visibleRows: virtualRows.length,
 		});
 	}
 
-	function flattenMeasured(items: TreeNode[], expanded: ReadonlySet<string>) {
+	function flattenMeasured(items: TreeNode[], expanded: ReadonlySet<string>): FlatNode[] {
 		return (
 			getActivePerfProbe()?.measure('viewTree.flatten', { nodes: items.length }, () =>
-				virtualizer.flatten(items, expanded),
-			) ?? virtualizer.flatten(items, expanded)
+				flattenTreeNodes(items, expanded),
+			) ?? flattenTreeNodes(items, expanded)
 		);
 	}
 
 	$effect(() => {
 		if (!outerEl) return;
-		const cs = getComputedStyle(outerEl);
-		const v = parseFloat(cs.getPropertyValue('--vm-tree-row-h'));
-		if (v > 0) virtualizer.rowHeight = v;
-		virtualizer.viewportHeight = outerEl.clientHeight;
+		updateRowHeight();
+		if (typeof ResizeObserver === 'undefined') return;
 		const ro = new ResizeObserver(() => {
-			if (outerEl) virtualizer.viewportHeight = outerEl.clientHeight;
+			scheduleRowHeightUpdate();
 		});
 		ro.observe(outerEl);
-		return () => ro.disconnect();
+		return () => {
+			if (rowHeightFrame !== null) cancelAnimationFrame(rowHeightFrame);
+			rowHeightFrame = null;
+			ro.disconnect();
+		};
 	});
 
 	function handleKeydown(e: KeyboardEvent, id: string) {
@@ -141,7 +168,7 @@
 		if (e.button !== 0 || !outerEl || shouldIgnoreBoxStart(e.target)) return;
 		dragStart = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
 		selectionBox = null;
-		outerEl.setPointerCapture(e.pointerId);
+		capturePointer(e.pointerId);
 	}
 
 	function handlePointerMove(e: PointerEvent) {
@@ -176,6 +203,15 @@
 		outerEl.releasePointerCapture(pointerId);
 	}
 
+	function capturePointer(pointerId: number) {
+		if (!outerEl) return;
+		try {
+			outerEl.setPointerCapture(pointerId);
+		} catch {
+			// Synthetic CLI/test pointer events do not always create a capturable pointer.
+		}
+	}
+
 	function shouldIgnoreBoxStart(target: EventTarget | null): boolean {
 		const el = target instanceof HTMLElement ? target : null;
 		return Boolean(
@@ -200,26 +236,18 @@
 	}
 
 	function intersectingRowIds(box: NonNullable<typeof selectionBox>): string[] {
-		if (!outerEl) return [];
-		const boxRect = selectionBoxViewportRect(box);
 		const ids: string[] = [];
-		for (const row of outerEl.querySelectorAll<HTMLElement>('.vm-tree-virtual-row[data-id]')) {
-			if (rectsIntersect(boxRect, row.getBoundingClientRect())) {
-				const id = row.dataset.id;
-				if (id) ids.push(id);
-			}
+		const boxRect = rectFromBox(box);
+		const width = outerEl?.scrollWidth || outerEl?.clientWidth || TREE_FALLBACK_WIDTH;
+		for (let index = 0; index < flatArray.length; index += 1) {
+			const rowRect = new DOMRect(0, index * rowHeight, width, rowHeight);
+			if (rectsIntersect(boxRect, rowRect)) ids.push(flatArray[index].node.id);
 		}
 		return ids;
 	}
 
-	function selectionBoxViewportRect(box: NonNullable<typeof selectionBox>): DOMRect {
-		const outerRect = outerEl!.getBoundingClientRect();
-		return new DOMRect(
-			outerRect.left + box.left - outerEl!.scrollLeft,
-			outerRect.top + box.top - outerEl!.scrollTop,
-			box.width,
-			box.height,
-		);
+	function rectFromBox(box: NonNullable<typeof selectionBox>): DOMRect {
+		return new DOMRect(box.left, box.top, box.width, box.height);
 	}
 
 	function rectsIntersect(a: DOMRect, b: DOMRect): boolean {
@@ -279,6 +307,70 @@
 		el.focus();
 		el.select();
 	}
+
+	function updateRowHeight() {
+		if (!outerEl) return;
+		const value = parseFloat(getComputedStyle(outerEl).getPropertyValue('--vm-tree-row-h'));
+		if (value > 0) rowHeight = value;
+	}
+
+	function scheduleRowHeightUpdate() {
+		if (typeof requestAnimationFrame === 'undefined') {
+			updateRowHeight();
+			return;
+		}
+		if (rowHeightFrame !== null) return;
+		rowHeightFrame = requestAnimationFrame(() => {
+			rowHeightFrame = null;
+			updateRowHeight();
+		});
+	}
+
+	function observeTreeRect(
+		_: Virtualizer<HTMLDivElement, HTMLDivElement>,
+		cb: (rect: Rect) => void,
+	): () => void {
+		let rectFrame: number | null = null;
+		const emit = () => {
+			cb({
+				width: outerEl?.clientWidth || TREE_FALLBACK_WIDTH,
+				height: outerEl?.clientHeight || TREE_FALLBACK_HEIGHT,
+			});
+		};
+		const schedule = () => {
+			if (typeof requestAnimationFrame === 'undefined') {
+				emit();
+				return;
+			}
+			if (rectFrame !== null) return;
+			rectFrame = requestAnimationFrame(() => {
+				rectFrame = null;
+				emit();
+			});
+		};
+		schedule();
+		if (!outerEl || typeof ResizeObserver === 'undefined') return () => {};
+		const ro = new ResizeObserver(schedule);
+		ro.observe(outerEl);
+		return () => {
+			if (rectFrame !== null) cancelAnimationFrame(rectFrame);
+			ro.disconnect();
+		};
+	}
+
+	function flattenTreeNodes(items: readonly TreeNode[], expanded: ReadonlySet<string>): FlatNode[] {
+		const out: FlatNode[] = [];
+		const walk = (list: readonly TreeNode[], depth: number): void => {
+			for (const node of list) {
+				const hasChildren = !!node.children && node.children.length > 0;
+				const isExpanded = hasChildren && expanded.has(node.id);
+				out.push({ node, depth, isExpanded, hasChildren });
+				if (isExpanded) walk(node.children!, depth + 1);
+			}
+		};
+		walk(items, 0);
+		return out;
+	}
 </script>
 
 <div
@@ -294,8 +386,8 @@
 	tabindex="-1"
 >
 	<div class="vm-tree-virtual-inner" style="--vm-tree-total-h: {totalH}px">
-		{#each visibleSlice as flat, i (flat.node.id)}
-			{@const absIdx = win.startIndex + i}
+		{#each virtualRows as virtualRow (virtualRow.key)}
+			{@const flat = flatArray[virtualRow.index]}
 			{@const node = flat.node}
 			{@const isActive = activeFilterIds?.has(node.id) ?? false}
 			{@const isWarning = warningIds?.has(node.id) ?? false}
@@ -314,7 +406,7 @@
 				class:vm-badge-warning={isWarning}
 				class:vm-search-highlight={isHighlighted}
 				class:is-editing={isEditing}
-				style="--vm-tree-y: {absIdx * virtualizer.rowHeight}px; --depth: {flat.depth}"
+				style="--vm-tree-y: {virtualRow.start}px; --depth: {flat.depth}"
 				data-id={node.id}
 				onclick={(e) => handleRowClick(e, node.id)}
 				oncontextmenu={(e) => onContextMenu(node.id, e)}

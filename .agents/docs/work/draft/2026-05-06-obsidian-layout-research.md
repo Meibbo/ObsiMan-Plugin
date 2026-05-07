@@ -1,63 +1,61 @@
-# Research Report: Obsidian Layout Manager
+# Research Report: Obsidian Layout Manager (Updated)
 
 ## Overview
-This report outlines the technical strategy for building a new Obsidian plugin that implements advanced workspace layouts, including a VS Code-style bottom panel, a secondary ribbon, and i3wm-inspired keyboard navigation.
+This report outlines the technical strategy for building a new Obsidian plugin that implements advanced workspace layouts, including a VS Code-style bottom panel with alignment options, secondary ribbons, and i3wm-inspired keyboard navigation.
 
 ## 1. Technical Stack
 *   **Build Tool**: Vite + TypeScript (consistent with Vaultman).
 *   **Framework**: Svelte 5 (utilizing runes for reactive layout state).
-*   **Obsidian API**: `app.workspace` for leaf management, `ItemView` for custom components.
+*   **Obsidian API**: `app.workspace` for leaf management, `Modal` for switchers, and DOM manipulation for advanced alignment.
 
 ## 2. Component Implementation Strategies
 
 ### A. Bottom Panel (VS Code Style)
-*   **Implementation**: A custom `ItemView` (e.g., `LAYOUT_BOTTOM_PANEL`).
-*   **Logic**:
-    *   Use `app.workspace.getLeaf('split', 'horizontal')` to create a horizontal split at the bottom.
-    *   The Svelte component inside this view handles its own internal tabs (e.g., "Terminal", "Logs", "Search").
+*   **Alignment Options**:
+    *   **Center (Standard)**: Use `app.workspace.getLeaf('split', 'horizontal')`. This split stays within the `rootSplit`, between the sidebars.
+    *   **Justify (Full Width)**: To "push" the sidebars, the panel must be injected as a sibling to `.workspace-split.mod-vertical` (the main container). This requires custom DOM injection in `onload` and careful CSS flex management.
+*   **Functionality**:
+    *   The panel should be a split that can be maximized (`mod-maximized` class).
+    *   It should support "pinning" to prevent accidental closure.
 *   **Keyboard Commands**:
-    *   `Toggle Bottom Panel`: Finds or creates the leaf.
-    *   `Focus Bottom Panel`: Uses `app.workspace.revealLeaf()`.
+    *   `Set Panel Alignment: Justify/Center`.
+    *   `Maximize Active Panel`.
 
 ### B. Secondary Ribbon (Activity Bar Style)
-*   **Challenge**: Obsidian only has one native ribbon.
-*   **Solution**: 
-    1.  **Custom View**: Register an `ItemView` with a fixed narrow width (e.g., 48px).
-    2.  **Docking**: Use `app.workspace.getRightLeaf(false)` or `getLeftLeaf(false)` and set the view.
-    3.  **Styling**: Use CSS to remove borders and make it look like a secondary ribbon.
-    4.  **Content**: A Svelte list of icons that trigger other commands or views.
+*   **Implementation**: Create a custom narrow `ItemView` (e.g., 48px) and dock it to the left/right sidebar area.
+*   **Styling**: Use CSS to remove headers and make it look like a vertical icon bar.
+*   **Advanced**: If "Justify" is active, this ribbon should sit *above* the bottom panel.
 
-### C. i3wm / VS Code Navigation
-*   **Focus Management**:
-    *   Native commands exist for `Focus on tab group to left/right/up/down`.
-    *   New commands to implement: `Focus Next Leaf`, `Focus Previous Leaf`.
-*   **Tab Movement**:
-    *   `Move Tab to Group (Left/Right/Up/Down)`: Requires finding the adjacent leaf and using `app.workspace.moveLeafTo(targetGroup)`.
-*   **Split Manipulation**:
-    *   `Split Vertical/Horizontal`: Uses `app.workspace.getLeaf('split', direction)`.
-*   **Resizing (Keyboard Driven)**:
-    *   Obsidian doesn't expose a clean resize API.
-    *   **Hack**: Manipulate `leaf.containerEl.style.width` or use `leaf.setDimension()` if available in internal API.
-    *   **Alternative**: Use a Svelte layout library (`svelte-tiler`) *inside* a single large leaf to manage sub-panes if full workspace control is too restricted.
+### C. Advanced Navigation (i3wm / VS Code)
+*   **Split to New Tab**:
+    *   `getLeaf('split', direction)` creates a new leaf. Do not call `openFile` to keep it "empty" or open a specific "Blank View".
+*   **Group Operations**:
+    *   `Move Tab to Group`: Move a single leaf.
+    *   `Move Group Tabs`: Iterate through all leaves in a `WorkspaceTabs` parent and relocate them to a new split.
+*   **Tiling / Fullscreen**:
+    *   `Toggle Fullscreen Group`: Maximize the entire `WorkspaceTabs` container.
+*   **Quick Tab Switcher**:
+    *   **Implementation**: A custom `Modal` that mounts a Svelte 5 component.
+    *   **Logic**: Query `app.workspace.iterateAllLeaves()` to build a list. Sort by "last active" using an internal tracker if `app.workspace.getMostRecentLeaf()` isn't enough.
+    *   **UI**: Fuzzy search (Fuse.js) to quickly filter and select tabs via keyboard.
 
 ## 3. Recommended Libraries
-*   **[Svelte-Tiler](https://x0k.dev/)**: Headless tiling layout library for Svelte. Perfect for internal panel management.
-*   **[Tab Shifter](https://github.com/shmup/obsidian-tab-shifter)**: Reference for moving tabs between groups.
-*   **[Smooth Navigator](https://github.com/Fevol/obsidian-smooth-navigator)**: Reference for focus cycling.
-*   **[Commander](https://github.com/phibr0/obsidian-commander)**: Reference for custom ribbon/bar injection.
+*   **[Svelte-Tiler](https://x0k.dev/)**: For internal tiling within a view.
+*   **[Fuse.js](https://fusejs.io/)**: For the fuzzy tab switcher.
+*   **[Tab Shifter](https://github.com/shmup/obsidian-tab-shifter)**: Reference for leaf relocation logic.
 
 ## 4. Proposed Command Set
 | Category | Command | Action |
 | :--- | :--- | :--- |
-| **Panel** | `Toggle Bottom Panel` | Show/Hide the bottom Svelte view. |
-| **Panel** | `Next Bottom Tab` | Cycle internal Svelte tabs. |
-| **Ribbon** | `Toggle Secondary Ribbon` | Show/Hide the custom narrow sidebar. |
-| **Nav** | `Move Leaf Left/Right` | Shift active tab to adjacent group. |
-| **Nav** | `Focus Next Leaf` | Cycle through all open leaves. |
-| **Layout** | `Resize Pane Wider/Narrower` | Adjust width/height of active leaf. |
+| **Panel** | `Toggle Bottom Panel` | Show/Hide the bottom split. |
+| **Panel** | `Set Panel Alignment: Justify` | Expand panel to full window width. |
+| **Nav** | `Quick Tab Switcher` | Open modal to switch between tabs. |
+| **Nav** | `Move Group to Split` | Move all tabs in group to new split. |
+| **Nav** | `Split Empty (Horiz/Vert)` | Create a new split without duplicating tab. |
+| **Layout** | `Toggle Maximize Group` | Set `mod-maximized` on the active group. |
 
 ## 5. Next Steps for Implementation
 1.  Initialize project with `vite-plus` and Svelte 5.
-2.  Register `BottomPanelView` and test horizontal split logic.
-3.  Implement a "Layout Service" in Svelte to track pane focus and sizes.
+2.  Test DOM injection for "Justify" alignment (injecting into `.workspace`).
+3.  Implement the Quick Switcher modal logic.
 4.  Expose keyboard commands via `this.addCommand`.

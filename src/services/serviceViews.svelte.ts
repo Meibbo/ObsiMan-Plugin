@@ -72,6 +72,7 @@ export class ViewService implements IViewService {
 	private readonly selections = new SvelteMap<string, SvelteSet<string>>();
 	private readonly expanded = new SvelteMap<string, SvelteSet<string>>();
 	private readonly focused = new SvelteMap<string, string | null>();
+	private readonly subscribers = new Map<string, Set<() => void>>();
 
 	constructor(options: ViewServiceOptions = {}) {
 		this.decorationManager = options.decorationManager;
@@ -111,6 +112,7 @@ export class ViewService implements IViewService {
 	setViewMode(explorerId: string, mode: ExplorerViewMode): void {
 		if (this.modes.get(explorerId) === mode) return;
 		this.modes.set(explorerId, mode);
+		this.notify(explorerId);
 	}
 
 	getViewMode(explorerId: string): ExplorerViewMode {
@@ -128,8 +130,10 @@ export class ViewService implements IViewService {
 			if (selected.has(id)) selected.delete(id);
 			else selected.add(id);
 		} else {
+			if (selected.has(id)) return;
 			selected.add(id);
 		}
+		this.notify(explorerId);
 	}
 
 	clearSelection(explorerId: string): void {
@@ -137,23 +141,34 @@ export class ViewService implements IViewService {
 		if (!selected || selected.size === 0) return;
 		getActivePerfProbe()?.count('viewService.clearSelection');
 		selected.clear();
+		this.notify(explorerId);
 	}
 
 	toggleExpanded(explorerId: string, id: string): void {
 		const expanded = this.expandedFor(explorerId);
 		if (expanded.has(id)) expanded.delete(id);
 		else expanded.add(id);
+		this.notify(explorerId);
 	}
 
 	setFocused(explorerId: string, id: string | null): void {
 		if (this.focused.get(explorerId) === id) return;
 		getActivePerfProbe()?.count('viewService.setFocused');
 		this.focused.set(explorerId, id);
+		this.notify(explorerId);
 	}
 
-	/** Legacy support - SvelteMap handles reactivity automatically */
-	subscribe(_explorerId: string, _cb: () => void): () => void {
-		return () => {};
+	subscribe(explorerId: string, cb: () => void): () => void {
+		let callbacks = this.subscribers.get(explorerId);
+		if (!callbacks) {
+			callbacks = new Set();
+			this.subscribers.set(explorerId, callbacks);
+		}
+		callbacks.add(cb);
+		return () => {
+			callbacks.delete(cb);
+			if (callbacks.size === 0) this.subscribers.delete(explorerId);
+		};
 	}
 
 	private toRow<TNode extends NodeBase>(
@@ -224,6 +239,12 @@ export class ViewService implements IViewService {
 			this.expanded.set(explorerId, expanded);
 		}
 		return expanded;
+	}
+
+	private notify(explorerId: string): void {
+		const callbacks = this.subscribers.get(explorerId);
+		if (!callbacks) return;
+		for (const cb of callbacks) cb();
 	}
 }
 

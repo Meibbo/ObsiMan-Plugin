@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { OperationQueueService } from '../../../src/services/serviceQueue.svelte';
 import { mockApp, mockTFile, type CachedMetadata } from '../../helpers/obsidian-mocks';
 
