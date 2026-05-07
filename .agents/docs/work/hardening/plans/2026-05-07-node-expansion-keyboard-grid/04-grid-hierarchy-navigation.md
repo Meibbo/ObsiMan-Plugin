@@ -1,10 +1,10 @@
 ---
 title: Grid hierarchy and File Explorer-style navigation
 type: implementation-plan
-status: draft
+status: completed
 parent: "[[docs/work/hardening/plans/2026-05-07-node-expansion-keyboard-grid/index|node-expansion-keyboard-grid]]"
 created: 2026-05-07T00:00:00
-updated: 2026-05-07T01:02:22
+updated: 2026-05-07T02:25:00
 tags:
   - agent/plan
   - explorer/grid
@@ -104,10 +104,9 @@ This mode is behind `gridHierarchyMode: 'inline'`.
   differentiated from sibling parent tiles.
 - Inline expansion must preserve tile selection, context menu, primary action,
   and rectangle selection.
-- Because current `ViewNodeGrid` assumes fixed row height, inline expansion may
-  require variable row virtualization. If that is too risky, ship folder mode
-  first and keep inline mode disabled until a stable variable-height row model is
-  implemented.
+- Inline expansion uses variable-height virtual rows in `ViewNodeGrid.svelte`.
+  Rectangle selection reads mounted tile DOM rectangles so expanded child tiles
+  participate in selection geometry instead of relying on flat index math.
 
 ## Grid Keyboard Semantics
 
@@ -163,9 +162,11 @@ Inline expansion mode:
 - [x] Create `GridNavigationToolbar.svelte` after the tests define its public
   props.
 
-- [x] Gate inline expansion after folder-navigation mode passes and settings are
-  in place: the setting option is disabled and runtime `inline` resolves to
-  folder mode until inline expansion is implemented.
+- [x] Implement inline expansion after folder-navigation mode passes and
+  settings are in place: the setting option is enabled, runtime `inline`
+  resolves to inline mode, parent chevrons toggle without selection/activation,
+  children render inside nested grids, and rectangle selection includes expanded
+  child tiles.
 
 ## Acceptance
 
@@ -173,5 +174,5 @@ Inline expansion mode:
 - Parent grid tiles behave like folders.
 - Toolbar gives Back, Forward, Up, Refresh, and breadcrumb navigation.
 - Existing selection service still owns selected/focused tile state.
-- Optional inline expansion mode is present in settings and either implemented
-  or explicitly gated behind a disabled feature path with documented blocker.
+- Optional inline expansion mode is present in settings and implemented with
+  nested child grids.

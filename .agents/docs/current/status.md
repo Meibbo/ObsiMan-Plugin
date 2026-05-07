@@ -2,11 +2,11 @@
 title: Current status
 type: agent-status
 status: active
-parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|node-selection-service]]"
+parent: "[[docs/work/polish/plans/2026-05-07-tanstack-node-table/index|tanstack-node-table-plan]]"
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-status.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-07T01:02:22
+updated: 2026-05-07T08:26:53
 tags:
   - agent/current
 created_by: dec
@@ -15,7 +15,8 @@ updated_by: codex
 
 # Current Status
 
-Initiative: hardening, node selection service and viewgrid.
+Initiative: polish, TanStack node table. Prior hardening context remains linked
+below for continuity.
 
 Archived completed/superseded status:
 [[docs/archive/hardening/active-docs/2026-05-06T050935-current-status|2026-05-06 current status archive]].
@@ -46,6 +47,10 @@ Archived completed/superseded status:
   [[docs/work/hardening/plans/2026-05-06-node-selection-service/index|Node selection service implementation plan]].
 - Current multifaceted follow-up plan:
   [[docs/work/hardening/plans/2026-05-07-node-expansion-keyboard-grid/index|Node expansion, keyboard navigation, and hierarchical grid plan]].
+- Current user-approved polish spec:
+  [[docs/work/polish/specs/2026-05-07-tanstack-node-table/index|TanStack node table]].
+- Current user-approved polish plan:
+  [[docs/work/polish/plans/2026-05-07-tanstack-node-table/index|TanStack node table implementation plan]].
 - Current selection debug and TanStack assimilation record:
   [[docs/work/hardening/research/2026-05-06-selection-tanstack-virtualizer-debug/index|Selection hang and TanStack virtualizer assimilation]].
 - Standing engineering context:
@@ -123,9 +128,12 @@ Archived completed/superseded status:
   `@tanstack/svelte-virtual`.
 - 2026-05-07 node expansion continuation implemented and verified the tree
   reliability cut, tree `ArrowLeft`/`ArrowRight` semantics, generic sort-view
-  expand/collapse-all, and default grid folder navigation.
-- Inline grid expansion remains intentionally gated: Settings shows the option
-  disabled, and raw `gridHierarchyMode: 'inline'` resolves to folder mode.
+  expand/collapse-all, default grid folder navigation, and optional inline grid
+  expansion.
+- Inline grid expansion is now enabled: Settings persists
+  `gridHierarchyMode: 'inline'`, parent grid tiles show chevrons, collapsed
+  children stay hidden, expanded parents render nested child grids, and
+  rectangle selection includes expanded child tiles.
 - Final Obsidian CLI smoke after the TanStack build selected a tree row and a
   grid tile without hanging; `dev:errors` was clean after log analysis.
 - Lint cleanup resolved the previous three warning residuals in
@@ -136,6 +144,12 @@ Archived completed/superseded status:
   component test, then passed on immediate sequential rerun.
 - Combined component and Vite/Svelte runs can still hit the known transient
   resolver issue; avoid running Vite/Svelte verification commands in parallel.
+- Inline completion verification passed scoped component tests for
+  `viewGridSelection`, `panelExplorerSelection`, and `settingsUI` with 36 tests;
+  `pnpm run check`, `pnpm run lint`, `pnpm run build`, scoped
+  `git diff --check`, and Obsidian CLI reload/open plus `dev:errors` passed.
+  Build hit the known transient `svelte` resolver once, then passed on immediate
+  sequential rerun without code changes.
 
 ## Source Links
 
@@ -150,3 +164,5 @@ Archived completed/superseded status:
 - [[docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|CMenu queue repair plan]]
 - [[docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/index|prop/value rename handoff plan]]
 - [[docs/work/hardening/research/2026-05-05-bases-interop-research/index|Bases interop research]]
+- [[docs/work/polish/specs/2026-05-07-tanstack-node-table/index|TanStack node table]]
+- [[docs/work/polish/plans/2026-05-07-tanstack-node-table/index|TanStack node table implementation plan]]

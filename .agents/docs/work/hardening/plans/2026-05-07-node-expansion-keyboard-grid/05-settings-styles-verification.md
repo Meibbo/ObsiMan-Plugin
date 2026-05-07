@@ -1,10 +1,10 @@
 ---
 title: Settings, styles, docs, and verification
 type: implementation-plan
-status: draft
+status: completed
 parent: "[[docs/work/hardening/plans/2026-05-07-node-expansion-keyboard-grid/index|node-expansion-keyboard-grid]]"
 created: 2026-05-07T00:00:00
-updated: 2026-05-07T01:02:22
+updated: 2026-05-07T02:25:00
 tags:
   - agent/plan
   - ui/settings
@@ -110,6 +110,22 @@ Use Obsidian CLI smoke only after unit/component/build pass:
 - Switch to inline mode if implemented and verify parent tile chevron expansion
   with nested child grid.
 - Run `dev:errors` and analyze logs before declaring clean.
+
+## Completion Notes
+
+- Inline mode is now implemented, not gated. The settings dropdown enables and
+  persists `Inline expansion`.
+- Scoped inline completion tests passed for `viewGridSelection`,
+  `panelExplorerSelection`, and `settingsUI` together with 36 tests after a
+  local Vite cache clear recovered the known transient resolver issue.
+- `pnpm run check` and `pnpm run lint` passed. `pnpm run build` failed once on
+  the known transient `svelte` resolver issue from `src/types/typeFrame.ts`,
+  then passed on immediate sequential rerun without code changes.
+- Scoped `git diff --check` passed for the inline implementation, style,
+  generated `styles.css`, and tests.
+- Obsidian CLI smoke reloaded and opened Vaultman with
+  `gridHierarchyMode: 'inline'`; after clearing an unrelated older
+  `notebook-navigator` error, `obsidian dev:errors` reported no captured errors.
 
 ## Documentation Updates
 

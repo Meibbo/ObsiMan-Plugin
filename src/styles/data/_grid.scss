@@ -333,13 +333,17 @@ body.vm-resizing {
 	top: 0;
 	left: 8px;
 	right: 8px;
-	display: grid;
-	grid-template-columns: repeat(var(--vm-node-grid-columns, 1), minmax(0, 1fr));
-	gap: 8px;
-	height: 54px;
+	height: var(--vm-node-grid-row-h, 54px);
 	transform: translateY(var(--vm-node-grid-y, 0));
 	box-sizing: border-box;
 	will-change: transform;
+}
+
+.vm-node-grid-row-tiles,
+.vm-node-grid-inline-row-tiles {
+	display: grid;
+	grid-template-columns: repeat(var(--vm-node-grid-columns, 1), minmax(0, 1fr));
+	gap: 8px;
 }
 
 .vm-node-grid-tile {
@@ -360,6 +364,10 @@ body.vm-resizing {
 		border-color 0.15s ease,
 		background 0.15s ease,
 		box-shadow 0.15s ease;
+
+	&.is-inline-hierarchy {
+		grid-template-columns: 22px 22px minmax(0, 1fr);
+	}
 
 	&:hover,
 	&.is-active,
@@ -393,9 +401,47 @@ body.vm-resizing {
 	}
 }
 
+.vm-node-grid-toggle,
+.vm-node-grid-toggle-placeholder,
+.vm-node-grid-icon-placeholder {
+	width: 22px;
+	height: 22px;
+}
+
+.vm-node-grid-toggle {
+	@include flex-center;
+	padding: 0;
+	border: 0;
+	border-radius: $vm-radius-s;
+	background: transparent;
+	color: $vm-text-muted;
+	cursor: pointer;
+
+	&:hover,
+	&:focus-visible {
+		background: $vm-bg-modifier-hover;
+		color: $vm-text-normal;
+		outline: none;
+	}
+}
+
 .vm-node-grid-icon {
 	@include flex-center;
 	color: $vm-text-muted;
+}
+
+.vm-node-grid-inline-panel {
+	margin-top: 8px;
+	padding: 8px;
+	border: $vm-border-width solid color-mix(in srgb, $vm-border-color 78%, transparent);
+	border-radius: $vm-radius-s;
+	background: color-mix(in srgb, $vm-bg-secondary 70%, transparent);
+	box-sizing: border-box;
+}
+
+.vm-node-grid-inline-row + .vm-node-grid-inline-row,
+.vm-node-grid-inline-panel .vm-node-grid-inline-panel {
+	margin-top: 8px;
 }
 
 .vm-node-grid-label {

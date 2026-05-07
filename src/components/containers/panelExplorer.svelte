@@ -59,7 +59,6 @@
 	let currentGridParentId = $state<string | null>(null);
 	let gridBackStack = $state<(string | null)[]>([]);
 	let gridForwardStack = $state<(string | null)[]>([]);
-	const inlineGridHierarchyEnabled = false;
 	const manualExpandedIds = new SvelteSet<string>();
 	const manualCollapsedIds = new SvelteSet<string>();
 	const fallbackSelectionService = new NodeSelectionService();
@@ -85,22 +84,22 @@
 	const hasExpandedParents = $derived(expandableNodeIds.some((id) => expandedIds.has(id)));
 	const displayNodes = $derived(resolveDisplayNodes(nodes, expandedIds));
 	const gridHierarchyMode = $derived.by((): 'folder' | 'inline' => {
-		const configured = (plugin as VaultmanPlugin & {
-			settings?: { gridHierarchyMode?: 'folder' | 'inline' };
-		}).settings?.gridHierarchyMode;
-		if (configured === 'inline' && inlineGridHierarchyEnabled) return 'inline';
-		return 'folder';
+		const configured = (
+			plugin as VaultmanPlugin & {
+				settings?: { gridHierarchyMode?: 'folder' | 'inline' };
+			}
+		).settings?.gridHierarchyMode;
+		return configured === 'inline' ? 'inline' : 'folder';
 	});
+	const gridExpandedIds = $derived(
+		gridHierarchyMode === 'inline' ? manualExpandedIds : expandedIds,
+	);
 	const currentGridPath = $derived(
 		currentGridParentId ? findNodePath(nodes, currentGridParentId) : [],
 	);
 	const currentGridNodes = $derived(childrenForGridLocation(nodes, currentGridParentId));
 	const gridNodes = $derived(
-		viewMode === 'grid'
-			? gridHierarchyMode === 'folder'
-				? currentGridNodes
-				: flattenTreeNodes(nodes)
-			: [],
+		viewMode === 'grid' ? (gridHierarchyMode === 'folder' ? currentGridNodes : nodes) : [],
 	);
 	const emptyState = $derived.by(() => resolveEmptyState(viewMode, searchTerm, provider));
 	const fallbackItemCount = $derived(flatFiles.length + nodes.length);
@@ -222,7 +221,9 @@
 
 		const additive = e.ctrlKey || e.metaKey;
 		const range = e.shiftKey;
-		commitSelection(selectionService.selectPointer(provider.id, visibleNodeIds(), id, { additive, range }));
+		commitSelection(
+			selectionService.selectPointer(provider.id, visibleNodeIds(), id, { additive, range }),
+		);
 	}
 
 	function handlePrimaryAction(id: string, e: MouseEvent) {
@@ -230,7 +231,9 @@
 		if (!node) return;
 		const additive = e.ctrlKey || e.metaKey;
 		const range = e.shiftKey;
-		commitSelection(selectionService.selectPointer(provider.id, visibleNodeIds(), id, { additive, range }));
+		commitSelection(
+			selectionService.selectPointer(provider.id, visibleNodeIds(), id, { additive, range }),
+		);
 		if (viewMode === 'grid' && gridHierarchyMode === 'folder' && node.children?.length) {
 			navigateGridTo(node.id);
 			return;
@@ -250,6 +253,13 @@
 
 	function handleRowKeydown(id: string, e: KeyboardEvent) {
 		if (viewMode === 'grid' && gridHierarchyMode === 'folder' && handleGridNavigationKeydown(e)) {
+			return;
+		}
+		if (
+			viewMode === 'grid' &&
+			gridHierarchyMode === 'inline' &&
+			handleInlineGridExpansionKeydown(id, e)
+		) {
 			return;
 		}
 		if (viewMode === 'tree' && e.key === 'ArrowLeft') {
@@ -278,6 +288,24 @@
 			const node = findNodeById(nodes, id);
 			if (node) handlePrimaryAction(id, e as unknown as MouseEvent);
 		}
+	}
+
+	function handleInlineGridExpansionKeydown(id: string, e: KeyboardEvent): boolean {
+		if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return false;
+		const node = findNodeById(nodes, id);
+		const hasChildren = !!node?.children && node.children.length > 0;
+		if (!hasChildren) return false;
+		if (e.key === 'ArrowRight' && !gridExpandedIds.has(id)) {
+			e.preventDefault();
+			expandNode(id);
+			return true;
+		}
+		if (e.key === 'ArrowLeft' && gridExpandedIds.has(id)) {
+			e.preventDefault();
+			collapseNode(id);
+			return true;
+		}
+		return false;
 	}
 
 	function handleGridNavigationKeydown(e: KeyboardEvent): boolean {
@@ -346,8 +374,10 @@
 		return undefined;
 	}
 
-	function toggleExpand(id: string) {
-		if (expandedIds.has(id)) {
+	function toggleExpand(id: string, _e?: MouseEvent | KeyboardEvent) {
+		const targetExpandedIds =
+			viewMode === 'grid' && gridHierarchyMode === 'inline' ? gridExpandedIds : expandedIds;
+		if (targetExpandedIds.has(id)) {
 			collapseNode(id);
 		} else {
 			expandNode(id);
@@ -417,7 +447,10 @@
 	}
 
 	function visibleNodeIds(): string[] {
-		if (viewMode === 'grid') return gridNodes.map((node) => node.id);
+		if (viewMode === 'grid') {
+			if (gridHierarchyMode === 'inline') return collectVisibleHierarchyIds(nodes, gridExpandedIds);
+			return gridNodes.map((node) => node.id);
+		}
 		const ids: string[] = [];
 		const walk = (items: TreeNode<TMeta>[]) => {
 			for (const node of items) {
@@ -473,18 +506,6 @@
 		}
 	}
 
-	function flattenTreeNodes(items: TreeNode<TMeta>[]): TreeNode<TMeta>[] {
-		const out: TreeNode<TMeta>[] = [];
-		const walk = (list: TreeNode<TMeta>[]) => {
-			for (const node of list) {
-				out.push(node);
-				if (node.children) walk(node.children);
-			}
-		};
-		walk(items);
-		return out;
-	}
-
 	function collectExpandableNodeIds(items: TreeNode<TMeta>[]): string[] {
 		const ids: string[] = [];
 		const walk = (list: TreeNode<TMeta>[]) => {
@@ -493,6 +514,21 @@
 					ids.push(node.id);
 					walk(node.children);
 				}
+			}
+		};
+		walk(items);
+		return ids;
+	}
+
+	function collectVisibleHierarchyIds(
+		items: TreeNode<TMeta>[],
+		expanded: ReadonlySet<string>,
+	): string[] {
+		const ids: string[] = [];
+		const walk = (list: TreeNode<TMeta>[]) => {
+			for (const node of list) {
+				ids.push(node.id);
+				if (node.children && expanded.has(node.id)) walk(node.children);
 			}
 		};
 		walk(items);
@@ -654,11 +690,14 @@
 					selectedIds={selectedNodeIds}
 					focusedId={focusedNodeId}
 					activeId={selectionSnapshot.activeId}
+					hierarchyMode={gridHierarchyMode}
+					expandedIds={gridHierarchyMode === 'inline' ? gridExpandedIds : undefined}
 					onTileClick={handleNodeClick}
 					onPrimaryAction={handlePrimaryAction}
 					onBoxSelect={handleBoxSelect}
 					onContextMenu={handleContextMenu}
 					onTileKeydown={handleRowKeydown}
+					onToggleExpand={toggleExpand}
 					{icon}
 				/>
 			{/if}

@@ -4,7 +4,7 @@ type: initiative-index
 status: active
 parent: "[[docs/work/pkm-ai/index|pkm-ai]]"
 created: 2026-05-04T01:44:46
-updated: 2026-05-04T01:44:46
+updated: 2026-05-07T08:13:22
 tags:
   - agent/work
   - initiative/polish
@@ -21,9 +21,16 @@ and non-blocking UX improvements.
 - Read current status and the smallest relevant design or component note.
 - Keep implementation notes compact; archive long explorations.
 
+## Active Specs
+
+- [[docs/work/polish/specs/2026-05-07-tanstack-node-table/index|TanStack node table]]
+
+## Active Plans
+
+- [[docs/work/polish/plans/2026-05-07-tanstack-node-table/index|TanStack node table implementation plan]]
+
 ## Related Routes
 
 - Stabilization: [[docs/work/hardening/index|hardening]]
 - Release readiness: [[docs/work/v1-stable/index|v1-stable]]
 - Draft ideas: [[docs/work/draft/index|draft]]
-

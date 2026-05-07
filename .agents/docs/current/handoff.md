@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-handoff.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-07T01:02:22
+updated: 2026-05-07T02:25:00
 tags:
   - agent/current
 created_by: dec
@@ -39,8 +39,8 @@ Archived completed/superseded handoff:
 - Phase 4 viewgrid is implemented and verified in the current worktree.
 - Phase 5 visual accessibility and Phase 6 verification are implemented and
   verified in the current worktree.
-- Next recommended slice: either implement the gated inline grid expansion mode
-  or resume parser compatibility work superseded by node selection/viewgrid.
+- Next recommended slice: resume parser compatibility work superseded by node
+  selection/viewgrid, or do a visual polish pass on inline grid expansion.
 - A3 navbar badges and quick actions is implemented and verified.
 - Bases parser compatibility resumed after wave A; safe file `.contains(...)`
   expressions are now supported.
@@ -146,9 +146,12 @@ Archived completed/superseded handoff:
   virtualized, tree rows use TanStack virtualizer, and final Obsidian CLI smoke
   selected both tree and grid nodes with clean `dev:errors`.
 - 2026-05-07 implementation continuation to preserve: tree reliability,
-  `ArrowLeft`/`ArrowRight`, sort expand/collapse-all, and default grid folder
-  navigation are implemented and verified; inline grid expansion is intentionally
-  gated behind a disabled setting option and folder-mode runtime fallback.
+  `ArrowLeft`/`ArrowRight`, sort expand/collapse-all, default grid folder
+  navigation, and optional inline grid expansion are implemented and verified.
+  Inline grid mode enables the settings option, persists `gridHierarchyMode:
+  'inline'`, renders parent chevrons, hides collapsed children, renders nested
+  child grids in variable-height virtual rows, and includes expanded child tiles
+  in rectangle selection.
 
 ## Verified Commands
 
@@ -161,32 +164,23 @@ Archived completed/superseded handoff:
 - 2026-05-06 lint cleanup:
   `git diff --check -- .agents/tools/pkm-ai/analyze-code.mjs vitest.config.ts test/unit/services/serviceQueueRace.test.ts`
   exited 0.
-- Phase 5 red test:
-  `pnpm exec vp test run --project component --config vitest.config.ts test/component/viewTreeSelection.test.ts test/component/viewGridSelection.test.ts --fileParallelism=false`
-  failed on missing `is-active-node`, then passed after the markup/style change.
-- Phase 6:
-  `pnpm exec vp test run --project unit --config vitest.config.ts test/unit/services/serviceSelection.test.ts`;
-  `pnpm exec vp test run --project unit --config vitest.config.ts test/unit/logic/logicKeyboard.test.ts`;
-  `pnpm exec vp test run --project unit --config vitest.config.ts test/unit/components/explorerFiles.test.ts test/unit/components/explorerTags.test.ts test/unit/components/explorerProps.test.ts`.
-- Phase 6 component tests:
-  `viewTreeSelection` initially hit the known transient `svelte` resolver issue,
-  then passed on rerun; `viewGridSelection`, `viewTreeDecorations`, and
-  `panelExplorerEmpty` passed sequentially with `--fileParallelism=false`.
-- Phase 6 smoke-harness coverage:
-  `pnpm exec vp test run --project component --config vitest.config.ts test/component/panelExplorerSelection.test.ts --fileParallelism=false`
-  passed with 1 file and 6 tests.
-- Phase 6 broad checks: `pnpm run check`, `pnpm run lint`, and
-  `pnpm run build` passed; scoped `git diff --check` for touched Phase 5/6
-  files exited 0.
-- `pnpm run build` failed once with the known transient `svelte` resolver issue
-  from `src/types/typeFrame.ts`, then passed on immediate sequential rerun.
-- `git diff --check -- src/services/serviceSelection.svelte.ts src/components/containers/panelExplorer.svelte src/components/views/viewTree.svelte src/styles/explorer/_tree.scss src/styles/explorer/_virtual-list.scss test/component/viewTreeSelection.test.ts test/component/panelExplorerSelection.test.ts`
-- 2026-05-06 selection/TanStack continuation: focused component selection
-  suite passed with 3 files and 21 tests; focused unit service suite passed
-  with 3 files and 36 tests; `pnpm run check`, `pnpm run lint`, and
-  `pnpm run build` passed.
-- 2026-05-06 selection/TanStack continuation: final Obsidian CLI tree/grid
-  smoke passed, and `dev:errors` plus log analysis reported no errors.
+- Phase 5/6 and 2026-05-06 selection/TanStack verification details remain in
+  the plan/research source records linked above; broad checks passed there.
+- 2026-05-07 inline completion red/green: scoped component tests for
+  `viewGridSelection`, `panelExplorerSelection`, and `settingsUI` first failed
+  on gated inline mode and missing inline renderer behavior, then passed
+  together with 36 tests.
+- 2026-05-07 inline completion broad checks: `pnpm run check`, `pnpm run lint`,
+  and `pnpm run build` passed. Build hit the known transient `svelte` resolver
+  issue once from `src/types/typeFrame.ts`, then passed on immediate sequential
+  rerun without code changes.
+- 2026-05-07 inline completion scoped whitespace:
+  `git diff --check -- src/components/views/ViewNodeGrid.svelte src/components/containers/panelExplorer.svelte src/components/settings/SettingsUI.svelte src/styles/data/_grid.scss styles.css test/component/viewGridSelection.test.ts test/component/panelExplorerSelection.test.ts test/component/settingsUI.test.ts`
+  exited 0.
+- 2026-05-07 inline completion Obsidian CLI smoke: `plugin:reload`,
+  `vaultman:open`, temporary `gridHierarchyMode: 'inline'` evaluation, and
+  `dev:errors` passed after clearing one unrelated older `notebook-navigator`
+  error.
 
 ## Known Residuals
 

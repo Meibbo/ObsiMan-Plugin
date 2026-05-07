@@ -4,7 +4,7 @@ type: initiative-index
 status: active
 parent: "[[docs/work/pkm-ai/index|pkm-ai]]"
 created: 2026-05-04T01:44:46
-updated: 2026-05-06T02:46:22
+updated: 2026-05-07T05:59:24
 tags:
   - agent/work
   - initiative/hardening
@@ -42,3 +42,8 @@ quality work before it reaches `main`.
 - [[docs/work/hardening/plans/2026-05-05-badge-bubbling-optimization/index|Badge bubbling optimization]]
 - [[docs/work/hardening/plans/2026-05-06-cmenu-queue-repair/index|CMenu queue repair implementation]]
 - [[docs/work/hardening/plans/2026-05-06-prop-value-rename-handoff/index|Prop value rename handoff implementation]]
+
+## Active Backlog
+
+- [[docs/work/hardening/backlog/regressions/cursor-affordance-policy|Cursor affordance policy for broad explorer surfaces]]
+- [[docs/work/hardening/backlog/2026-05-07-v1-scope-audit/index|Vaultman v1 backlog audit from beta 15-18 scope note]]

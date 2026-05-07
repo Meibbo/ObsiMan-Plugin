@@ -102,8 +102,28 @@ describe('SettingsUI mount (regression: effect_update_depth_exceeded)', () => {
 		const inlineOption = [...target.querySelectorAll('option')].find(
 			(option) => option.textContent === 'Inline expansion',
 		);
-		expect(inlineOption?.disabled).toBe(true);
+		expect(inlineOption?.disabled).toBe(false);
 		expect(plugin.saveSettings).not.toHaveBeenCalled();
 		expect(plugin.settings.gridHierarchyMode).toBe('folder');
+	});
+
+	it('persists inline grid hierarchy mode when selected', () => {
+		const plugin = makeFakePlugin();
+
+		app = mount(SettingsUI as unknown as Component<{ plugin: iVaultmanPlugin }>, {
+			target,
+			props: { plugin: plugin as unknown as iVaultmanPlugin },
+		});
+		flushSync();
+
+		const select = [...target.querySelectorAll('select')].find((candidate) =>
+			[...candidate.options].some((option) => option.textContent === 'Inline expansion'),
+		) as HTMLSelectElement;
+		select.value = 'inline';
+		select.dispatchEvent(new Event('change', { bubbles: true }));
+		flushSync();
+
+		expect(plugin.settings.gridHierarchyMode).toBe('inline');
+		expect(plugin.saveSettings).toHaveBeenCalledOnce();
 	});
 });

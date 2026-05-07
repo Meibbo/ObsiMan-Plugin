@@ -1,29 +1,27 @@
 ---
-id: VM-0001
+id: {{id}}
 project: vaultman
 type: feature
-status: new
+status: triaged
 priority: normal
-initiative: pkm-ai
+initiative: {{initiative}}
 task_size: small
-actual_size:
-skills_used: []
-agents_used: []
-verification: []
-tokens_used:
-context_window:
-parent: "[[docs/work/pkm-ai/index|pkm-ai]]"
-created: 2026-05-04T01:48:51
-updated: 2026-05-04T01:48:51
+created: {{timestamp}}
+updated: {{timestamp}}
+created_by: {{agent}}
+updated_by: {{agent}}
+parent: "{{parent_link}}"
 tags:
   - agent/item
 ---
 
-# VM-0001 Short Title
+# {{id}} {{title}}
 
-## Summary
+## Problem
+- Description of the problem or requirement.
 
-Briefly describe the work or decision.
+## Proposed Solution
+- Description of the solution.
 
 ## Links
 
@@ -35,6 +33,5 @@ Briefly describe the work or decision.
 - [ ] Outcome is clear.
 - [ ] Verification is recorded.
 
-## Notes
-
-- 
+## Tasks
+- [ ] Task 1

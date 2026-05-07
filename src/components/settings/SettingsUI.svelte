@@ -36,7 +36,7 @@
 			filtersShowTabLabels: src.filtersShowTabLabels,
 			filtersTabLabelsMigrated: src.filtersTabLabelsMigrated,
 			gridRenderMode: (src.gridRenderMode ?? 'plain') as 'plain' | 'chunk' | 'all',
-			gridHierarchyMode: 'folder',
+			gridHierarchyMode: (src.gridHierarchyMode ?? 'folder') as 'folder' | 'inline',
 			gridEditableColumns: [...(src.gridEditableColumns ?? [])],
 			gridLivePreviewColumns: [...(src.gridLivePreviewColumns ?? [])],
 			gridColumns: [...(src.gridColumns ?? [])],
@@ -308,14 +308,10 @@
 		label={translate('settings.grid_hierarchy_mode')}
 		bind:value={s.gridHierarchyMode}
 		onChange={persistSettings}
-			options={[
-				{ value: 'folder', label: translate('settings.grid_hierarchy_mode.folder') },
-				{
-					value: 'inline',
-					label: translate('settings.grid_hierarchy_mode.inline'),
-					disabled: true,
-				},
-			]}
+		options={[
+			{ value: 'folder', label: translate('settings.grid_hierarchy_mode.folder') },
+			{ value: 'inline', label: translate('settings.grid_hierarchy_mode.inline') },
+		]}
 	/>
 	<TextInput
 		label={translate('settings.grid_editable_columns')}
