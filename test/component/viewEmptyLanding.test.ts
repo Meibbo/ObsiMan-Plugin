@@ -39,7 +39,8 @@ describe('ViewEmptyLanding', () => {
 		expect(target.textContent).toContain('Indexing Bases');
 		expect(target.textContent).toContain('Scanning notes');
 		expect(target.querySelector('[data-empty-kind="loading"]')).not.toBeNull();
-		expect(icon).toHaveBeenCalled();
+		// In loading state, IndicatorOrbitingInk is shown instead of the icon action
+		expect(icon).not.toHaveBeenCalled();
 
 		void unmount(app);
 		app = mount(ViewEmptyLanding as unknown as Component<Record<string, unknown>>, {
@@ -49,6 +50,7 @@ describe('ViewEmptyLanding', () => {
 					label: 'No import targets',
 					detail: 'Compatible Bases files will appear here.',
 				},
+				icon,
 			},
 		});
 		flushSync();
@@ -56,5 +58,6 @@ describe('ViewEmptyLanding', () => {
 		expect(target.textContent).toContain('No import targets');
 		expect(target.textContent).toContain('Compatible Bases files will appear here.');
 		expect(target.querySelector('[data-empty-kind="empty"]')).not.toBeNull();
+		expect(icon).toHaveBeenCalled();
 	});
 });

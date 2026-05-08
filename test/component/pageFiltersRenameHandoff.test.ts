@@ -59,6 +59,7 @@ function plugin(): VaultmanPlugin {
 			hasPropFilter: vi.fn(() => false),
 			hasValueFilter: vi.fn(() => false),
 			setFilter: vi.fn(),
+			setSelectedFiles: vi.fn(),
 			subscribe: vi.fn(() => vi.fn()),
 		},
 		filesIndex: noopIndex(),

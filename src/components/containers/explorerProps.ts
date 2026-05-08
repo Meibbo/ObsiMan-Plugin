@@ -1,4 +1,4 @@
-import { Notice, type TFile } from 'obsidian';
+import type { TFile } from 'obsidian';
 import { PropsLogic } from '../../logic/logicProps';
 import type { TreeNode, PropMeta, NodeBadge } from '../../types/typeNode';
 import { DELETE_PROP, NATIVE_RENAME_PROP } from '../../types/typeOps';
@@ -18,6 +18,7 @@ import { getActivePerfProbe } from '../../dev/perfProbe';
 import type { VaultmanPlugin } from '../../main';
 import type { ExplorerProvider, ExplorerViewMode } from '../../types/typeExplorer';
 import type { MenuCtx } from '../../types/typeCtxMenu';
+import { serviceMessage } from '../../services/serviceMessage';
 
 const TYPE_ICON_MAP: Record<string, string> = {
 	text: 'lucide-text-align-start',
@@ -475,14 +476,14 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 
 	private openPropSet(propName: string): void {
 		if (!propName) {
-			new Notice('No prop selected');
+			serviceMessage.warning('No prop selected');
 			return;
 		}
 		if (this.options.openPropSetIsland) {
 			this.options.openPropSetIsland(propName);
 			return;
 		}
-		new Notice('Prop set requires the fnr island to be mounted.');
+		serviceMessage.warning('Prop set requires the fnr island to be mounted.');
 	}
 
 	private openContentSearch(term: string): void {

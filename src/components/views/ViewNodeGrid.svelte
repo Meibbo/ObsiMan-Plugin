@@ -4,10 +4,11 @@
 	import type { Rect, Virtualizer } from '@tanstack/svelte-virtual';
 	import type { TreeNode } from '../../types/typeNode';
 	import {
-		visibleHoverBadges,
+		visibleHoverBadgeDescriptors,
 		type ActiveOpsByNode,
+		type BadgeDescriptor,
 		type BadgeKind,
-	} from '../../services/badgeRegistry';
+	} from '../../badges/serviceBadge';
 	import {
 		NODE_MOUSE_GESTURE_CONFIG,
 		NODE_MOUSE_IGNORE_SELECTOR,
@@ -22,22 +23,6 @@
 		viewSizeCssVars,
 		type ViewSizePresetId,
 	} from '../../services/serviceViewSize';
-
-	const HOVER_BADGE_ICONS: Record<BadgeKind, string> = {
-		set: 'lucide-pencil-line',
-		rename: 'lucide-text-cursor-input',
-		convert: 'lucide-replace',
-		delete: 'lucide-trash-2',
-		filter: 'lucide-filter',
-	};
-
-	const HOVER_BADGE_LABELS: Record<BadgeKind, string> = {
-		set: 'Set',
-		rename: 'Rename',
-		convert: 'Convert',
-		delete: 'Delete',
-		filter: 'Filter',
-	};
 
 	const GRID_FALLBACK_WIDTH = 480;
 	const GRID_FALLBACK_HEIGHT = 360;
@@ -99,9 +84,9 @@
 		icon,
 	}: Props = $props();
 
-	function hoverBadgesFor(node: TreeNode): BadgeKind[] {
+	function hoverBadgesFor(node: TreeNode): BadgeDescriptor[] {
 		if (!activeOpsByNode) return [];
-		return visibleHoverBadges({ id: node.id }, activeOpsByNode);
+		return visibleHoverBadgeDescriptors({ id: node.id }, activeOpsByNode);
 	}
 
 	function handleHoverBadgePress(e: MouseEvent | KeyboardEvent, id: string, kind: BadgeKind) {
@@ -513,18 +498,18 @@
 		</span>
 		{#if hoverBadges.length > 0}
 			<div class="vm-node-grid-hover-badge-zone">
-				{#each hoverBadges as kind (kind)}
+				{#each hoverBadges as badge (badge.kind)}
 					<div
 						class="vm-badge is-hover-badge is-actionable"
-						data-hover-kind={kind}
+						data-hover-kind={badge.kind}
 						role="button"
 						tabindex="0"
-						title={HOVER_BADGE_LABELS[kind]}
-						aria-label={HOVER_BADGE_LABELS[kind]}
-						onclick={(e) => handleHoverBadgePress(e, node.id, kind)}
-						onkeydown={(e) => handleHoverBadgeKeydown(e, node.id, kind)}
+						title={badge.label}
+						aria-label={badge.label}
+						onclick={(e) => handleHoverBadgePress(e, node.id, badge.kind)}
+						onkeydown={(e) => handleHoverBadgeKeydown(e, node.id, badge.kind)}
 					>
-						<span class="vm-badge-icon" use:icon={HOVER_BADGE_ICONS[kind]}></span>
+						<span class="vm-badge-icon" use:icon={badge.icon}></span>
 					</div>
 				{/each}
 			</div>

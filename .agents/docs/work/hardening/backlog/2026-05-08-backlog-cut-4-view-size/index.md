@@ -3,7 +3,7 @@ title: Backlog cut 4 - serviceViewSize and stable node sizing
 type: implementation-record
 status: done
 created: 2026-05-08T04:40:56
-updated: 2026-05-08T04:40:56
+updated: 2026-05-08T09:40:11
 parent: "[[docs/work/hardening/backlog/2026-05-08-backlog-cut-2/index|backlog cut 2]]"
 tags:
   - agent/work
@@ -109,10 +109,107 @@ Green checks:
 - Scoped `git diff --check` passed for cut 4 product, test, and generated CSS
   files. Git emitted only CRLF normalization warnings.
 
-## Remaining Backlog
+## Pending Cut Ladder
 
-- Multi-selected badge operations plus contradiction warning popup.
-- Filter ingestion from selection box, props, and tags.
-- `tabContent` reactive search progress plus incremental result rendering.
-- User-facing view-size control in the view menu after the preset service and
-  adapter behavior remain stable in use.
+This ladder expands the immediate 2026-05-08 cut chain with the older v1 scope
+audit and regression backlog. Early cuts are implementation-ready. Later cuts
+are holding cuts that still need a focused spec before implementation.
+
+- Cut 5 - DONE:
+  [[docs/work/hardening/backlog/2026-05-08-backlog-cut-5-badge-message/index|generic badge module and `serviceMessage`]].
+  - Create a deep badge module for normal badges, hover badges, and FAB badges.
+  - Centralize badge kind vocabulary, labels, icons, ordering, hover
+    visibility, count-badge descriptors, and contradiction detection.
+  - Add `serviceMessage` as the single user/system message surface for
+    warnings, errors, info, and success messages.
+  - Do not migrate concrete data providers in this cut.
+- Cut 6 - Provider/API module migration.
+  - Move concrete data providers out of `src/components/containers/` into a
+    provider folder such as `src/providers/`.
+  - Keep stable provider interfaces in `src/api/`.
+  - Preserve current behavior while changing module location and imports.
+- Cut 7 - Multi-selected badge operations plus contradiction warning popup.
+- Cut 8 - Filter ingestion from selection box, props, and tags.
+- Cut 9 - `tabContent` reactive search progress plus incremental result
+  rendering.
+- Cut 10 - User-facing view-size control in the view menu after the preset
+  service and adapter behavior remain stable in use.
+- Cut 11 - Cursor affordance and cheap hover pass.
+  - Source:
+    [[docs/work/hardening/backlog/regressions/cursor-affordance-policy|cursor affordance policy]].
+  - Start with SCSS-only cursor and hover changes on broad rows, tiles, cards,
+    file rows, and filter/list rows.
+- Cut 12 - Explorer search, external refresh, hierarchy, and keyboard
+  verification.
+  - Source:
+    [[docs/work/hardening/backlog/2026-05-07-v1-scope-audit/01-release-blocking-v1|release-blocking v1 scope]].
+  - Verify search parent preservation, visible tree refresh after external
+    index changes, nested Files hierarchy, and remaining Up/Down plus modifier
+    selection behavior before fixing only reproduced gaps.
+- Cut 13 - Queue correctness and visible queue UI audit.
+  - Sources:
+    [[docs/work/hardening/backlog/regressions/queue-audit|queue audit]] and
+    [[docs/work/hardening/backlog/regressions/operations-suite-live-handoff|operations suite live handoff]].
+  - Reconcile logical counts, touched-file counts, grouping, individual remove,
+    and any remaining direct-mutation paths.
+- Cut 14 - File/grid operations parity.
+  - Sources:
+    [[docs/work/hardening/backlog/regressions/file-ops|file ops regression]]
+    and [[docs/work/hardening/backlog/regressions/grid-view|grid view regression]].
+  - Cover selected-only isolation, name/folder search axes, select-all variants,
+    indeterminate master state, and column sort shortcuts.
+- Cut 15 - Active filter highlighting and badge bubbling verification.
+  - Source:
+    [[docs/work/hardening/backlog/regressions/visuals-highlight-bubbling|visuals highlight and bubbling]].
+  - Confirm current provider decoration behavior, then fix active filter id
+    injection or collapsed child badge bubbling only where still missing.
+- Cut 16 - Inline/in-frame rename decision and implementation.
+  - Source:
+    [[docs/work/hardening/backlog/2026-05-07-v1-scope-audit/01-release-blocking-v1|blocking UX scope]].
+  - Decide whether remaining rename modals are acceptable or should route into
+    the navbar/FnR/in-frame handoff.
+- Cut 17 - Menu/popup overlay behavior.
+  - Source:
+    [[docs/work/hardening/backlog/2026-05-07-v1-scope-audit/01-release-blocking-v1|blocking UX scope]].
+  - Fix menus/popups that push the explorer downward instead of overlaying it.
+- Cut 18 - Performance verification cut.
+  - Source:
+    [[docs/work/hardening/backlog/2026-05-07-v1-scope-audit/01-release-blocking-v1|performance and perceived responsiveness]].
+  - Instrument frame page rendering, prop/tag date sorting, and large
+    `viewDiff` preview memory before deciding whether to change code.
+- Cut 19 - Bases feature parity filters.
+  - Source:
+    [[docs/work/hardening/backlog/2026-05-07-v1-scope-audit/02-v1-polish-scope|v1 polish scope]].
+  - Range filters, all-files-in-folder behavior, logical all/any/none groups,
+    manual filter syntax, and row group auto/manual toggles.
+- Cut 20 - Editable file matrix/table density.
+  - Source:
+    [[docs/work/hardening/backlog/2026-05-07-v1-scope-audit/02-v1-polish-scope|v1 polish scope]].
+  - Editable table/matrix view, markdown rendering, property columns, and
+    density controls.
+- Cut 21 - Theme variants.
+  - Source:
+    [[docs/work/hardening/backlog/2026-05-07-v1-scope-audit/02-v1-polish-scope|v1 polish scope]].
+  - Minimal variant and frozen default fancy variant.
+- Cut 22 - Navbar/workspace UX polish.
+  - Sources:
+    [[docs/work/hardening/backlog/regressions/navbar|navbar regression]] and
+    [[docs/work/hardening/backlog/2026-05-07-v1-scope-audit/02-v1-polish-scope|v1 polish scope]].
+  - Workspace tab behavior, navbar/tab placement, responsive page/tab bars, and
+    command-center status visibility.
+- Cut 23 - Explorer polish bundle.
+  - Source:
+    [[docs/work/hardening/backlog/2026-05-07-v1-scope-audit/02-v1-polish-scope|v1 polish scope]].
+  - Auto-scroll/reveal, column visibility controls, select-all variants, group
+    drawers, empty states, list/filter UX, Files explorer features, and default
+    order settings.
+- Cut 24 - Programmable interface foundation.
+  - Source:
+    [[docs/work/hardening/backlog/2026-05-07-v1-scope-audit/02-v1-polish-scope|v1 polish scope]].
+  - `serviceAPI`, Bases I/O text parse/emit, and Agent Guardrail Skill
+    consumer.
+- Cut 25 - Post-rc.1 holding cut.
+  - Source:
+    [[docs/work/hardening/backlog/2026-05-07-v1-scope-audit/02-v1-polish-scope|post-rc.1 boundary]].
+  - `serviceMarks`, `tabLinter`, `tabMarks`, manual sort via marks, and
+    Templates settings remain valid but outside the v1.0 Polish release path.

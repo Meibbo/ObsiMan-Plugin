@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-status.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-08T04:40:56
+updated: 2026-05-08T10:46:49
 tags:
   - agent/current
 created_by: dec
@@ -106,7 +106,18 @@ Archived completed/superseded status:
   [[docs/work/hardening/backlog/2026-05-08-backlog-cut-4-view-size/index|serviceViewSize and stable node sizing]].
   Tree/grid no-icon nodes reserve icon slots, grid presets are centralized in
   `serviceViewSize`, focused tests plus `check`, `lint`, `build`, and scoped
-  diff-check are green.
+  diff-check are green. The source record now expands the pending cut ladder
+  through cut 25.
+- 2026-05-08 backlog cut 5 DONE:
+  [[docs/work/hardening/backlog/2026-05-08-backlog-cut-5-badge-message/index|generic badge module and serviceMessage]].
+  `src/badges/serviceBadge.ts` now owns badge descriptors for hover, active,
+  and FAB count badges; `badgeRegistry` is a compatibility shim; tree/grid/FAB
+  badge rendering consumes descriptors; `serviceMessage` centralizes one-shot
+  system/user messages. Focused unit/component tests, `check`, `lint`, and
+  `build` pass. 2026-05-08T10:46 continuation removed accidental pnpm drift and
+  fixed the full-unit `splitYamlBody` regression; full unit, check, lint,
+  build, and focused badge components pass. Next cut is cut 6 provider/API
+  module migration.
 - Node selection service Phase 1 is present and verified. This continuation
   made one lint-only refactor in `serviceSelection.svelte.ts` after the
   service unit tests were green.

@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { Notice, TFolder } from 'obsidian';
+	import { TFolder } from 'obsidian';
 	import type { iVaultmanPlugin } from '../../types/typeSettings';
 	import { translate } from '../../index/i18n/lang';
+	import { serviceMessage } from '../../services/serviceMessage';
 	import Toggle from '../primitives/Toggle.svelte';
 	import Dropdown from '../primitives/Dropdown.svelte';
 	import TextInput from '../primitives/TextInput.svelte';
@@ -96,7 +97,7 @@
 		if (trimmed.length === 0) return;
 		const file = plugin.app.vault.getAbstractFileByPath(trimmed);
 		if (!(file instanceof TFolder)) {
-			new Notice(
+			serviceMessage.warning(
 				translate('settings.binding_note_folder.invalid').replace('{folder}', trimmed),
 			);
 		}

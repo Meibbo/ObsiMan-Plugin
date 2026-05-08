@@ -3,10 +3,11 @@
  * Replaced by `src/components/views/viewDiff.svelte` in Fase 2 (D3 of plan anchor
  * `twinkling-pearl.md`). Scheduled for deletion in Fase 5. Do not extend.
  */
-import { Modal, Notice, Setting, type App } from 'obsidian';
+import { Modal, Setting, type App } from 'obsidian';
 import type { OperationQueueService } from '../services/serviceQueue.svelte';
 import { translate } from '../index/i18n/lang';
 import { buildDiff, computeBodyHunks, type FileDiff } from '../services/serviceDiff';
+import { serviceMessage } from '../services/serviceMessage';
 
 /**
  * Transitional diff preview modal.
@@ -133,12 +134,12 @@ export class QueueDetailsModal extends Modal {
 
 	private async executeWithProgress(): Promise<void> {
 		const total = this.queueService.fileCount;
-		new Notice(`${translate('linter.applying')} (0/${total})...`);
+		serviceMessage.info(`${translate('linter.applying')} (0/${total})...`);
 
 		const result = await this.queueService.execute();
 
 		if (result.errors > 0 && result.messages.length > 0) {
-			console.warn('Vaultman execution errors:', result.messages);
+			serviceMessage.warning('Vaultman execution errors', { details: result.messages });
 		}
 	}
 

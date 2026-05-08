@@ -18,8 +18,9 @@
  * minimal frontmatter block, and existing notes are never touched.
  */
 
-import { Notice, TFile, type App } from 'obsidian';
+import { TFile, type App } from 'obsidian';
 import type { TreeNode } from '../types/typeNode';
+import { serviceMessage } from './serviceMessage';
 
 export type BindingNodeKind = 'tag' | 'prop' | 'value' | 'folder' | 'snippet' | 'template';
 
@@ -179,7 +180,7 @@ export class NodeBindingService {
 
 	private async routeToFilter(token: string, matchCount: number): Promise<BindingResult> {
 		this.deps.router?.(token);
-		new Notice(`Hay ${matchCount} notas con este alias. Filtrando…`);
+		serviceMessage.warning(`Hay ${matchCount} notas con este alias. Filtrando...`);
 		return { outcome: 'routed', token, matchCount };
 	}
 

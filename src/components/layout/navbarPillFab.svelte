@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { FabDef } from '../../types/typePrimitives';
 	import { translate } from '../../index/i18n/lang';
+	import { describeFabBadge } from '../../badges/serviceBadge';
 	import {
 		COMMAND_MOUSE_GESTURE_CONFIG,
 		createMouseGestureService,
@@ -58,20 +59,18 @@
 		mouseGestureConfig?: MouseGestureConfig;
 	} = $props();
 
-	function badgeCountForFab(fab: FabDef | null): number {
+	function countForFab(fab: FabDef | null): number {
 		if (fab?.badgeKind === 'queue') return queuedCount;
 		if (fab?.badgeKind === 'filters') return filterRuleCount;
 		return 0;
 	}
 
-	function badgeLabelForFab(fab: FabDef | null, count: number): string {
-		if (fab?.badgeKind === 'queue') return `${count} ${translate('ops.queue')}`;
-		if (fab?.badgeKind === 'filters') return `${count} ${translate('filters.active')}`;
-		return String(count);
-	}
-
-	const leftFabBadgeCount = $derived(badgeCountForFab(leftFab));
-	const rightFabBadgeCount = $derived(badgeCountForFab(rightFab));
+	const leftFabBadge = $derived(
+		leftFab?.badgeKind ? describeFabBadge(leftFab.badgeKind, countForFab(leftFab), translate) : null,
+	);
+	const rightFabBadge = $derived(
+		rightFab?.badgeKind ? describeFabBadge(rightFab.badgeKind, countForFab(rightFab), translate) : null,
+	);
 	const mouse = createMouseGestureService();
 
 	$effect(() => () => mouse.cancelAll());
@@ -169,14 +168,14 @@
 				role="button"
 				tabindex="0"
 			></div>
-			{#if leftFabBadgeCount > 0}
+			{#if leftFabBadge}
 				<div
 					class="vm-fab-badge"
-					data-vm-badge-kind={leftFab.badgeKind}
-					aria-label={badgeLabelForFab(leftFab, leftFabBadgeCount)}
-					title={badgeLabelForFab(leftFab, leftFabBadgeCount)}
+					data-vm-badge-kind={leftFabBadge.kind}
+					aria-label={leftFabBadge.label}
+					title={leftFabBadge.title}
 				>
-					{leftFabBadgeCount}
+					{leftFabBadge.text}
 				</div>
 			{/if}
 		</div>
@@ -241,14 +240,14 @@
 				role="button"
 				tabindex="0"
 			></div>
-			{#if rightFabBadgeCount > 0}
+			{#if rightFabBadge}
 				<div
 					class="vm-fab-badge"
-					data-vm-badge-kind={rightFab.badgeKind}
-					aria-label={badgeLabelForFab(rightFab, rightFabBadgeCount)}
-					title={badgeLabelForFab(rightFab, rightFabBadgeCount)}
+					data-vm-badge-kind={rightFabBadge.kind}
+					aria-label={rightFabBadge.label}
+					title={rightFabBadge.title}
 				>
-					{rightFabBadgeCount}
+					{rightFabBadge.text}
 				</div>
 			{/if}
 		</div>

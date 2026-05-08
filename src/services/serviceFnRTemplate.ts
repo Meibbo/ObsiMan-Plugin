@@ -17,6 +17,7 @@
  */
 
 import { parseDateExpression } from './serviceFnRDateParser';
+import { serviceMessage } from './serviceMessage';
 
 export type TokenName =
 	| 'base'
@@ -101,9 +102,7 @@ export interface ResolveLogger {
 
 const DEFAULT_LOGGER: ResolveLogger = {
 	warn(message, meta) {
-		// Routed to console until the dedicated ops-log channel ships
-		// (see specs/2026-05-07-multifacet-2/02-hover-badges-and-ops-log.md).
-		console.warn(`[FnRTemplate] ${message}`, meta ?? {});
+		serviceMessage.warning(`[FnRTemplate] ${message}`, { details: meta ?? {} });
 	},
 };
 

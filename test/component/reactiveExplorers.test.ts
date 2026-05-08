@@ -2,8 +2,8 @@ import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushSync, mount, unmount, type Component } from 'svelte';
 import ContentTab from '../../src/components/pages/tabContent.svelte';
-import ExplorerQueue from '../../src/components/explorers/explorerQueue.svelte';
-import ExplorerActiveFilters from '../../src/components/explorers/explorerActiveFilters.svelte';
+import ExplorerQueue from '../../src/components/containers/explorerQueue.svelte';
+import ExplorerActiveFilters from '../../src/components/containers/explorerActiveFilters.svelte';
 import type {
 	ActiveFilterEntry,
 	ContentMatch,
@@ -286,7 +286,7 @@ describe('reactive explorer components', () => {
 	});
 
 	it('declares active filters import actions pointer-clickable inside popup chrome', () => {
-		const source = readFileSync('src/components/explorers/explorerActiveFilters.svelte', 'utf8');
+		const source = readFileSync('src/styles/components/_explorer-ui.scss', 'utf8');
 		expect(source).toMatch(/\.vm-import-export-flyout-action\s*\{[\s\S]*?pointer-events:\s*auto;/);
 	});
 

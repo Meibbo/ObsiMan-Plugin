@@ -1,6 +1,7 @@
 // src/services/ContextMenuService.ts
-import { Component, Menu, TFile, Notice, App, MenuItem } from 'obsidian';
+import { Component, Menu, TFile, App, MenuItem } from 'obsidian';
 import type { ActionDef, MenuCtx, MenuHideRule } from '../types/typeCtxMenu';
+import { serviceMessage } from './serviceMessage';
 
 export interface ContextMenuPluginCtx extends Component {
 	app: App;
@@ -101,8 +102,7 @@ export class ContextMenuService extends Component {
 					try {
 						void def.run(ctx);
 					} catch (err) {
-						new Notice(`Vaultman: action "${def.id}" failed`);
-						console.error(err);
+						serviceMessage.error(`Vaultman: action "${def.id}" failed`, { error: err });
 					}
 				});
 			});
@@ -166,8 +166,7 @@ export class ContextMenuService extends Component {
 					try {
 						void def.run(ctx);
 					} catch (err) {
-						new Notice(`Vaultman: action "${def.id}" failed`);
-						console.error(err);
+						serviceMessage.error(`Vaultman: action "${def.id}" failed`, { error: err });
 					}
 				});
 			});
@@ -197,7 +196,9 @@ export class ContextMenuService extends Component {
 				}
 			}
 		} catch (e) {
-			console.warn('Vaultman: could not apply hide rules to context menu', e);
+			serviceMessage.warning('Vaultman: could not apply hide rules to context menu', {
+				details: e,
+			});
 		}
 	}
 }

@@ -21,7 +21,8 @@ import {
 import type { IOperationQueue } from '../types/typeContracts';
 import { translate } from '../index/i18n/lang';
 import { getActivePerfProbe } from '../dev/perfProbe';
-import type { BadgeKind } from './badgeRegistry';
+import type { BadgeKind } from '../badges/serviceBadge';
+import { serviceMessage } from './serviceMessage';
 
 /**
  * Descriptor for an op linked to a UI node, surfaced in the
@@ -73,38 +74,68 @@ export function splitYamlBody(
 		const yamlMatch = fmSource.match(/^---\r?\n([\s\S]*?)\r?\n---$/);
 		const yaml = yamlMatch ? yamlMatch[1] : fmSource.replace(/^---\n?/, '').replace(/\n?---$/, '');
 
-		try {
-			const fm = parseYaml(yaml) as Record<string, unknown> | null;
-			return { fm: fm ?? {}, body };
-		} catch {
-			// Fallback if parse fails
-		}
+		const parsed = parseFrontmatterYaml(yaml);
+		if (parsed) return { fm: parsed.fm, body };
 	}
 
-	// 2. Manual fallback using a safer line-by-line approach
+	// 2. Manual fallback. Prefer the last delimiter that yields object-shaped
+	// frontmatter so body horizontal rules do not win over valid YAML.
 	const lines = content.split(/\r?\n/);
 	if (lines.length > 0 && lines[0] === '---') {
-		let endIdx = -1;
+		const delimiterIndexes: number[] = [];
 		for (let i = 1; i < lines.length; i++) {
 			if (lines[i] === '---' || lines[i] === '...') {
-				endIdx = i;
-				break;
+				delimiterIndexes.push(i);
 			}
 		}
 
-		if (endIdx !== -1) {
+		let emptyFallback: { fm: Record<string, unknown>; body: string } | null = null;
+		for (let i = delimiterIndexes.length - 1; i >= 0; i--) {
+			const endIdx = delimiterIndexes[i];
 			const yaml = lines.slice(1, endIdx).join('\n');
 			const body = lines.slice(endIdx + 1).join('\n');
-			try {
-				const fm = parseYaml(yaml) as Record<string, unknown> | null;
-				return { fm: fm ?? {}, body };
-			} catch {
-				// Fallback to empty fm
-			}
+			const parsed = parseFrontmatterYaml(yaml);
+			if (!parsed) continue;
+			if (!parsed.empty) return { fm: parsed.fm, body };
+			emptyFallback ??= { fm: parsed.fm, body };
 		}
+		if (emptyFallback) return emptyFallback;
 	}
 
 	return { fm: {}, body: content };
+}
+
+function parseFrontmatterYaml(yaml: string): { fm: Record<string, unknown>; empty: boolean } | null {
+	return parseFrontmatterYamlSource(yaml) ?? parseFrontmatterYamlSource(stripCommentDocumentMarkers(yaml));
+}
+
+function parseFrontmatterYamlSource(
+	yaml: string,
+): { fm: Record<string, unknown>; empty: boolean } | null {
+	try {
+		const fm = parseYaml(yaml) as unknown;
+		if (fm === null || fm === undefined) return { fm: {}, empty: true };
+		if (typeof fm === 'object' && !Array.isArray(fm)) {
+			return { fm: fm as Record<string, unknown>, empty: false };
+		}
+	} catch {
+		// Try the comment-marker tolerant form in the caller.
+	}
+	return null;
+}
+
+function stripCommentDocumentMarkers(yaml: string): string {
+	const lines = yaml.split(/\r?\n/);
+	let changed = false;
+	const next = lines.filter((line, index) => {
+		if (line !== '---' && line !== '...') return true;
+		const previousLine = lines[index - 1]?.trimStart() ?? '';
+		const nextLine = lines[index + 1]?.trimStart() ?? '';
+		if (!previousLine.startsWith('#') || !nextLine.startsWith('#')) return true;
+		changed = true;
+		return false;
+	});
+	return changed ? next.join('\n') : yaml;
 }
 
 /**
@@ -306,7 +337,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 
 	add(change: PendingChange): void {
 		this.ingest(change).catch((err) => {
-			console.error('Failed to add change:', err);
+			serviceMessage.error('Failed to add change', { error: err });
 		});
 	}
 
@@ -700,7 +731,7 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		const result: OperationResult = { success: 0, errors: 0, messages: [] };
 
 		if (this.transactions.size === 0) {
-			new Notice(translate('result.no_changes'));
+			serviceMessage.info(translate('result.no_changes'));
 			return result;
 		}
 
@@ -730,11 +761,15 @@ export class OperationQueueService extends Component implements IOperationQueue 
 		this.transactions.clear();
 		this.emitChanged();
 
-		new Notice(
+		const resultMessage =
 			result.errors > 0
 				? translate('result.errors', { count: result.errors })
-				: translate('result.success', { count: result.success }),
-		);
+				: translate('result.success', { count: result.success });
+		if (result.errors > 0) {
+			serviceMessage.error(resultMessage, { details: result.messages });
+		} else {
+			serviceMessage.success(resultMessage);
+		}
 
 		return result;
 	}

@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-handoff.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-08T04:40:56
+updated: 2026-05-08T10:46:49
 tags:
   - agent/current
 created_by: dec
@@ -61,9 +61,18 @@ Archived completed/superseded handoff:
   [[docs/work/hardening/backlog/2026-05-08-backlog-cut-4-view-size/index|serviceViewSize and stable node sizing]].
   Tree/grid no-icon nodes reserve icon slots, grid presets are centralized in
   `serviceViewSize`, and focused tests plus `check`, `lint`, `build`, scoped
-  diff-check are green. Remaining backlog starts with multi-selected badge
-  operations, contradiction warnings, filter ingestion, and tabcontent search
-  progress UX.
+  diff-check are green. The source record now expands the cut ladder through
+  cut 25.
+- 2026-05-08 backlog cut 5 is done:
+  [[docs/work/hardening/backlog/2026-05-08-backlog-cut-5-badge-message/index|generic badge module and serviceMessage]].
+  New `src/badges/serviceBadge.ts` centralizes badge vocabulary, labels, icons,
+  ordering, hover descriptors, FAB count descriptors, and contradiction
+  detection. `src/services/badgeRegistry.ts` remains as a compatibility shim.
+  `serviceMessage` centralizes one-shot info/success/warning/error messages.
+  2026-05-08T10:46 continuation removed accidental pnpm drift and fixed the
+  full-unit `splitYamlBody` regression. Full unit, check, lint, build, and
+  focused badge component tests pass. Provider/API migration was intentionally
+  not done; resume with cut 6.
 - Phase 1 selection service is present and verified. Phase 2 tree adapter is
   implemented and verified in the current worktree.
 - Phase 3 provider actions is implemented and verified.

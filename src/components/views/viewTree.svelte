@@ -7,10 +7,11 @@
 	import type { FlatNode } from '../../services/serviceVirtualizer.svelte';
 	import HighlightText from '../primitives/HighlightText.svelte';
 	import {
-		visibleHoverBadges,
+		visibleHoverBadgeDescriptors,
 		type ActiveOpsByNode,
+		type BadgeDescriptor,
 		type BadgeKind,
-	} from '../../services/badgeRegistry';
+	} from '../../badges/serviceBadge';
 	import {
 		NODE_MOUSE_GESTURE_CONFIG,
 		NODE_MOUSE_IGNORE_SELECTOR,
@@ -25,22 +26,6 @@
 		viewSizeCssVars,
 		type ViewSizePresetId,
 	} from '../../services/serviceViewSize';
-
-	const HOVER_BADGE_ICONS: Record<BadgeKind, string> = {
-		set: 'lucide-pencil-line',
-		rename: 'lucide-text-cursor-input',
-		convert: 'lucide-replace',
-		delete: 'lucide-trash-2',
-		filter: 'lucide-filter',
-	};
-
-	const HOVER_BADGE_LABELS: Record<BadgeKind, string> = {
-		set: 'Set',
-		rename: 'Rename',
-		convert: 'Convert',
-		delete: 'Delete',
-		filter: 'Filter',
-	};
 
 	const DEFAULT_VIEW_SIZE = getViewSizePreset(DEFAULT_VIEW_SIZE_PRESET);
 	const TREE_ROW_HEIGHT = DEFAULT_VIEW_SIZE.treeRowHeight;
@@ -105,12 +90,12 @@
 		icon,
 	}: Props = $props();
 
-	function hoverBadgesFor(node: TreeNode): BadgeKind[] {
+	function hoverBadgesFor(node: TreeNode): BadgeDescriptor[] {
 		// Hover badges are an opt-in feature. Adapters that have not wired
 		// the registry yet (or unit tests that mount the view in isolation)
 		// pass no `activeOpsByNode` and we render no hover badges.
 		if (!activeOpsByNode) return [];
-		return visibleHoverBadges({ id: node.id }, activeOpsByNode);
+		return visibleHoverBadgeDescriptors({ id: node.id }, activeOpsByNode);
 	}
 
 	function handleHoverBadgePress(e: MouseEvent | KeyboardEvent, id: string, kind: BadgeKind) {
@@ -578,18 +563,18 @@
 						<div class="vm-tree-badge-zone">
 							{#if hoverBadges.length > 0}
 								<div class="vm-tree-hover-badge-zone">
-									{#each hoverBadges as kind (kind)}
+									{#each hoverBadges as badge (badge.kind)}
 										<div
 											class="vm-badge is-hover-badge is-actionable"
-											data-hover-kind={kind}
+											data-hover-kind={badge.kind}
 											role="button"
 											tabindex="0"
-											title={HOVER_BADGE_LABELS[kind]}
-											aria-label={HOVER_BADGE_LABELS[kind]}
-											onclick={(e) => handleHoverBadgePress(e, node.id, kind)}
-											onkeydown={(e) => handleHoverBadgeKeydown(e, node.id, kind)}
+											title={badge.label}
+											aria-label={badge.label}
+											onclick={(e) => handleHoverBadgePress(e, node.id, badge.kind)}
+											onkeydown={(e) => handleHoverBadgeKeydown(e, node.id, badge.kind)}
 										>
-											<span class="vm-badge-icon" use:icon={HOVER_BADGE_ICONS[kind]}></span>
+											<span class="vm-badge-icon" use:icon={badge.icon}></span>
 										</div>
 									{/each}
 								</div>

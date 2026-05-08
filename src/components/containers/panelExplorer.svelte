@@ -27,7 +27,7 @@
 		badgeKindFromNodeBadge,
 		type ActiveOpsByNode,
 		type BadgeKind,
-	} from '../../services/badgeRegistry';
+	} from '../../badges/serviceBadge';
 
 	type ScrollTarget = { id: string; serial: number };
 

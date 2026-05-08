@@ -1,4 +1,5 @@
 import type { TFile } from 'obsidian';
+import type { FabBadgeKind } from '../badges/serviceBadge';
 
 export type PopupType = 'active-filters' | 'scope' | 'search' | 'move';
 
@@ -30,7 +31,7 @@ export interface FabDef {
 	onDoubleClick?: () => void;
 	onTertiaryClick?: () => void;
 	isPlaceholder?: boolean;
-	badgeKind?: 'queue' | 'filters';
+	badgeKind?: FabBadgeKind;
 }
 
 export interface BtnSelectionItem {
