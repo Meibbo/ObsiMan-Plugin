@@ -1,8 +1,5 @@
 <script lang="ts">
-	/**
-	 * IndicatorOrbitingInk.svelte
-	 * Organic loading indicator with gooey effect.
-	 */
+	/* Organic loading indicator with gooey effect. */
 	interface Props {
 		size?: number;
 		color?: string;
