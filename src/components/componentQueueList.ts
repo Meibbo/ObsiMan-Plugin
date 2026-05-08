@@ -21,7 +21,8 @@ type QueueGroupKey =
 	| 'file_move'
 	| 'file_delete'
 	| 'template'
-	| 'tag';
+	| 'tag'
+	| 'link_append';
 
 interface QueueOpEntry {
 	vfs: VirtualFileState;
@@ -43,6 +44,7 @@ const GROUP_ORDER: QueueGroupKey[] = [
 	'file_delete',
 	'template',
 	'tag',
+	'link_append',
 ];
 
 export class QueueListComponent {
@@ -209,6 +211,8 @@ export class QueueListComponent {
 			case 'delete_tag':
 			case 'add_tag':
 				return 'tag';
+			case 'append_links':
+				return 'link_append';
 		}
 	}
 

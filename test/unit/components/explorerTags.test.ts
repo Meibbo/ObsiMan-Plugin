@@ -195,6 +195,27 @@ describe('explorerTags', () => {
 		});
 	});
 
+	it('routes set and delete hover badges to tag queue operations', () => {
+		const plugin = makePlugin([], ['project', 'archive']);
+		const explorer = new explorerTags(plugin) as explorerTags & {
+			handleHoverBadge?: (node: ReturnType<explorerTags['getTree']>[number], kind: string) => void;
+		};
+		const projectNode = explorer.getTree().find((node) => node.meta.tagPath === 'project');
+
+		expect(projectNode).toBeTruthy();
+		expect(typeof explorer.handleHoverBadge).toBe('function');
+
+		explorer.handleHoverBadge?.(projectNode!, 'set');
+		explorer.handleHoverBadge?.(projectNode!, 'delete');
+
+		expect(plugin.queueService.add).toHaveBeenCalledTimes(2);
+		expect(
+			(plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls.map(
+				([change]) => change.action,
+			),
+		).toEqual(['add', 'delete']);
+	});
+
 	it('rebuilds tag tree after Obsidian metadata changes outside the provider', () => {
 		const file = mockTFile('tagged.md', { frontmatter: { tags: ['project'] } });
 		const files = [file] as TFile[];

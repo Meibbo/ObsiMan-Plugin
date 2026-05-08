@@ -29,11 +29,11 @@ export interface UseDoubleClickHandle {
 
 export function useDoubleClick(options: UseDoubleClickOptions): UseDoubleClickHandle {
 	const threshold = options.threshold ?? 250;
-	let pending: ReturnType<typeof setTimeout> | null = null;
+	let pending: ReturnType<Window['setTimeout']> | null = null;
 
 	function cancel(): void {
 		if (pending !== null) {
-			clearTimeout(pending);
+			getTimerWindow().clearTimeout(pending);
 			pending = null;
 		}
 	}
@@ -44,11 +44,15 @@ export function useDoubleClick(options: UseDoubleClickOptions): UseDoubleClickHa
 			options.onDouble?.();
 			return;
 		}
-		pending = setTimeout(() => {
+		pending = getTimerWindow().setTimeout(() => {
 			pending = null;
 			options.onSingle?.();
 		}, threshold);
 	}
 
 	return { handleClick, cancel };
+}
+
+function getTimerWindow(): Window {
+	return typeof activeWindow === 'undefined' ? window : activeWindow;
 }

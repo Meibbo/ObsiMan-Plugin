@@ -5,7 +5,7 @@ import {
 	type ContentChange,
 	type PendingChange,
 } from '../types/typeOps';
-import { buildFileRenameChange } from './serviceFileQueue';
+import { buildFileRenameChange, normalizeFileRenameTarget } from './serviceFileQueue';
 import { buildTagRenameChange } from './serviceTagQueue';
 import type {
 	BuildContentReplaceChangeInput,
@@ -322,8 +322,9 @@ function buildFileRenameHandoffChange(
 		details: `Rename ${files.length} files to "${replacement}"`,
 		files,
 		logicFunc: (file) => {
-			if (replacement === file.name) return null;
-			return { [RENAME_FILE]: replacement };
+			const targetName = normalizeFileRenameTarget(file, replacement);
+			if (!targetName || targetName === file.name) return null;
+			return { [RENAME_FILE]: targetName };
 		},
 	};
 }

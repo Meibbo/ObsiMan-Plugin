@@ -3,7 +3,7 @@ import type { PendingChange } from '../types/typeOps';
 import { APPEND_LINKS, DELETE_FILE, MOVE_FILE, RENAME_FILE } from '../types/typeOps';
 
 export function buildFileRenameChange(file: TFile, newName: string): PendingChange | null {
-	const targetName = newName.trim();
+	const targetName = normalizeFileRenameTarget(file, newName);
 	if (!targetName || targetName === file.name) return null;
 	return {
 		type: 'file_rename',
@@ -13,6 +13,24 @@ export function buildFileRenameChange(file: TFile, newName: string): PendingChan
 		logicFunc: () => ({ [RENAME_FILE]: targetName }),
 		customLogic: true,
 	};
+}
+
+export function normalizeFileRenameTarget(file: TFile, requestedName: string): string {
+	const targetName = requestedName.trim();
+	if (!targetName) return '';
+	if (!file.extension) return targetName;
+	const originalExtension = `.${file.extension}`;
+	if (targetName.toLowerCase().endsWith(originalExtension.toLowerCase())) return targetName;
+	const stem = stripTrailingExtension(targetName);
+	if (!stem) return '';
+	return `${stem}${originalExtension}`;
+}
+
+function stripTrailingExtension(name: string): string {
+	const slash = Math.max(name.lastIndexOf('/'), name.lastIndexOf('\\'));
+	const dot = name.lastIndexOf('.');
+	if (dot > slash) return name.slice(0, dot);
+	return name;
 }
 
 export function buildFileMoveChange(file: TFile, targetFolder: string): PendingChange | null {

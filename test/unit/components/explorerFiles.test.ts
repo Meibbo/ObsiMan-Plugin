@@ -125,6 +125,19 @@ describe('explorerFiles interactions', () => {
 		expect(setSelectedFiles).not.toHaveBeenCalled();
 	});
 
+	it('shows non-markdown vault files when no active filter tree is narrowing the explorer', () => {
+		const { plugin, files } = makePlugin();
+		const pdf = mockTFile('Assets/manual.pdf');
+		(plugin.app.vault as unknown as { getFiles: () => TFile[] }).getFiles = () => [...files, pdf];
+		(plugin.filterService as unknown as { activeFilter: { children: unknown[] } }).activeFilter = {
+			children: [],
+		};
+		const explorer = new explorerFiles(plugin);
+
+		expect(explorer.getFiles()).toEqual([...files, pdf]);
+		expect(explorer.getTree().some((node) => node.id === 'folder:Assets')).toBe(true);
+	});
+
 	it('starts a file rename handoff from selected registered context menu nodes', async () => {
 		const { plugin, files } = makePlugin();
 		const startRenameHandoff = vi.fn<(handoff: FnRRenameHandoff) => void>();
@@ -154,5 +167,26 @@ describe('explorerFiles interactions', () => {
 			files,
 			scope: 'selected',
 		});
+	});
+
+	it('routes set and delete hover badges to file queue operations', () => {
+		const { plugin, files } = makePlugin();
+		const explorer = new explorerFiles(plugin) as explorerFiles & {
+			handleHoverBadge?: (node: ReturnType<explorerFiles['getTree']>[number], kind: string) => void;
+		};
+		const fileNode = explorer.getTree()[0].children?.find((node) => node.meta.file === files[0]);
+
+		expect(fileNode).toBeTruthy();
+		expect(typeof explorer.handleHoverBadge).toBe('function');
+
+		explorer.handleHoverBadge?.(fileNode!, 'set');
+		explorer.handleHoverBadge?.(fileNode!, 'delete');
+
+		expect(plugin.queueService.add).toHaveBeenCalledTimes(2);
+		expect(
+			(plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls.map(
+				([change]) => change.action,
+			),
+		).toEqual(['append-links', 'delete']);
 	});
 });

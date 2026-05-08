@@ -20,11 +20,7 @@
 		onAction?: (next: 'detached' | 'attached') => void;
 	} = $props();
 
-	// Capture the initial detached state via untracked read, then drive
-	// further updates explicitly via the click handler. Reading `tabId`
-	// inside `$state(...)` would warn about referencing a prop locally.
-	const initialDetached = leafDetach.isDetached(tabId);
-	let detached = $state(initialDetached);
+	let detached = $derived(leafDetach.isDetached(tabId));
 	let busy = $state(false);
 
 	const visible = $derived(DETACHABLE.has(tabId));

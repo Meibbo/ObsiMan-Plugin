@@ -40,9 +40,15 @@
 		type FiltersSearchState,
 	} from '../frame/frameFiltersSearch';
 	import { FnRIslandService } from '../../services/serviceFnRIsland.svelte';
+	import type { FnRIslandSubmitPayload } from '../../services/serviceFnRIsland.svelte';
+	import {
+		buildPropSetChange,
+		parsePropSetSubmission,
+		prefillPropSetIsland,
+	} from '../../services/serviceFnRPropSet';
 	import type { PendingChange } from '../../types/typeOps';
 	// TODO: por quÃ© setIcon?
-	import { setIcon } from 'obsidian';
+	import { setIcon, type TFile } from 'obsidian';
 
 	type NavbarExplorerApi = {
 		openViewMenu: () => void;
@@ -123,6 +129,10 @@
 		};
 	}
 
+	function initialFnRFlags(): { regex: boolean } {
+		return { regex: plugin.settings.fnrRegexDefault === true };
+	}
+
 	const activeFiltersSearch = $derived(getFiltersSearch(filtersSearchByTab, filtersActiveTab));
 	const activeFiltersSearchHistory = $derived(
 		getFiltersSearchHistory(filtersSearchByTab, filtersActiveTab),
@@ -142,7 +152,8 @@
 	// searchbox-mounted island does not double-mount. Initial regex flag
 	// state honours the `fnrRegexDefault` setting (Phase 8 multifacet 2).
 	const fnrIslandService = new FnRIslandService({
-		initialFlags: { regex: plugin.settings.fnrRegexDefault === true },
+		initialFlags: initialFnRFlags(),
+		dispatch: handleFnRSubmit,
 	});
 	let navbarExplorerApi = $state<NavbarExplorerApi | null>(null);
 
@@ -178,7 +189,47 @@
 	});
 
 	function handleCrear(change: PendingChange): void {
+		const scopedChange = withScopeFiles(change);
+		if (scopedChange.files.length === 0) return;
+		void plugin.queueService.add(scopedChange);
+	}
+
+	function handleFnRSubmit(payload: FnRIslandSubmitPayload): void {
+		const parsed = parsePropSetSubmission(payload);
+		if (!parsed) return;
+		const change = buildPropSetChange(operationScopeFiles(), parsed.key, parsed.value);
+		if (!change) return;
 		void plugin.queueService.add(change);
+	}
+
+	function openPropSetIsland(propName: string): void {
+		prefillPropSetIsland(fnrIslandService, propName);
+	}
+
+	function withScopeFiles(change: PendingChange): PendingChange {
+		if (change.files.length > 0) return change;
+		return { ...change, files: operationScopeFiles() } as PendingChange;
+	}
+
+	function operationScopeFiles(): TFile[] {
+		const allFiles = plugin.app.vault.getMarkdownFiles();
+		const filteredFiles = [...(plugin.filterService.filteredFiles ?? [])] as TFile[];
+		const selectedFiles = selectedOperationFiles();
+		const scope = filtersOperationScope ?? plugin.settings.explorerOperationScope ?? 'auto';
+		if (scope === 'all') return allFiles;
+		if (scope === 'selected') return selectedFiles;
+		if (scope === 'filtered') return filteredFiles.length > 0 ? filteredFiles : allFiles;
+		if (selectedFiles.length > 0) return selectedFiles;
+		if (filteredFiles.length > 0) return filteredFiles;
+		return allFiles;
+	}
+
+	function selectedOperationFiles(): TFile[] {
+		const fromPaths = [...selectedFilePaths]
+			.map((path) => plugin.app.vault.getFileByPath(path) ?? null)
+			.filter((file): file is TFile => Boolean(file));
+		if (fromPaths.length > 0) return fromPaths;
+		return [...(plugin.filterService.selectedFiles ?? [])] as TFile[];
 	}
 
 	function setActiveFiltersSearch(term: string): void {
@@ -381,6 +432,7 @@
 				nodeExpansionCommand={nodeExpansionCommands.props}
 				onNodeExpansionSummaryChange={(summary) => setNodeExpansionSummary('props', summary)}
 				{startRenameHandoff}
+				{openPropSetIsland}
 			/>
 		</div>
 		<div class="vm-tab-content" class:is-active={filtersActiveTab === 'files'}>

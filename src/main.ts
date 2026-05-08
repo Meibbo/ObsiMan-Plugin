@@ -283,13 +283,13 @@ export class VaultmanPlugin extends Plugin {
 		const { workspace } = this.app;
 		const existing = workspace.getLeavesOfType(viewType)[0];
 		if (existing) {
-			workspace.revealLeaf(existing);
+			void workspace.revealLeaf(existing);
 			return;
 		}
 		const leaf = workspace.getLeaf('tab');
 		if (!leaf) return;
 		await leaf.setViewState({ type: viewType, active: true });
-		workspace.revealLeaf(leaf);
+		void workspace.revealLeaf(leaf);
 	}
 
 	/** Detach (close) every leaf of the given canonical TabId's view-type. */

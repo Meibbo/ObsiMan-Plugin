@@ -14,7 +14,7 @@ import {
 	startTagRenameHandoff,
 	startValueRenameHandoff,
 	updateRenameHandoffReplacement,
-} from '../../../src/services/serviceFnR.svelte';
+} from '../../../src/services/serviceFnR';
 
 describe('serviceFnR', () => {
 	it('creates a conservative default advanced FnR state', () => {
@@ -139,6 +139,20 @@ describe('serviceFnR', () => {
 		expect(change?.files).toEqual(files);
 		expect(change?.logicFunc(files[0], {})).toEqual({ [RENAME_FILE]: 'Renamed.md' });
 		expect(change?.logicFunc(files[1], {})).toEqual({ [RENAME_FILE]: 'Renamed.md' });
+	});
+
+	it('preserves each selected file extension when file rename handoff uses a bare basename', () => {
+		const files = [mockTFile('Notes/A.md'), mockTFile('Assets/B.pdf')];
+		let state = startFileRenameHandoff(createFnRState(), {
+			files,
+			scope: 'selected',
+		});
+		state = updateRenameHandoffReplacement(state, 'Renamed');
+		const change = buildRenameHandoffChange(state.rename);
+
+		expect(change?.files).toEqual(files);
+		expect(change?.logicFunc(files[0], {})).toEqual({ [RENAME_FILE]: 'Renamed.md' });
+		expect(change?.logicFunc(files[1], {})).toEqual({ [RENAME_FILE]: 'Renamed.pdf' });
 	});
 
 	it('does not build cancelled, queued, unchanged, or blank rename handoffs', () => {

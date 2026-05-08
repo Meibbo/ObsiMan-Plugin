@@ -28,16 +28,23 @@ export interface BadgeRegistryNode {
  * Callers (panelExplorer) memoize this from `OperationQueueService` keyed
  * on a queue version counter to avoid render loops.
  */
-export type ActiveOpsByNode = ReadonlyMap<string, ReadonlySet<BadgeKind>> | Record<string, readonly BadgeKind[] | ReadonlySet<BadgeKind>>;
+type ActiveOpsByNodeMap = ReadonlyMap<string, ReadonlySet<BadgeKind>>;
+type ActiveOpsByNodeRecord = Record<string, readonly BadgeKind[] | ReadonlySet<BadgeKind>>;
+
+export type ActiveOpsByNode = ActiveOpsByNodeMap | ActiveOpsByNodeRecord;
+
+function isActiveOpsMap(activeOpsByNode: ActiveOpsByNode): activeOpsByNode is ActiveOpsByNodeMap {
+	return activeOpsByNode instanceof Map;
+}
 
 function lookupActive(
 	activeOpsByNode: ActiveOpsByNode,
 	nodeId: string,
 ): ReadonlySet<BadgeKind> {
-	if (activeOpsByNode instanceof Map) {
+	if (isActiveOpsMap(activeOpsByNode)) {
 		return activeOpsByNode.get(nodeId) ?? EMPTY_SET;
 	}
-	const value = (activeOpsByNode as Record<string, readonly BadgeKind[] | ReadonlySet<BadgeKind>>)[nodeId];
+	const value = activeOpsByNode[nodeId];
 	if (!value) return EMPTY_SET;
 	if (value instanceof Set) return value;
 	return new Set(value);

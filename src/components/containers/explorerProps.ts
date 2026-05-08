@@ -122,15 +122,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			when: (ctx) => !(ctx.node.meta as PropMeta).isValueNode,
 			run: (ctx) => {
 				const meta = ctx.node.meta as PropMeta;
-				if (!meta.propName) {
-					new Notice('No prop selected');
-					return;
-				}
-				if (this.options.openPropSetIsland) {
-					this.options.openPropSetIsland(meta.propName);
-					return;
-				}
-				new Notice('Prop set requires the FnR island to be mounted.');
+				this.openPropSet(meta.propName);
 			},
 		});
 
@@ -341,6 +333,31 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 		return node.meta.isValueNode ? 'value' : 'prop';
 	}
 
+	handleHoverBadge(node: TreeNode<PropMeta>, kind: string): void {
+		const meta = node.meta;
+		if (kind === 'set') {
+			if (meta.isValueNode) {
+				this._setValueOnFiltered(meta.propName, meta.rawValue ?? meta.propName);
+				return;
+			}
+			this.openPropSet(meta.propName);
+			return;
+		}
+		if (kind === 'delete') {
+			if (meta.isValueNode) this._deleteValue(meta.propName, meta.rawValue ?? '');
+			else this._deleteProp(meta.propName);
+			return;
+		}
+		if (kind === 'filter') {
+			this.handleNodeClick(node);
+			return;
+		}
+		if (kind === 'rename') {
+			if (meta.isValueNode) void this._renameValue(meta.propName, meta.rawValue ?? '');
+			else void this._renameProp(meta.propName);
+		}
+	}
+
 	setSearchTerm(term: string, mode: 'all' | 'leaf' = 'all'): void {
 		this.searchTerm = term;
 		this.searchMode = mode;
@@ -431,23 +448,35 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 
 	/**
 	 * Phase 7 `set` value action: queue a `set_prop` change writing
-	 * `{ key: parentProp, value: label }` over every filtered file.
+	 * `{ key: parentProp, value: label }` over every operation-scope file.
 	 * Existing keys are overwritten per spec.
 	 */
 	private _setValueOnFiltered(propName: string, value: string): void {
-		const filtered = [...(this.plugin.filterService.filteredFiles ?? [])] as TFile[];
-		if (filtered.length === 0 || !propName) return;
+		const files = this.operationScopeFiles();
+		if (files.length === 0 || !propName) return;
 		const canonicalName = this.canonicalPropName(propName);
 		void this.plugin.queueService.add({
 			type: 'property',
 			property: canonicalName,
 			action: 'set',
 			details: `Set ${canonicalName}: ${value}`,
-			files: filtered,
+			files,
 			value,
 			customLogic: true,
 			logicFunc: () => ({ [canonicalName]: value }),
 		});
+	}
+
+	private openPropSet(propName: string): void {
+		if (!propName) {
+			new Notice('No prop selected');
+			return;
+		}
+		if (this.options.openPropSetIsland) {
+			this.options.openPropSetIsland(propName);
+			return;
+		}
+		new Notice('Prop set requires the fnr island to be mounted.');
 	}
 
 	private quickActionBadges(meta: PropMeta): NodeBadge[] {

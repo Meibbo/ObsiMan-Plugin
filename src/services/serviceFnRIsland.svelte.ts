@@ -36,7 +36,7 @@ export interface FnRIslandSnapshot {
 	regexError: string | null;
 }
 
-export interface FnRIslandSubmitPayload extends FnRIslandSnapshot {}
+export type FnRIslandSubmitPayload = FnRIslandSnapshot;
 
 export type FnRIslandDispatch = (payload: FnRIslandSubmitPayload) => void;
 

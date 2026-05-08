@@ -5,7 +5,7 @@ import { createNodeIndex } from './indexNodeCreate';
 export function createFilesIndex(app: App): IFilesIndex {
 	return createNodeIndex<FileNode>({
 		build: () =>
-			app.vault.getMarkdownFiles().map((file) => ({
+			(app.vault.getFiles?.() ?? app.vault.getMarkdownFiles()).map((file) => ({
 				id: file.path,
 				path: file.path,
 				basename: file.basename,

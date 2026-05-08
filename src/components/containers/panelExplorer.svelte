@@ -69,6 +69,8 @@
 	} = $props();
 
 
+	const PAGE_NAVIGATION_STEP = 10;
+
 	let nodes = $state<TreeNode<TMeta>[]>([]);
 	let flatFiles = $state<TFile[]>([]);
 	let rootEl: HTMLDivElement | undefined = $state();
@@ -305,42 +307,69 @@
 	}
 
 	function handleRowKeydown(id: string, e: KeyboardEvent) {
+		const orderedIds = visibleNodeIds();
+		const logicalId = keyboardTargetId(id, orderedIds);
 		if (viewMode === 'grid' && gridHierarchyMode === 'folder' && handleGridNavigationKeydown(e)) {
 			return;
 		}
 		if (
 			viewMode === 'grid' &&
 			gridHierarchyMode === 'inline' &&
-			handleInlineGridExpansionKeydown(id, e)
+			handleInlineGridExpansionKeydown(logicalId, e)
 		) {
 			return;
 		}
 		if (viewMode === 'tree' && e.key === 'ArrowLeft') {
-			handleTreeArrowLeft(id, e);
+			handleTreeArrowLeft(logicalId, e);
 		} else if (viewMode === 'tree' && e.key === 'ArrowRight') {
-			handleTreeArrowRight(id, e);
+			handleTreeArrowRight(logicalId, e);
 		} else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
 			e.preventDefault();
-			if (!focusedNodeId) selectionService.setFocused(provider.id, id);
+			if (!focusedNodeId) selectionService.setFocused(provider.id, logicalId);
 			commitSelection(
-				selectionService.moveFocus(provider.id, visibleNodeIds(), e.key === 'ArrowDown' ? 1 : -1, {
+				selectionService.moveFocus(provider.id, orderedIds, e.key === 'ArrowDown' ? 1 : -1, {
 					additive: e.ctrlKey || e.metaKey,
 					range: e.shiftKey,
 				}),
 			);
+		} else if (e.key === 'PageDown' || e.key === 'PageUp') {
+			handlePageNavigation(logicalId, orderedIds, e);
 		} else if (e.key === ' ' || e.key === 'Spacebar') {
 			e.preventDefault();
-			if (!focusedNodeId) selectionService.setFocused(provider.id, id);
+			if (!focusedNodeId) selectionService.setFocused(provider.id, logicalId);
 			commitSelection(
-				selectionService.toggleFocused(provider.id, visibleNodeIds(), {
+				selectionService.toggleFocused(provider.id, orderedIds, {
 					additive: e.ctrlKey || e.metaKey,
 					range: e.shiftKey,
 				}),
 			);
 		} else if (e.key === 'Enter') {
-			const node = findNodeById(nodes, id);
-			if (node) handlePrimaryAction(id, e as unknown as MouseEvent);
+			const node = findNodeById(nodes, logicalId);
+			if (node) handlePrimaryAction(logicalId, e as unknown as MouseEvent);
 		}
+	}
+
+	function keyboardTargetId(fallbackId: string, orderedIds: readonly string[]): string {
+		return focusedNodeId && orderedIds.includes(focusedNodeId) ? focusedNodeId : fallbackId;
+	}
+
+	function handlePageNavigation(
+		currentId: string,
+		orderedIds: readonly string[],
+		e: KeyboardEvent,
+	): void {
+		if (!focusedNodeId && selectedNodeIds.size === 0) return;
+		const currentIndex = orderedIds.indexOf(currentId);
+		if (currentIndex < 0) return;
+		e.preventDefault();
+		const direction = e.key === 'PageDown' ? 1 : -1;
+		const targetIndex = Math.max(
+			0,
+			Math.min(orderedIds.length - 1, currentIndex + direction * PAGE_NAVIGATION_STEP),
+		);
+		const targetId = orderedIds[targetIndex];
+		if (!targetId) return;
+		commitSelection(selectionService.selectPointer(provider.id, orderedIds, targetId));
 	}
 
 	function handleInlineGridExpansionKeydown(id: string, e: KeyboardEvent): boolean {

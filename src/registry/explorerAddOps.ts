@@ -32,9 +32,8 @@ export type AddOpBuilder = (label: string) => PendingChange | null;
  * The builder produced for `tag`/`prop` mirrors the inline patterns already
  * present in `explorerTags.ts` (`_addTag`) and `explorerProps.ts` (`_addProp`)
  * so semantics stay identical to today's quick-action add flow. Files default
- * to an empty array; the searchbox-island has no file-scope context to inject,
- * which intentionally keeps phase 1a behaviour "queue an empty op" instead of
- * touching unrelated files. Phase 2 will pass scope-resolved files.
+ * to an empty array because the searchbox-island is UI-only; the page shell
+ * injects scope-resolved files before handing the change to the queue.
  */
 export function getAddOpBuilder(explorerKind: string): AddOpBuilder | null {
 	switch (explorerKind) {

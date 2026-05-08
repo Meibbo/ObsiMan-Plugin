@@ -22,6 +22,7 @@
 		nodeExpansionCommand = null,
 		onNodeExpansionSummaryChange,
 		startRenameHandoff,
+		openPropSetIsland,
 	}: {
 		plugin: VaultmanPlugin;
 		searchTerm?: string;
@@ -34,10 +35,11 @@
 		nodeExpansionCommand?: ExplorerExpansionCommand | null;
 		onNodeExpansionSummaryChange?: (summary: ExplorerExpansionSummary) => void;
 		startRenameHandoff?: (handoff: FnRRenameHandoff) => void;
+		openPropSetIsland?: (propName: string) => void;
 	} = $props();
 
 	onMount(() => {
-		explorer = new explorerProps(plugin, { startRenameHandoff });
+		explorer = new explorerProps(plugin, { startRenameHandoff, openPropSetIsland });
 	});
 
 	onDestroy(() => {

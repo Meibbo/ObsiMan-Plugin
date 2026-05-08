@@ -150,6 +150,7 @@ export const es: Record<string, string> = {
 	'queue.op_type.file_delete': 'BORRAR ARCHIVO',
 	'queue.op_type.template': 'TEMPLATE',
 	'queue.op_type.tag': 'TAG',
+	'queue.op_type.link_append': 'AGREGAR ENLACES',
 
 	// viewDiff toggle labels
 	'queue.view_diff.only_changes': 'Solo cambios',

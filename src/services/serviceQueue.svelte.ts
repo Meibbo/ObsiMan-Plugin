@@ -205,11 +205,14 @@ export class OperationQueueService extends Component implements IOperationQueue 
 
 	/** Remove a staged op by its op ID across all file transactions. */
 	remove(id: string): void {
+		let removed = false;
 		for (const [path, vfs] of this.transactions) {
 			if (vfs.ops.some((o) => o.id === id || o.changeId === id)) {
 				this.removeOp(path, id, true);
+				removed = true;
 			}
 		}
+		if (removed) this.emitChanged();
 	}
 
 	/**

@@ -62,21 +62,7 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 			icon: 'lucide-pencil',
 			run: async (ctx) => {
 				const node = ctx.node as TreeNode<TagMeta>;
-				const oldTag = node.meta.tagPath;
-				const files = this.filesWithTag(oldTag);
-				if (this.options.startRenameHandoff) {
-					const state = startTagRenameHandoff(createFnRState(), {
-						tagPath: oldTag,
-						files,
-						scope: this.fnrScope(),
-					});
-					this.options.startRenameHandoff(state.rename);
-					return;
-				}
-				const newTag = await showInputModal(this.plugin.app, `Rename tag "#${oldTag}" to:`);
-				if (!newTag) return;
-				const change = buildTagRenameChange(oldTag, newTag, files);
-				if (change) void this.plugin.queueService.add(change);
+				await this._renameTag(node.meta.tagPath);
 			},
 		});
 
@@ -241,6 +227,22 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 		return 'tag';
 	}
 
+	handleHoverBadge(node: TreeNode<TagMeta>, kind: string): void {
+		if (kind === 'set') {
+			this._setTagOnFiltered(node.meta.tagPath);
+			return;
+		}
+		if (kind === 'delete') {
+			this._deleteTag(node.meta.tagPath);
+			return;
+		}
+		if (kind === 'filter') {
+			this.handleNodeClick(node);
+			return;
+		}
+		if (kind === 'rename') void this._renameTag(node.meta.tagPath);
+	}
+
 	setSearchTerm(term: string, mode: 'all' | 'leaf' = 'all'): void {
 		this.searchTerm = term;
 		this.searchMode = mode;
@@ -281,6 +283,23 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 		if (change) this.plugin.queueService.add(change);
 	}
 
+	private async _renameTag(oldTag: string): Promise<void> {
+		const files = this.filesWithTag(oldTag);
+		if (this.options.startRenameHandoff) {
+			const state = startTagRenameHandoff(createFnRState(), {
+				tagPath: oldTag,
+				files,
+				scope: this.fnrScope(),
+			});
+			this.options.startRenameHandoff(state.rename);
+			return;
+		}
+		const newTag = await showInputModal(this.plugin.app, `Rename tag "#${oldTag}" to:`);
+		if (!newTag) return;
+		const change = buildTagRenameChange(oldTag, newTag, files);
+		if (change) void this.plugin.queueService.add(change);
+	}
+
 	private _addTag(tagPath: string): void {
 		const change = buildTagAddChange(tagPath, this.operationScopeFiles());
 		if (change) void this.plugin.queueService.add(change);
@@ -288,13 +307,12 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 
 	/**
 	 * Phase 7 `set` action: queue a NATIVE_ADD_TAG (`add` action on tag
-	 * change) over every filtered file. The change builder skips files
+	 * change) over every operation-scope file. The change builder skips files
 	 * that already have the tag via `tagListContains`, so the queued op
 	 * is silently a no-op for those entries.
 	 */
 	private _setTagOnFiltered(tagPath: string): void {
-		const filtered = [...(this.plugin.filterService.filteredFiles ?? [])] as TFile[];
-		const change = buildTagAddChange(tagPath, filtered);
+		const change = buildTagAddChange(tagPath, this.operationScopeFiles());
 		if (change) void this.plugin.queueService.add(change);
 	}
 

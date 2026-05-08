@@ -553,6 +553,29 @@ describe('PanelExplorer tree selection adapter', () => {
 		expect(providerStub.handleNodeClick).not.toHaveBeenCalled();
 	});
 
+	it('ArrowLeft uses the keyboard-focused node even when DOM focus is still on the previous row', () => {
+		const { selectionService } = renderPanel({
+			provider: provider({ getTree: vi.fn(() => nestedNodes()) }),
+		});
+		const parent = target.querySelector('[data-id="parent"]') as HTMLElement;
+
+		parent.click();
+		flushSync();
+		parent.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+		flushSync();
+
+		expect(selectionService.snapshot(EXPLORER_ID).focusedId).toBe('child');
+
+		parent.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+		flushSync();
+
+		const snapshot = selectionService.snapshot(EXPLORER_ID);
+		expect([...snapshot.ids]).toEqual(['parent']);
+		expect(snapshot.focusedId).toBe('parent');
+		expect(target.querySelector('[data-id="parent"]')?.getAttribute('aria-expanded')).toBe('true');
+		expect(target.querySelector('[data-id="child"]')).not.toBeNull();
+	});
+
 	it('ArrowRight on a leaf preserves selection without activating the provider', () => {
 		const providerStub = provider();
 		const { selectionService } = renderPanel({ provider: providerStub });
@@ -567,6 +590,51 @@ describe('PanelExplorer tree selection adapter', () => {
 		expect([...selectionService.snapshot(EXPLORER_ID).ids]).toEqual(['alpha']);
 		expect(selectionService.snapshot(EXPLORER_ID).focusedId).toBe('alpha');
 		expect(providerStub.handleNodeClick).not.toHaveBeenCalled();
+	});
+
+	it('PageDown and PageUp move keyboard focus instead of scrolling once a node is active', () => {
+		const { selectionService } = renderPanel();
+		const alpha = target.querySelector('[data-id="alpha"]') as HTMLElement;
+
+		alpha.click();
+		flushSync();
+
+		const down = new KeyboardEvent('keydown', {
+			key: 'PageDown',
+			bubbles: true,
+			cancelable: true,
+		});
+		alpha.dispatchEvent(down);
+		flushSync();
+
+		expect(down.defaultPrevented).toBe(true);
+		expect(selectionService.snapshot(EXPLORER_ID).focusedId).toBe('beta');
+
+		const up = new KeyboardEvent('keydown', {
+			key: 'PageUp',
+			bubbles: true,
+			cancelable: true,
+		});
+		alpha.dispatchEvent(up);
+		flushSync();
+
+		expect(up.defaultPrevented).toBe(true);
+		expect(selectionService.snapshot(EXPLORER_ID).focusedId).toBe('alpha');
+	});
+
+	it('PageDown keeps native scroll behavior when no node is active', () => {
+		renderPanel();
+		const alpha = target.querySelector('[data-id="alpha"]') as HTMLElement;
+		const down = new KeyboardEvent('keydown', {
+			key: 'PageDown',
+			bubbles: true,
+			cancelable: true,
+		});
+
+		alpha.dispatchEvent(down);
+		flushSync();
+
+		expect(down.defaultPrevented).toBe(false);
 	});
 
 	it('collapses all expanded parent nodes from a generic expansion command', () => {

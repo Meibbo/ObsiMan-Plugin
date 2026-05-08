@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-status.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-07T17:18:41
+updated: 2026-05-08T00:30:00
 tags:
   - agent/current
 created_by: dec
@@ -82,6 +82,10 @@ Archived completed/superseded status:
 
 ## Current Verification
 
+- 2026-05-08 backlog cut 1 DONE:
+  [[docs/work/hardening/backlog/2026-05-08-backlog-cut-1/index|navigation, queue removal, all-files explorer, and rename extension safety]].
+  Focused unit/component tests, `pnpm run lint`, `pnpm run check`, and
+  `pnpm run build` pass with 0 lint/check warnings.
 - Node selection service Phase 1 is present and verified. This continuation
   made one lint-only refactor in `serviceSelection.svelte.ts` after the
   service unit tests were green.

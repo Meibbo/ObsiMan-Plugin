@@ -50,21 +50,7 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 			icon: 'lucide-pencil',
 			run: (ctx: MenuCtx) => {
 				const files = this.contextFiles(ctx);
-				if (files.length === 0) return;
-				if (this.options.startRenameHandoff) {
-					const state = startFileRenameHandoff(createFnRState(), {
-						files,
-						scope: 'selected',
-					});
-					this.options.startRenameHandoff(state.rename);
-					return;
-				}
-				new FileRenameModal(
-					this.plugin.app,
-					this.plugin.propertyIndex,
-					files,
-					(change) => void this.plugin.queueService.add(change),
-				).open();
+				this.renameFiles(files);
 			},
 		});
 
@@ -75,9 +61,7 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 			label: 'Delete',
 			icon: 'lucide-trash',
 			run: (ctx: MenuCtx) => {
-				for (const file of this.contextFiles(ctx)) {
-					void this.plugin.queueService.add(buildFileDeleteChange(file));
-				}
+				this.deleteFiles(this.contextFiles(ctx));
 			},
 		});
 
@@ -89,12 +73,7 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 			icon: 'lucide-link',
 			run: (ctx: MenuCtx) => {
 				const sourceFiles = this.contextFiles(ctx);
-				if (sourceFiles.length === 0) return;
-				const filtered = [...(this.plugin.filterService.filteredFiles ?? [])] as TFile[];
-				if (filtered.length === 0) return;
-				const links = sourceFiles.map((f) => `[[${f.basename}]]`);
-				const change = buildAppendLinksChange(filtered, links);
-				if (change) void this.plugin.queueService.add(change);
+				this.appendLinksToScope(sourceFiles);
 			},
 		});
 
@@ -215,6 +194,24 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 		return node.meta.isFolder ? 'folder' : 'file';
 	}
 
+	handleHoverBadge(node: TreeNode<FileMeta>, kind: string): void {
+		const file = node.meta.file;
+		if (!file || node.meta.isFolder) return;
+		if (kind === 'set') {
+			this.appendLinksToScope([file]);
+			return;
+		}
+		if (kind === 'delete') {
+			this.deleteFiles([file]);
+			return;
+		}
+		if (kind === 'rename') {
+			this.renameFiles([file]);
+			return;
+		}
+		if (kind === 'filter') this.handleNodeClick(node);
+	}
+
 	setSearchTerm(term: string): void {
 		this.searchName = term;
 	}
@@ -236,7 +233,65 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 
 	private sourceFiles(): TFile[] {
 		if (this.showSelectedOnly) return [...(this.plugin.filterService.selectedFiles ?? [])];
-		return this.plugin.filterService.filteredFiles;
+		if (this.hasActiveFilterTree()) return this.plugin.filterService.filteredFiles;
+		return this.vaultFiles();
+	}
+
+	private hasActiveFilterTree(): boolean {
+		const activeFilter = (this.plugin.filterService as { activeFilter?: { children?: unknown[] } })
+			.activeFilter;
+		return (activeFilter?.children?.length ?? 0) > 0;
+	}
+
+	private vaultFiles(): TFile[] {
+		const vault = this.plugin.app.vault as typeof this.plugin.app.vault & {
+			getFiles?: () => TFile[];
+		};
+		return vault.getFiles?.() ?? vault.getMarkdownFiles();
+	}
+
+	private appendLinksToScope(sourceFiles: TFile[]): void {
+		if (sourceFiles.length === 0) return;
+		const links = sourceFiles.map((f) => `[[${f.basename}]]`);
+		const change = buildAppendLinksChange(this.operationScopeFiles(), links);
+		if (change) void this.plugin.queueService.add(change);
+	}
+
+	private deleteFiles(files: TFile[]): void {
+		for (const file of files) {
+			void this.plugin.queueService.add(buildFileDeleteChange(file));
+		}
+	}
+
+	private renameFiles(files: TFile[]): void {
+		if (files.length === 0) return;
+		if (this.options.startRenameHandoff) {
+			const state = startFileRenameHandoff(createFnRState(), {
+				files,
+				scope: 'selected',
+			});
+			this.options.startRenameHandoff(state.rename);
+			return;
+		}
+		new FileRenameModal(
+			this.plugin.app,
+			this.plugin.propertyIndex,
+			files,
+			(change) => void this.plugin.queueService.add(change),
+		).open();
+	}
+
+	private operationScopeFiles(): TFile[] {
+		const allFiles = this.plugin.app.vault.getMarkdownFiles();
+		const filteredFiles = [...(this.plugin.filterService.filteredFiles ?? [])] as TFile[];
+		const selectedFiles = [...(this.plugin.filterService.selectedFiles ?? [])] as TFile[];
+		const scope = this.plugin.settings?.explorerOperationScope ?? 'filtered';
+		if (scope === 'all') return allFiles;
+		if (scope === 'selected') return selectedFiles;
+		if (scope === 'filtered') return filteredFiles.length > 0 ? filteredFiles : allFiles;
+		if (selectedFiles.length > 0) return selectedFiles;
+		if (filteredFiles.length > 0) return filteredFiles;
+		return allFiles;
 	}
 
 	private _sortFiles(files: TFile[]): TFile[] {

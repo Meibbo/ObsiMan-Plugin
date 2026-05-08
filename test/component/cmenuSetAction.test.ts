@@ -11,6 +11,9 @@ function basePlugin(opts: {
 	files?: TFile[];
 	frontmatter?: Record<string, unknown>;
 	openPropSetIsland?: (name: string) => void;
+	filteredFiles?: TFile[];
+	selectedFiles?: TFile[];
+	explorerOperationScope?: 'auto' | 'selected' | 'filtered' | 'all';
 } = {}): VaultmanPlugin {
 	const files = opts.files ?? [
 		mockTFile('a.md', { frontmatter: opts.frontmatter ?? { status: 'old' } }),
@@ -34,7 +37,8 @@ function basePlugin(opts: {
 		operationsIndex: { nodes: [], refresh: vi.fn(), subscribe: vi.fn(), byId: vi.fn() },
 		activeFiltersIndex: { nodes: [], refresh: vi.fn(), subscribe: vi.fn(), byId: vi.fn() },
 		filterService: {
-			filteredFiles: files,
+			filteredFiles: opts.filteredFiles ?? files,
+			selectedFiles: opts.selectedFiles ?? [],
 			hasTagFilter: vi.fn(() => false),
 			hasPropFilter: vi.fn(() => false),
 			hasValueFilter: vi.fn(() => false),
@@ -42,7 +46,7 @@ function basePlugin(opts: {
 			removeNodeByTag: vi.fn(),
 			removeNodeByProperty: vi.fn(),
 		},
-		settings: { explorerOperationScope: 'filtered' },
+		settings: { explorerOperationScope: opts.explorerOperationScope ?? 'filtered' },
 		decorationManager,
 		viewService: new ViewService({ decorationManager }),
 		iconicService: { getTagIcon: vi.fn(() => null), getIcon: vi.fn(() => null) },
@@ -72,6 +76,26 @@ describe('phase 7 — `set` cmenu entry exists in every explorer', () => {
 		expect(change.type).toBe('tag');
 		expect(change.action).toBe('add');
 		expect(change.tag).toBe('urgent');
+	});
+
+	it('tag.set falls back to all markdown files when filtered scope is empty', () => {
+		const files = [
+			mockTFile('a.md', { frontmatter: { tags: ['other'] } }),
+			mockTFile('b.md', { frontmatter: { tags: ['other'] } }),
+		];
+		const plugin = basePlugin({ files, filteredFiles: [] });
+		new explorerTags(plugin);
+		const action = findRegisteredAction(plugin, 'tag.set');
+
+		action.run({
+			nodeType: 'tag',
+			node: { id: 't', label: 'urgent', depth: 0, meta: { tagPath: 'urgent' } },
+			surface: 'panel',
+		});
+
+		expect(plugin.queueService.add).toHaveBeenCalledTimes(1);
+		const change = (plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls[0][0];
+		expect(change.files).toEqual(files);
 	});
 
 	it('prop explorer registers `prop.set` and forwards to FnR island prefiller', () => {
@@ -118,6 +142,28 @@ describe('phase 7 — `set` cmenu entry exists in every explorer', () => {
 		});
 	});
 
+	it('value.set falls back to all markdown files when filtered scope is empty', () => {
+		const files = [mockTFile('a.md'), mockTFile('b.md')];
+		const plugin = basePlugin({ files, filteredFiles: [] });
+		new explorerProps(plugin);
+		const action = findRegisteredAction(plugin, 'value.set');
+
+		action.run({
+			nodeType: 'value',
+			node: {
+				id: 'v',
+				label: 'draft',
+				depth: 1,
+				meta: { propName: 'status', propType: 'text', isValueNode: true, rawValue: 'draft' },
+			},
+			surface: 'panel',
+		});
+
+		expect(plugin.queueService.add).toHaveBeenCalledTimes(1);
+		const change = (plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls[0][0];
+		expect(change.files).toEqual(files);
+	});
+
 	it('file explorer registers `file.set` and queues NATIVE_APPEND_LINK over filtered files', () => {
 		const a = mockTFile('a.md');
 		const b = mockTFile('b.md');
@@ -139,5 +185,24 @@ describe('phase 7 — `set` cmenu entry exists in every explorer', () => {
 		const updates = change.logicFunc(b, {});
 		const links = (updates as Record<string, unknown>)['_APPEND_LINKS'];
 		expect(links).toEqual(['[[a]]']);
+	});
+
+	it('file.set falls back to all markdown files when filtered scope is empty', () => {
+		const a = mockTFile('a.md');
+		const b = mockTFile('b.md');
+		const plugin = basePlugin({ files: [a, b], filteredFiles: [] });
+		new explorerFiles(plugin);
+		const action = findRegisteredAction(plugin, 'file.set');
+
+		action.run({
+			nodeType: 'file',
+			node: { id: 'f', label: 'a.md', depth: 0, meta: { file: a, isFolder: false, folderPath: '' } },
+			surface: 'panel',
+			file: a,
+		});
+
+		expect(plugin.queueService.add).toHaveBeenCalledTimes(1);
+		const change = (plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls[0][0];
+		expect(change.files).toEqual([a, b]);
 	});
 });

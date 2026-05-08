@@ -3,6 +3,7 @@ import { flushSync, mount, unmount, type Component } from 'svelte';
 import PageFilters from '../../src/components/pages/pageFilters.svelte';
 import type { VaultmanPlugin } from '../../src/main';
 import { mockApp, mockTFile } from '../helpers/obsidian-mocks';
+import { createFiltersSearchState } from '../../src/components/frame/frameFiltersSearch';
 
 function noopIndex() {
 	return {
@@ -163,5 +164,107 @@ describe('PageFilters Bases choose mode', () => {
 		vm.openSortMenuHook?.();
 		flushSync();
 		expect(target.querySelector('.vm-sort-popup')).toBeTruthy();
+	});
+
+	it('queues crear tag operations with scope-resolved files', () => {
+		const vm = plugin();
+		const searches = createFiltersSearchState();
+		searches.tags = 'newtag';
+
+		app = mount(PageFilters as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: {
+				plugin: vm,
+				filtersActiveTab: 'tags',
+				filtersSearchByTab: searches,
+				filtersOperationScope: 'filtered',
+			},
+		});
+		flushSync();
+
+		target.querySelector<HTMLButtonElement>('.vm-filters-crear')?.click();
+		flushSync();
+
+		expect(vm.queueService.add).toHaveBeenCalledOnce();
+		const change = (vm.queueService.add as ReturnType<typeof vi.fn>).mock.calls[0][0];
+		expect(change).toMatchObject({
+			type: 'tag',
+			action: 'add',
+			tag: 'newtag',
+		});
+		expect(change.files).toEqual(vm.app.vault.getMarkdownFiles());
+	});
+
+	it('routes add-prop FnR submissions into scope-resolved queue changes', () => {
+		const vm = plugin() as VaultmanPlugin & {
+			activeFnRIslandService?: {
+				setMode(mode: string): void;
+				setQuery(query: string): void;
+				submit(): void;
+			} | null;
+		};
+
+		app = mount(PageFilters as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: {
+				plugin: vm,
+				filtersActiveTab: 'props',
+				filtersOperationScope: 'filtered',
+			},
+		});
+		flushSync();
+
+		vm.activeFnRIslandService?.setMode('add-prop');
+		vm.activeFnRIslandService?.setQuery('status: ready');
+		vm.activeFnRIslandService?.submit();
+		flushSync();
+
+		expect(vm.queueService.add).toHaveBeenCalledOnce();
+		const change = (vm.queueService.add as ReturnType<typeof vi.fn>).mock.calls[0][0];
+		expect(change).toMatchObject({
+			type: 'property',
+			action: 'set',
+			property: 'status',
+			value: 'ready',
+		});
+		expect(change.files).toEqual(vm.app.vault.getMarkdownFiles());
+	});
+
+	it('wires prop.set context actions to the panel FnR island', () => {
+		const vm = plugin() as VaultmanPlugin & {
+			activeFnRIslandService?: { snapshot(): { mode: string; query: string; expanded: boolean } } | null;
+		};
+
+		app = mount(PageFilters as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: {
+				plugin: vm,
+				filtersActiveTab: 'props',
+			},
+		});
+		flushSync();
+
+		const action = (
+			vm.contextMenuService.registerAction as ReturnType<typeof vi.fn>
+		).mock.calls.find(([candidate]) => candidate.id === 'prop.set')?.[0];
+		expect(action).toBeTruthy();
+
+		action.run({
+			nodeType: 'prop',
+			node: {
+				id: 'status',
+				label: 'status',
+				depth: 0,
+				meta: { propName: 'status', propType: 'text', isValueNode: false },
+			},
+			surface: 'panel',
+		});
+		flushSync();
+
+		expect(vm.activeFnRIslandService?.snapshot()).toMatchObject({
+			mode: 'add-prop',
+			query: 'status: ',
+			expanded: true,
+		});
 	});
 });

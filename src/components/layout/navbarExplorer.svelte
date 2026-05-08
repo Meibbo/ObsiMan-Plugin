@@ -29,6 +29,7 @@
 		rename: 'rename',
 		replace: 'replace',
 		add: 'add',
+		'add-prop': 'add prop',
 	};
 
 	let {
@@ -101,7 +102,6 @@
 	let searchFocused = $state(false);
 	let helpOpen = $state(false);
 	let renameInput = $state<HTMLInputElement | undefined>();
-	let toolbarRoot = $state<HTMLDivElement | undefined>();
 	let searchboxRoot = $state<HTMLDivElement | undefined>();
 
 	// Local mirror of the rune service so the template stays reactive when
@@ -294,7 +294,6 @@
 <div
 	class="vm-navbar-filters vm-glass vm-glass--top"
 	class:vm-toolbar-takeover={islandExpanded}
-	bind:this={toolbarRoot}
 >
 	<div class="vm-filters-header-wrap">
 		{#if headerMode === 'header'}

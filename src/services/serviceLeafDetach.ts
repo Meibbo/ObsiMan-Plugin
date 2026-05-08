@@ -62,8 +62,8 @@ export class LeafDetachService {
 
 	/** Read persisted state from plugin data. */
 	async load(): Promise<void> {
-		const raw = (await this.store.loadData()) as Record<string, unknown> | null;
-		const block = raw && typeof raw === 'object' ? (raw as Record<string, unknown>)[DATA_KEY] : null;
+		const raw = await this.store.loadData();
+		const block = isRecord(raw) ? raw[DATA_KEY] : null;
 		this.state = sanitize(block);
 	}
 
@@ -143,4 +143,8 @@ function sanitize(raw: unknown): LeafDetachState {
 		if (obj[tabId] === true) out[tabId] = true;
 	}
 	return out;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return value !== null && typeof value === 'object';
 }

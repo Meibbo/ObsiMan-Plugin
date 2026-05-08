@@ -17,10 +17,20 @@ describe('serviceFileQueue', () => {
 		expect(change?.logicFunc(file, {})).toEqual({ [RENAME_FILE]: 'b.md' });
 	});
 
+	it('preserves the original file extension when rename input omits or changes it', () => {
+		const file = mockTFile('Assets/photo.jpg');
+		const withoutExtension = buildFileRenameChange(file, 'cover');
+		const changedExtension = buildFileRenameChange(file, 'cover.png');
+
+		expect(withoutExtension?.logicFunc(file, {})).toEqual({ [RENAME_FILE]: 'cover.jpg' });
+		expect(changedExtension?.logicFunc(file, {})).toEqual({ [RENAME_FILE]: 'cover.jpg' });
+	});
+
 	it('does not build no-op file rename changes', () => {
 		const file = mockTFile('Notes/a.md');
 
 		expect(buildFileRenameChange(file, 'a.md')).toBeNull();
+		expect(buildFileRenameChange(file, 'a')).toBeNull();
 		expect(buildFileRenameChange(file, '')).toBeNull();
 	});
 

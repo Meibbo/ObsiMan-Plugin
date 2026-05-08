@@ -153,6 +153,7 @@ export const en: Record<string, string> = {
 	'queue.op_type.file_delete': 'DELETE FILE',
 	'queue.op_type.template': 'TEMPLATE',
 	'queue.op_type.tag': 'TAG',
+	'queue.op_type.link_append': 'APPEND LINKS',
 
 	// viewDiff toggle labels (§13.3)
 	'queue.view_diff.only_changes': 'Only changes',

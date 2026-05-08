@@ -103,7 +103,6 @@ const DEFAULT_LOGGER: ResolveLogger = {
 	warn(message, meta) {
 		// Routed to console until the dedicated ops-log channel ships
 		// (see specs/2026-05-07-multifacet-2/02-hover-badges-and-ops-log.md).
-		// eslint-disable-next-line no-console
 		console.warn(`[FnRTemplate] ${message}`, meta ?? {});
 	},
 };

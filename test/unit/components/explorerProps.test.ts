@@ -319,6 +319,33 @@ describe('explorerProps search', () => {
 		});
 	});
 
+	it('routes set hover badges for prop and value nodes', () => {
+		const openPropSetIsland = vi.fn();
+		const plugin = makePlugin();
+		const explorer = new explorerProps(plugin, { openPropSetIsland }) as explorerProps & {
+			handleHoverBadge?: (node: ReturnType<explorerProps['getTree']>[number], kind: string) => void;
+		};
+		const statusNode = explorer.getTree().find((node) => node.id === 'status');
+		const draftNode = statusNode?.children?.find((node) => node.label === 'draft');
+
+		expect(statusNode).toBeTruthy();
+		expect(draftNode).toBeTruthy();
+		expect(typeof explorer.handleHoverBadge).toBe('function');
+
+		explorer.handleHoverBadge?.(statusNode!, 'set');
+		explorer.handleHoverBadge?.(draftNode!, 'set');
+
+		expect(openPropSetIsland).toHaveBeenCalledWith('status');
+		expect(plugin.queueService.add).toHaveBeenCalledOnce();
+		const change = (plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls[0][0];
+		expect(change).toMatchObject({
+			type: 'property',
+			action: 'set',
+			property: 'status',
+			value: 'draft',
+		});
+	});
+
 	it('queues ctxmenu delete for properties whose indexed name casing differs from frontmatter', () => {
 		const file = mockTFile('bench.md', { frontmatter: { pressBarBench: 1820 } });
 		const files = [file] as TFile[];

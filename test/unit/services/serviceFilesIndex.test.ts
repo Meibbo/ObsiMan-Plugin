@@ -3,14 +3,16 @@ import { mockApp, mockTFile } from '../../helpers/obsidian-mocks';
 import { createFilesIndex } from '../../../src/index/indexFiles';
 
 describe('serviceFilesIndex', () => {
-	it('builds FileNode[] from vault.getMarkdownFiles', async () => {
-		const files = [mockTFile('notes/a.md'), mockTFile('notes/b.md')];
+	it('builds FileNode[] from every vault file, not only markdown files', async () => {
+		const files = [mockTFile('notes/a.md'), mockTFile('assets/manual.pdf')];
 		const app = mockApp({ files });
 		const idx = createFilesIndex(app);
 		await idx.refresh();
 		expect(idx.nodes.length).toBe(2);
 		expect(idx.nodes[0].path).toBe('notes/a.md');
 		expect(idx.nodes[0].file).toBe(files[0]);
+		expect(idx.nodes[1].path).toBe('assets/manual.pdf');
+		expect(idx.nodes[1].file).toBe(files[1]);
 	});
 
 	it('byId is the file path', async () => {

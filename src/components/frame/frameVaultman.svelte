@@ -5,10 +5,10 @@
 //*                                                                  *\\
 //*           Made with love for tools that last and help.           *\\
 //*                                                                  *\\
-//*     (ã¥ï¿£ 3ï¿£)ã¥    â˜†*: .ï½¡. o(â‰§â–½â‰¦)o .ï½¡.:*â˜†     â•°(*Â°â–½Â°*)â•¯      *\\
+//*    	                                                             *\\
 //*******************************************************************-->
 
-<!--...---------â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”(   IMPORTS   )â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”----------...-->
+<!--...-----------------------(   IMPORTS   )---------------------...-->
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
 	import { setIcon } from 'obsidian';
@@ -22,8 +22,8 @@
 	import BottomNav from '../layout/navbarPillFab.svelte';
 	import PopupOverlay from '../layout/overlays/layoutOverlay.svelte';
 	import PopupIsland from '../layout/overlays/overlayIsland.svelte';
-	import ExplorerQueueComp from '../explorers/explorerQueue.svelte';
-	import ExplorerActiveFiltersComp from '../explorers/explorerActiveFilters.svelte';
+	import ExplorerQueueComp from '../containers/explorerQueue.svelte';
+	import ExplorerActiveFiltersComp from '../containers/explorerActiveFilters.svelte';
 
 	import { FolderSuggest } from '../../utils/autocomplete';
 	import { translate } from '../../index/i18n/lang';

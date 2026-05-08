@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-handoff.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-07T17:18:41
+updated: 2026-05-08T00:30:00
 tags:
   - agent/current
 created_by: dec
@@ -36,6 +36,10 @@ Archived completed/superseded handoff:
 - Current docs policy now says active-work detail goes in initiative source
   records, while status/handoff keep compact wikilinks:
   [[docs/work/pkm-ai/items/vm-0002-current-docs-as-route-indexes|current docs as route indexes]].
+- 2026-05-08 backlog cut 1 is done:
+  [[docs/work/hardening/backlog/2026-05-08-backlog-cut-1/index|navigation, queue removal, all-files explorer, and rename extension safety]].
+  Remaining backlog starts with mouse click behavior, multi-selected badge ops,
+  contradiction warnings, filter ingestion, and tabcontent search UX.
 - Phase 1 selection service is present and verified. Phase 2 tree adapter is
   implemented and verified in the current worktree.
 - Phase 3 provider actions is implemented and verified.

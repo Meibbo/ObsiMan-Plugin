@@ -5,7 +5,7 @@ import {
 	createFnRState,
 	startPropRenameHandoff,
 	updateRenameHandoffReplacement,
-} from '../../../src/services/serviceFnR.svelte';
+} from '../../../src/services/serviceFnR';
 import {
 	DELETE_PROP,
 	NATIVE_RENAME_PROP,
@@ -398,6 +398,21 @@ describe('OperationQueueService.removeOp', () => {
 		const before = svc.opCount;
 		svc.removeOp(file.path, 'op-9999');
 		expect(svc.opCount).toBe(before);
+	});
+});
+
+describe('OperationQueueService.remove', () => {
+	it('emits one changed event after removing an individual staged op by id', async () => {
+		const { svc, file } = setupAppWithFile();
+		await svc.addAsync(buildPropChange(file, 'x', '1'));
+		const id = svc.getTransaction(file.path)!.ops[0].id;
+		const cb = vi.fn();
+		svc.on('changed', cb);
+
+		svc.remove(id);
+
+		expect(svc.getTransaction(file.path)).toBeUndefined();
+		expect(cb).toHaveBeenCalledTimes(1);
 	});
 });
 
