@@ -512,6 +512,7 @@
 			exitReorder={navReorder.exitReorder}
 			{navigateTo}
 			{icon}
+			mouseGestureConfig={plugin.settings?.mouseGestures?.fab}
 		/>
 	</div>
 </div>

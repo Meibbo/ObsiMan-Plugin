@@ -11,6 +11,14 @@
 		type ActiveOpsByNode,
 		type BadgeKind,
 	} from '../../services/badgeRegistry';
+	import {
+		NODE_MOUSE_GESTURE_CONFIG,
+		NODE_MOUSE_IGNORE_SELECTOR,
+		createMouseGestureService,
+		isIgnoredMouseTarget,
+		mergeMouseGestureConfig,
+		type MouseGestureConfig,
+	} from '../../services/serviceMouse';
 
 	const HOVER_BADGE_ICONS: Record<BadgeKind, string> = {
 		set: 'lucide-pencil-line',
@@ -43,6 +51,7 @@
 		onRowClick: (id: string, e: MouseEvent) => void;
 		onPrimaryAction?: (id: string, e: MouseEvent) => void;
 		onSecondaryAction?: (id: string, e: MouseEvent) => void;
+		onTertiaryAction?: (id: string, e: MouseEvent) => void;
 		onBoxSelect?: (ids: string[], e: PointerEvent) => void;
 		onContextMenu: (id: string, e: MouseEvent) => void;
 		onRowKeydown?: (id: string, e: KeyboardEvent) => void;
@@ -56,6 +65,7 @@
 		onHoverBadgeAction?: (id: string, kind: BadgeKind, e: MouseEvent | KeyboardEvent) => void;
 		activeOpsByNode?: ActiveOpsByNode;
 		scrollTarget?: ScrollTarget | null;
+		mouseGestureConfig?: MouseGestureConfig;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	}
 
@@ -68,6 +78,7 @@
 		onRowClick,
 		onPrimaryAction,
 		onSecondaryAction,
+		onTertiaryAction,
 		onBoxSelect,
 		onContextMenu,
 		onRowKeydown,
@@ -81,6 +92,7 @@
 		onHoverBadgeAction,
 		activeOpsByNode,
 		scrollTarget = null,
+		mouseGestureConfig,
 		icon,
 	}: Props = $props();
 
@@ -115,6 +127,12 @@
 	} | null>(null);
 	let suppressNextClick = false;
 	let rowHeightFrame: number | null = null;
+	const mouse = createMouseGestureService();
+	const nodeMouseConfig = $derived(
+		mergeMouseGestureConfig(NODE_MOUSE_GESTURE_CONFIG, mouseGestureConfig),
+	);
+
+	$effect(() => () => mouse.cancelAll());
 
 	const flatArray = $derived(flattenMeasured(nodes, expandedIds));
 	const rowVirtualizer = createVirtualizer<HTMLDivElement, HTMLDivElement>({
@@ -224,12 +242,25 @@
 			e.stopPropagation();
 			return;
 		}
-		onRowClick(id, e);
+		mouse.handleClick(
+			{ key: `tree:${id}`, eventTarget: e.target, ignoreSelector: NODE_MOUSE_IGNORE_SELECTOR },
+			e,
+			{
+				primary: (event) => onRowClick(id, event),
+				secondary: (event) => onSecondaryAction?.(id, event),
+				tertiary: (event) => onTertiaryAction?.(id, event),
+			},
+			nodeMouseConfig,
+		);
 	}
 
-	function handleSecondaryAction(e: MouseEvent, id: string) {
-		e.stopPropagation();
-		onSecondaryAction?.(id, e);
+	function handleRowAuxClick(e: MouseEvent, id: string) {
+		mouse.handleAuxClick(
+			{ key: `tree:${id}`, eventTarget: e.target, ignoreSelector: NODE_MOUSE_IGNORE_SELECTOR },
+			e,
+			{ tertiary: (event) => onTertiaryAction?.(id, event) },
+			nodeMouseConfig,
+		);
 	}
 
 	function handlePointerDown(e: PointerEvent) {
@@ -281,12 +312,7 @@
 	}
 
 	function shouldIgnoreBoxStart(target: EventTarget | null): boolean {
-		const el = target instanceof HTMLElement ? target : null;
-		return Boolean(
-			el?.closest(
-				'input, textarea, select, button, .vm-tree-toggle, .vm-badge, .vm-tree-child-badge-indicator, [role="button"]',
-			),
-		);
+		return isIgnoredMouseTarget(target, NODE_MOUSE_IGNORE_SELECTOR);
 	}
 
 	function makeSelectionBox(startX: number, startY: number, endX: number, endY: number) {
@@ -478,7 +504,7 @@
 				style="--vm-tree-y: {virtualRow.start}px; --depth: {flat.depth}"
 				data-id={node.id}
 				onclick={(e) => handleRowClick(e, node.id)}
-				ondblclick={(e) => handleSecondaryAction(e, node.id)}
+				onauxclick={(e) => handleRowAuxClick(e, node.id)}
 				oncontextmenu={(e) => onContextMenu(node.id, e)}
 				onkeydown={(e) => handleKeydown(e, node.id)}
 				role="treeitem"
@@ -502,7 +528,6 @@
 							e.stopPropagation();
 							if (flat.hasChildren) onToggle(node.id);
 						}}
-						ondblclick={(e) => e.stopPropagation()}
 						onkeydown={() => {}}
 						role="button"
 						tabindex="-1"

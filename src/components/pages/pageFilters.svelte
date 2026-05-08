@@ -399,6 +399,7 @@
 	{addOpCount}
 	{icon}
 	{fnrIslandService}
+	mouseGestureConfig={plugin.settings?.mouseGestures?.toolbar}
 	onCrear={handleCrear}
 />
 

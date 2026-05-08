@@ -113,4 +113,32 @@ describe('NavbarExplorer menu click weights', () => {
 
 		expect(target.querySelector('.vm-sort-popup [aria-label*="Name ↓"]')).not.toBeNull();
 	});
+
+	it('middle clicking the view control restores tree view', () => {
+		render();
+		const viewBtn = target.querySelector<HTMLElement>('[aria-label="View mode"]')!;
+
+		viewBtn.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }));
+		viewBtn.click();
+		vi.advanceTimersByTime(260);
+		flushSync();
+
+		expect(
+			target.querySelector('.vm-viewmode-popup [aria-label="Tree"]')?.classList.contains(
+				'is-accent',
+			),
+		).toBe(true);
+	});
+
+	it('middle clicking the sort control restores name descending sort', () => {
+		render();
+		const sortBtn = target.querySelector<HTMLElement>('[aria-label="Sort"]')!;
+
+		sortBtn.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }));
+		sortBtn.click();
+		vi.advanceTimersByTime(260);
+		flushSync();
+
+		expect(target.querySelector('.vm-sort-popup [aria-label*="Name ↓"]')).not.toBeNull();
+	});
 });

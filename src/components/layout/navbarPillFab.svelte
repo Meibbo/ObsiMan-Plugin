@@ -1,7 +1,12 @@
 <script lang="ts">
 	import type { FabDef } from '../../types/typePrimitives';
 	import { translate } from '../../index/i18n/lang';
-	import { useDoubleClick } from '../../utils/useDoubleClick';
+	import {
+		COMMAND_MOUSE_GESTURE_CONFIG,
+		createMouseGestureService,
+		mergeMouseGestureConfig,
+		type MouseGestureConfig,
+	} from '../../services/serviceMouse';
 
 	let {
 		isIslandOpen = false,
@@ -26,6 +31,7 @@
 		exitReorder,
 		navigateTo,
 		icon,
+		mouseGestureConfig,
 	}: {
 		isIslandOpen?: boolean;
 		pageOrder: string[];
@@ -49,6 +55,7 @@
 		exitReorder: () => void;
 		navigateTo: (page: string) => void;
 		icon: (node: HTMLElement, name: string) => any;
+		mouseGestureConfig?: MouseGestureConfig;
 	} = $props();
 
 	function badgeCountForFab(fab: FabDef | null): number {
@@ -65,52 +72,62 @@
 
 	const leftFabBadgeCount = $derived(badgeCountForFab(leftFab));
 	const rightFabBadgeCount = $derived(badgeCountForFab(rightFab));
+	const mouse = createMouseGestureService();
 
-	// FAB click dispatchers — when a FAB exposes `onDoubleClick`, route
-	// clicks through `useDoubleClick` so a single click still toggles the
-	// popup and a double click within 250 ms clears the underlying state.
-	const leftFabClick = $derived.by(() => makeFabClickHandler(leftFab));
-	const rightFabClick = $derived.by(() => makeFabClickHandler(rightFab));
+	$effect(() => () => mouse.cancelAll());
 
-	function makeFabClickHandler(fab: FabDef | null): (e: MouseEvent) => void {
+	// FAB dispatchers are intentionally resolved by serviceMouse so primary,
+	// secondary, and tertiary gestures can later be remapped from settings.
+	const leftFabClick = $derived.by(() => makeFabClickHandler(leftFab, 'left'));
+	const rightFabClick = $derived.by(() => makeFabClickHandler(rightFab, 'right'));
+	const leftFabAuxClick = $derived.by(() => makeFabAuxClickHandler(leftFab, 'left'));
+	const rightFabAuxClick = $derived.by(() => makeFabAuxClickHandler(rightFab, 'right'));
+
+	function mouseConfigForFab(fab: FabDef): MouseGestureConfig {
+		return mergeMouseGestureConfig(
+			COMMAND_MOUSE_GESTURE_CONFIG,
+			{
+				secondary: fab.onDoubleClick ? 'double-click' : [],
+				tertiary: fab.onTertiaryClick ? ['alt-click', 'middle-click'] : [],
+			},
+			mouseGestureConfig,
+		);
+	}
+
+	function makeFabClickHandler(fab: FabDef | null, side: 'left' | 'right'): (e: MouseEvent) => void {
 		if (!fab) return () => {};
-		if (fab.onTertiaryClick) {
-			const dbl = fab.onDoubleClick
-				? useDoubleClick({
-						onSingle: () => fab.action?.(),
-						onDouble: () => fab.onDoubleClick?.(),
-						threshold: 250,
-					})
-				: null;
-			return (e: MouseEvent) => {
-				e.stopPropagation();
-				if (e.altKey) {
-					e.preventDefault();
-					dbl?.cancel();
-					fab.onTertiaryClick?.();
-					return;
-				}
-				if (!dbl) {
-					fab.action?.();
-					return;
-				}
-				dbl.handleClick(e);
-			};
-		}
-		if (!fab.onDoubleClick) {
-			return (e: MouseEvent) => {
-				e.stopPropagation();
-				fab.action?.();
-			};
-		}
-		const dbl = useDoubleClick({
-			onSingle: () => fab.action?.(),
-			onDouble: () => fab.onDoubleClick?.(),
-			threshold: 250,
-		});
 		return (e: MouseEvent) => {
 			e.stopPropagation();
-			dbl.handleClick(e);
+			mouse.handleClick(
+				{ key: `fab:${side}`, eventTarget: e.target },
+				e,
+				{
+					primary: () => fab.action?.(),
+					secondary: () => fab.onDoubleClick?.(),
+					tertiary: () => fab.onTertiaryClick?.(),
+				},
+				mouseConfigForFab(fab),
+			);
+		};
+	}
+
+	function makeFabAuxClickHandler(
+		fab: FabDef | null,
+		side: 'left' | 'right',
+	): (e: MouseEvent) => void {
+		if (!fab) return () => {};
+		return (e: MouseEvent) => {
+			e.stopPropagation();
+			mouse.handleAuxClick(
+				{ key: `fab:${side}`, eventTarget: e.target },
+				e,
+				{
+					primary: () => fab.action?.(),
+					secondary: () => fab.onDoubleClick?.(),
+					tertiary: () => fab.onTertiaryClick?.(),
+				},
+				mouseConfigForFab(fab),
+			);
 		};
 	}
 </script>
@@ -142,6 +159,7 @@
 				aria-label={leftFab.label}
 				use:icon={leftFab.icon}
 				onclick={leftFabClick}
+				onauxclick={leftFabAuxClick}
 				onkeydown={(e: KeyboardEvent) => {
 					if (e.key === 'Enter' || e.key === ' ') {
 						e.stopPropagation();
@@ -213,6 +231,7 @@
 				aria-label={rightFab.label}
 				use:icon={rightFab.icon}
 				onclick={rightFabClick}
+				onauxclick={rightFabAuxClick}
 				onkeydown={(e: KeyboardEvent) => {
 					if (e.key === 'Enter' || e.key === ' ') {
 						e.stopPropagation();

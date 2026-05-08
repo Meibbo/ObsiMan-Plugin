@@ -14,6 +14,13 @@
 	import type { NodeBase } from '../../types/typeContracts';
 	import type { ViewColumn, ViewRow } from '../../types/typeViews';
 	import { buildNodeTableColumnDefs } from '../../services/serviceViewTableAdapter';
+	import {
+		NODE_MOUSE_GESTURE_CONFIG,
+		NODE_MOUSE_IGNORE_SELECTOR,
+		createMouseGestureService,
+		mergeMouseGestureConfig,
+		type MouseGestureConfig,
+	} from '../../services/serviceMouse';
 
 	const TABLE_ROW_HEIGHT = 32;
 	const TABLE_OVERSCAN = 8;
@@ -31,10 +38,12 @@
 		onRowClick: (id: string, e: MouseEvent) => void;
 		onPrimaryAction?: (id: string, e: MouseEvent) => void;
 		onSecondaryAction?: (id: string, e: MouseEvent) => void;
+		onTertiaryAction?: (id: string, e: MouseEvent) => void;
 		onContextMenu: (id: string, e: MouseEvent) => void;
 		onRowKeydown?: (id: string, e: KeyboardEvent) => void;
 		onSelectAll?: (ids: string[], e: Event) => void;
 		scrollTarget?: ScrollTarget | null;
+		mouseGestureConfig?: MouseGestureConfig;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	}
 
@@ -47,15 +56,23 @@
 		onRowClick,
 		onPrimaryAction: _onPrimaryAction,
 		onSecondaryAction,
+		onTertiaryAction,
 		onContextMenu,
 		onRowKeydown,
 		onSelectAll,
 		scrollTarget = null,
+		mouseGestureConfig,
 		icon,
 	}: Props<TNode> = $props();
 
 	let outerEl: HTMLDivElement | undefined = $state();
 	let sorting: SortingState = $state([]);
+	const mouse = createMouseGestureService();
+	const nodeMouseConfig = $derived(
+		mergeMouseGestureConfig(NODE_MOUSE_GESTURE_CONFIG, mouseGestureConfig),
+	);
+
+	$effect(() => () => mouse.cancelAll());
 
 	const columnDefs = $derived(buildNodeTableColumnDefs(columns));
 	const rowSelection = $derived.by(() => {
@@ -169,9 +186,26 @@
 		return () => ro.disconnect();
 	}
 
-	function handleSecondaryAction(id: string, e: MouseEvent) {
-		e.stopPropagation();
-		onSecondaryAction?.(id, e);
+	function handleRowClick(id: string, e: MouseEvent) {
+		mouse.handleClick(
+			{ key: `table:${id}`, eventTarget: e.target, ignoreSelector: NODE_MOUSE_IGNORE_SELECTOR },
+			e,
+			{
+				primary: (event) => onRowClick(id, event),
+				secondary: (event) => onSecondaryAction?.(id, event),
+				tertiary: (event) => onTertiaryAction?.(id, event),
+			},
+			nodeMouseConfig,
+		);
+	}
+
+	function handleRowAuxClick(id: string, e: MouseEvent) {
+		mouse.handleAuxClick(
+			{ key: `table:${id}`, eventTarget: e.target, ignoreSelector: NODE_MOUSE_IGNORE_SELECTOR },
+			e,
+			{ tertiary: (event) => onTertiaryAction?.(id, event) },
+			nodeMouseConfig,
+		);
 	}
 
 	function handleTableKeydown(e: KeyboardEvent) {
@@ -249,8 +283,8 @@
 					role="row"
 					tabindex="0"
 					aria-selected={isSelected}
-					onclick={(e) => onRowClick(id, e)}
-					ondblclick={(e) => handleSecondaryAction(id, e)}
+					onclick={(e) => handleRowClick(id, e)}
+					onauxclick={(e) => handleRowAuxClick(id, e)}
 					oncontextmenu={(e) => onContextMenu(id, e)}
 					onkeydown={(e) => onRowKeydown?.(id, e)}
 					style:--vm-node-table-y={`${virtualRow.start}px`}

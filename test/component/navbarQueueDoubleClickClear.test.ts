@@ -124,4 +124,31 @@ describe('Navbar queue badge click weights', () => {
 		expect(action).not.toHaveBeenCalled();
 		expect(onDoubleClick).not.toHaveBeenCalled();
 	});
+
+	it('middle click runs the tertiary queue action immediately', () => {
+		const action = vi.fn();
+		const onDoubleClick = vi.fn();
+		const onTertiaryClick = vi.fn();
+		const leftFab: FabDef = {
+			icon: 'lucide-list-checks',
+			label: 'Queue',
+			action,
+			onDoubleClick,
+			onTertiaryClick,
+			badgeKind: 'queue',
+		};
+		app = mount(NavbarPillFab as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: baseProps({ leftFab, queuedCount: 3 }),
+		});
+		flushSync();
+
+		const fab = target.querySelector<HTMLDivElement>('.vm-nav-fab');
+		fab!.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }));
+		vi.advanceTimersByTime(300);
+
+		expect(onTertiaryClick).toHaveBeenCalledTimes(1);
+		expect(action).not.toHaveBeenCalled();
+		expect(onDoubleClick).not.toHaveBeenCalled();
+	});
 });

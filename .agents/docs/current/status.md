@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-status.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-08T00:30:00
+updated: 2026-05-08T04:09:11
 tags:
   - agent/current
 created_by: dec
@@ -89,9 +89,19 @@ Archived completed/superseded status:
 - 2026-05-08 backlog cut 2 DONE:
   [[docs/work/hardening/backlog/2026-05-08-backlog-cut-2/index|mouse gestures, PageUp/PageDown reveal, content delete, PNG files, and view/sort click weights]].
   Focused unit/component tests, `pnpm run check`, `pnpm run lint`, and
-  `pnpm run build` pass with 0 lint/check warnings. New follow-up cuts are
-  recorded there for the live viewtree chevron click regression and
-  `serviceViewSize`/uniform node sizing.
+  `pnpm run build` pass with 0 lint/check warnings.
+- 2026-05-08 backlog cut 3 DONE:
+  [[docs/work/hardening/backlog/2026-05-08-backlog-cut-3/index|viewtree chevron live click regression]].
+  SVG chevron pointerdown no longer starts box-selection capture; focused
+  component tests, `check`, `lint`, `build`, and Obsidian CDP smoke passed.
+  Remaining named cut: cut 4 `serviceViewSize`/uniform node sizing.
+- 2026-05-08 backlog cut 3b DONE:
+  [[docs/work/hardening/backlog/2026-05-08-backlog-cut-3b-service-mouse/index|serviceMouse gesture routing]].
+  The chevron patch was generalized into `serviceMouse`: nodes, FABs,
+  view/sort controls, grid, and table now route primary/secondary/tertiary
+  mouse gestures through one configurable service. Middle mouse can trigger
+  tertiary. Focused service unit/component suites, `check`, `lint`, `build`,
+  scoped diff-check, and Obsidian CLI smoke are green.
 - Node selection service Phase 1 is present and verified. This continuation
   made one lint-only refactor in `serviceSelection.svelte.ts` after the
   service unit tests were green.

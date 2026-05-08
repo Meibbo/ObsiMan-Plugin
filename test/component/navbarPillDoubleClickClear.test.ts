@@ -126,4 +126,61 @@ describe('Navbar active-filters pill click weights', () => {
 		expect(action).not.toHaveBeenCalled();
 		expect(onDoubleClick).not.toHaveBeenCalled();
 	});
+
+	it('middle click calls onTertiaryClick without waiting for the single-click debounce', () => {
+		const action = vi.fn();
+		const onDoubleClick = vi.fn();
+		const onTertiaryClick = vi.fn();
+		const rightFab: FabDef = {
+			icon: 'lucide-sparkles',
+			label: 'Active filters',
+			action,
+			onDoubleClick,
+			onTertiaryClick,
+			badgeKind: 'filters',
+		};
+		app = mount(NavbarPillFab as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: baseProps({ rightFab }),
+		});
+		flushSync();
+
+		const fab = target.querySelectorAll<HTMLDivElement>('.vm-nav-fab')[0];
+		fab.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }));
+		vi.advanceTimersByTime(300);
+
+		expect(onTertiaryClick).toHaveBeenCalledTimes(1);
+		expect(action).not.toHaveBeenCalled();
+		expect(onDoubleClick).not.toHaveBeenCalled();
+	});
+
+	it('honours config that removes middle click from tertiary gestures', () => {
+		const action = vi.fn();
+		const onDoubleClick = vi.fn();
+		const onTertiaryClick = vi.fn();
+		const rightFab: FabDef = {
+			icon: 'lucide-sparkles',
+			label: 'Active filters',
+			action,
+			onDoubleClick,
+			onTertiaryClick,
+			badgeKind: 'filters',
+		};
+		app = mount(NavbarPillFab as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: baseProps({
+				rightFab,
+				mouseGestureConfig: { tertiary: ['alt-click'] },
+			}),
+		});
+		flushSync();
+
+		const fab = target.querySelectorAll<HTMLDivElement>('.vm-nav-fab')[0];
+		fab.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }));
+		vi.advanceTimersByTime(300);
+
+		expect(onTertiaryClick).not.toHaveBeenCalled();
+		expect(action).not.toHaveBeenCalled();
+		expect(onDoubleClick).not.toHaveBeenCalled();
+	});
 });

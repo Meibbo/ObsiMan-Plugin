@@ -38,6 +38,7 @@ describe('ViewNodeTable', () => {
 			onRowClick: vi.fn(),
 			onPrimaryAction: vi.fn(),
 			onSecondaryAction: vi.fn(),
+			onTertiaryAction: vi.fn(),
 			onContextMenu: vi.fn(),
 			onRowKeydown: vi.fn(),
 			onSelectAll: vi.fn(),
@@ -73,11 +74,10 @@ describe('ViewNodeTable', () => {
 
 	it('reports row click, secondary action, keyboard, and context menu intent', () => {
 		const handlers = renderTable();
+		const alpha = target.querySelector('[data-id="alpha"]') as HTMLElement;
 
-		(target.querySelector('[data-id="alpha"]') as HTMLElement).click();
-		(target.querySelector('[data-id="alpha"]') as HTMLElement).dispatchEvent(
-			new MouseEvent('dblclick', { bubbles: true }),
-		);
+		alpha.click();
+		alpha.click();
 		(target.querySelector('[data-id="beta"]') as HTMLElement).dispatchEvent(
 			new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
 		);
@@ -90,6 +90,17 @@ describe('ViewNodeTable', () => {
 		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
 		expect(handlers.onRowKeydown).toHaveBeenCalledWith('beta', expect.any(KeyboardEvent));
 		expect(handlers.onContextMenu).toHaveBeenCalledWith('beta', expect.any(MouseEvent));
+	});
+
+	it('reports tertiary action from middle-clicked table rows', () => {
+		const handlers = renderTable();
+		const beta = target.querySelector('[data-id="beta"]') as HTMLElement;
+
+		beta.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }));
+
+		expect(handlers.onTertiaryAction).toHaveBeenCalledWith('beta', expect.any(MouseEvent));
+		expect(handlers.onRowClick).not.toHaveBeenCalled();
+		expect(handlers.onSecondaryAction).not.toHaveBeenCalled();
 	});
 
 	it('uses TanStack sorting when a sortable header is clicked', () => {

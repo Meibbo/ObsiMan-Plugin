@@ -50,8 +50,10 @@ describe('ViewTree selection gestures', () => {
 			onRowClick: (id: string, e: MouseEvent) => void;
 			onPrimaryAction: (id: string, e: MouseEvent) => void;
 			onSecondaryAction: (id: string, e: MouseEvent) => void;
+			onTertiaryAction: (id: string, e: MouseEvent) => void;
 			onContextMenu: (id: string, e: MouseEvent) => void;
 			onBadgeDoubleClick: (queueIndex: number) => void;
+			icon: (node: HTMLElement, name: string) => { update(n: string): void };
 		}> = {},
 	) {
 		const defaults = {
@@ -60,6 +62,7 @@ describe('ViewTree selection gestures', () => {
 			onRowClick: vi.fn(),
 			onPrimaryAction: vi.fn(),
 			onSecondaryAction: vi.fn(),
+			onTertiaryAction: vi.fn(),
 			onContextMenu: vi.fn(),
 			icon: vi.fn(() => ({ update: vi.fn() })),
 		};
@@ -77,6 +80,7 @@ describe('ViewTree selection gestures', () => {
 			onRowClick: props.onRowClick ?? defaults.onRowClick,
 			onPrimaryAction: props.onPrimaryAction ?? defaults.onPrimaryAction,
 			onSecondaryAction: props.onSecondaryAction ?? defaults.onSecondaryAction,
+			onTertiaryAction: props.onTertiaryAction ?? defaults.onTertiaryAction,
 		};
 	}
 
@@ -96,6 +100,44 @@ describe('ViewTree selection gestures', () => {
 
 		(target.querySelector('.vm-tree-toggle') as HTMLElement).click();
 
+		expect(handlers.onToggle).toHaveBeenCalledOnce();
+		expect(handlers.onToggle).toHaveBeenCalledWith('parent');
+		expect(handlers.onRowClick).not.toHaveBeenCalled();
+		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
+	});
+
+	it('does not start box selection when the SVG inside a chevron receives pointerdown', () => {
+		const handlers = renderTree(
+			[
+				{
+					id: 'parent',
+					label: 'Parent',
+					depth: 0,
+					meta: {},
+					children: [{ id: 'child', label: 'Child', depth: 1, meta: {} }],
+				},
+			],
+			{
+				expandedIds: new Set(['parent']),
+				icon: iconWithSvg,
+			},
+		);
+		const tree = target.querySelector('.vm-tree-virtual-outer') as HTMLElement;
+		const svg = target.querySelector('.vm-tree-toggle svg') as SVGElement;
+		const setPointerCapture = vi.fn();
+		Object.assign(tree, {
+			setPointerCapture,
+			releasePointerCapture: vi.fn(),
+			hasPointerCapture: vi.fn(() => true),
+		});
+
+		svg.dispatchEvent(
+			new PointerEvent('pointerdown', { bubbles: true, button: 0, pointerId: 7 }),
+		);
+		svg.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, button: 0, pointerId: 7 }));
+		svg.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+		expect(setPointerCapture).not.toHaveBeenCalled();
 		expect(handlers.onToggle).toHaveBeenCalledOnce();
 		expect(handlers.onToggle).toHaveBeenCalledWith('parent');
 		expect(handlers.onRowClick).not.toHaveBeenCalled();
@@ -268,12 +310,10 @@ describe('ViewTree selection gestures', () => {
 			toJSON: () => ({}),
 		} as DOMRect);
 
-		row.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 12, clientY: 12 }));
 		row.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 12, clientY: 40 }));
 
-		expect(handlers.onRowClick).toHaveBeenCalledTimes(2);
-		expect(handlers.onRowClick).toHaveBeenNthCalledWith(1, 'status', expect.any(MouseEvent));
-		expect(handlers.onRowClick).toHaveBeenNthCalledWith(2, 'status', expect.any(MouseEvent));
+		expect(handlers.onRowClick).toHaveBeenCalledOnce();
+		expect(handlers.onRowClick).toHaveBeenCalledWith('status', expect.any(MouseEvent));
 		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
 	});
 
@@ -304,14 +344,54 @@ describe('ViewTree selection gestures', () => {
 				meta: {},
 			},
 		]);
+		const label = target.querySelector('.vm-tree-label') as HTMLElement;
 
-		(target.querySelector('.vm-tree-label') as HTMLElement).dispatchEvent(
-			new MouseEvent('dblclick', { bubbles: true }),
-		);
+		label.click();
+		label.click();
 
+		expect(handlers.onRowClick).toHaveBeenCalledOnce();
 		expect(handlers.onSecondaryAction).toHaveBeenCalledOnce();
 		expect(handlers.onSecondaryAction).toHaveBeenCalledWith('status', expect.any(MouseEvent));
 		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
+	});
+
+	it('double clicking the row surface reports the secondary action', () => {
+		const handlers = renderTree([
+			{
+				id: 'status',
+				label: 'Status',
+				depth: 0,
+				meta: {},
+			},
+		]);
+		const row = target.querySelector('[data-id="status"]') as HTMLElement;
+
+		row.click();
+		row.click();
+
+		expect(handlers.onRowClick).toHaveBeenCalledOnce();
+		expect(handlers.onSecondaryAction).toHaveBeenCalledOnce();
+		expect(handlers.onSecondaryAction).toHaveBeenCalledWith('status', expect.any(MouseEvent));
+		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
+	});
+
+	it('middle clicking a row surface reports the tertiary action', () => {
+		const handlers = renderTree([
+			{
+				id: 'status',
+				label: 'Status',
+				depth: 0,
+				meta: {},
+			},
+		]);
+		const row = target.querySelector('[data-id="status"]') as HTMLElement;
+
+		row.dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }));
+
+		expect(handlers.onTertiaryAction).toHaveBeenCalledOnce();
+		expect(handlers.onTertiaryAction).toHaveBeenCalledWith('status', expect.any(MouseEvent));
+		expect(handlers.onRowClick).not.toHaveBeenCalled();
+		expect(handlers.onSecondaryAction).not.toHaveBeenCalled();
 	});
 
 	it('marks selectable treeitems selected without treating active filters as selected', () => {
@@ -374,4 +454,15 @@ function rect(left: number, top: number, right: number, bottom: number): DOMRect
 		height: bottom - top,
 		toJSON: () => ({}),
 	} as DOMRect;
+}
+
+function iconWithSvg(el: HTMLElement, name: string) {
+	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+	svg.setAttribute('class', `svg-icon ${name}`);
+	el.replaceChildren(svg);
+	return {
+		update(n: string) {
+			svg.setAttribute('class', `svg-icon ${n}`);
+		},
+	};
 }

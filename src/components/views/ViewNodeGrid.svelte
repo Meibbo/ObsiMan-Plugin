@@ -8,6 +8,14 @@
 		type ActiveOpsByNode,
 		type BadgeKind,
 	} from '../../services/badgeRegistry';
+	import {
+		NODE_MOUSE_GESTURE_CONFIG,
+		NODE_MOUSE_IGNORE_SELECTOR,
+		createMouseGestureService,
+		isIgnoredMouseTarget,
+		mergeMouseGestureConfig,
+		type MouseGestureConfig,
+	} from '../../services/serviceMouse';
 
 	const HOVER_BADGE_ICONS: Record<BadgeKind, string> = {
 		set: 'lucide-pencil-line',
@@ -54,6 +62,7 @@
 		onTileClick: (id: string, e: MouseEvent) => void;
 		onPrimaryAction?: (id: string, e: MouseEvent) => void;
 		onSecondaryAction?: (id: string, e: MouseEvent) => void;
+		onTertiaryAction?: (id: string, e: MouseEvent) => void;
 		onBoxSelect?: (ids: string[], e: PointerEvent) => void;
 		onContextMenu: (id: string, e: MouseEvent) => void;
 		onTileKeydown?: (id: string, e: KeyboardEvent) => void;
@@ -61,6 +70,7 @@
 		activeOpsByNode?: ActiveOpsByNode;
 		onToggleExpand?: (id: string, e: MouseEvent | KeyboardEvent) => void;
 		scrollTarget?: ScrollTarget | null;
+		mouseGestureConfig?: MouseGestureConfig;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	}
 
@@ -74,6 +84,7 @@
 		onTileClick,
 		onPrimaryAction: _onPrimaryAction,
 		onSecondaryAction,
+		onTertiaryAction,
 		onBoxSelect,
 		onContextMenu,
 		onTileKeydown,
@@ -81,6 +92,7 @@
 		activeOpsByNode,
 		onToggleExpand,
 		scrollTarget = null,
+		mouseGestureConfig,
 		icon,
 	}: Props = $props();
 
@@ -113,6 +125,12 @@
 	} | null>(null);
 	let suppressNextClick = false;
 	let gridMetricsFrame: number | null = null;
+	const mouse = createMouseGestureService();
+	const nodeMouseConfig = $derived(
+		mergeMouseGestureConfig(NODE_MOUSE_GESTURE_CONFIG, mouseGestureConfig),
+	);
+
+	$effect(() => () => mouse.cancelAll());
 
 	const gridRows = $derived(buildGridRows(nodes, columnCount, hierarchyMode, expandedIds));
 	const rowVirtualizer = createVirtualizer<HTMLDivElement, HTMLDivElement>({
@@ -173,12 +191,25 @@
 			e.stopPropagation();
 			return;
 		}
-		onTileClick(id, e);
+		mouse.handleClick(
+			{ key: `grid:${id}`, eventTarget: e.target, ignoreSelector: NODE_MOUSE_IGNORE_SELECTOR },
+			e,
+			{
+				primary: (event) => onTileClick(id, event),
+				secondary: (event) => onSecondaryAction?.(id, event),
+				tertiary: (event) => onTertiaryAction?.(id, event),
+			},
+			nodeMouseConfig,
+		);
 	}
 
-	function handleSecondaryAction(id: string, e: MouseEvent) {
-		e.stopPropagation();
-		onSecondaryAction?.(id, e);
+	function handleTileAuxClick(id: string, e: MouseEvent) {
+		mouse.handleAuxClick(
+			{ key: `grid:${id}`, eventTarget: e.target, ignoreSelector: NODE_MOUSE_IGNORE_SELECTOR },
+			e,
+			{ tertiary: (event) => onTertiaryAction?.(id, event) },
+			nodeMouseConfig,
+		);
 	}
 
 	function scrollGridRowIntoView(rowIndex: number): void {
@@ -257,10 +288,7 @@
 	}
 
 	function shouldIgnoreBoxStart(target: EventTarget | null): boolean {
-		const el = target instanceof HTMLElement ? target : null;
-		return Boolean(
-			el?.closest('input, textarea, select, button, .vm-badge, [role="button"]'),
-		);
+		return isIgnoredMouseTarget(target, NODE_MOUSE_IGNORE_SELECTOR);
 	}
 
 	function makeSelectionBox(startX: number, startY: number, endX: number, endY: number) {
@@ -443,7 +471,7 @@
 		class:is-inline-hierarchy={hierarchyMode === 'inline'}
 		data-id={node.id}
 		onclick={(e) => handleTileClick(node.id, e)}
-		ondblclick={(e) => handleSecondaryAction(node.id, e)}
+		onauxclick={(e) => handleTileAuxClick(node.id, e)}
 		oncontextmenu={(e) => onContextMenu(node.id, e)}
 		onkeydown={(e) => handleTileKeydown(node.id, e)}
 		role="gridcell"

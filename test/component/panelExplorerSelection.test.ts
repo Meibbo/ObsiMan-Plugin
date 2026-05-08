@@ -165,10 +165,25 @@ describe('PanelExplorer tree selection adapter', () => {
 
 	it('label double click runs the provider secondary action', () => {
 		const { providerStub, selectionService } = renderPanel();
+		const label = target.querySelector('[data-id="beta"] .vm-tree-label') as HTMLElement;
 
-		(target.querySelector('[data-id="beta"] .vm-tree-label') as HTMLElement).dispatchEvent(
-			new MouseEvent('dblclick', { bubbles: true }),
+		label.click();
+		label.click();
+		flushSync();
+
+		expect([...selectionService.snapshot(EXPLORER_ID).ids]).toEqual(['beta']);
+		expect(providerStub.handleNodeClick).toHaveBeenCalledOnce();
+		expect(providerStub.handleNodeClick).toHaveBeenCalledWith(
+			expect.objectContaining({ id: 'beta' }),
 		);
+	});
+
+	it('row surface double click runs the provider secondary action', () => {
+		const { providerStub, selectionService } = renderPanel();
+		const row = target.querySelector('[data-id="beta"]') as HTMLElement;
+
+		row.click();
+		row.click();
 		flushSync();
 
 		expect([...selectionService.snapshot(EXPLORER_ID).ids]).toEqual(['beta']);
@@ -185,6 +200,26 @@ describe('PanelExplorer tree selection adapter', () => {
 
 		(target.querySelector('[data-id="beta"] .vm-tree-label') as HTMLElement).dispatchEvent(
 			new MouseEvent('click', { bubbles: true, altKey: true }),
+		);
+		flushSync();
+
+		expect([...selectionService.snapshot(EXPLORER_ID).ids]).toEqual([]);
+		expect(pluginStub.queueService.requestDelete).toHaveBeenCalledWith(
+			expect.objectContaining({
+				nodeId: 'beta',
+				nodeLabel: 'Beta',
+			}),
+		);
+		expect(providerStub.handleNodeClick).not.toHaveBeenCalled();
+	});
+
+	it('middle click routes the node tertiary action through delete conflict handling', () => {
+		const { pluginStub, providerStub, selectionService } = renderPanel({
+			provider: provider({ handleHoverBadge: vi.fn() }),
+		});
+
+		(target.querySelector('[data-id="beta"] .vm-tree-label') as HTMLElement).dispatchEvent(
+			new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }),
 		);
 		flushSync();
 
@@ -409,9 +444,9 @@ describe('PanelExplorer tree selection adapter', () => {
 		const providerStub = provider({ getTree: vi.fn(() => nestedNodes()) });
 		renderPanel({ viewMode: 'grid', provider: providerStub });
 
-		(target.querySelector('[data-id="parent"] .vm-node-grid-label') as HTMLElement).dispatchEvent(
-			new MouseEvent('dblclick', { bubbles: true }),
-		);
+		const parentTile = target.querySelector('[data-id="parent"]') as HTMLElement;
+		parentTile.click();
+		parentTile.click();
 		flushSync();
 
 		expect(target.querySelector('[data-id="parent"]')).toBeNull();
@@ -419,9 +454,9 @@ describe('PanelExplorer tree selection adapter', () => {
 		expect(target.querySelector('[data-id="child"]')).not.toBeNull();
 		expect(providerStub.handleNodeClick).not.toHaveBeenCalled();
 
-		(target.querySelector('[data-id="child"] .vm-node-grid-label') as HTMLElement).dispatchEvent(
-			new MouseEvent('dblclick', { bubbles: true }),
-		);
+		const childTile = target.querySelector('[data-id="child"]') as HTMLElement;
+		childTile.click();
+		childTile.click();
 		flushSync();
 
 		expect(providerStub.handleNodeClick).toHaveBeenCalledOnce();
@@ -437,9 +472,9 @@ describe('PanelExplorer tree selection adapter', () => {
 		});
 
 		expect(target.querySelector('.vm-grid-nav-toolbar')).not.toBeNull();
-		(target.querySelector('[data-id="parent"] .vm-node-grid-label') as HTMLElement).dispatchEvent(
-			new MouseEvent('dblclick', { bubbles: true }),
-		);
+		const parentTile = target.querySelector('[data-id="parent"]') as HTMLElement;
+		parentTile.click();
+		parentTile.click();
 		flushSync();
 		expect(target.querySelector('[data-id="child"]')).not.toBeNull();
 
@@ -456,9 +491,9 @@ describe('PanelExplorer tree selection adapter', () => {
 		flushSync();
 		expect(target.querySelector('[data-id="parent"]')).not.toBeNull();
 
-		(target.querySelector('[data-id="parent"] .vm-node-grid-label') as HTMLElement).dispatchEvent(
-			new MouseEvent('dblclick', { bubbles: true }),
-		);
+		const parentTileAgain = target.querySelector('[data-id="parent"]') as HTMLElement;
+		parentTileAgain.click();
+		parentTileAgain.click();
 		flushSync();
 		(target.querySelector('[data-vm-grid-crumb="root"]') as HTMLButtonElement).click();
 		flushSync();

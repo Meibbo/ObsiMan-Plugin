@@ -2,14 +2,13 @@
 	/**
 	 * IndicatorOrbitingInk.svelte
 	 * Organic loading indicator with gooey effect.
-	 * Based on "Indicator 18" from Organic Loading Indicators.
 	 */
 	interface Props {
 		size?: number;
 		color?: string;
 	}
 
-	let { size = 160, color = 'var(--text-accent)' }: Props = $props();
+	let { size = 28, color = 'var(--text-accent)' }: Props = $props();
 </script>
 
 <div

@@ -11,7 +11,12 @@
 	import { FnRIslandService, type FnRIslandMode } from '../../services/serviceFnRIsland.svelte';
 	import { getAddOpBuilder } from '../../registry/explorerAddOps';
 	import type { PendingChange } from '../../types/typeOps';
-	import { useDoubleClick } from '../../utils/useDoubleClick';
+	import {
+		COMMAND_MOUSE_GESTURE_CONFIG,
+		createMouseGestureService,
+		mergeMouseGestureConfig,
+		type MouseGestureConfig,
+	} from '../../services/serviceMouse';
 
 	type FiltersTab = 'props' | 'files' | 'tags' | 'content';
 	type HeaderMode = 'header' | 'sort' | 'viewmode';
@@ -59,6 +64,7 @@
 		addOpCount = 0,
 		fnrIslandService,
 		onCrear,
+		mouseGestureConfig,
 	}: {
 		activeTab: FiltersTab;
 		filtersSearch: string;
@@ -86,6 +92,7 @@
 		addOpCount?: number;
 		fnrIslandService?: FnRIslandService;
 		onCrear?: (change: PendingChange) => void;
+		mouseGestureConfig?: MouseGestureConfig;
 	} = $props();
 
 	const CATEGORY_LABELS: Record<FiltersTab, [string, string]> = {
@@ -106,6 +113,12 @@
 	let helpOpen = $state(false);
 	let renameInput = $state<HTMLInputElement | undefined>();
 	let searchboxRoot = $state<HTMLDivElement | undefined>();
+	const mouse = createMouseGestureService();
+	const toolbarMouseConfig = $derived(
+		mergeMouseGestureConfig(COMMAND_MOUSE_GESTURE_CONFIG, mouseGestureConfig),
+	);
+
+	$effect(() => () => mouse.cancelAll());
 
 	// Local mirror of the rune service so the template stays reactive when
 	// the parent forwards a service instance.
@@ -189,35 +202,49 @@
 		sortBy = 'name';
 		sortDirection = 'desc';
 	}
-	const viewClick = useDoubleClick({
-		onSingle: openViewModePopup,
-		onDouble: cycleOperationScope,
-		threshold: 250,
-	});
-	const sortClick = useDoubleClick({
-		onSingle: openSortPopup,
-		onDouble: () => onToggleNodeExpansion?.(),
-		threshold: 250,
-	});
 	function handleViewButtonClick(e: MouseEvent) {
 		e.stopPropagation();
-		if (e.altKey) {
-			e.preventDefault();
-			viewClick.cancel();
-			resetViewMode();
-			return;
-		}
-		viewClick.handleClick(e);
+		mouse.handleClick(
+			{ key: 'toolbar:view-mode', eventTarget: e.target },
+			e,
+			{
+				primary: openViewModePopup,
+				secondary: cycleOperationScope,
+				tertiary: resetViewMode,
+			},
+			toolbarMouseConfig,
+		);
 	}
 	function handleSortButtonClick(e: MouseEvent) {
 		e.stopPropagation();
-		if (e.altKey) {
-			e.preventDefault();
-			sortClick.cancel();
-			resetSortMode();
-			return;
-		}
-		sortClick.handleClick(e);
+		mouse.handleClick(
+			{ key: 'toolbar:sort', eventTarget: e.target },
+			e,
+			{
+				primary: openSortPopup,
+				secondary: () => onToggleNodeExpansion?.(),
+				tertiary: resetSortMode,
+			},
+			toolbarMouseConfig,
+		);
+	}
+	function handleViewButtonAuxClick(e: MouseEvent) {
+		e.stopPropagation();
+		mouse.handleAuxClick(
+			{ key: 'toolbar:view-mode', eventTarget: e.target },
+			e,
+			{ tertiary: resetViewMode },
+			toolbarMouseConfig,
+		);
+	}
+	function handleSortButtonAuxClick(e: MouseEvent) {
+		e.stopPropagation();
+		mouse.handleAuxClick(
+			{ key: 'toolbar:sort', eventTarget: e.target },
+			e,
+			{ tertiary: resetSortMode },
+			toolbarMouseConfig,
+		);
 	}
 	export function openSortMenu(): void {
 		openSortPopup();
@@ -567,6 +594,7 @@
 						tabindex="0"
 						aria-label={translate('filter.viewmode_btn')}
 						onclick={handleViewButtonClick}
+						onauxclick={handleViewButtonAuxClick}
 						onkeydown={(e: KeyboardEvent) => {
 							if (e.key === 'Enter' || e.key === ' ') openViewModePopup();
 						}}
@@ -578,6 +606,7 @@
 						tabindex="0"
 						aria-label={translate('filter.sort_btn')}
 						onclick={handleSortButtonClick}
+						onauxclick={handleSortButtonAuxClick}
 						onkeydown={(e: KeyboardEvent) => {
 							if (e.key === 'Enter' || e.key === ' ') openSortPopup();
 						}}

@@ -277,12 +277,6 @@
 	function handleNodeClick(id: string, e: MouseEvent) {
 		const node = findNodeById(nodes, id);
 		if (!node) return;
-		if (e.altKey) {
-			e.preventDefault();
-			handleTertiaryAction(id, e);
-			return;
-		}
-
 		const additive = e.ctrlKey || e.metaKey;
 		const range = e.shiftKey;
 		commitSelection(
@@ -860,6 +854,7 @@
 					onToggle={toggleExpand}
 					onRowClick={handleNodeClick}
 					onSecondaryAction={handleSecondaryAction}
+					onTertiaryAction={handleTertiaryAction}
 					onBoxSelect={handleBoxSelect}
 					onContextMenu={handleContextMenu}
 					onRowKeydown={handleRowKeydown}
@@ -867,6 +862,7 @@
 					onHoverBadgeAction={handleHoverBadgeAction}
 					{activeOpsByNode}
 					{scrollTarget}
+					mouseGestureConfig={plugin.settings?.mouseGestures?.node}
 					{icon}
 				/>
 			{/if}
@@ -900,6 +896,7 @@
 					expandedIds={gridHierarchyMode === 'inline' ? gridExpandedIds : undefined}
 					onTileClick={handleNodeClick}
 					onSecondaryAction={handleSecondaryAction}
+					onTertiaryAction={handleTertiaryAction}
 					onBoxSelect={handleBoxSelect}
 					onContextMenu={handleContextMenu}
 					onTileKeydown={handleRowKeydown}
@@ -907,6 +904,7 @@
 					onHoverBadgeAction={handleHoverBadgeAction}
 					{activeOpsByNode}
 					{scrollTarget}
+					mouseGestureConfig={plugin.settings?.mouseGestures?.node}
 					{icon}
 				/>
 			{/if}
@@ -924,10 +922,12 @@
 					activeId={selectionSnapshot.activeId}
 					onRowClick={handleNodeClick}
 					onSecondaryAction={handleSecondaryAction}
+					onTertiaryAction={handleTertiaryAction}
 					onContextMenu={handleContextMenu}
 					onRowKeydown={handleRowKeydown}
 					onSelectAll={(ids, e) => handleTableSelectAll(ids, e)}
 					{scrollTarget}
+					mouseGestureConfig={plugin.settings?.mouseGestures?.node}
 					{icon}
 				/>
 			{/if}

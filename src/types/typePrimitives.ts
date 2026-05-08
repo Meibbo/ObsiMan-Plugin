@@ -23,10 +23,9 @@ export interface FabDef {
 	label: string;
 	action: () => void;
 	/**
-	 * Optional double-click handler. When defined the FAB uses the
-	 * `useDoubleClick` helper to distinguish single from double clicks
-	 * (250 ms debounce). Used by the navbar pill / queue badge double
-	 * click clear gestures.
+	 * Optional secondary mouse gesture handler. The FAB routes mouse
+	 * gestures through serviceMouse so single, double, and tertiary
+	 * bindings can be remapped from settings.
 	 */
 	onDoubleClick?: () => void;
 	onTertiaryClick?: () => void;

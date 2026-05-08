@@ -1,9 +1,11 @@
 import type { Plugin } from 'obsidian';
 import type { FilterTemplate } from './typeFilter';
 import type { MenuHideRule } from './typeCtxMenu';
+import type { MouseGestureConfig } from '../services/serviceMouse';
 
 export type Language = 'auto' | 'en' | 'es';
 export type LayoutTheme = 'native' | 'polish' | 'glass';
+export type MouseGestureSurface = 'node' | 'fab' | 'toolbar';
 
 export interface VaultmanSettings {
 	/** Visual treatment for Vaultman chrome. Native follows Obsidian core classes/tokens. */
@@ -29,6 +31,8 @@ export interface VaultmanSettings {
 	explorerContentSearch: boolean;
 	/** Default scope for explorer operations: auto = selected > filtered > all */
 	explorerOperationScope: 'auto' | 'selected' | 'filtered' | 'all';
+	/** Configurable mouse gesture grammar per interactive surface. */
+	mouseGestures?: Partial<Record<MouseGestureSurface, MouseGestureConfig>>;
 	/** Position of the operations panel */
 	operationsPanelPosition: 'right' | 'bottom' | 'replace';
 	/** Path to last .base file used with Vaultman */
@@ -122,6 +126,11 @@ export const DEFAULT_SETTINGS: VaultmanSettings = {
 	explorerShowQueuePreview: true,
 	explorerContentSearch: true,
 	explorerOperationScope: 'auto',
+	mouseGestures: {
+		node: { primaryTiming: 'immediate', tertiary: ['alt-click', 'middle-click'] },
+		fab: { primaryTiming: 'defer', tertiary: ['alt-click', 'middle-click'] },
+		toolbar: { primaryTiming: 'defer', tertiary: ['alt-click', 'middle-click'] },
+	},
 	operationsPanelPosition: 'right',
 	basesLastUsedPath: '',
 	basesOpenMode: 'last-used',
