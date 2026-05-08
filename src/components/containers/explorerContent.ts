@@ -4,6 +4,7 @@ import type { ExplorerProvider } from '../../types/typeExplorer';
 import type { MenuCtx } from '../../types/typeCtxMenu';
 import type { ContentMeta, TreeNode } from '../../types/typeNode';
 import type { ContentMatch } from '../../types/typeContracts';
+import { buildFileDeleteChange } from '../../services/serviceFileQueue';
 
 export class explorerContent implements ExplorerProvider<ContentMeta> {
 	id = 'content';
@@ -11,6 +12,21 @@ export class explorerContent implements ExplorerProvider<ContentMeta> {
 
 	constructor(plugin: VaultmanPlugin) {
 		this.plugin = plugin;
+		this.registerActions();
+	}
+
+	private registerActions(): void {
+		this.plugin.contextMenuService?.registerAction?.({
+			id: 'content.delete',
+			nodeTypes: ['file'],
+			surfaces: ['panel'],
+			label: 'Delete',
+			icon: 'lucide-trash',
+			when: (ctx: MenuCtx) => this.isContentNode(ctx.node as TreeNode<ContentMeta>),
+			run: (ctx: MenuCtx) => {
+				this.deleteFiles(this.contextFiles(ctx));
+			},
+		});
 	}
 
 	getTree(): TreeNode<ContentMeta>[] {
@@ -57,6 +73,10 @@ export class explorerContent implements ExplorerProvider<ContentMeta> {
 		void workspace.openLinkText?.(file.path, '', false);
 	}
 
+	handleNodeSecondaryAction(node: TreeNode<ContentMeta>): void {
+		this.handleNodeClick(node);
+	}
+
 	handleContextMenu(
 		node: TreeNode<ContentMeta>,
 		e: MouseEvent,
@@ -78,6 +98,11 @@ export class explorerContent implements ExplorerProvider<ContentMeta> {
 
 	getNodeType(): MenuCtx['nodeType'] {
 		return 'file';
+	}
+
+	handleHoverBadge(node: TreeNode<ContentMeta>, kind: string): void {
+		if (kind !== 'delete') return;
+		this.deleteFiles(this.filesForNodes([node]));
 	}
 
 	setSearchTerm(term: string): void {
@@ -108,5 +133,31 @@ export class explorerContent implements ExplorerProvider<ContentMeta> {
 
 	private resolveFile(path: string): TFile | null {
 		return this.plugin.app.vault.getFileByPath(path);
+	}
+
+	private contextFiles(ctx: MenuCtx): TFile[] {
+		const selected = (ctx.selectedNodes ?? []) as TreeNode<ContentMeta>[];
+		const nodes = selected.length > 0 ? selected : [ctx.node as TreeNode<ContentMeta>];
+		return this.filesForNodes(nodes);
+	}
+
+	private filesForNodes(nodes: TreeNode<ContentMeta>[]): TFile[] {
+		const files = new Map<string, TFile>();
+		for (const node of nodes) {
+			if (!this.isContentNode(node)) continue;
+			const file = node.meta.file ?? this.resolveFile(node.meta.filePath);
+			if (file) files.set(file.path, file);
+		}
+		return [...files.values()];
+	}
+
+	private deleteFiles(files: TFile[]): void {
+		for (const file of files) {
+			void this.plugin.queueService.add(buildFileDeleteChange(file));
+		}
+	}
+
+	private isContentNode(node: TreeNode<ContentMeta> | undefined): boolean {
+		return typeof node?.id === 'string' && node.id.startsWith('content:');
 	}
 }

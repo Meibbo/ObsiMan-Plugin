@@ -86,6 +86,12 @@ Archived completed/superseded status:
   [[docs/work/hardening/backlog/2026-05-08-backlog-cut-1/index|navigation, queue removal, all-files explorer, and rename extension safety]].
   Focused unit/component tests, `pnpm run lint`, `pnpm run check`, and
   `pnpm run build` pass with 0 lint/check warnings.
+- 2026-05-08 backlog cut 2 DONE:
+  [[docs/work/hardening/backlog/2026-05-08-backlog-cut-2/index|mouse gestures, PageUp/PageDown reveal, content delete, PNG files, and view/sort click weights]].
+  Focused unit/component tests, `pnpm run check`, `pnpm run lint`, and
+  `pnpm run build` pass with 0 lint/check warnings. New follow-up cuts are
+  recorded there for the live viewtree chevron click regression and
+  `serviceViewSize`/uniform node sizing.
 - Node selection service Phase 1 is present and verified. This continuation
   made one lint-only refactor in `serviceSelection.svelte.ts` after the
   service unit tests were green.

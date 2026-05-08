@@ -29,6 +29,7 @@ export interface FabDef {
 	 * click clear gestures.
 	 */
 	onDoubleClick?: () => void;
+	onTertiaryClick?: () => void;
 	isPlaceholder?: boolean;
 	badgeKind?: 'queue' | 'filters';
 }

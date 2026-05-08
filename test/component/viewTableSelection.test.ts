@@ -37,6 +37,7 @@ describe('ViewNodeTable', () => {
 			activeId: null,
 			onRowClick: vi.fn(),
 			onPrimaryAction: vi.fn(),
+			onSecondaryAction: vi.fn(),
 			onContextMenu: vi.fn(),
 			onRowKeydown: vi.fn(),
 			onSelectAll: vi.fn(),
@@ -70,11 +71,13 @@ describe('ViewNodeTable', () => {
 		expect(alpha.classList.contains('is-active-node')).toBe(true);
 	});
 
-	it('reports row click, primary action, keyboard, and context menu intent', () => {
+	it('reports row click, secondary action, keyboard, and context menu intent', () => {
 		const handlers = renderTable();
 
 		(target.querySelector('[data-id="alpha"]') as HTMLElement).click();
-		(target.querySelector('[data-id="alpha"] [data-vm-table-primary]') as HTMLElement).click();
+		(target.querySelector('[data-id="alpha"]') as HTMLElement).dispatchEvent(
+			new MouseEvent('dblclick', { bubbles: true }),
+		);
 		(target.querySelector('[data-id="beta"]') as HTMLElement).dispatchEvent(
 			new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
 		);
@@ -83,7 +86,8 @@ describe('ViewNodeTable', () => {
 		);
 
 		expect(handlers.onRowClick).toHaveBeenCalledWith('alpha', expect.any(MouseEvent));
-		expect(handlers.onPrimaryAction).toHaveBeenCalledWith('alpha', expect.any(MouseEvent));
+		expect(handlers.onSecondaryAction).toHaveBeenCalledWith('alpha', expect.any(MouseEvent));
+		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
 		expect(handlers.onRowKeydown).toHaveBeenCalledWith('beta', expect.any(KeyboardEvent));
 		expect(handlers.onContextMenu).toHaveBeenCalledWith('beta', expect.any(MouseEvent));
 	});

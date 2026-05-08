@@ -49,6 +49,7 @@ describe('ViewTree selection gestures', () => {
 			onToggle: (id: string) => void;
 			onRowClick: (id: string, e: MouseEvent) => void;
 			onPrimaryAction: (id: string, e: MouseEvent) => void;
+			onSecondaryAction: (id: string, e: MouseEvent) => void;
 			onContextMenu: (id: string, e: MouseEvent) => void;
 			onBadgeDoubleClick: (queueIndex: number) => void;
 		}> = {},
@@ -58,6 +59,7 @@ describe('ViewTree selection gestures', () => {
 			onToggle: vi.fn(),
 			onRowClick: vi.fn(),
 			onPrimaryAction: vi.fn(),
+			onSecondaryAction: vi.fn(),
 			onContextMenu: vi.fn(),
 			icon: vi.fn(() => ({ update: vi.fn() })),
 		};
@@ -74,6 +76,7 @@ describe('ViewTree selection gestures', () => {
 			onToggle: props.onToggle ?? defaults.onToggle,
 			onRowClick: props.onRowClick ?? defaults.onRowClick,
 			onPrimaryAction: props.onPrimaryAction ?? defaults.onPrimaryAction,
+			onSecondaryAction: props.onSecondaryAction ?? defaults.onSecondaryAction,
 		};
 	}
 
@@ -274,7 +277,7 @@ describe('ViewTree selection gestures', () => {
 		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
 	});
 
-	it('clicking the label runs the primary action without using row-slot selection', () => {
+	it('clicking the label uses the same primary selection as the row slot', () => {
 		const handlers = renderTree([
 			{
 				id: 'status',
@@ -286,9 +289,29 @@ describe('ViewTree selection gestures', () => {
 
 		(target.querySelector('.vm-tree-label') as HTMLElement).click();
 
-		expect(handlers.onPrimaryAction).toHaveBeenCalledOnce();
-		expect(handlers.onPrimaryAction).toHaveBeenCalledWith('status', expect.any(MouseEvent));
-		expect(handlers.onRowClick).not.toHaveBeenCalled();
+		expect(handlers.onRowClick).toHaveBeenCalledOnce();
+		expect(handlers.onRowClick).toHaveBeenCalledWith('status', expect.any(MouseEvent));
+		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
+		expect(handlers.onSecondaryAction).not.toHaveBeenCalled();
+	});
+
+	it('double clicking the label reports the secondary action', () => {
+		const handlers = renderTree([
+			{
+				id: 'status',
+				label: 'Status',
+				depth: 0,
+				meta: {},
+			},
+		]);
+
+		(target.querySelector('.vm-tree-label') as HTMLElement).dispatchEvent(
+			new MouseEvent('dblclick', { bubbles: true }),
+		);
+
+		expect(handlers.onSecondaryAction).toHaveBeenCalledOnce();
+		expect(handlers.onSecondaryAction).toHaveBeenCalledWith('status', expect.any(MouseEvent));
+		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
 	});
 
 	it('marks selectable treeitems selected without treating active filters as selected', () => {

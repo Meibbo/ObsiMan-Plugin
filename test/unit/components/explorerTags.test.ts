@@ -216,6 +216,19 @@ describe('explorerTags', () => {
 		).toEqual(['add', 'delete']);
 	});
 
+	it('routes the secondary action to content search for tag nodes', () => {
+		const openContentSearchHook = vi.fn();
+		const plugin = makePlugin([], ['project']);
+		(plugin as VaultmanPlugin & { openContentSearchHook?: (term: string) => void }).openContentSearchHook =
+			openContentSearchHook;
+		const explorer = new explorerTags(plugin);
+		const projectNode = explorer.getTree().find((node) => node.meta.tagPath === 'project');
+
+		explorer.handleNodeSecondaryAction?.(projectNode!);
+
+		expect(openContentSearchHook).toHaveBeenCalledWith('#project');
+	});
+
 	it('rebuilds tag tree after Obsidian metadata changes outside the provider', () => {
 		const file = mockTFile('tagged.md', { frontmatter: { tags: ['project'] } });
 		const files = [file] as TFile[];

@@ -43,6 +43,7 @@ export function createFramePageIcons(): Record<FramePageId, string> {
 
 export interface FramePageFabOptions {
 	filtersBaseChooseMode?: boolean;
+	enterBasesImportMode?: () => void;
 	exitBasesImportMode?: () => void;
 }
 
@@ -58,7 +59,8 @@ export function createFramePageFabs(
 				icon: 'lucide-list-checks',
 				label: translate('ops.queue'),
 				action: toggleQueueIsland,
-				onDoubleClick: () => plugin.queueService.clearAll(),
+				onDoubleClick: () => void plugin.queueService.processAll(),
+				onTertiaryClick: () => plugin.queueService.clearAll(),
 				badgeKind: 'queue',
 			},
 			right: null,
@@ -78,7 +80,8 @@ export function createFramePageFabs(
 				icon: 'lucide-list-checks',
 				label: translate('ops.queue'),
 				action: toggleQueueIsland,
-				onDoubleClick: () => plugin.queueService.clearAll(),
+				onDoubleClick: () => void plugin.queueService.processAll(),
+				onTertiaryClick: () => plugin.queueService.clearAll(),
 				badgeKind: 'queue',
 			},
 			right: options.filtersBaseChooseMode
@@ -92,6 +95,7 @@ export function createFramePageFabs(
 						label: translate('filters.active'),
 						action: toggleFiltersIsland,
 						onDoubleClick: () => plugin.filterService.clearAll(),
+						onTertiaryClick: () => options.enterBasesImportMode?.(),
 						badgeKind: 'filters',
 					},
 		},

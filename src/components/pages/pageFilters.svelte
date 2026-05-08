@@ -178,13 +178,20 @@
 	$effect(() => {
 		const openViewMenu = () => navbarExplorerApi?.openViewMenu();
 		const openSortMenu = () => navbarExplorerApi?.openSortMenu();
+		const openContentSearch = (term: string) => {
+			filtersActiveTab = 'content';
+			setContentSearch(term);
+			plugin.contentIndex.setQuery(term);
+		};
 
 		plugin.openViewMenuHook = openViewMenu;
 		plugin.openSortMenuHook = openSortMenu;
+		plugin.openContentSearchHook = openContentSearch;
 
 		return () => {
 			if (plugin.openViewMenuHook === openViewMenu) plugin.openViewMenuHook = null;
 			if (plugin.openSortMenuHook === openSortMenu) plugin.openSortMenuHook = null;
+			if (plugin.openContentSearchHook === openContentSearch) plugin.openContentSearchHook = null;
 		};
 	});
 

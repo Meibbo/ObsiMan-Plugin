@@ -30,7 +30,7 @@ function baseProps(overrides: Record<string, unknown> = {}): Record<string, unkn
 	};
 }
 
-describe('Navbar queue badge double-click clear', () => {
+describe('Navbar queue badge click weights', () => {
 	let target: HTMLDivElement;
 	let app: ReturnType<typeof mount> | null = null;
 
@@ -73,7 +73,7 @@ describe('Navbar queue badge double-click clear', () => {
 		expect(onDoubleClick).not.toHaveBeenCalled();
 	});
 
-	it('double click clears the queue without invoking the popup action', () => {
+	it('double click runs the secondary queue action without invoking the popup action', () => {
 		const action = vi.fn();
 		const onDoubleClick = vi.fn();
 		const leftFab: FabDef = {
@@ -96,5 +96,32 @@ describe('Navbar queue badge double-click clear', () => {
 		vi.advanceTimersByTime(300);
 		expect(onDoubleClick).toHaveBeenCalledTimes(1);
 		expect(action).not.toHaveBeenCalled();
+	});
+
+	it('alt click runs the tertiary queue action immediately', () => {
+		const action = vi.fn();
+		const onDoubleClick = vi.fn();
+		const onTertiaryClick = vi.fn();
+		const leftFab: FabDef = {
+			icon: 'lucide-list-checks',
+			label: 'Queue',
+			action,
+			onDoubleClick,
+			onTertiaryClick,
+			badgeKind: 'queue',
+		};
+		app = mount(NavbarPillFab as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: baseProps({ leftFab, queuedCount: 3 }),
+		});
+		flushSync();
+
+		const fab = target.querySelector<HTMLDivElement>('.vm-nav-fab');
+		fab!.dispatchEvent(new MouseEvent('click', { bubbles: true, altKey: true }));
+		vi.advanceTimersByTime(300);
+
+		expect(onTertiaryClick).toHaveBeenCalledTimes(1);
+		expect(action).not.toHaveBeenCalled();
+		expect(onDoubleClick).not.toHaveBeenCalled();
 	});
 });

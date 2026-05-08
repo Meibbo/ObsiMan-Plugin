@@ -92,6 +92,7 @@
 			() => overlays.toggleFiltersIsland(),
 			{
 				filtersBaseChooseMode,
+				enterBasesImportMode,
 				exitBasesImportMode,
 			},
 		),

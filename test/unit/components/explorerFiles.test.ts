@@ -61,6 +61,19 @@ describe('explorerFiles interactions', () => {
 		expect(openLinkText).not.toHaveBeenCalled();
 	});
 
+	it('opens a file from the secondary node action', () => {
+		const { plugin, files, openLinkText, setSelectedFiles } = makePlugin();
+		const explorer = new explorerFiles(plugin);
+		const fileNode = explorer.getTree()[0].children?.find((node) => node.meta.file === files[0]);
+
+		expect(fileNode).toBeTruthy();
+
+		explorer.handleNodeSecondaryAction?.(fileNode!);
+
+		expect(openLinkText).toHaveBeenCalledWith(files[0].path, '', false);
+		expect(setSelectedFiles).not.toHaveBeenCalled();
+	});
+
 	it('queues file deletion from the registered context menu action', async () => {
 		const { plugin, files } = makePlugin();
 		const trashFile = vi.spyOn(plugin.app.fileManager, 'trashFile');
@@ -136,6 +149,21 @@ describe('explorerFiles interactions', () => {
 
 		expect(explorer.getFiles()).toEqual([...files, pdf]);
 		expect(explorer.getTree().some((node) => node.id === 'folder:Assets')).toBe(true);
+	});
+
+	it('shows root image files with an image icon', () => {
+		const { plugin, files } = makePlugin();
+		const png = mockTFile('cover.png');
+		(plugin.app.vault as unknown as { getFiles: () => TFile[] }).getFiles = () => [...files, png];
+		(plugin.filterService as unknown as { activeFilter: { children: unknown[] } }).activeFilter = {
+			children: [],
+		};
+		const explorer = new explorerFiles(plugin);
+
+		const pngNode = explorer.getTree().find((node) => node.id === 'cover.png');
+
+		expect(pngNode).toBeTruthy();
+		expect(pngNode?.icon).toBe('lucide-image');
 	});
 
 	it('starts a file rename handoff from selected registered context menu nodes', async () => {

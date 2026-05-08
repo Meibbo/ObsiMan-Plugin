@@ -11,9 +11,11 @@
 	import { FnRIslandService, type FnRIslandMode } from '../../services/serviceFnRIsland.svelte';
 	import { getAddOpBuilder } from '../../registry/explorerAddOps';
 	import type { PendingChange } from '../../types/typeOps';
+	import { useDoubleClick } from '../../utils/useDoubleClick';
 
 	type FiltersTab = 'props' | 'files' | 'tags' | 'content';
 	type HeaderMode = 'header' | 'sort' | 'viewmode';
+	type OperationScope = 'auto' | 'selected' | 'filtered' | 'all';
 
 	// Map an explorer tab id to the kind expected by `getAddOpBuilder`.
 	function tabToExplorerKind(tab: FiltersTab): string {
@@ -24,6 +26,7 @@
 	}
 
 	const MODES: FnRIslandMode[] = ['search', 'rename', 'replace', 'add'];
+	const OPERATION_SCOPE_ORDER: OperationScope[] = ['auto', 'selected', 'filtered', 'all'];
 	const MODE_LABELS: Record<FnRIslandMode, string> = {
 		search: 'search',
 		rename: 'rename',
@@ -67,9 +70,9 @@
 		sortDirection: 'asc' | 'desc';
 		viewMode: any;
 		addMode: boolean;
-		operationScope: 'auto' | 'selected' | 'filtered' | 'all';
+		operationScope: OperationScope;
 		filesShowSelectedOnly?: boolean;
-		onOperationScopeChange?: (value: 'auto' | 'selected' | 'filtered' | 'all') => void;
+		onOperationScopeChange?: (value: OperationScope) => void;
 		tagsExplorer: explorerTags | null | undefined;
 		propExplorer: explorerProps | undefined;
 		fileList: explorerFiles | undefined;
@@ -171,6 +174,50 @@
 	function openViewModePopup() {
 		headerExitDir = 'left';
 		headerMode = 'viewmode';
+	}
+	function cycleOperationScope() {
+		const currentIndex = OPERATION_SCOPE_ORDER.indexOf(operationScope);
+		const next = OPERATION_SCOPE_ORDER[(currentIndex + 1) % OPERATION_SCOPE_ORDER.length];
+		operationScope = next;
+		onOperationScopeChange?.(next);
+	}
+	function resetViewMode() {
+		viewMode = 'tree';
+		addMode = false;
+	}
+	function resetSortMode() {
+		sortBy = 'name';
+		sortDirection = 'desc';
+	}
+	const viewClick = useDoubleClick({
+		onSingle: openViewModePopup,
+		onDouble: cycleOperationScope,
+		threshold: 250,
+	});
+	const sortClick = useDoubleClick({
+		onSingle: openSortPopup,
+		onDouble: () => onToggleNodeExpansion?.(),
+		threshold: 250,
+	});
+	function handleViewButtonClick(e: MouseEvent) {
+		e.stopPropagation();
+		if (e.altKey) {
+			e.preventDefault();
+			viewClick.cancel();
+			resetViewMode();
+			return;
+		}
+		viewClick.handleClick(e);
+	}
+	function handleSortButtonClick(e: MouseEvent) {
+		e.stopPropagation();
+		if (e.altKey) {
+			e.preventDefault();
+			sortClick.cancel();
+			resetSortMode();
+			return;
+		}
+		sortClick.handleClick(e);
 	}
 	export function openSortMenu(): void {
 		openSortPopup();
@@ -519,7 +566,7 @@
 						role="button"
 						tabindex="0"
 						aria-label={translate('filter.viewmode_btn')}
-						onclick={openViewModePopup}
+						onclick={handleViewButtonClick}
 						onkeydown={(e: KeyboardEvent) => {
 							if (e.key === 'Enter' || e.key === ' ') openViewModePopup();
 						}}
@@ -530,7 +577,7 @@
 						role="button"
 						tabindex="0"
 						aria-label={translate('filter.sort_btn')}
-						onclick={openSortPopup}
+						onclick={handleSortButtonClick}
 						onkeydown={(e: KeyboardEvent) => {
 							if (e.key === 'Enter' || e.key === ' ') openSortPopup();
 						}}

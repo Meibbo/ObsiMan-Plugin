@@ -45,6 +45,16 @@ function largeNestedNodes(): TreeNode[] {
 	];
 }
 
+function manyFlatNodes(count = 40): TreeNode[] {
+	return Array.from({ length: count }, (_, index) => ({
+		id: `node-${index}`,
+		label: `Node ${index}`,
+		depth: 0,
+		meta: {},
+		icon: 'lucide-file',
+	}));
+}
+
 function plugin(
 	selectionService = new NodeSelectionService(),
 	viewService: VaultmanPlugin['viewService'] = {
@@ -58,7 +68,7 @@ function plugin(
 		propertyIndex: { fileCount: 0 },
 		operationsIndex: { nodes: [], subscribe: vi.fn(() => vi.fn()) },
 		activeFiltersIndex: { subscribe: vi.fn(() => vi.fn()) },
-		queueService: { remove: vi.fn() },
+		queueService: { remove: vi.fn(), requestDelete: vi.fn() },
 		filterService: { setSelectedFiles: vi.fn() },
 		viewService,
 		selectionService,
@@ -143,10 +153,22 @@ describe('PanelExplorer tree selection adapter', () => {
 		expect(providerStub.handleNodeClick).not.toHaveBeenCalled();
 	});
 
-	it('label click selects then runs the provider primary action', () => {
+	it('label click selects without running the provider secondary action', () => {
 		const { providerStub, selectionService } = renderPanel();
 
 		(target.querySelector('[data-id="beta"] .vm-tree-label') as HTMLElement).click();
+		flushSync();
+
+		expect([...selectionService.snapshot(EXPLORER_ID).ids]).toEqual(['beta']);
+		expect(providerStub.handleNodeClick).not.toHaveBeenCalled();
+	});
+
+	it('label double click runs the provider secondary action', () => {
+		const { providerStub, selectionService } = renderPanel();
+
+		(target.querySelector('[data-id="beta"] .vm-tree-label') as HTMLElement).dispatchEvent(
+			new MouseEvent('dblclick', { bubbles: true }),
+		);
 		flushSync();
 
 		expect([...selectionService.snapshot(EXPLORER_ID).ids]).toEqual(['beta']);
@@ -154,6 +176,26 @@ describe('PanelExplorer tree selection adapter', () => {
 		expect(providerStub.handleNodeClick).toHaveBeenCalledWith(
 			expect.objectContaining({ id: 'beta' }),
 		);
+	});
+
+	it('Alt click routes the node tertiary action through delete conflict handling', () => {
+		const { pluginStub, providerStub, selectionService } = renderPanel({
+			provider: provider({ handleHoverBadge: vi.fn() }),
+		});
+
+		(target.querySelector('[data-id="beta"] .vm-tree-label') as HTMLElement).dispatchEvent(
+			new MouseEvent('click', { bubbles: true, altKey: true }),
+		);
+		flushSync();
+
+		expect([...selectionService.snapshot(EXPLORER_ID).ids]).toEqual([]);
+		expect(pluginStub.queueService.requestDelete).toHaveBeenCalledWith(
+			expect.objectContaining({
+				nodeId: 'beta',
+				nodeLabel: 'Beta',
+			}),
+		);
+		expect(providerStub.handleNodeClick).not.toHaveBeenCalled();
 	});
 
 	it('outside document click clears node selection for the active explorer', () => {
@@ -367,7 +409,9 @@ describe('PanelExplorer tree selection adapter', () => {
 		const providerStub = provider({ getTree: vi.fn(() => nestedNodes()) });
 		renderPanel({ viewMode: 'grid', provider: providerStub });
 
-		(target.querySelector('[data-id="parent"] .vm-node-grid-label') as HTMLElement).click();
+		(target.querySelector('[data-id="parent"] .vm-node-grid-label') as HTMLElement).dispatchEvent(
+			new MouseEvent('dblclick', { bubbles: true }),
+		);
 		flushSync();
 
 		expect(target.querySelector('[data-id="parent"]')).toBeNull();
@@ -375,7 +419,9 @@ describe('PanelExplorer tree selection adapter', () => {
 		expect(target.querySelector('[data-id="child"]')).not.toBeNull();
 		expect(providerStub.handleNodeClick).not.toHaveBeenCalled();
 
-		(target.querySelector('[data-id="child"] .vm-node-grid-label') as HTMLElement).click();
+		(target.querySelector('[data-id="child"] .vm-node-grid-label') as HTMLElement).dispatchEvent(
+			new MouseEvent('dblclick', { bubbles: true }),
+		);
 		flushSync();
 
 		expect(providerStub.handleNodeClick).toHaveBeenCalledOnce();
@@ -391,7 +437,9 @@ describe('PanelExplorer tree selection adapter', () => {
 		});
 
 		expect(target.querySelector('.vm-grid-nav-toolbar')).not.toBeNull();
-		(target.querySelector('[data-id="parent"] .vm-node-grid-label') as HTMLElement).click();
+		(target.querySelector('[data-id="parent"] .vm-node-grid-label') as HTMLElement).dispatchEvent(
+			new MouseEvent('dblclick', { bubbles: true }),
+		);
 		flushSync();
 		expect(target.querySelector('[data-id="child"]')).not.toBeNull();
 
@@ -408,7 +456,9 @@ describe('PanelExplorer tree selection adapter', () => {
 		flushSync();
 		expect(target.querySelector('[data-id="parent"]')).not.toBeNull();
 
-		(target.querySelector('[data-id="parent"] .vm-node-grid-label') as HTMLElement).click();
+		(target.querySelector('[data-id="parent"] .vm-node-grid-label') as HTMLElement).dispatchEvent(
+			new MouseEvent('dblclick', { bubbles: true }),
+		);
 		flushSync();
 		(target.querySelector('[data-vm-grid-crumb="root"]') as HTMLButtonElement).click();
 		flushSync();
@@ -620,6 +670,29 @@ describe('PanelExplorer tree selection adapter', () => {
 
 		expect(up.defaultPrevented).toBe(true);
 		expect(selectionService.snapshot(EXPLORER_ID).focusedId).toBe('alpha');
+	});
+
+	it('PageDown scrolls the virtual tree to keep the new keyboard selection visible', () => {
+		const { selectionService } = renderPanel({
+			provider: provider({ getTree: vi.fn(() => manyFlatNodes()) }),
+		});
+		const outer = target.querySelector('.vm-tree-virtual-outer') as HTMLElement;
+		Object.defineProperty(outer, 'clientHeight', { value: 96, configurable: true });
+		const first = target.querySelector('[data-id="node-0"]') as HTMLElement;
+
+		first.click();
+		flushSync();
+		const down = new KeyboardEvent('keydown', {
+			key: 'PageDown',
+			bubbles: true,
+			cancelable: true,
+		});
+		first.dispatchEvent(down);
+		flushSync();
+
+		expect(down.defaultPrevented).toBe(true);
+		expect(selectionService.snapshot(EXPLORER_ID).focusedId).toBe('node-10');
+		expect(outer.scrollTop).toBeGreaterThan(0);
 	});
 
 	it('PageDown keeps native scroll behavior when no node is active', () => {

@@ -20,6 +20,7 @@
 	const TABLE_FALLBACK_WIDTH = 640;
 	const TABLE_FALLBACK_HEIGHT = 360;
 	const EMPTY_SELECTED_IDS: ReadonlySet<string> = new Set();
+	type ScrollTarget = { id: string; serial: number };
 
 	interface Props<TNode extends NodeBase = NodeBase> {
 		rows: ViewRow<TNode>[];
@@ -29,9 +30,11 @@
 		activeId?: string | null;
 		onRowClick: (id: string, e: MouseEvent) => void;
 		onPrimaryAction?: (id: string, e: MouseEvent) => void;
+		onSecondaryAction?: (id: string, e: MouseEvent) => void;
 		onContextMenu: (id: string, e: MouseEvent) => void;
 		onRowKeydown?: (id: string, e: KeyboardEvent) => void;
 		onSelectAll?: (ids: string[], e: Event) => void;
+		scrollTarget?: ScrollTarget | null;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	}
 
@@ -42,10 +45,12 @@
 		focusedId = null,
 		activeId = null,
 		onRowClick,
-		onPrimaryAction,
+		onPrimaryAction: _onPrimaryAction,
+		onSecondaryAction,
 		onContextMenu,
 		onRowKeydown,
 		onSelectAll,
+		scrollTarget = null,
 		icon,
 	}: Props<TNode> = $props();
 
@@ -120,9 +125,31 @@
 		);
 	});
 
+	$effect(() => {
+		const target = scrollTarget;
+		if (!target || !outerEl) return;
+		const rowIndex = tableRows.findIndex((row) => row.id === target.id);
+		if (rowIndex >= 0) scrollTableRowIntoView(rowIndex);
+	});
+
 	function handleHeaderClick(column: Column<ViewRow<TNode>, unknown>) {
 		if (!column.getCanSort()) return;
 		column.toggleSorting(column.getIsSorted() === 'asc');
+	}
+
+	function scrollTableRowIntoView(rowIndex: number): void {
+		if (!outerEl) return;
+		const viewportHeight = outerEl.clientHeight || TABLE_FALLBACK_HEIGHT;
+		const currentTop = outerEl.scrollTop;
+		const rowTop = rowIndex * TABLE_ROW_HEIGHT;
+		const rowBottom = rowTop + TABLE_ROW_HEIGHT;
+		const currentBottom = currentTop + viewportHeight;
+		if (rowTop >= currentTop && rowBottom <= currentBottom) return;
+
+		const nextTop = rowTop < currentTop ? rowTop : Math.max(0, rowBottom - viewportHeight);
+		$rowVirtualizer.scrollToIndex(rowIndex, { align: rowTop < currentTop ? 'start' : 'end' });
+		outerEl.scrollTop = nextTop;
+		outerEl.dispatchEvent(new Event('scroll'));
 	}
 
 	function observeTableRect(
@@ -142,9 +169,9 @@
 		return () => ro.disconnect();
 	}
 
-	function handlePrimaryButtonClick(id: string, e: MouseEvent) {
+	function handleSecondaryAction(id: string, e: MouseEvent) {
 		e.stopPropagation();
-		onPrimaryAction?.(id, e);
+		onSecondaryAction?.(id, e);
 	}
 
 	function handleTableKeydown(e: KeyboardEvent) {
@@ -223,6 +250,7 @@
 					tabindex="0"
 					aria-selected={isSelected}
 					onclick={(e) => onRowClick(id, e)}
+					ondblclick={(e) => handleSecondaryAction(id, e)}
 					oncontextmenu={(e) => onContextMenu(id, e)}
 					onkeydown={(e) => onRowKeydown?.(id, e)}
 					style:--vm-node-table-y={`${virtualRow.start}px`}
@@ -243,14 +271,9 @@
 								{#if row.original.icon}
 									<span class="vm-node-table-icon" use:icon={row.original.icon}></span>
 								{/if}
-								<button
-									type="button"
-									class="vm-node-table-primary"
-									data-vm-table-primary
-									onclick={(e) => handlePrimaryButtonClick(id, e)}
-								>
+								<span class="vm-node-table-primary" data-vm-table-primary>
 									{display}
-								</button>
+								</span>
 							{:else}
 								{display}
 							{/if}

@@ -212,6 +212,15 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 		}
 	}
 
+	handleNodeSecondaryAction(node: TreeNode<TagMeta>): void {
+		const tagId = `#${node.meta.tagPath}`;
+		if (this.plugin.openContentSearchHook) {
+			this.plugin.openContentSearchHook(tagId);
+			return;
+		}
+		this.plugin.contentIndex?.setQuery(tagId);
+	}
+
 	handleContextMenu(
 		node: TreeNode<TagMeta>,
 		e: MouseEvent,

@@ -115,6 +115,7 @@ export class VaultmanPlugin extends Plugin {
 	openQueuePopupHook: (() => void) | null = null;
 	openViewMenuHook: (() => void) | null = null;
 	openSortMenuHook: (() => void) | null = null;
+	openContentSearchHook: ((term: string) => void) | null = null;
 
 	async onload(): Promise<void> {
 		PerfMeter.mark('vaultman:boot:start');

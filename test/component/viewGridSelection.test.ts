@@ -74,6 +74,7 @@ describe('ViewNodeGrid selection gestures', () => {
 			activeId: string | null;
 			onTileClick: (id: string, e: MouseEvent) => void;
 			onPrimaryAction: (id: string, e: MouseEvent) => void;
+			onSecondaryAction: (id: string, e: MouseEvent) => void;
 			onContextMenu: (id: string, e: MouseEvent) => void;
 			onBoxSelect: (ids: string[], e: PointerEvent) => void;
 			hierarchyMode: 'folder' | 'inline';
@@ -85,6 +86,7 @@ describe('ViewNodeGrid selection gestures', () => {
 			selectedIds: new Set<string>(),
 			onTileClick: vi.fn(),
 			onPrimaryAction: vi.fn(),
+			onSecondaryAction: vi.fn(),
 			onContextMenu: vi.fn(),
 			onBoxSelect: vi.fn(),
 			hierarchyMode: 'folder',
@@ -104,6 +106,7 @@ describe('ViewNodeGrid selection gestures', () => {
 		return {
 			onTileClick: props.onTileClick ?? defaults.onTileClick,
 			onPrimaryAction: props.onPrimaryAction ?? defaults.onPrimaryAction,
+			onSecondaryAction: props.onSecondaryAction ?? defaults.onSecondaryAction,
 			onContextMenu: props.onContextMenu ?? defaults.onContextMenu,
 			onBoxSelect: props.onBoxSelect ?? defaults.onBoxSelect,
 			onToggleExpand: props.onToggleExpand ?? defaults.onToggleExpand,
@@ -138,14 +141,27 @@ describe('ViewNodeGrid selection gestures', () => {
 		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
 	});
 
-	it('clicking the tile label reports primary action intent', () => {
+	it('clicking the tile label reports primary selection intent', () => {
 		const handlers = renderGrid();
 
 		(target.querySelector('[data-id="beta"] .vm-node-grid-label') as HTMLElement).click();
 
-		expect(handlers.onPrimaryAction).toHaveBeenCalledOnce();
-		expect(handlers.onPrimaryAction).toHaveBeenCalledWith('beta', expect.any(MouseEvent));
-		expect(handlers.onTileClick).not.toHaveBeenCalled();
+		expect(handlers.onTileClick).toHaveBeenCalledOnce();
+		expect(handlers.onTileClick).toHaveBeenCalledWith('beta', expect.any(MouseEvent));
+		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
+		expect(handlers.onSecondaryAction).not.toHaveBeenCalled();
+	});
+
+	it('double clicking the tile label reports secondary action intent', () => {
+		const handlers = renderGrid();
+
+		(target.querySelector('[data-id="beta"] .vm-node-grid-label') as HTMLElement).dispatchEvent(
+			new MouseEvent('dblclick', { bubbles: true }),
+		);
+
+		expect(handlers.onSecondaryAction).toHaveBeenCalledOnce();
+		expect(handlers.onSecondaryAction).toHaveBeenCalledWith('beta', expect.any(MouseEvent));
+		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
 	});
 
 	it('forwards modifier state with tile selection events', () => {

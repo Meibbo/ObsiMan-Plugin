@@ -11,6 +11,19 @@ const TYPE_ICON_MAP: Record<string, string> = {
 	list: 'lucide-list',
 	multitext: 'lucide-list-plus',
 };
+const IMAGE_EXTENSIONS = new Set([
+	'avif',
+	'bmp',
+	'gif',
+	'ico',
+	'jpeg',
+	'jpg',
+	'png',
+	'svg',
+	'tif',
+	'tiff',
+	'webp',
+]);
 
 type DecorationContext = {
 	kind?: 'prop' | 'tag' | 'file';
@@ -19,6 +32,7 @@ type DecorationContext = {
 	isValueNode?: boolean;
 	iconicIcon?: string | null;
 	isFolder?: boolean;
+	extension?: string;
 };
 
 export class DecorationManager implements IDecorationManager {
@@ -64,7 +78,7 @@ export class DecorationManager implements IDecorationManager {
 		} else if (ctx.kind === 'tag') {
 			out.icons.push(ctx.iconicIcon ?? 'lucide-tag');
 		} else if (ctx.kind === 'file') {
-			out.icons.push(ctx.isFolder ? 'lucide-folder' : 'lucide-file');
+			out.icons.push(fileIconForContext(ctx));
 		}
 
 		if (query && label) {
@@ -83,4 +97,11 @@ export class DecorationManager implements IDecorationManager {
 		this.subs.add(cb);
 		return () => this.subs.delete(cb);
 	}
+}
+
+function fileIconForContext(ctx: DecorationContext): string {
+	if (ctx.isFolder) return 'lucide-folder';
+	const extension = ctx.extension?.toLowerCase() ?? '';
+	if (IMAGE_EXTENSIONS.has(extension)) return 'lucide-image';
+	return 'lucide-file';
 }

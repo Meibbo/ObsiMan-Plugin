@@ -30,7 +30,7 @@ function baseProps(overrides: Record<string, unknown> = {}): Record<string, unkn
 	};
 }
 
-describe('Navbar active-filters pill double-click clear', () => {
+describe('Navbar active-filters pill click weights', () => {
 	let target: HTMLDivElement;
 	let app: ReturnType<typeof mount> | null = null;
 
@@ -98,5 +98,32 @@ describe('Navbar active-filters pill double-click clear', () => {
 		vi.advanceTimersByTime(300);
 		expect(onDoubleClick).toHaveBeenCalledTimes(1);
 		expect(action).not.toHaveBeenCalled();
+	});
+
+	it('alt click calls onTertiaryClick without waiting for the single-click debounce', () => {
+		const action = vi.fn();
+		const onDoubleClick = vi.fn();
+		const onTertiaryClick = vi.fn();
+		const rightFab: FabDef = {
+			icon: 'lucide-sparkles',
+			label: 'Active filters',
+			action,
+			onDoubleClick,
+			onTertiaryClick,
+			badgeKind: 'filters',
+		};
+		app = mount(NavbarPillFab as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: baseProps({ rightFab }),
+		});
+		flushSync();
+
+		const fab = target.querySelectorAll<HTMLDivElement>('.vm-nav-fab')[0];
+		fab.dispatchEvent(new MouseEvent('click', { bubbles: true, altKey: true }));
+		vi.advanceTimersByTime(300);
+
+		expect(onTertiaryClick).toHaveBeenCalledTimes(1);
+		expect(action).not.toHaveBeenCalled();
+		expect(onDoubleClick).not.toHaveBeenCalled();
 	});
 });

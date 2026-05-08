@@ -346,6 +346,20 @@ describe('explorerProps search', () => {
 		});
 	});
 
+	it('routes the secondary action to content search for prop and value nodes', () => {
+		const openContentSearchHook = vi.fn();
+		const plugin = makePlugin({ openContentSearchHook } as Partial<VaultmanPlugin>);
+		const explorer = new explorerProps(plugin);
+		const statusNode = explorer.getTree().find((node) => node.id === 'status');
+		const draftNode = statusNode?.children?.find((node) => node.label === 'draft');
+
+		explorer.handleNodeSecondaryAction?.(statusNode!);
+		explorer.handleNodeSecondaryAction?.(draftNode!);
+
+		expect(openContentSearchHook).toHaveBeenNthCalledWith(1, 'status');
+		expect(openContentSearchHook).toHaveBeenNthCalledWith(2, 'draft');
+	});
+
 	it('queues ctxmenu delete for properties whose indexed name casing differs from frontmatter', () => {
 		const file = mockTFile('bench.md', { frontmatter: { pressBarBench: 1820 } });
 		const files = [file] as TFile[];

@@ -134,6 +134,7 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 					kind: 'file',
 					highlightQuery: n.meta.isFolder ? this.searchFolder : this.searchName,
 					isFolder: n.meta.isFolder,
+					extension: n.meta.file?.extension,
 				}),
 			}).rows[0];
 
@@ -157,6 +158,15 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 
 	handleNodeClick(node: TreeNode<FileMeta>): void {
 		this.handleNodeSelection([node]);
+	}
+
+	handleNodeSecondaryAction(node: TreeNode<FileMeta>): void {
+		const file = node.meta.file;
+		if (!file || node.meta.isFolder) return;
+		const workspace = this.plugin.app.workspace as typeof this.plugin.app.workspace & {
+			openLinkText?: (linktext: string, sourcePath: string, newLeaf?: boolean) => unknown;
+		};
+		void workspace.openLinkText?.(file.path, '', false);
 	}
 
 	handleNodeSelection(nodes: TreeNode<FileMeta>[]): void {

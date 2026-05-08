@@ -40,6 +40,11 @@ Archived completed/superseded handoff:
   [[docs/work/hardening/backlog/2026-05-08-backlog-cut-1/index|navigation, queue removal, all-files explorer, and rename extension safety]].
   Remaining backlog starts with mouse click behavior, multi-selected badge ops,
   contradiction warnings, filter ingestion, and tabcontent search UX.
+- 2026-05-08 backlog cut 2 is done:
+  [[docs/work/hardening/backlog/2026-05-08-backlog-cut-2/index|mouse gestures, PageUp/PageDown reveal, content delete, PNG files, and view/sort click weights]].
+  Focused unit/component tests, `check`, `lint`, and `build` passed. Follow-up
+  cuts for the live viewtree chevron click regression and `serviceViewSize` are
+  registered in that record.
 - Phase 1 selection service is present and verified. Phase 2 tree adapter is
   implemented and verified in the current worktree.
 - Phase 3 provider actions is implemented and verified.

@@ -29,6 +29,8 @@
 		type BadgeKind,
 	} from '../../services/badgeRegistry';
 
+	type ScrollTarget = { id: string; serial: number };
+
 	let {
 		plugin,
 		provider,
@@ -74,6 +76,8 @@
 	let nodes = $state<TreeNode<TMeta>[]>([]);
 	let flatFiles = $state<TFile[]>([]);
 	let rootEl: HTMLDivElement | undefined = $state();
+	let scrollTarget = $state<ScrollTarget | null>(null);
+	let scrollTargetSerial = 0;
 	let currentGridParentId = $state<string | null>(null);
 	let gridBackStack = $state<(string | null)[]>([]);
 	let gridForwardStack = $state<(string | null)[]>([]);
@@ -273,6 +277,11 @@
 	function handleNodeClick(id: string, e: MouseEvent) {
 		const node = findNodeById(nodes, id);
 		if (!node) return;
+		if (e.altKey) {
+			e.preventDefault();
+			handleTertiaryAction(id, e);
+			return;
+		}
 
 		const additive = e.ctrlKey || e.metaKey;
 		const range = e.shiftKey;
@@ -281,7 +290,7 @@
 		);
 	}
 
-	function handlePrimaryAction(id: string, e: MouseEvent) {
+	function handleSecondaryAction(id: string, e: MouseEvent) {
 		const node = findNodeById(nodes, id);
 		if (!node) return;
 		const additive = e.ctrlKey || e.metaKey;
@@ -294,6 +303,23 @@
 			return;
 		}
 		activateNode(node);
+	}
+
+	function handleTertiaryAction(id: string, e: MouseEvent | KeyboardEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+		const node = findNodeById(nodes, id);
+		if (!node) return;
+		const selectedNodes = selectedNodesForContext(node);
+		if (provider.handleNodeTertiaryAction) {
+			provider.handleNodeTertiaryAction(node, selectedNodes);
+			return;
+		}
+		void plugin.queueService.requestDelete({
+			nodeId: id,
+			nodeLabel: node.label,
+			enqueueDelete: () => provider.handleHoverBadge?.(node, 'delete'),
+		});
 	}
 
 	function handleContextMenu(id: string, e: MouseEvent) {
@@ -345,7 +371,7 @@
 			);
 		} else if (e.key === 'Enter') {
 			const node = findNodeById(nodes, logicalId);
-			if (node) handlePrimaryAction(logicalId, e as unknown as MouseEvent);
+			if (node) handleSecondaryAction(logicalId, e as unknown as MouseEvent);
 		}
 	}
 
@@ -370,6 +396,7 @@
 		const targetId = orderedIds[targetIndex];
 		if (!targetId) return;
 		commitSelection(selectionService.selectPointer(provider.id, orderedIds, targetId));
+		revealNode(targetId);
 	}
 
 	function handleInlineGridExpansionKeydown(id: string, e: KeyboardEvent): boolean {
@@ -432,8 +459,8 @@
 	}
 
 	function activateNode(node: TreeNode<TMeta>) {
-		if (provider.handleNodeSelection) {
-			provider.handleNodeSelection(selectedNodesForContext(node));
+		if (provider.handleNodeSecondaryAction) {
+			provider.handleNodeSecondaryAction(node, selectedNodesForContext(node));
 			return;
 		}
 		provider.handleNodeClick(node);
@@ -689,6 +716,10 @@
 		commitSelection(selectionService.clear(provider.id));
 	}
 
+	function revealNode(id: string): void {
+		scrollTarget = { id, serial: ++scrollTargetSerial };
+	}
+
 	/**
 	 * Land keyboard focus on the first virtual row (or grid tile). Used
 	 * by `vaultman:open` so arrow keys navigate immediately after the
@@ -828,13 +859,14 @@
 					focusedId={focusedNodeId}
 					onToggle={toggleExpand}
 					onRowClick={handleNodeClick}
-					onPrimaryAction={handlePrimaryAction}
+					onSecondaryAction={handleSecondaryAction}
 					onBoxSelect={handleBoxSelect}
 					onContextMenu={handleContextMenu}
 					onRowKeydown={handleRowKeydown}
 					onBadgeDoubleClick={handleBadgeClick}
 					onHoverBadgeAction={handleHoverBadgeAction}
 					{activeOpsByNode}
+					{scrollTarget}
 					{icon}
 				/>
 			{/if}
@@ -867,13 +899,14 @@
 					hierarchyMode={gridHierarchyMode}
 					expandedIds={gridHierarchyMode === 'inline' ? gridExpandedIds : undefined}
 					onTileClick={handleNodeClick}
-					onPrimaryAction={handlePrimaryAction}
+					onSecondaryAction={handleSecondaryAction}
 					onBoxSelect={handleBoxSelect}
 					onContextMenu={handleContextMenu}
 					onTileKeydown={handleRowKeydown}
 					onToggleExpand={toggleExpand}
 					onHoverBadgeAction={handleHoverBadgeAction}
 					{activeOpsByNode}
+					{scrollTarget}
 					{icon}
 				/>
 			{/if}
@@ -890,10 +923,11 @@
 					focusedId={focusedNodeId}
 					activeId={selectionSnapshot.activeId}
 					onRowClick={handleNodeClick}
-					onPrimaryAction={handlePrimaryAction}
+					onSecondaryAction={handleSecondaryAction}
 					onContextMenu={handleContextMenu}
 					onRowKeydown={handleRowKeydown}
 					onSelectAll={(ids, e) => handleTableSelectAll(ids, e)}
+					{scrollTarget}
 					{icon}
 				/>
 			{/if}

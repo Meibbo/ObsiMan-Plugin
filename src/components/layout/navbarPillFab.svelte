@@ -74,6 +74,29 @@
 
 	function makeFabClickHandler(fab: FabDef | null): (e: MouseEvent) => void {
 		if (!fab) return () => {};
+		if (fab.onTertiaryClick) {
+			const dbl = fab.onDoubleClick
+				? useDoubleClick({
+						onSingle: () => fab.action?.(),
+						onDouble: () => fab.onDoubleClick?.(),
+						threshold: 250,
+					})
+				: null;
+			return (e: MouseEvent) => {
+				e.stopPropagation();
+				if (e.altKey) {
+					e.preventDefault();
+					dbl?.cancel();
+					fab.onTertiaryClick?.();
+					return;
+				}
+				if (!dbl) {
+					fab.action?.();
+					return;
+				}
+				dbl.handleClick(e);
+			};
+		}
 		if (!fab.onDoubleClick) {
 			return (e: MouseEvent) => {
 				e.stopPropagation();

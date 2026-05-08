@@ -32,6 +32,7 @@
 	const TREE_FALLBACK_WIDTH = 320;
 	const TREE_FALLBACK_HEIGHT = 400;
 	const TREE_OVERSCAN = 5;
+	type ScrollTarget = { id: string; serial: number };
 
 	interface Props {
 		nodes: TreeNode[];
@@ -41,6 +42,7 @@
 		onToggle: (id: string) => void;
 		onRowClick: (id: string, e: MouseEvent) => void;
 		onPrimaryAction?: (id: string, e: MouseEvent) => void;
+		onSecondaryAction?: (id: string, e: MouseEvent) => void;
 		onBoxSelect?: (ids: string[], e: PointerEvent) => void;
 		onContextMenu: (id: string, e: MouseEvent) => void;
 		onRowKeydown?: (id: string, e: KeyboardEvent) => void;
@@ -53,6 +55,7 @@
 		onBadgeDoubleClick?: (queueIndex: number) => void;
 		onHoverBadgeAction?: (id: string, kind: BadgeKind, e: MouseEvent | KeyboardEvent) => void;
 		activeOpsByNode?: ActiveOpsByNode;
+		scrollTarget?: ScrollTarget | null;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	}
 
@@ -64,6 +67,7 @@
 		onToggle,
 		onRowClick,
 		onPrimaryAction,
+		onSecondaryAction,
 		onBoxSelect,
 		onContextMenu,
 		onRowKeydown,
@@ -76,6 +80,7 @@
 		onBadgeDoubleClick,
 		onHoverBadgeAction,
 		activeOpsByNode,
+		scrollTarget = null,
 		icon,
 	}: Props = $props();
 
@@ -142,11 +147,33 @@
 		);
 	});
 
+	$effect(() => {
+		const target = scrollTarget;
+		if (!target || !outerEl) return;
+		const index = flatArray.findIndex((item) => item.node.id === target.id);
+		if (index >= 0) scrollRowIntoView(index);
+	});
+
 	function onScroll() {
 		getActivePerfProbe()?.count('viewTree.scroll', {
 			rows: flatArray.length,
 			visibleRows: virtualRows.length,
 		});
+	}
+
+	function scrollRowIntoView(index: number): void {
+		if (!outerEl) return;
+		const viewportHeight = outerEl.clientHeight || TREE_FALLBACK_HEIGHT;
+		const currentTop = outerEl.scrollTop;
+		const rowTop = index * rowHeight;
+		const rowBottom = rowTop + rowHeight;
+		const currentBottom = currentTop + viewportHeight;
+		if (rowTop >= currentTop && rowBottom <= currentBottom) return;
+
+		const nextTop = rowTop < currentTop ? rowTop : Math.max(0, rowBottom - viewportHeight);
+		$rowVirtualizer.scrollToIndex(index, { align: rowTop < currentTop ? 'start' : 'end' });
+		outerEl.scrollTop = nextTop;
+		outerEl.dispatchEvent(new Event('scroll'));
 	}
 
 	function flattenMeasured(items: TreeNode[], expanded: ReadonlySet<string>): FlatNode[] {
@@ -200,16 +227,9 @@
 		onRowClick(id, e);
 	}
 
-	function handlePrimaryAction(e: MouseEvent, id: string) {
+	function handleSecondaryAction(e: MouseEvent, id: string) {
 		e.stopPropagation();
-		onPrimaryAction?.(id, e);
-	}
-
-	function handlePrimaryActionKeydown(e: KeyboardEvent, id: string) {
-		if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
-		e.stopPropagation();
-		e.preventDefault();
-		onPrimaryAction?.(id, e as unknown as MouseEvent);
+		onSecondaryAction?.(id, e);
 	}
 
 	function handlePointerDown(e: PointerEvent) {
@@ -458,6 +478,7 @@
 				style="--vm-tree-y: {virtualRow.start}px; --depth: {flat.depth}"
 				data-id={node.id}
 				onclick={(e) => handleRowClick(e, node.id)}
+				ondblclick={(e) => handleSecondaryAction(e, node.id)}
 				oncontextmenu={(e) => onContextMenu(node.id, e)}
 				onkeydown={(e) => handleKeydown(e, node.id)}
 				role="treeitem"
@@ -481,6 +502,7 @@
 							e.stopPropagation();
 							if (flat.hasChildren) onToggle(node.id);
 						}}
+						ondblclick={(e) => e.stopPropagation()}
 						onkeydown={() => {}}
 						role="button"
 						tabindex="-1"
@@ -507,13 +529,7 @@
 							use:focus
 						/>
 					{:else}
-						<span
-							class="vm-tree-label"
-							role="button"
-							tabindex="-1"
-							onclick={(e) => handlePrimaryAction(e, node.id)}
-							onkeydown={(e) => handlePrimaryActionKeydown(e, node.id)}
-						>
+						<span class="vm-tree-label">
 							<HighlightText text={node.label} ranges={node.highlights ?? []} />
 						</span>
 					{/if}

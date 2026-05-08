@@ -34,6 +34,7 @@
 	const GRID_OVERSCAN = 3;
 	const GRID_ROW_HEIGHT = GRID_TILE_HEIGHT + GRID_GAP;
 	const EMPTY_EXPANDED_IDS: ReadonlySet<string> = new Set();
+	type ScrollTarget = { id: string; serial: number };
 
 	type HierarchyMode = 'folder' | 'inline';
 
@@ -52,12 +53,14 @@
 		expandedIds?: ReadonlySet<string>;
 		onTileClick: (id: string, e: MouseEvent) => void;
 		onPrimaryAction?: (id: string, e: MouseEvent) => void;
+		onSecondaryAction?: (id: string, e: MouseEvent) => void;
 		onBoxSelect?: (ids: string[], e: PointerEvent) => void;
 		onContextMenu: (id: string, e: MouseEvent) => void;
 		onTileKeydown?: (id: string, e: KeyboardEvent) => void;
 		onHoverBadgeAction?: (id: string, kind: BadgeKind, e: MouseEvent | KeyboardEvent) => void;
 		activeOpsByNode?: ActiveOpsByNode;
 		onToggleExpand?: (id: string, e: MouseEvent | KeyboardEvent) => void;
+		scrollTarget?: ScrollTarget | null;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	}
 
@@ -69,13 +72,15 @@
 		hierarchyMode = 'folder',
 		expandedIds = EMPTY_EXPANDED_IDS,
 		onTileClick,
-		onPrimaryAction,
+		onPrimaryAction: _onPrimaryAction,
+		onSecondaryAction,
 		onBoxSelect,
 		onContextMenu,
 		onTileKeydown,
 		onHoverBadgeAction,
 		activeOpsByNode,
 		onToggleExpand,
+		scrollTarget = null,
 		icon,
 	}: Props = $props();
 
@@ -140,6 +145,15 @@
 	});
 
 	$effect(() => {
+		const target = scrollTarget;
+		if (!target || !outerEl) return;
+		const rowIndex = gridRows.findIndex((row) =>
+			row.nodes.some((node) => containsNodeId(node, target.id)),
+		);
+		if (rowIndex >= 0) scrollGridRowIntoView(rowIndex);
+	});
+
+	$effect(() => {
 		if (!outerEl) return;
 		updateGridMetrics();
 		if (typeof ResizeObserver === 'undefined') return;
@@ -160,6 +174,28 @@
 			return;
 		}
 		onTileClick(id, e);
+	}
+
+	function handleSecondaryAction(id: string, e: MouseEvent) {
+		e.stopPropagation();
+		onSecondaryAction?.(id, e);
+	}
+
+	function scrollGridRowIntoView(rowIndex: number): void {
+		if (!outerEl) return;
+		const row = gridRows[rowIndex];
+		const rowHeight = row?.height ?? GRID_ROW_HEIGHT;
+		const viewportHeight = outerEl.clientHeight || GRID_FALLBACK_HEIGHT;
+		const rowTop = rowIndex * GRID_ROW_HEIGHT + GRID_PADDING;
+		const rowBottom = rowTop + rowHeight;
+		const currentTop = outerEl.scrollTop;
+		const currentBottom = currentTop + viewportHeight;
+		if (rowTop >= currentTop && rowBottom <= currentBottom) return;
+
+		const nextTop = rowTop < currentTop ? rowTop : Math.max(0, rowBottom - viewportHeight);
+		$rowVirtualizer.scrollToIndex(rowIndex, { align: rowTop < currentTop ? 'start' : 'end' });
+		outerEl.scrollTop = nextTop;
+		outerEl.dispatchEvent(new Event('scroll'));
 	}
 
 	function handleTileKeydown(id: string, e: KeyboardEvent) {
@@ -380,6 +416,11 @@
 		return !!node.children && node.children.length > 0;
 	}
 
+	function containsNodeId(node: TreeNode, id: string): boolean {
+		if (node.id === id) return true;
+		return node.children?.some((child) => containsNodeId(child, id)) ?? false;
+	}
+
 	function inlineRowKey(rowNodes: TreeNode[], rowIndex: number): string {
 		return `${rowIndex}:${rowNodes.map((node) => node.id).join('\u0000')}`;
 	}
@@ -402,6 +443,7 @@
 		class:is-inline-hierarchy={hierarchyMode === 'inline'}
 		data-id={node.id}
 		onclick={(e) => handleTileClick(node.id, e)}
+		ondblclick={(e) => handleSecondaryAction(node.id, e)}
 		oncontextmenu={(e) => onContextMenu(node.id, e)}
 		onkeydown={(e) => handleTileKeydown(node.id, e)}
 		role="gridcell"
@@ -430,16 +472,9 @@
 		{:else if hierarchyMode === 'inline'}
 			<span class="vm-node-grid-icon-placeholder" aria-hidden="true"></span>
 		{/if}
-		<button
-			type="button"
-			class="vm-node-grid-label"
-			onclick={(e) => {
-				e.stopPropagation();
-				onPrimaryAction?.(node.id, e);
-			}}
-		>
+		<span class="vm-node-grid-label">
 			{node.label}
-		</button>
+		</span>
 		{#if hoverBadges.length > 0}
 			<div class="vm-node-grid-hover-badge-zone">
 				{#each hoverBadges as kind (kind)}

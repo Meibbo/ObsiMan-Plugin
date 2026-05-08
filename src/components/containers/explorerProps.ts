@@ -317,6 +317,12 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 		}
 	}
 
+	handleNodeSecondaryAction(node: TreeNode<PropMeta>): void {
+		const meta = node.meta;
+		const term = meta.isValueNode ? String(meta.rawValue ?? node.label) : meta.propName;
+		this.openContentSearch(term);
+	}
+
 	handleContextMenu(
 		node: TreeNode<PropMeta>,
 		e: MouseEvent,
@@ -477,6 +483,16 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 			return;
 		}
 		new Notice('Prop set requires the fnr island to be mounted.');
+	}
+
+	private openContentSearch(term: string): void {
+		const search = term.trim();
+		if (!search) return;
+		if (this.plugin.openContentSearchHook) {
+			this.plugin.openContentSearchHook(search);
+			return;
+		}
+		this.plugin.contentIndex?.setQuery(search);
 	}
 
 	private quickActionBadges(meta: PropMeta): NodeBadge[] {
