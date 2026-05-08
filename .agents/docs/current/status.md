@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-status.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-08T04:09:11
+updated: 2026-05-08T04:40:56
 tags:
   - agent/current
 created_by: dec
@@ -94,7 +94,7 @@ Archived completed/superseded status:
   [[docs/work/hardening/backlog/2026-05-08-backlog-cut-3/index|viewtree chevron live click regression]].
   SVG chevron pointerdown no longer starts box-selection capture; focused
   component tests, `check`, `lint`, `build`, and Obsidian CDP smoke passed.
-  Remaining named cut: cut 4 `serviceViewSize`/uniform node sizing.
+  Follow-up cut 4 is now done.
 - 2026-05-08 backlog cut 3b DONE:
   [[docs/work/hardening/backlog/2026-05-08-backlog-cut-3b-service-mouse/index|serviceMouse gesture routing]].
   The chevron patch was generalized into `serviceMouse`: nodes, FABs,
@@ -102,6 +102,11 @@ Archived completed/superseded status:
   mouse gestures through one configurable service. Middle mouse can trigger
   tertiary. Focused service unit/component suites, `check`, `lint`, `build`,
   scoped diff-check, and Obsidian CLI smoke are green.
+- 2026-05-08 backlog cut 4 DONE:
+  [[docs/work/hardening/backlog/2026-05-08-backlog-cut-4-view-size/index|serviceViewSize and stable node sizing]].
+  Tree/grid no-icon nodes reserve icon slots, grid presets are centralized in
+  `serviceViewSize`, focused tests plus `check`, `lint`, `build`, and scoped
+  diff-check are green.
 - Node selection service Phase 1 is present and verified. This continuation
   made one lint-only refactor in `serviceSelection.svelte.ts` after the
   service unit tests were green.

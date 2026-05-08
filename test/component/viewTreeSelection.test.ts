@@ -106,6 +106,22 @@ describe('ViewTree selection gestures', () => {
 		expect(handlers.onPrimaryAction).not.toHaveBeenCalled();
 	});
 
+	it('reserves stable icon slots for rows without icons', () => {
+		renderTree([
+			{ id: 'with-icon', label: 'With icon', depth: 0, meta: {}, icon: 'lucide-file' },
+			{ id: 'without-icon', label: 'Without icon', depth: 0, meta: {} },
+		]);
+
+		const tree = target.querySelector('.vm-tree-virtual-outer') as HTMLElement;
+		const withIcon = target.querySelector('[data-id="with-icon"]') as HTMLElement;
+		const withoutIcon = target.querySelector('[data-id="without-icon"]') as HTMLElement;
+
+		expect(withIcon.querySelector('.vm-tree-icon')).not.toBeNull();
+		expect(withoutIcon.querySelector('.vm-tree-icon-placeholder')).not.toBeNull();
+		expect(tree.getAttribute('style')).toContain('--vm-tree-row-h: 28px');
+		expect(tree.getAttribute('style')).toContain('--vm-tree-icon-size: 16px');
+	});
+
 	it('does not start box selection when the SVG inside a chevron receives pointerdown', () => {
 		const handlers = renderTree(
 			[

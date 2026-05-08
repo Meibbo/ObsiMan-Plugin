@@ -9,9 +9,12 @@
 // Shared tree-item icon sizing
 @mixin tree-icon-size($w: 16px) {
 	min-width: $w;
+	width: $w;
+	height: $w;
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
+	justify-content: center;
 	color: inherit;
 }
 
@@ -108,22 +111,23 @@
 	}
 
 	&-toggle {
-		@include tree-icon-size;
+		@include tree-icon-size(var(--vm-tree-toggle-size, 20px));
 		color: $vm-text-normal;
 		opacity: 0.35;
-		width: 20px;
 	}
 
-	&-icon {
-		@include tree-icon-size;
-
-		&:empty {
-			display: none;
-		}
+	&-icon,
+	&-icon-placeholder {
+		@include tree-icon-size(var(--vm-tree-icon-size, 16px));
 
 		& + .vm-tree-label {
 			margin-left: 2px;
 		}
+	}
+
+	&-icon svg {
+		width: var(--vm-tree-icon-size, 16px);
+		height: var(--vm-tree-icon-size, 16px);
 	}
 
 	&-label {

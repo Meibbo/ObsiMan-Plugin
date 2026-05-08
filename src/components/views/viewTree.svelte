@@ -19,6 +19,12 @@
 		mergeMouseGestureConfig,
 		type MouseGestureConfig,
 	} from '../../services/serviceMouse';
+	import {
+		DEFAULT_VIEW_SIZE_PRESET,
+		getViewSizePreset,
+		viewSizeCssVars,
+		type ViewSizePresetId,
+	} from '../../services/serviceViewSize';
 
 	const HOVER_BADGE_ICONS: Record<BadgeKind, string> = {
 		set: 'lucide-pencil-line',
@@ -36,7 +42,8 @@
 		filter: 'Filter',
 	};
 
-	const TREE_ROW_HEIGHT = 32;
+	const DEFAULT_VIEW_SIZE = getViewSizePreset(DEFAULT_VIEW_SIZE_PRESET);
+	const TREE_ROW_HEIGHT = DEFAULT_VIEW_SIZE.treeRowHeight;
 	const TREE_FALLBACK_WIDTH = 320;
 	const TREE_FALLBACK_HEIGHT = 400;
 	const TREE_OVERSCAN = 5;
@@ -66,6 +73,7 @@
 		activeOpsByNode?: ActiveOpsByNode;
 		scrollTarget?: ScrollTarget | null;
 		mouseGestureConfig?: MouseGestureConfig;
+		sizePresetId?: ViewSizePresetId;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	}
 
@@ -93,6 +101,7 @@
 		activeOpsByNode,
 		scrollTarget = null,
 		mouseGestureConfig,
+		sizePresetId = DEFAULT_VIEW_SIZE_PRESET,
 		icon,
 	}: Props = $props();
 
@@ -128,6 +137,8 @@
 	let suppressNextClick = false;
 	let rowHeightFrame: number | null = null;
 	const mouse = createMouseGestureService();
+	const viewSize = $derived(getViewSizePreset(sizePresetId));
+	const viewSizeStyle = $derived(viewSizeCssVars(viewSize));
 	const nodeMouseConfig = $derived(
 		mergeMouseGestureConfig(NODE_MOUSE_GESTURE_CONFIG, mouseGestureConfig),
 	);
@@ -478,6 +489,7 @@
 	role="tree"
 	aria-multiselectable="true"
 	tabindex="-1"
+	style={viewSizeStyle}
 >
 	<div class="vm-tree-virtual-inner" style="--vm-tree-total-h: {totalH}px">
 		{#each renderedVirtualRows as virtualRow (virtualRow.key)}
@@ -541,6 +553,8 @@
 					<!-- Icon -->
 					{#if node.icon}
 						<span class="vm-tree-icon" use:icon={node.icon}></span>
+					{:else}
+						<span class="vm-tree-icon-placeholder" aria-hidden="true"></span>
 					{/if}
 
 					<!-- Label / Input -->

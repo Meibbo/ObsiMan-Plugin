@@ -10,6 +10,13 @@ function nodes(): TreeNode[] {
 	];
 }
 
+function mixedIconNodes(): TreeNode[] {
+	return [
+		{ id: 'with-icon', label: 'With icon', depth: 0, meta: {}, icon: 'lucide-file' },
+		{ id: 'without-icon', label: 'Without icon', depth: 0, meta: {} },
+	];
+}
+
 function hierarchicalNodes(): TreeNode[] {
 	return [
 		{
@@ -122,6 +129,19 @@ describe('ViewNodeGrid selection gestures', () => {
 		expect(target.querySelector('[data-id="alpha"]')?.textContent).toContain('Alpha');
 		expect(target.querySelector('[data-id="beta"]')?.textContent).toContain('Beta');
 		expect(target.querySelectorAll('.vm-node-grid-icon')).toHaveLength(2);
+	});
+
+	it('reserves stable icon and size slots for nodes without icons', () => {
+		renderGrid({ nodes: mixedIconNodes() });
+
+		const grid = target.querySelector('.vm-node-grid') as HTMLElement;
+		const withIcon = target.querySelector('[data-id="with-icon"]') as HTMLElement;
+		const withoutIcon = target.querySelector('[data-id="without-icon"]') as HTMLElement;
+
+		expect(withIcon.querySelector('.vm-node-grid-icon')).not.toBeNull();
+		expect(withoutIcon.querySelector('.vm-node-grid-icon-placeholder')).not.toBeNull();
+		expect(grid.getAttribute('style')).toContain('--vm-node-grid-tile-w: 128px');
+		expect(grid.getAttribute('style')).toContain('--vm-node-grid-icon-size: 24px');
 	});
 
 	it('virtualizes large node sets instead of mounting every tile', () => {

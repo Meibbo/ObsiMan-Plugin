@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-handoff.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-08T03:56:04
+updated: 2026-05-08T04:40:56
 tags:
   - agent/current
 created_by: dec
@@ -48,16 +48,22 @@ Archived completed/superseded handoff:
   Root cause was SVG `pointerdown` from Obsidian `setIcon` bypassing the
   `HTMLElement` guard and starting box-selection capture. Fix changed the
   guard to accept any `Element`. Focused component tests, `check`, `lint`,
-  `build`, and Obsidian CDP smoke passed. Remaining named cut: cut 4
-  `serviceViewSize`/uniform node sizing.
-- 2026-05-08 backlog cut 3b is verifying:
+  `build`, and Obsidian CDP smoke passed. Follow-up cut 4 is now done.
+- 2026-05-08 backlog cut 3b is done:
   [[docs/work/hardening/backlog/2026-05-08-backlog-cut-3b-service-mouse/index|serviceMouse gesture routing]].
   This supersedes the chevron-only conclusion with a generic mouse grammar:
   `serviceMouse` resolves primary/secondary/tertiary gestures for nodes,
   FABs, view/sort controls, grid, and table; middle mouse is a tertiary
   binding; `VaultmanSettings.mouseGestures` carries per-surface config.
-  Focused service unit and component suites are green; broad `check`/`lint`/
-  `build` still pending.
+  Focused service unit and component suites, `check`, `lint`, `build`, scoped
+  diff-check, and Obsidian CLI smoke are green.
+- 2026-05-08 backlog cut 4 is done:
+  [[docs/work/hardening/backlog/2026-05-08-backlog-cut-4-view-size/index|serviceViewSize and stable node sizing]].
+  Tree/grid no-icon nodes reserve icon slots, grid presets are centralized in
+  `serviceViewSize`, and focused tests plus `check`, `lint`, `build`, scoped
+  diff-check are green. Remaining backlog starts with multi-selected badge
+  operations, contradiction warnings, filter ingestion, and tabcontent search
+  progress UX.
 - Phase 1 selection service is present and verified. Phase 2 tree adapter is
   implemented and verified in the current worktree.
 - Phase 3 provider actions is implemented and verified.

@@ -16,6 +16,12 @@
 		mergeMouseGestureConfig,
 		type MouseGestureConfig,
 	} from '../../services/serviceMouse';
+	import {
+		DEFAULT_VIEW_SIZE_PRESET,
+		getViewSizePreset,
+		viewSizeCssVars,
+		type ViewSizePresetId,
+	} from '../../services/serviceViewSize';
 
 	const HOVER_BADGE_ICONS: Record<BadgeKind, string> = {
 		set: 'lucide-pencil-line',
@@ -33,14 +39,9 @@
 		filter: 'Filter',
 	};
 
-	const GRID_TILE_MIN_WIDTH = 128;
-	const GRID_TILE_HEIGHT = 54;
-	const GRID_GAP = 8;
-	const GRID_PADDING = 8;
 	const GRID_FALLBACK_WIDTH = 480;
 	const GRID_FALLBACK_HEIGHT = 360;
 	const GRID_OVERSCAN = 3;
-	const GRID_ROW_HEIGHT = GRID_TILE_HEIGHT + GRID_GAP;
 	const EMPTY_EXPANDED_IDS: ReadonlySet<string> = new Set();
 	type ScrollTarget = { id: string; serial: number };
 
@@ -71,6 +72,7 @@
 		onToggleExpand?: (id: string, e: MouseEvent | KeyboardEvent) => void;
 		scrollTarget?: ScrollTarget | null;
 		mouseGestureConfig?: MouseGestureConfig;
+		sizePresetId?: ViewSizePresetId;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	}
 
@@ -93,6 +95,7 @@
 		onToggleExpand,
 		scrollTarget = null,
 		mouseGestureConfig,
+		sizePresetId = DEFAULT_VIEW_SIZE_PRESET,
 		icon,
 	}: Props = $props();
 
@@ -126,6 +129,9 @@
 	let suppressNextClick = false;
 	let gridMetricsFrame: number | null = null;
 	const mouse = createMouseGestureService();
+	const viewSize = $derived(getViewSizePreset(sizePresetId));
+	const viewSizeStyle = $derived(viewSizeCssVars(viewSize));
+	const gridRowBaseHeight = $derived(viewSize.tileHeight + viewSize.gap);
 	const nodeMouseConfig = $derived(
 		mergeMouseGestureConfig(NODE_MOUSE_GESTURE_CONFIG, mouseGestureConfig),
 	);
@@ -136,14 +142,14 @@
 	const rowVirtualizer = createVirtualizer<HTMLDivElement, HTMLDivElement>({
 		count: 0,
 		getScrollElement: () => outerEl ?? null,
-		estimateSize: () => GRID_ROW_HEIGHT,
+		estimateSize: () => gridRowBaseHeight,
 		observeElementRect: observeGridRect,
 		overscan: GRID_OVERSCAN,
 		initialRect: { width: GRID_FALLBACK_WIDTH, height: GRID_FALLBACK_HEIGHT },
 	});
 	const virtualRows = $derived($rowVirtualizer.getVirtualItems());
 	const renderedRows = $derived(virtualRows.filter((row) => row.index < gridRows.length));
-	const totalHeight = $derived($rowVirtualizer.getTotalSize() + GRID_PADDING * 2);
+	const totalHeight = $derived($rowVirtualizer.getTotalSize() + viewSize.gap * 2);
 
 	$effect(() => {
 		const rows = gridRows;
@@ -154,7 +160,7 @@
 			$rowVirtualizer.setOptions({
 				count,
 				getScrollElement: () => scrollElement ?? null,
-				estimateSize: (index) => rows[index]?.height ?? GRID_ROW_HEIGHT,
+				estimateSize: (index) => rows[index]?.height ?? gridRowBaseHeight,
 				observeElementRect: observeGridRect,
 				overscan: GRID_OVERSCAN,
 				initialRect: { width, height: GRID_FALLBACK_HEIGHT },
@@ -215,9 +221,9 @@
 	function scrollGridRowIntoView(rowIndex: number): void {
 		if (!outerEl) return;
 		const row = gridRows[rowIndex];
-		const rowHeight = row?.height ?? GRID_ROW_HEIGHT;
+		const rowHeight = row?.height ?? gridRowBaseHeight;
 		const viewportHeight = outerEl.clientHeight || GRID_FALLBACK_HEIGHT;
-		const rowTop = rowIndex * GRID_ROW_HEIGHT + GRID_PADDING;
+		const rowTop = rowIndex * gridRowBaseHeight + viewSize.gap;
 		const rowBottom = rowTop + rowHeight;
 		const currentTop = outerEl.scrollTop;
 		const currentBottom = currentTop + viewportHeight;
@@ -377,8 +383,10 @@
 	}
 
 	function columnsForWidth(width: number): number {
-		const contentWidth = Math.max(GRID_TILE_MIN_WIDTH, width - GRID_PADDING * 2);
-		return Math.max(1, Math.floor((contentWidth + GRID_GAP) / (GRID_TILE_MIN_WIDTH + GRID_GAP)));
+		const tileWidth = viewSize.tileWidth;
+		const gap = viewSize.gap;
+		const contentWidth = Math.max(tileWidth, width - gap * 2);
+		return Math.max(1, Math.floor((contentWidth + gap) / (tileWidth + gap)));
 	}
 
 	function rectsIntersect(a: DOMRect, b: DOMRect): boolean {
@@ -410,10 +418,10 @@
 		mode: HierarchyMode,
 		expanded: ReadonlySet<string>,
 	): number {
-		if (mode !== 'inline') return GRID_TILE_HEIGHT;
+		if (mode !== 'inline') return viewSize.tileHeight;
 		return rowNodes.reduce(
 			(height, node) => height + expandedPanelHeight(node, columns, expanded),
-			GRID_TILE_HEIGHT,
+			viewSize.tileHeight,
 		);
 	}
 
@@ -426,9 +434,9 @@
 		const childRows = chunkNodes(node.children, columns);
 		const rowsHeight = childRows.reduce((height, rowNodes, index) => {
 			const rowHeight = gridRowHeight(rowNodes, columns, 'inline', expanded);
-			return height + rowHeight + (index === childRows.length - 1 ? 0 : GRID_GAP);
+			return height + rowHeight + (index === childRows.length - 1 ? 0 : viewSize.gap);
 		}, 0);
-		return GRID_GAP + GRID_PADDING * 2 + rowsHeight;
+		return viewSize.gap + viewSize.gap * 2 + rowsHeight;
 	}
 
 	function chunkNodes(items: TreeNode[], columns: number): TreeNode[][] {
@@ -497,7 +505,7 @@
 		{/if}
 		{#if node.icon}
 			<span class="vm-node-grid-icon" use:icon={node.icon}></span>
-		{:else if hierarchyMode === 'inline'}
+		{:else}
 			<span class="vm-node-grid-icon-placeholder" aria-hidden="true"></span>
 		{/if}
 		<span class="vm-node-grid-label">
@@ -559,6 +567,7 @@
 	role="grid"
 	aria-multiselectable="true"
 	tabindex="-1"
+	style={viewSizeStyle}
 	onpointerdown={handlePointerDown}
 	onpointermove={handlePointerMove}
 	onpointerup={handlePointerUp}
@@ -574,7 +583,7 @@
 				<div
 					class="vm-node-grid-row"
 					style="--vm-node-grid-y: {virtualRow.start +
-						GRID_PADDING}px; --vm-node-grid-row-h: {row.height}px"
+						viewSize.gap}px; --vm-node-grid-row-h: {row.height}px"
 				>
 					<div class="vm-node-grid-row-tiles">
 						{#each row.nodes as node (node.id)}
