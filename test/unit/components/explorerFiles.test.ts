@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { explorerFiles } from '../../../src/components/containers/explorerFiles';
+import { explorerFiles } from '../../../src/providers/explorerFiles';
 import { DecorationManager } from '../../../src/services/serviceDecorate';
 import { ViewService } from '../../../src/services/serviceViews.svelte';
 import type { VaultmanPlugin } from '../../../src/main';
@@ -31,6 +31,10 @@ function makePlugin(): {
 		setSelectedFiles,
 		plugin: {
 			app,
+			settings: {
+				explorerFilesShowHidden: false,
+				explorerOperationScope: 'auto',
+			},
 			contextMenuService: { registerAction: vi.fn(), openPanelMenu: vi.fn() },
 			queueService: { add: vi.fn() },
 			operationsIndex: { nodes: [], refresh: vi.fn(), subscribe: vi.fn(), byId: vi.fn() },
@@ -151,6 +155,89 @@ describe('explorerFiles interactions', () => {
 		expect(explorer.getTree().some((node) => node.id === 'folder:Assets')).toBe(true);
 	});
 
+	it('hides dot-prefixed files and folders by default', () => {
+		const { plugin, files } = makePlugin();
+		const hiddenFile = mockTFile('Notes/.draft.md');
+		const hiddenFolderFile = mockTFile('.vaultman/cache.md');
+		(plugin.app.vault as unknown as { getFiles: () => TFile[] }).getFiles = () => [
+			...files,
+			hiddenFile,
+			hiddenFolderFile,
+		];
+		(plugin.filterService as unknown as { activeFilter: { children: unknown[] } }).activeFilter = {
+			children: [],
+		};
+		const explorer = new explorerFiles(plugin);
+
+		const paths = explorer.getFiles().map((file) => file.path);
+
+		expect(paths).toEqual(files.map((file) => file.path));
+		expect(explorer.getTree().some((node) => node.id === 'folder:.vaultman')).toBe(false);
+	});
+
+	it('shows dot-prefixed files and folders when enabled in settings', () => {
+		const { plugin, files } = makePlugin();
+		(plugin.settings as unknown as { explorerFilesShowHidden: boolean }).explorerFilesShowHidden =
+			true;
+		const hiddenFile = mockTFile('Notes/.draft.md');
+		const hiddenFolderFile = mockTFile('.vaultman/cache.md');
+		(plugin.app.vault as unknown as { getFiles: () => TFile[] }).getFiles = () => [
+			...files,
+			hiddenFile,
+			hiddenFolderFile,
+		];
+		(plugin.filterService as unknown as { activeFilter: { children: unknown[] } }).activeFilter = {
+			children: [],
+		};
+		const explorer = new explorerFiles(plugin);
+
+		const paths = explorer.getFiles().map((file) => file.path);
+
+		expect(paths).toEqual([...files, hiddenFile, hiddenFolderFile].map((file) => file.path));
+		expect(explorer.getTree().some((node) => node.id === 'folder:.vaultman')).toBe(true);
+	});
+
+	it('creates missing ancestor folders so nested folder nodes follow the file path', () => {
+		const { plugin } = makePlugin();
+		const nested = mockTFile('Root/Child/file.md');
+		(plugin.app.vault as unknown as { getFiles: () => TFile[] }).getFiles = () => [nested];
+		(plugin.filterService as unknown as { activeFilter: { children: unknown[] } }).activeFilter = {
+			children: [],
+		};
+		const explorer = new explorerFiles(plugin);
+
+		const tree = explorer.getTree();
+		const root = tree.find((node) => node.id === 'folder:Root');
+		const child = root?.children?.find((node) => node.id === 'folder:Root/Child');
+
+		expect(root).toBeTruthy();
+		expect(root?.depth).toBe(0);
+		expect(child).toBeTruthy();
+		expect(child?.depth).toBe(1);
+		expect(child?.children?.[0]).toMatchObject({
+			id: 'Root/Child/file.md',
+			depth: 2,
+		});
+		expect(tree.some((node) => node.id === 'folder:Root/Child')).toBe(false);
+	});
+
+	it('uses the file extension as the non-markdown count label', () => {
+		const { plugin, files } = makePlugin();
+		const pdf = mockTFile('Assets/manual.pdf', { frontmatter: { ignored: true } });
+		(plugin.app.vault as unknown as { getFiles: () => TFile[] }).getFiles = () => [...files, pdf];
+		(plugin.filterService as unknown as { activeFilter: { children: unknown[] } }).activeFilter = {
+			children: [],
+		};
+		const explorer = new explorerFiles(plugin);
+
+		const assets = explorer.getTree().find((node) => node.id === 'folder:Assets');
+		const pdfNode = assets?.children?.find((node) => node.id === pdf.path);
+
+		expect(pdfNode).toBeTruthy();
+		expect(pdfNode?.countLabel).toBe('pdf');
+		expect(pdfNode?.count).toBeUndefined();
+	});
+
 	it('shows root image files with an image icon', () => {
 		const { plugin, files } = makePlugin();
 		const png = mockTFile('cover.png');
@@ -216,5 +303,30 @@ describe('explorerFiles interactions', () => {
 				([change]) => change.action,
 			),
 		).toEqual(['append-links', 'delete']);
+	});
+
+	it('routes selected file hover badges to all same-type selected nodes', () => {
+		const { plugin, files, setSelectedFiles } = makePlugin();
+		const explorer = new explorerFiles(plugin) as explorerFiles & {
+			handleHoverBadge?: (
+				node: ReturnType<explorerFiles['getTree']>[number],
+				kind: string,
+				selectedNodes?: ReturnType<explorerFiles['getTree']>,
+			) => void;
+		};
+		const fileNodes = explorer.getTree()[0].children?.filter((node) => node.meta.file) ?? [];
+
+		expect(fileNodes.length).toBe(2);
+
+		explorer.handleHoverBadge?.(fileNodes[0], 'filter', fileNodes);
+		explorer.handleHoverBadge?.(fileNodes[0], 'delete', fileNodes);
+
+		expect(setSelectedFiles).toHaveBeenCalledWith(files);
+		expect(plugin.queueService.add).toHaveBeenCalledTimes(2);
+		expect(
+			(plugin.queueService.add as ReturnType<typeof vi.fn>).mock.calls.map(
+				([change]) => change.files[0],
+			),
+		).toEqual(files);
 	});
 });

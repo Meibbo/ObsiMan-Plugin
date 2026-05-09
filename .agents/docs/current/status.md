@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-status.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-08T10:46:49
+updated: 2026-05-08T20:16:00
 tags:
   - agent/current
 created_by: dec
@@ -118,6 +118,14 @@ Archived completed/superseded status:
   fixed the full-unit `splitYamlBody` regression; full unit, check, lint,
   build, and focused badge components pass. Next cut is cut 6 provider/API
   module migration.
+- 2026-05-08 cuts 6-9 DONE:
+  [[docs/work/hardening/plans/2026-05-08-cuts-6-9-files-open/index|provider/API migration, badge/filter selection ingestion, open toggles, hidden Files explorer, and content search progress]].
+  Providers moved to `src/providers` with container shims and
+  `src/api/explorerProvider.ts`; open commands toggle; Files explorer hides
+  dot-prefixed paths by default with a Settings toggle, builds folder
+  ancestors by path, and shows non-md extensions in count slots; hover badges
+  receive selected nodes and warn on delete/mutation contradictions; content
+  search publishes progress/incremental results.
 - Node selection service Phase 1 is present and verified. This continuation
   made one lint-only refactor in `serviceSelection.svelte.ts` after the
   service unit tests were green.

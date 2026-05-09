@@ -113,6 +113,68 @@ describe('reactive explorer components', () => {
 		expect(target.textContent).toContain('needle');
 	});
 
+	it('renders reactive content search progress while results arrive incrementally', () => {
+		const file = mockTFile('note.md') as TFile;
+		const contentIndex = Object.assign(new MutableIndex<ContentMatch>(), {
+			setQuery: vi.fn(),
+			status: {
+				query: 'needle',
+				phase: 'scanning',
+				scanned: 1,
+				total: 3,
+				resultCount: 1,
+			},
+		});
+		const plugin = {
+			app: mockApp({ files: [file] }),
+			contentIndex,
+			filterService: {
+				filteredFiles: [file],
+				selectedFiles: [],
+			},
+			queueService: {
+				add: vi.fn(),
+				remove: vi.fn(),
+			},
+			operationsIndex: new MutableIndex<QueueChange>(),
+			activeFiltersIndex: new MutableIndex<ActiveFilterEntry>(),
+			viewService: {
+				clearSelection: vi.fn(),
+				select: vi.fn(),
+				setFocused: vi.fn(),
+			},
+			propertyIndex: { fileCount: 1 },
+			contextMenuService: { openPanelMenu: vi.fn() },
+		} as unknown as VaultmanPlugin;
+
+		app = mount(ContentTab as unknown as Component<{ plugin: VaultmanPlugin }>, {
+			target,
+			props: { plugin, query: 'needle' },
+		});
+		contentIndex.emit([
+			{
+				id: 'note.md:2:4',
+				filePath: 'note.md',
+				line: 2,
+				before: 'before ',
+				match: 'needle',
+				after: ' after',
+			},
+		]);
+		flushSync();
+
+		expect(target.querySelector('[data-vm-content-search-status]')?.textContent).toContain(
+			'Searching',
+		);
+		expect(target.querySelector('[data-vm-content-search-status]')?.textContent).toContain(
+			'1 / 3',
+		);
+		expect(target.querySelector('[data-vm-content-search-status]')?.textContent).toContain(
+			'1 result',
+		);
+		expect(target.textContent).toContain('note.md');
+	});
+
 	it('queues a content find and replace operation from the Content tab inputs', () => {
 		const file = mockTFile('note.md') as TFile;
 		const contentIndex = new MutableIndex<ContentMatch>();

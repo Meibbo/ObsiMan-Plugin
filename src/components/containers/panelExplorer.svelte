@@ -18,16 +18,22 @@
 	import ViewNodeTable from '../views/ViewNodeTable.svelte';
 	import ViewEmptyLanding from '../views/viewEmptyLanding.svelte';
 	import { getActivePerfProbe } from '../../dev/perfProbe';
-	import { nodeRowsFromTree, nodeTableColumnsForProvider } from '../../services/serviceViewTableAdapter';
+	import {
+		nodeRowsFromTree,
+		nodeTableColumnsForProvider,
+	} from '../../services/serviceViewTableAdapter';
 	import { NodeSelectionService } from '../../services/serviceSelection.svelte';
 	import type { TreeNode } from '../../types/typeNode';
 	import { bubbleHiddenTreeBadges } from '../../utils/utilBadgeBubbling';
 	import { collectAutoExpandedIds, resolveExpandedIds } from '../../utils/utilExplorerExpansion';
 	import {
+		activeBadges,
 		badgeKindFromNodeBadge,
+		detectBadgeContradictions,
 		type ActiveOpsByNode,
 		type BadgeKind,
 	} from '../../badges/serviceBadge';
+	import { serviceMessage } from '../../services/serviceMessage';
 
 	type ScrollTarget = { id: string; serial: number };
 
@@ -69,7 +75,6 @@
 		onImperativeApiReady?: (api: PanelExplorerImperativeApi) => void;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	} = $props();
-
 
 	const PAGE_NAVIGATION_STEP = 10;
 
@@ -160,7 +165,11 @@
 	});
 
 	$effect(() => {
-		const queue = (plugin as VaultmanPlugin & { queueService?: { on?: (e: 'changed', cb: () => void) => () => void } }).queueService;
+		const queue = (
+			plugin as VaultmanPlugin & {
+				queueService?: { on?: (e: 'changed', cb: () => void) => () => void };
+			}
+		).queueService;
 		if (!queue?.on) return;
 		const off = queue.on('changed', () => {
 			queueVersion += 1;
@@ -312,7 +321,8 @@
 		void plugin.queueService.requestDelete({
 			nodeId: id,
 			nodeLabel: node.label,
-			enqueueDelete: () => provider.handleHoverBadge?.(node, 'delete'),
+			enqueueDelete: () =>
+				provider.handleHoverBadge?.(node, 'delete', selectedNodesForAction(node)),
 		});
 	}
 
@@ -469,11 +479,13 @@
 	function handleHoverBadgeAction(id: string, kind: BadgeKind) {
 		const node = findNodeById(nodes, id);
 		if (!node) return;
+		const targetNodes = selectedNodesForAction(node);
+		warnBadgeContradictions(kind, targetNodes);
 		if (kind !== 'delete') {
 			// Non-delete hover badges are forwarded to the provider so each
 			// adapter can decide how to dispatch them. Providers that have
 			// not opted in are no-ops.
-			provider.handleHoverBadge?.(node, kind);
+			provider.handleHoverBadge?.(node, kind, targetNodes);
 			return;
 		}
 		// Delete is special-cased through `requestDelete` so the queue can
@@ -481,7 +493,7 @@
 		void plugin.queueService.requestDelete({
 			nodeId: id,
 			nodeLabel: node.label,
-			enqueueDelete: () => provider.handleHoverBadge?.(node, 'delete'),
+			enqueueDelete: () => provider.handleHoverBadge?.(node, 'delete', targetNodes),
 		});
 	}
 
@@ -706,6 +718,22 @@
 		return sameType.length > 0 ? sameType : [node];
 	}
 
+	function selectedNodesForAction(node: TreeNode<TMeta>): TreeNode<TMeta>[] {
+		if (!selectedNodeIds.has(node.id)) return [node];
+		return selectedNodesForContext(node);
+	}
+
+	function warnBadgeContradictions(kind: BadgeKind, targetNodes: TreeNode<TMeta>[]): void {
+		const kinds = new Set<BadgeKind>([kind]);
+		for (const target of targetNodes) {
+			for (const active of activeBadges(target, activeOpsByNode)) kinds.add(active);
+		}
+		const contradictions = detectBadgeContradictions(kinds);
+		const warning = contradictions[0];
+		if (!warning) return;
+		serviceMessage.warning(warning.message, { details: warning });
+	}
+
 	function clearNodeSelection() {
 		commitSelection(selectionService.clear(provider.id));
 	}
@@ -733,9 +761,7 @@
 		const tryDomFocus = (attempt: number): boolean => {
 			if (!rootEl) return false;
 			const candidate =
-				rootEl.querySelector<HTMLElement>(
-					`[data-node-id="${cssEscape(firstId)}"]`,
-				) ??
+				rootEl.querySelector<HTMLElement>(`[data-node-id="${cssEscape(firstId)}"]`) ??
 				rootEl.querySelector<HTMLElement>('[role="treeitem"], [role="row"], [role="gridcell"]');
 			if (candidate) {
 				candidate.focus({ preventScroll: false });

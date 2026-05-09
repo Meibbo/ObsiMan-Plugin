@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-handoff.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-08T10:46:49
+updated: 2026-05-08T20:16:00
 tags:
   - agent/current
 created_by: dec
@@ -73,6 +73,13 @@ Archived completed/superseded handoff:
   full-unit `splitYamlBody` regression. Full unit, check, lint, build, and
   focused badge component tests pass. Provider/API migration was intentionally
   not done; resume with cut 6.
+- 2026-05-08 cuts 6-9 are done:
+  [[docs/work/hardening/plans/2026-05-08-cuts-6-9-files-open/index|cuts 6-9 implementation plan/result]].
+  Preserve new `src/providers/*` concrete providers plus compatibility shims
+  under `src/components/containers/*`, `src/api/explorerProvider.ts`, open
+  command toggle behavior, `explorerFilesShowHidden`, path-based folder tree
+  construction, non-md extension count labels, selected-node hover badge
+  scopes, contradiction warnings, and incremental content search status.
 - Phase 1 selection service is present and verified. Phase 2 tree adapter is
   implemented and verified in the current worktree.
 - Phase 3 provider actions is implemented and verified.

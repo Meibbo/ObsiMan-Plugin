@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { explorerFiles } from '../containers/explorerFiles';
+	import { explorerFiles } from '../../providers/explorerFiles';
 	import PanelExplorer from '../containers/panelExplorer.svelte';
 	import type { VaultmanPlugin } from '../../main';
 	import type {

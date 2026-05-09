@@ -10,9 +10,9 @@
 	import NavbarExplorer from '../layout/navbarExplorer.svelte';
 	import PanelExplorer from '../containers/panelExplorer.svelte';
 	import { FTabs, type FilTab } from '../../types/typeTab';
-	import { explorerProps } from '../containers/explorerProps';
-	import { explorerFiles } from '../containers/explorerFiles';
-	import { explorerTags } from '../containers/explorerTags';
+	import { explorerProps } from '../../providers/explorerProps';
+	import { explorerFiles } from '../../providers/explorerFiles';
+	import { explorerTags } from '../../providers/explorerTags';
 	import { explorerBasesImport } from '../containers/explorerBasesImport';
 	import { createBasesImportTargetsIndex } from '../../index/indexBasesImportTargets';
 	import { extractBasesFencedBlocks, previewBasesImport } from '../../services/serviceBasesInterop';
@@ -165,13 +165,17 @@
 	// `vaultman:open-find-replace-active-explorer` command can drive it.
 	// Cleared on unmount so stale refs do not survive a re-mount.
 	$effect(() => {
-		(plugin as VaultmanPlugin & {
-			activeFnRIslandService?: FnRIslandService | null;
-		}).activeFnRIslandService = fnrIslandService;
-		return () => {
-			(plugin as VaultmanPlugin & {
+		(
+			plugin as VaultmanPlugin & {
 				activeFnRIslandService?: FnRIslandService | null;
-			}).activeFnRIslandService = null;
+			}
+		).activeFnRIslandService = fnrIslandService;
+		return () => {
+			(
+				plugin as VaultmanPlugin & {
+					activeFnRIslandService?: FnRIslandService | null;
+				}
+			).activeFnRIslandService = null;
 		};
 	});
 
@@ -354,7 +358,10 @@
 		};
 	}
 
-	function createExpansionCommandState(): Record<FiltersSearchTab, ExplorerExpansionCommand | null> {
+	function createExpansionCommandState(): Record<
+		FiltersSearchTab,
+		ExplorerExpansionCommand | null
+	> {
 		return {
 			props: null,
 			files: null,

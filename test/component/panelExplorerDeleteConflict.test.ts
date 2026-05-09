@@ -10,6 +10,7 @@ import type { VaultmanPlugin } from '../../src/main';
 import type { ExplorerProvider } from '../../src/types/typeExplorer';
 import type { NodeBadge, TreeNode } from '../../src/types/typeNode';
 import { mockApp } from '../helpers/obsidian-mocks';
+import { serviceMessage } from '../../src/services/serviceMessage';
 
 const EXPLORER_ID = 'delete-conflict';
 
@@ -122,6 +123,7 @@ describe('panelExplorer delete-conflict routing', () => {
 		expect(handleHoverBadge).toHaveBeenCalledWith(
 			expect.objectContaining({ id: 'alpha' }),
 			'delete',
+			[expect.objectContaining({ id: 'alpha' })],
 		);
 	});
 
@@ -131,6 +133,7 @@ describe('panelExplorer delete-conflict routing', () => {
 		const opener = vi.fn().mockResolvedValue('cancel') as unknown as DeleteConflictModalOpener;
 		queue.deleteConflictModalOpener = opener;
 		const handleHoverBadge = vi.fn();
+		const warning = vi.spyOn(serviceMessage, 'warning').mockImplementation(() => null as never);
 
 		renderPanel({
 			queue,
@@ -153,7 +156,12 @@ describe('panelExplorer delete-conflict routing', () => {
 		flushSync();
 
 		expect(opener).toHaveBeenCalledTimes(1);
+		expect(warning).toHaveBeenCalledWith(
+			expect.stringContaining('Delete conflicts'),
+			expect.any(Object),
+		);
 		// modal cancelled → no enqueue
 		expect(handleHoverBadge).not.toHaveBeenCalled();
+		warning.mockRestore();
 	});
 });

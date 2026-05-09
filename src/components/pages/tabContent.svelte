@@ -3,6 +3,7 @@
 	import type { TFile } from 'obsidian';
 	import type { VaultmanPlugin } from '../../main';
 	import type { ExplorerViewMode } from '../../types/typeExplorer';
+	import type { ContentSearchStatus } from '../../types/typeContracts';
 	import type {
 		ExplorerExpansionCommand,
 		ExplorerExpansionSummary,
@@ -12,7 +13,7 @@
 	import { translate } from '../../index/i18n/lang';
 	import { SEARCH_SEMANTICS_SOURCES } from '../frame/frameSearchSources';
 	import PanelExplorer from '../containers/panelExplorer.svelte';
-	import { explorerContent } from '../containers/explorerContent';
+	import { explorerContent } from '../../providers/explorerContent';
 
 	let {
 		plugin,
@@ -57,6 +58,28 @@
 		}),
 	);
 	const canQueueReplace = $derived(query.trim().length > 0 && scopeFiles.length > 0);
+	const contentStatus = $derived.by((): ContentSearchStatus => {
+		void contentVersion;
+		return (
+			plugin.contentIndex.status ?? {
+				query,
+				phase: query.trim() ? 'done' : 'idle',
+				scanned: 0,
+				total: 0,
+				resultCount: plugin.contentIndex.nodes.length,
+			}
+		);
+	});
+	const contentStatusText = $derived.by(() => {
+		const resultLabel = contentStatus.resultCount === 1 ? 'result' : 'results';
+		if (contentStatus.phase === 'scanning') {
+			return `Searching ${contentStatus.scanned} / ${contentStatus.total} - ${contentStatus.resultCount} ${resultLabel}`;
+		}
+		if (contentStatus.phase === 'done') {
+			return `${contentStatus.resultCount} ${resultLabel}`;
+		}
+		return '';
+	});
 
 	$effect(() => {
 		contentExplorer.setSearchTerm(query);
@@ -152,8 +175,7 @@
 					aria-label={translate('content.replace_placeholder')}
 					placeholder={translate('content.replace_placeholder')}
 					value={fnrState.replace}
-					oninput={(e) =>
-						updateFnRState({ replace: (e.currentTarget as HTMLInputElement).value })}
+					oninput={(e) => updateFnRState({ replace: (e.currentTarget as HTMLInputElement).value })}
 				/>
 			{/if}
 			<button
@@ -227,6 +249,11 @@
 	</div>
 
 	{#if query.trim().length > 0}
+		{#if contentStatusText}
+			<div class="vm-content-search-status" data-vm-content-search-status>
+				{contentStatusText}
+			</div>
+		{/if}
 		{#key `${query}:${contentVersion}`}
 			<PanelExplorer
 				{plugin}

@@ -45,6 +45,11 @@ export interface VaultmanCommandHost {
 	 */
 	activateView(): Promise<void>;
 	/**
+	 * Toggle the Vaultman panel leaf. When absent, commands fall back to
+	 * `activateView` for backwards-compatible open-only behavior.
+	 */
+	toggleView?(): Promise<void>;
+	/**
 	 * Returns a leaf that hosts the Vaultman frame, or `null` if none
 	 * is mounted. Used by the open-* commands to know whether the
 	 * panel is reachable without mounting a fresh leaf.
@@ -198,7 +203,10 @@ export function registerVaultmanCommands(
 		name: 'Open Vaultman',
 		callback: () => {
 			void (async () => {
-				await host.activateView();
+				const wasOpen = panelIsAvailable();
+				if (host.toggleView) await host.toggleView();
+				else await host.activateView();
+				if (host.toggleView && wasOpen) return;
 				const leaf = host.getVaultmanLeaf?.();
 				if (leaf) {
 					void host.app.workspace.revealLeaf(leaf);
@@ -218,6 +226,11 @@ export function registerVaultmanCommands(
 			if (!service) return false;
 			if (!checking) {
 				void (async () => {
+					const snapshot = service.snapshot();
+					if (snapshot.expanded && snapshot.mode === 'replace') {
+						service.collapse();
+						return;
+					}
 					await host.activateView();
 					const leaf = host.getVaultmanLeaf?.();
 					if (leaf) {
@@ -228,8 +241,10 @@ export function registerVaultmanCommands(
 					// Focus the searchbox via the DOM contract that
 					// `navbarExplorer.svelte` provides — the `.vm-filters-search-input`
 					// class is the canonical anchor.
-					activeWindow.requestAnimationFrame(() => {
-						const input = activeDocument.querySelector<HTMLInputElement>(
+					const win = typeof activeWindow !== 'undefined' ? activeWindow : null;
+					const doc = typeof activeDocument !== 'undefined' ? activeDocument : null;
+					win?.requestAnimationFrame(() => {
+						const input = doc?.querySelector<HTMLInputElement>(
 							'.vm-filters-search-input',
 						);
 						input?.focus();

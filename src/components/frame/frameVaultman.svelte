@@ -13,9 +13,9 @@
 	import { onMount, untrack } from 'svelte';
 	import { setIcon } from 'obsidian';
 	import type { VaultmanPlugin } from '../../main';
-	import { explorerFiles } from '../containers/explorerFiles';
-	import { explorerProps } from '../containers/explorerProps';
-	import { explorerTags } from '../containers/explorerTags';
+	import { explorerFiles } from '../../providers/explorerFiles';
+	import { explorerProps } from '../../providers/explorerProps';
+	import { explorerTags } from '../../providers/explorerTags';
 	import StatisticsPage from '../pages/pageStats.svelte';
 	import FiltersPage from '../pages/pageFilters.svelte';
 	import OperationsPage from '../pages/pageTools.svelte';
@@ -41,10 +41,7 @@
 	} from './framePages';
 	import { FrameViewportController } from './frameViewport';
 	import { FrameNavReorderController } from './frameNavReorder.svelte';
-	import {
-		FrameOverlayController,
-		installFrameOverlayCommandHooks,
-	} from './frameOverlays.svelte';
+	import { FrameOverlayController, installFrameOverlayCommandHooks } from './frameOverlays.svelte';
 	import { createMoveChanges, createMovePreviews } from './frameMoves';
 	import {
 		createFiltersSearchState,

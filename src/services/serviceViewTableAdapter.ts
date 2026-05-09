@@ -133,12 +133,12 @@ export function nodeRowsFromTree<TMeta>(
 }
 
 function rowFromTreeNode<TMeta>(node: TreeNode<TMeta>): ViewRow<TreeNode<TMeta>> {
-	const count = node.count ?? node.children?.length ?? '';
+	const count = node.countLabel ?? node.count ?? node.children?.length ?? '';
 	const detail = detailForNode(node);
 	const cells: ViewCell[] = [
 		cell(node.id, 'label', node.label, 'text'),
 		cell(node.id, 'detail', detail, 'text'),
-		cell(node.id, 'count', count, 'number'),
+		cell(node.id, 'count', count, typeof count === 'number' ? 'number' : 'text'),
 	];
 	return {
 		id: node.id,

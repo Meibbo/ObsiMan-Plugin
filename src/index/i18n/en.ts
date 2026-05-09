@@ -314,6 +314,9 @@ export const en: Record<string, string> = {
 	'settings.queue_preview.desc': 'Show pending queue changes in the property explorer',
 	'settings.content_search': 'Content search in file tree',
 	'settings.content_search.desc': 'Enable searching file content in the file tree',
+	'settings.files_show_hidden': 'Show hidden files and folders',
+	'settings.files_show_hidden.desc':
+		'Include dot-prefixed paths such as .folder and .config in the Files explorer.',
 	'settings.operation_scope': 'Operation scope',
 	'settings.operation_scope.desc': 'Default scope for explorer operations',
 	'settings.scope.auto': 'Auto (selected > filtered > all)',

@@ -312,6 +312,9 @@ export const es: Record<string, string> = {
 		'Muestra cambios pendientes de la cola en el explorador de propiedades',
 	'settings.content_search': 'Búsqueda de contenido',
 	'settings.content_search.desc': 'Habilita búsqueda en contenido de archivos en el file tree',
+	'settings.files_show_hidden': 'Mostrar archivos y carpetas ocultas',
+	'settings.files_show_hidden.desc':
+		'Incluye rutas que empiezan por punto, como .folder y .config, en el explorer Files.',
 	'settings.operation_scope': 'Alcance de operaciones',
 	'settings.operation_scope.desc': 'Alcance por defecto para operaciones del explorador',
 	'settings.scope.auto': 'Auto (seleccionados > filtrados > todos)',

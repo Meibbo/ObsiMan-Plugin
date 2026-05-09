@@ -385,6 +385,30 @@ describe('PanelExplorer tree selection adapter', () => {
 		);
 	});
 
+	it('hover badge actions receive same-type selected nodes for box and multi-selection scopes', () => {
+		const handleHoverBadge = vi.fn();
+		const { selectionService } = renderPanel({
+			provider: provider({ handleHoverBadge }),
+		});
+
+		(target.querySelector('[data-id="alpha"]') as HTMLElement).click();
+		(target.querySelector('[data-id="beta"]') as HTMLElement).dispatchEvent(
+			new MouseEvent('click', { bubbles: true, ctrlKey: true }),
+		);
+		flushSync();
+
+		expect([...selectionService.snapshot(EXPLORER_ID).ids]).toEqual(['alpha', 'beta']);
+
+		(target.querySelector('[data-id="beta"] [data-hover-kind="set"]') as HTMLElement).click();
+		flushSync();
+
+		expect(handleHoverBadge).toHaveBeenCalledWith(
+			expect.objectContaining({ id: 'beta' }),
+			'set',
+			[expect.objectContaining({ id: 'alpha' }), expect.objectContaining({ id: 'beta' })],
+		);
+	});
+
 	it('grid folder mode shows root parents without flattening descendants', () => {
 		renderPanel({
 			viewMode: 'grid',

@@ -39,6 +39,14 @@ export interface ContentMatch extends NodeBase {
 	after: string;
 }
 
+export interface ContentSearchStatus {
+	query: string;
+	phase: 'idle' | 'scanning' | 'done';
+	scanned: number;
+	total: number;
+	resultCount: number;
+}
+
 export interface QueueChange extends NodeBase {
 	change: PendingChange;
 	group: string; // e.g. operation type
@@ -98,6 +106,7 @@ export type IFilesIndex = INodeIndex<FileNode>;
 export type ITagsIndex = INodeIndex<TagNode>;
 export type IPropsIndex = INodeIndex<PropNode>;
 export type IContentIndex = INodeIndex<ContentMatch> & {
+	readonly status: ContentSearchStatus;
 	setQuery(query: string): void;
 };
 export type IOperationsIndex = INodeIndex<QueueChange>;

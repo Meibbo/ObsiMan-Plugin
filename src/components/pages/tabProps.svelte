@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { explorerProps } from '../containers/explorerProps';
+	import { explorerProps } from '../../providers/explorerProps';
 	import PanelExplorer from '../containers/panelExplorer.svelte';
 	import type { VaultmanPlugin } from '../../main';
 	import type {

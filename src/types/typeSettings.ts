@@ -31,6 +31,8 @@ export interface VaultmanSettings {
 	explorerContentSearch: boolean;
 	/** Default scope for explorer operations: auto = selected > filtered > all */
 	explorerOperationScope: 'auto' | 'selected' | 'filtered' | 'all';
+	/** Show dot-prefixed files and folders in the Files explorer. */
+	explorerFilesShowHidden: boolean;
 	/** Configurable mouse gesture grammar per interactive surface. */
 	mouseGestures?: Partial<Record<MouseGestureSurface, MouseGestureConfig>>;
 	/** Position of the operations panel */
@@ -126,6 +128,7 @@ export const DEFAULT_SETTINGS: VaultmanSettings = {
 	explorerShowQueuePreview: true,
 	explorerContentSearch: true,
 	explorerOperationScope: 'auto',
+	explorerFilesShowHidden: false,
 	mouseGestures: {
 		node: { primaryTiming: 'immediate', tertiary: ['alt-click', 'middle-click'] },
 		fab: { primaryTiming: 'defer', tertiary: ['alt-click', 'middle-click'] },

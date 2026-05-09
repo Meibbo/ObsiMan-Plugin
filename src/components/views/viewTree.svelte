@@ -559,7 +559,7 @@
 					{/if}
 
 					<!-- Badges / Counts -->
-					{#if (node.count != null && node.count > 0) || directBadges.length > 0 || childBadges.length > 0 || hoverBadges.length > 0}
+					{#if node.countLabel || (node.count != null && node.count > 0) || directBadges.length > 0 || childBadges.length > 0 || hoverBadges.length > 0}
 						<div class="vm-tree-badge-zone">
 							{#if hoverBadges.length > 0}
 								<div class="vm-tree-hover-badge-zone">
@@ -639,7 +639,9 @@
 								</div>
 							{/if}
 
-							{#if node.count != null && node.count > 0}
+							{#if node.countLabel}
+								<span class="vm-tree-count">{node.countLabel}</span>
+							{:else if node.count != null && node.count > 0}
 								<span class="vm-tree-count">{node.count}</span>
 							{/if}
 						</div>

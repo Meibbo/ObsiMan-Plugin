@@ -204,7 +204,7 @@ export class VaultmanPlugin extends Plugin {
 		this.statusBarEl.addClass('vm-native-statusbar');
 
 		this.addRibbonIcon('lucide-dessert', translate('plugin.open'), () => {
-			void this.activateView();
+			void this.toggleView();
 		});
 
 		this.registerView(TYPE_FRAME_VM, (leaf) => new VaultmanFrame(leaf, this));
@@ -251,6 +251,7 @@ export class VaultmanPlugin extends Plugin {
 			app: this.app,
 			queueService: this.queueService,
 			activateView: () => this.activateView(),
+			toggleView: () => this.toggleView(),
 			getVaultmanLeaf: () => this.app.workspace.getLeavesOfType(TYPE_FRAME_VM)[0] ?? null,
 			getActiveFnRIslandService: () => this.activeFnRIslandService,
 			getActivePanelExplorerApi: () => this.activePanelExplorerApi,
@@ -354,6 +355,15 @@ export class VaultmanPlugin extends Plugin {
 		if (openMode === 'main' || openMode === 'both') {
 			await this.openView('main');
 		}
+	}
+
+	async toggleView(): Promise<void> {
+		const leaves = this.app.workspace.getLeavesOfType(TYPE_FRAME_VM);
+		if (leaves.length > 0) {
+			for (const leaf of leaves) leaf.detach();
+			return;
+		}
+		await this.activateView();
 	}
 
 	async openView(mode: 'sidebar' | 'main'): Promise<void> {

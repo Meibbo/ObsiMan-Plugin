@@ -31,6 +31,7 @@ export interface TreeNode<TMeta = unknown> {
 	label: string;
 	icon?: string;
 	count?: number;
+	countLabel?: string;
 	badges?: NodeBadge[];
 	children?: TreeNode<TMeta>[];
 	depth: number;

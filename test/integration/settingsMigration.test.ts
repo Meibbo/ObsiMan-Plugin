@@ -64,6 +64,7 @@ describe('settings migration', () => {
 					'explorerShowQueuePreview',
 					'explorerContentSearch',
 					'explorerOperationScope',
+					'explorerFilesShowHidden',
 					'openMode',
 					'pageOrder',
 					'separatePanes',

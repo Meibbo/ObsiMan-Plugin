@@ -25,6 +25,7 @@
 			explorerShowQueuePreview: src.explorerShowQueuePreview,
 			explorerContentSearch: src.explorerContentSearch,
 			explorerOperationScope: src.explorerOperationScope,
+			explorerFilesShowHidden: src.explorerFilesShowHidden,
 			operationsPanelPosition: src.operationsPanelPosition,
 			basesLastUsedPath: src.basesLastUsedPath,
 			basesOpenMode: src.basesOpenMode,
@@ -105,9 +106,7 @@
 
 	function onOpsLogRetentionInput(raw: string): void {
 		const parsed = Number.parseInt(raw, 10);
-		const clamped = Number.isFinite(parsed)
-			? Math.max(100, Math.min(10000, parsed))
-			: 1000;
+		const clamped = Number.isFinite(parsed) ? Math.max(100, Math.min(10000, parsed)) : 1000;
 		s.opsLogRetention = clamped;
 		persistSettings();
 	}
@@ -158,6 +157,12 @@
 		label={translate('settings.content_search')}
 		onChange={persistSettings}
 	/>
+	<Toggle
+		bind:checked={s.explorerFilesShowHidden}
+		label={translate('settings.files_show_hidden')}
+		onChange={persistSettings}
+	/>
+	<p class="vm-settings-desc">{translate('settings.files_show_hidden.desc')}</p>
 
 	<Dropdown
 		label={translate('settings.operation_scope')}

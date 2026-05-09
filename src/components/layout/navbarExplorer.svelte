@@ -2,9 +2,9 @@
 	import { translate } from '../../index/i18n/lang';
 	import SortPopup from './overlays/overlaySortMenu.svelte';
 	import ViewModePopup from './overlays/overlayViewMenu.svelte';
-	import { explorerFiles } from '../containers/explorerFiles';
-	import { explorerProps } from '../containers/explorerProps';
-	import { explorerTags } from '../containers/explorerTags';
+	import { explorerFiles } from '../../providers/explorerFiles';
+	import { explorerProps } from '../../providers/explorerProps';
+	import { explorerTags } from '../../providers/explorerTags';
 	import { SEARCH_SEMANTICS_SOURCES } from '../frame/frameSearchSources';
 	import type { ActiveFnRRenameHandoff, FnRState } from '../../types/typeFnR';
 	import type { ExplorerExpansionSummary } from '../../types/typeExplorer';
@@ -140,9 +140,7 @@
 	);
 	const islandTokenErrors = $derived(islandSnapshot?.errors ?? []);
 	const islandRegexError = $derived(islandSnapshot?.regexError ?? null);
-	const hasIslandErrors = $derived(
-		islandTokenErrors.length > 0 || islandRegexError !== null,
-	);
+	const hasIslandErrors = $derived(islandTokenErrors.length > 0 || islandRegexError !== null);
 	const islandErrorMessage = $derived.by(() => {
 		if (islandRegexError) return `regex: ${islandRegexError}`;
 		if (islandTokenErrors.length > 0) return islandTokenErrors[0].message;
@@ -187,6 +185,20 @@
 	function openViewModePopup() {
 		headerExitDir = 'left';
 		headerMode = 'viewmode';
+	}
+	function toggleSortPopup() {
+		if (headerMode === 'sort') {
+			headerMode = 'header';
+			return;
+		}
+		openSortPopup();
+	}
+	function toggleViewModePopup() {
+		if (headerMode === 'viewmode') {
+			headerMode = 'header';
+			return;
+		}
+		openViewModePopup();
 	}
 	function cycleOperationScope() {
 		const currentIndex = OPERATION_SCOPE_ORDER.indexOf(operationScope);
@@ -247,10 +259,10 @@
 		);
 	}
 	export function openSortMenu(): void {
-		openSortPopup();
+		toggleSortPopup();
 	}
 	export function openViewMenu(): void {
-		openViewModePopup();
+		toggleViewModePopup();
 	}
 	function closeHeaderPopup() {
 		headerMode = 'header';
@@ -365,10 +377,7 @@
 
 <svelte:document onpointerdown={handleDocumentPointerDown} />
 
-<div
-	class="vm-navbar-filters vm-glass vm-glass--top"
-	class:vm-toolbar-takeover={islandExpanded}
->
+<div class="vm-navbar-filters vm-glass vm-glass--top" class:vm-toolbar-takeover={islandExpanded}>
 	<div class="vm-filters-header-wrap">
 		{#if headerMode === 'header'}
 			<div class="vm-filters-header">
@@ -449,11 +458,7 @@
 							<span>{currentCategoryLabel}</span>
 						</button>
 						{#if fnrIslandService}
-							<div
-								class="vm-filters-search-flags"
-								role="group"
-								aria-label="search modifiers"
-							>
+							<div class="vm-filters-search-flags" role="group" aria-label="search modifiers">
 								<button
 									type="button"
 									class="vm-filters-search-flag"
@@ -462,8 +467,8 @@
 									aria-pressed={islandFlags.matchCase}
 									title="match case"
 									data-flag="matchCase"
-									onclick={() => toggleIslandFlag('matchCase')}
-								>Aa</button>
+									onclick={() => toggleIslandFlag('matchCase')}>Aa</button
+								>
 								<button
 									type="button"
 									class="vm-filters-search-flag"
@@ -474,8 +479,8 @@
 									title="whole word"
 									data-flag="wholeWord"
 									disabled={islandFlags.regex}
-									onclick={() => toggleIslandFlag('wholeWord')}
-								>W</button>
+									onclick={() => toggleIslandFlag('wholeWord')}>W</button
+								>
 								<button
 									type="button"
 									class="vm-filters-search-flag"
@@ -484,8 +489,8 @@
 									aria-pressed={islandFlags.regex}
 									title="regex (JS)"
 									data-flag="regex"
-									onclick={() => toggleIslandFlag('regex')}
-								>.*</button>
+									onclick={() => toggleIslandFlag('regex')}>.*</button
+								>
 							</div>
 						{/if}
 					</div>

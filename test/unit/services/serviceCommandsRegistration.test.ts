@@ -11,6 +11,7 @@ interface FakeHostState {
 	queueEmpty: boolean;
 	hasFnRService: boolean;
 	hasPanelApi: boolean;
+	fnrExpandedReplace?: boolean;
 }
 
 function createFakePlugin() {
@@ -30,12 +31,14 @@ function createFakeHost(state: FakeHostState): {
 		processAll: ReturnType<typeof vi.fn>;
 		clearAll: ReturnType<typeof vi.fn>;
 		activateView: ReturnType<typeof vi.fn>;
+		toggleView: ReturnType<typeof vi.fn>;
 		openFiltersPopup: ReturnType<typeof vi.fn>;
 		openQueuePopup: ReturnType<typeof vi.fn>;
 		openViewMenu: ReturnType<typeof vi.fn>;
 		openSortMenu: ReturnType<typeof vi.fn>;
 		setMode: ReturnType<typeof vi.fn>;
 		expand: ReturnType<typeof vi.fn>;
+		collapse: ReturnType<typeof vi.fn>;
 		focusFirstNode: ReturnType<typeof vi.fn>;
 	};
 } {
@@ -43,12 +46,14 @@ function createFakeHost(state: FakeHostState): {
 		processAll: vi.fn(async () => ({ success: 0, errors: 0, messages: [] })),
 		clearAll: vi.fn(),
 		activateView: vi.fn(async () => {}),
+		toggleView: vi.fn(async () => {}),
 		openFiltersPopup: vi.fn(),
 		openQueuePopup: vi.fn(),
 		openViewMenu: vi.fn(),
 		openSortMenu: vi.fn(),
 		setMode: vi.fn(),
 		expand: vi.fn(),
+		collapse: vi.fn(),
 		focusFirstNode: vi.fn(() => true),
 	};
 
@@ -66,12 +71,18 @@ function createFakeHost(state: FakeHostState): {
 			clearAll: calls.clearAll,
 		} as unknown as VaultmanCommandHost['queueService'],
 		activateView: calls.activateView,
+		toggleView: calls.toggleView,
 		getVaultmanLeaf: () => (state.hasLeaf ? ({} as never) : null),
 		getActiveFnRIslandService: () =>
 			state.hasFnRService
 				? ({
+						snapshot: () => ({
+							mode: state.fnrExpandedReplace ? 'replace' : 'search',
+							expanded: state.fnrExpandedReplace === true,
+						}),
 						setMode: calls.setMode,
 						expand: calls.expand,
+						collapse: calls.collapse,
 					} as never)
 				: null,
 		getActivePanelExplorerApi: () =>
@@ -184,5 +195,46 @@ describe('registerVaultmanCommands', () => {
 		const cmd = findCommand(commands, 'open-filters');
 		expect(cmd.checkCallback!(false)).toBe(true);
 		expect(calls.openFiltersPopup).toHaveBeenCalledTimes(1);
+	});
+
+	it('open command toggles the Vaultman view instead of always activating it', async () => {
+		const { plugin } = createFakePlugin();
+		const { host, calls } = createFakeHost({
+			hasLeaf: true,
+			queueEmpty: false,
+			hasFnRService: true,
+			hasPanelApi: true,
+		});
+		const commands = registerVaultmanCommands(plugin as never, host);
+		const cmd = findCommand(commands, 'open');
+
+		cmd.callback?.();
+		await Promise.resolve();
+		await Promise.resolve();
+
+		expect(calls.toggleView).toHaveBeenCalledTimes(1);
+		expect(calls.activateView).not.toHaveBeenCalled();
+		expect(calls.focusFirstNode).not.toHaveBeenCalled();
+	});
+
+	it('open-find-replace-active-explorer collapses an already open replace island', async () => {
+		const { plugin } = createFakePlugin();
+		const { host, calls } = createFakeHost({
+			hasLeaf: true,
+			queueEmpty: false,
+			hasFnRService: true,
+			hasPanelApi: true,
+			fnrExpandedReplace: true,
+		});
+		const commands = registerVaultmanCommands(plugin as never, host);
+		const cmd = findCommand(commands, 'open-find-replace-active-explorer');
+
+		expect(cmd.checkCallback!(false)).toBe(true);
+		await Promise.resolve();
+		await Promise.resolve();
+
+		expect(calls.collapse).toHaveBeenCalledTimes(1);
+		expect(calls.setMode).not.toHaveBeenCalled();
+		expect(calls.expand).not.toHaveBeenCalled();
 	});
 });

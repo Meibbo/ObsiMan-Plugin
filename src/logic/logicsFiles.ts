@@ -21,40 +21,47 @@ export class FilesLogic {
 
 		const sortedFiles = [...filteredFiles].sort((a, b) => a.path.localeCompare(b.path));
 
+		const ensureFolder = (folderPath: string): TreeNode<FileMeta> | null => {
+			if (!folderPath) return null;
+			const existing = folderMap.get(folderPath);
+			if (existing) return existing;
+
+			const parts = folderPath.split('/').filter(Boolean);
+			const parentPath = parts.slice(0, -1).join('/');
+			const parentNode = ensureFolder(parentPath);
+			const folderNode: TreeNode<FileMeta> = {
+				id: `folder:${folderPath}`,
+				label: parts[parts.length - 1] ?? folderPath,
+				depth: Math.max(0, parts.length - 1),
+				children: [],
+				meta: { file: null, isFolder: true, folderPath },
+			};
+			folderMap.set(folderPath, folderNode);
+			(parentNode?.children ?? root).push(folderNode);
+			return folderNode;
+		};
+
 		for (const file of sortedFiles) {
 			const rawPath = file.parent?.path ?? '';
 			const folderPath = rawPath === '/' ? '' : rawPath;
-			if (folderPath && !folderMap.has(folderPath)) {
-				const parts = folderPath.split('/');
-				const folderNode: TreeNode<FileMeta> = {
-					id: `folder:${folderPath}`,
-					label: parts[parts.length - 1],
-					depth: parts.length - 1,
-					children: [],
-					meta: { file: null, isFolder: true, folderPath },
-				};
-				folderMap.set(folderPath, folderNode);
-				// attach to correct parent folder or root
-				const parentPath = parts.slice(0, -1).join('/');
-				const parentNode = parentPath ? folderMap.get(parentPath) : null;
-				(parentNode?.children ?? root).push(folderNode);
-			}
-
+			const parentFolder = folderPath ? ensureFolder(folderPath) : null;
 			const cache = this.app.metadataCache.getFileCache(file);
 			const propCount = Object.keys(cache?.frontmatter ?? {}).filter(
 				(k) => k !== 'position',
 			).length;
+			const extension = file.extension?.trim() ?? '';
+			const isMarkdown = extension.toLowerCase() === 'md';
 
 			const fileNode: TreeNode<FileMeta> = {
 				id: file.path,
 				label: file.basename,
-				count: propCount,
+				count: isMarkdown ? propCount : undefined,
+				countLabel: !isMarkdown && extension ? extension : undefined,
 				depth: folderPath.split('/').filter(Boolean).length,
 				children: [],
 				meta: { file, isFolder: false, folderPath },
 			};
 
-			const parentFolder = folderPath ? folderMap.get(folderPath) : null;
 			(parentFolder?.children ?? root).push(fileNode);
 		}
 		return root;

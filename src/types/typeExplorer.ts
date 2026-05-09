@@ -46,7 +46,7 @@ export interface ExplorerProvider<TMeta = unknown> {
 	 * of the canonical `BadgeKind`s. Providers that opt in can dispatch
 	 * the corresponding action (queue a delete, open filter editor, etc.).
 	 */
-	handleHoverBadge?(node: TreeNode<TMeta>, kind: string): void;
+	handleHoverBadge?(node: TreeNode<TMeta>, kind: string, selectedNodes?: TreeNode<TMeta>[]): void;
 	onRename?(id: string, newLabel: string): void;
 	onCancelRename?(): void;
 	destroy?(): void;
