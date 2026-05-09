@@ -15,7 +15,7 @@
 **Files:**
 - Create: `test/helpers/gen-large-vault.ts` (already drafted, needs verification)
 
-- [ ] **Step 1: Verify generator content and logic**
+- [x] **Step 1: Verify generator content and logic**
 
 Ensure the generator correctly handles nested folders and metadata density as per the spec.
 
@@ -73,12 +73,12 @@ for (let i = 0; i < totalFiles; i++) {
 console.log(`Done! Created ${totalFiles} files.`);
 ```
 
-- [ ] **Step 2: Run the generator locally**
+- [x] **Step 2: Run the generator locally**
 
 Run: `node --loader ts-node/register test/helpers/gen-large-vault.ts ./test/vaults/stress-vault 10000`
 Expected: "Done! Created 10000 files." and directory `./test/vaults/stress-vault` populated.
 
-- [ ] **Step 3: Commit generator**
+- [x] **Step 3: Commit generator**
 
 ```bash
 git add test/helpers/gen-large-vault.ts
@@ -92,7 +92,7 @@ git commit -m "test: add large vault generator for stress testing"
 **Files:**
 - Modify: `src/main.ts`
 
-- [ ] **Step 1: Add boot marks to `onload`**
+- [x] **Step 1: Add boot marks to `onload`**
 
 Insert `PerfMeter.mark` calls at key stages of the initialization.
 
@@ -127,13 +127,13 @@ async onload(): Promise<void> {
 }
 ```
 
-- [ ] **Step 2: Verify marks in Ops Log**
+- [x] **Step 2: Verify marks in Ops Log**
 
 Run: `pnpm run build`
 Open Obsidian, check the "Ops Log" tab in Vaultman.
 Expected: Marks for `vaultman:boot:*` are present with timestamps.
 
-- [ ] **Step 3: Commit instrumentation**
+- [x] **Step 3: Commit instrumentation**
 
 ```bash
 git add src/main.ts
@@ -147,7 +147,7 @@ git commit -m "perf: instrument plugin boot lifecycle with PerfMeter marks"
 **Files:**
 - Create: `test/integration/performance.test.ts`
 
-- [ ] **Step 1: Write integration test to verify boot performance**
+- [x] **Step 1: Write integration test to verify boot performance**
 
 ```ts
 // test/integration/performance.test.ts
@@ -168,7 +168,7 @@ describe('Vaultman Performance Integration', () => {
 });
 ```
 
-- [ ] **Step 2: Commit harness**
+- [x] **Step 2: Commit harness**
 
 ```bash
 git add test/integration/performance.test.ts
