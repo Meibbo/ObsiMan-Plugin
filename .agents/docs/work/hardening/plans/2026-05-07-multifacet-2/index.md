@@ -165,10 +165,18 @@ to be drafted before implementation; phase 8 is the global verification.
   - `prop` → `[propname]`
   - `tag` → `#tagname`
   - `folder` → `label==filename`, fallback `/foldername`
-  - `value`, `snippet`, `template` → `label==filename`
+  - `value`, `template` → `label==filename`
+  - `snippet` → `$snippetname`
+  - `plugin` → `%pluginname`
 - If exactly one note already carries the alias, bind to it. If multiple,
   route to the filter pane with synthetic `aliases has <token>` filter.
 - Default note location: vault root. Setting exposes a configurable folder.
+- Add `pageTools` tabs for snippets and plugins:
+  - `tabSnippets` lists CSS snippets from `.obsidian/snippets/` and renders
+    an enable/disable toggle where the numeric counter would normally sit.
+  - `tabPlugins` lists community plugins from Obsidian plugin manifests and
+    can create/open binding notes. Any plugin enable/disable control must be
+    explicit and guarded.
 - `set` cmenu action on every explorer:
   - `tag` → add tag to frontmatter of all filtered files (queue
     `NATIVE_ADD_TAG` ops).
@@ -251,6 +259,11 @@ to be drafted before implementation; phase 8 is the global verification.
   - `git diff --check` scoped to touched files: exit 0.
 - **Multifacet wave 2: DONE.** No follow-up phases remain in this
   initiative.
+- **2026-05-09 research addendum:** user added follow-up node-note scope for
+  `pageTools` snippets/plugins explorers. See
+  [[docs/work/hardening/research/2026-05-09-node-note-ui-assimilation/index|node note UI assimilation research]].
+  This addendum supersedes the earlier snippet alias rule:
+  `snippet -> $snippetname`, and adds `plugin -> %pluginname`.
 
 ## Source Links
 

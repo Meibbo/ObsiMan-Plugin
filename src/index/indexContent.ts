@@ -62,39 +62,63 @@ export function createContentIndex(app: App): IContentIndex {
 
 			const build = async (): Promise<void> => {
 				const searchQuery = currentQuery.toLowerCase();
-				for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
+				const batchSize = 100;
+				let lastPublish = Date.now();
+
+				// Process in chunks to balance parallelism and main thread responsiveness
+				const chunkSize = 20;
+				for (let i = 0; i < files.length; i += chunkSize) {
 					if (refreshVersion !== currentVersion) return;
-					const file = files[fileIndex];
-					const content = await app.vault.read(file);
-					if (refreshVersion !== currentVersion) return;
-					const lines = content.split('\n');
-					for (let i = 0; i < lines.length; i++) {
-						const line = lines[i];
-						const searchLine = line.toLowerCase();
-						let start = 0;
-						while (true) {
-							const idx = searchLine.indexOf(searchQuery, start);
-							if (idx === -1) break;
-							const match = line.slice(idx, idx + currentQuery.length);
-							out.push({
-								id: `${file.path}:${i}:${idx}`,
-								filePath: file.path,
-								line: i,
-								before: line.slice(Math.max(0, idx - 30), idx),
-								match,
-								after: line.slice(idx + currentQuery.length, idx + currentQuery.length + 30),
-							});
-							start = idx + currentQuery.length;
-							if (start >= line.length) break;
-						}
+
+					const chunk = files.slice(i, i + chunkSize);
+					await Promise.all(
+						chunk.map(async (file, chunkIdx) => {
+							const fileIndex = i + chunkIdx;
+							const content = await app.vault.cachedRead(file);
+							if (refreshVersion !== currentVersion) return;
+
+							const lines = content.split('\n');
+							for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+								const line = lines[lineIdx];
+								const searchLine = line.toLowerCase();
+								let start = 0;
+								while (true) {
+									const matchIdx = searchLine.indexOf(searchQuery, start);
+									if (matchIdx === -1) break;
+									const match = line.slice(matchIdx, matchIdx + currentQuery.length);
+									out.push({
+										id: `${file.path}:${lineIdx}:${matchIdx}`,
+										filePath: file.path,
+										line: lineIdx,
+										before: line.slice(Math.max(0, matchIdx - 30), matchIdx),
+										match,
+										after: line.slice(
+											matchIdx + currentQuery.length,
+											matchIdx + currentQuery.length + 30,
+										),
+									});
+									start = matchIdx + currentQuery.length;
+									if (start >= line.length) break;
+								}
+							}
+						}),
+					);
+
+					// Batch UI updates: every batchSize files OR every 250ms
+					const now = Date.now();
+					const scanned = Math.min(i + chunkSize, files.length);
+					if (scanned === files.length || scanned % batchSize === 0 || now - lastPublish > 250) {
+						lastPublish = now;
+						publish([...out], {
+							query: currentQuery,
+							phase: 'scanning',
+							scanned,
+							total: files.length,
+							resultCount: out.length,
+						});
+						// Allow UI to breathe
+						await new Promise((resolve) => setTimeout(resolve, 0));
 					}
-					publish([...out], {
-						query: currentQuery,
-						phase: 'scanning',
-						scanned: fileIndex + 1,
-						total: files.length,
-						resultCount: out.length,
-					});
 				}
 			};
 

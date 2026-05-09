@@ -27,10 +27,13 @@ Non-file nodes get a `cmenu` entry: **create / open binding note**.
 | `tag` | `#tagname` |
 | `folder` | `label==filename` (fallback `/foldername`) |
 | `value` | `label==filename` |
-| `snippet` | `label==filename` |
+| `snippet` | `$snippetname` |
+| `plugin` | `%pluginname` |
 | `template` | `label==filename` |
 
 `label==filename` means the note's filename equals the node's label.
+For plugins, define `pluginname` as the stable Obsidian manifest id unless a
+future product decision explicitly chooses display name aliases.
 
 ### Binding Algorithm (`NodeBindingService.bindOrCreate(node)`)
 
@@ -84,6 +87,28 @@ Every explorer's `cmenu` gets a `set` entry. Semantics by explorer:
 - Append happens at end of body; if file ends without trailing
   newline, insert one.
 
+## pageTools Node Explorers
+
+### Snippets explorer
+
+- Add `tabSnippets` under `pageTools`.
+- Source nodes from CSS files in `.obsidian/snippets/`, preferably through
+  Obsidian's internal `app.customCss.snippets` and filesystem fallback.
+- The visual slot normally used for a numeric counter becomes an
+  enable/disable toggle. Toggling calls Obsidian's custom-CSS control
+  surface and refreshes the snippets index.
+- Binding-note alias token is `$snippetname`.
+
+### Plugins explorer
+
+- Add `tabPlugins` under `pageTools`.
+- Source nodes from installed community plugin manifests.
+- Label rows with plugin display name, but use the stable manifest id for
+  the canonical token unless the user chooses display-name aliases later.
+- Binding-note alias token is `%pluginname`.
+- Plugin enable/disable controls must be explicit guarded actions; do not
+  mutate Obsidian plugin state as an accidental row click.
+
 ## Acceptance
 
 - Right-click on a non-file node shows **create / open binding
@@ -94,6 +119,9 @@ Every explorer's `cmenu` gets a `set` entry. Semantics by explorer:
   vault writes.
 - Prop `set` lands in FnR with the correct `{{prop}}: ` template
   pre-filled.
+- Snippet binding notes use `$snippetname`, not raw filename aliases.
+- Plugin binding notes use `%pluginname`, with stable ids preferred over
+  mutable display names.
 
 ## Anti-Goals
 

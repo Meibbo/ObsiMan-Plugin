@@ -10,43 +10,105 @@ interface ExtendedApp extends App {
 
 describe('Vaultman Stress Test', () => {
 	it('should handle 10,000 files with acceptable latency', async () => {
-		// This test expects the stress-vault to be generated and active.
-		// Since we are using temp vaults in integration-setup, we might 
-		// need to generate files INSIDE the test or use a specific vault.
-		
 		const metrics = await evalInObsidian({
+			vault: 'plugin-dev',
+			fn: async ({ app }) => {
+				const extendedApp = app as ExtendedApp;
+				const plugin = extendedApp.plugins.plugins.vaultman;
+				if (!plugin) return { error: 'plugin not found' };
+
+				const timings: Record<string, number> = {};
+				
+				const startFiles = performance.now();
+				await plugin.filesIndex.refresh();
+				timings.filesIndexMs = performance.now() - startFiles;
+
+				const startProps = performance.now();
+				await plugin.propsIndex.refresh();
+				timings.propsIndexMs = performance.now() - startProps;
+
+				const startTags = performance.now();
+				await plugin.tagsIndex.refresh();
+				timings.tagsIndexMs = performance.now() - startTags;
+
+				return {
+					fileCount: plugin.filesIndex.nodes.length,
+					timings,
+					refreshTimeMs: timings.filesIndexMs + timings.propsIndexMs + timings.tagsIndexMs
+				};
+			},
+		});
+
+		console.log('Detailed Stress Metrics:', JSON.stringify(metrics, null, 2));
+		if ('error' in metrics) throw new Error(metrics.error);
+
+		expect(metrics.fileCount).toBeGreaterThanOrEqual(10000);
+		// If indexing local files takes > 3s, something is architecturally wrong (e.g. serial Object.entries/Object.fromEntries)
+		expect(metrics.refreshTimeMs).toBeLessThan(3500); 
+	});
+
+	it('should maintain low search latency for FULL SCAN of 10,000 files', async () => {
+		const searchMetrics = await evalInObsidian({
+			vault: 'plugin-dev',
 			fn: async ({ app }) => {
 				const extendedApp = app as ExtendedApp;
 				const plugin = extendedApp.plugins.plugins.vaultman;
 				if (!plugin) return { error: 'plugin not found' };
 
 				const start = performance.now();
-				// Trigger a full refresh of all indices
-				await Promise.all([
-					plugin.filesIndex.refresh(),
-					plugin.propsIndex.refresh(),
-					plugin.tagsIndex.refresh(),
-				]);
-				const refreshTime = performance.now() - start;
-
-				const explorerStart = performance.now();
-				// Simulate opening the Files tab
-				const filesExplorer = plugin.filesIndex.nodes;
-				const explorerTime = performance.now() - explorerStart;
+				// Use a term that forces a full scan (e.g. non-existent or regex)
+				plugin.filterService.setSearchFilter('NON_EXISTENT_FILE_PATTERN_XYZ', ''); 
+				const results = plugin.filterService.filteredFiles;
+				const searchTime = performance.now() - start;
 
 				return {
-					fileCount: plugin.filesIndex.nodes.length,
-					refreshTimeMs: refreshTime,
-					explorerTimeMs: explorerTime,
+					resultCount: results.length,
+					searchTimeMs: searchTime,
 				};
 			},
 		});
 
-		console.log('Stress Metrics:', JSON.stringify(metrics, null, 2));
-		if ('error' in metrics) throw new Error(metrics.error);
+		console.log('Full Scan Search Metrics:', JSON.stringify(searchMetrics, null, 2));
+		if ('error' in searchMetrics) throw new Error(searchMetrics.error);
 
-		expect(metrics.fileCount).toBeGreaterThanOrEqual(0);
-		// With 10,000 files, we expect refresh to be relatively fast after optimizations
-		expect(metrics.refreshTimeMs).toBeLessThan(2000); 
+		// Even a full scan should be fast (O(N) with string contains is sub-millisecond for 10k)
+		expect(searchMetrics.searchTimeMs).toBeLessThan(100);
+	});
+
+	it('should generate render model for 10,000 files efficiently', async () => {
+		const renderMetrics = await evalInObsidian({
+			vault: 'plugin-dev',
+			fn: async ({ app }) => {
+				const extendedApp = app as ExtendedApp;
+				const plugin = extendedApp.plugins.plugins.vaultman;
+				if (!plugin) return { error: 'plugin not found' };
+
+				const nodes = plugin.filesIndex.nodes;
+				const start = performance.now();
+				
+				// Simulate the work ViewService.getModel does
+				const model = plugin.viewService.getModel({
+					explorerId: 'files',
+					mode: 'tree',
+					nodes: nodes,
+					operations: plugin.operationsIndex.nodes,
+					activeFilters: plugin.activeFiltersIndex.nodes,
+					getLabel: (n: any) => n.label
+				});
+
+				const renderTime = performance.now() - start;
+
+				return {
+					rowCount: model.rows.length,
+					renderTimeMs: renderTime,
+				};
+			},
+		});
+
+		console.log('Render Stress Metrics:', JSON.stringify(renderMetrics, null, 2));
+		if ('error' in renderMetrics) throw new Error(renderMetrics.error);
+
+		// With pre-indexing of operations, this should be very fast.
+		expect(renderMetrics.renderTimeMs).toBeLessThan(500); 
 	});
 });

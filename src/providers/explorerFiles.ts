@@ -317,17 +317,18 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 
 	private _sortFiles(files: TFile[]): TFile[] {
 		const dir = this.sortDir === 'asc' ? 1 : -1;
+		if (this.sortBy === 'count') {
+			const countMap = new Map<string, number>();
+			for (const file of files) {
+				const count = Object.keys(
+					this.plugin.app.metadataCache.getFileCache(file)?.frontmatter ?? {},
+				).filter((k) => k !== 'position').length;
+				countMap.set(file.path, count);
+			}
+			return [...files].sort((a, b) => dir * ((countMap.get(a.path) ?? 0) - (countMap.get(b.path) ?? 0)));
+		}
 		return [...files].sort((a, b) => {
 			if (this.sortBy === 'date') return dir * (b.stat.mtime - a.stat.mtime);
-			if (this.sortBy === 'count') {
-				const aC = Object.keys(
-					this.plugin.app.metadataCache.getFileCache(a)?.frontmatter ?? {},
-				).filter((k) => k !== 'position').length;
-				const bC = Object.keys(
-					this.plugin.app.metadataCache.getFileCache(b)?.frontmatter ?? {},
-				).filter((k) => k !== 'position').length;
-				return dir * (aC - bC);
-			}
 			return dir * a.basename.localeCompare(b.basename);
 		});
 	}

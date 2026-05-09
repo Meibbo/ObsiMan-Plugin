@@ -92,7 +92,7 @@ export function createFramePageFabs(
 						action: options.exitBasesImportMode ?? (() => {}),
 					}
 				: {
-						icon: 'lucide-filters',
+						icon: 'lucide-filter',
 						label: translate('filters.active'),
 						action: toggleFiltersIsland,
 						onDoubleClick: () => plugin.filterService.clearAll(),

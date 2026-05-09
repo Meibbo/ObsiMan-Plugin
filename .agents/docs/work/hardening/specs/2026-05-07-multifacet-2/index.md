@@ -143,7 +143,9 @@ proposals. Sub-shards must restate them and only refine implementation detail.
   - `prop` → `[propname]` (square brackets)
   - `tag` → `#tagname`
   - `folder` → `label==filename`, fallback `/foldername`
-  - `value`, `snippet`, `template` → `label==filename`
+  - `value`, `template` → `label==filename`
+  - `snippet` → `$snippetname`
+  - `plugin` → `%pluginname`
   If a single existing note already carries that alias, the cmenu action
   binds to it. If multiple notes match, route the user to the filter pane
   with a synthetic filter: `aliases has <token>`.
@@ -157,6 +159,14 @@ proposals. Sub-shards must restate them and only refine implementation detail.
   - `value` explorer → add `prop=value` to every filtered file.
   - `file` explorer → "add link": append wikilinks to selected files at the
     end of every filtered file's body.
+- 5.4 `pageTools` gains two node-note-oriented tabs:
+  - `tabSnippets`: explorer over CSS files in `.obsidian/snippets/`.
+    The row count slot is replaced by an enable/disable toggle for that
+    snippet. Binding notes use `aliases: ["$snippetname"]`.
+  - `tabPlugins`: explorer over installed community plugins from Obsidian's
+    plugin manifests. Binding notes use `aliases: ["%pluginname"]`. Plugin
+    enable/disable controls are allowed only as explicit guarded actions
+    because they mutate Obsidian plugin state.
 
 ## Out Of Scope
 

@@ -20,6 +20,11 @@ Archived completed/superseded handoff:
 
 ## Where To Resume
 
+- Latest next implementation lane:
+  [[docs/work/hardening/backlog/2026-05-09-node-notes-next-priority/index|Node notes next-priority implementation order]].
+  Start there before older polish cuts: NN-0 contract correction, NN-1
+  `tabSnippets`, NN-2 `tabPlugins`, NN-3 PageStats Add-ons note preview,
+  then NN-4 native Obsidian DOM adapter if smoke tooling is available.
 - Continue [[docs/work/hardening/specs/2026-05-06-node-selection-service/index|Node selection service and viewgrid spec]] and
   [[docs/work/hardening/plans/2026-05-06-node-selection-service/index|Node selection service implementation plan]].
 - Latest user-requested plan:

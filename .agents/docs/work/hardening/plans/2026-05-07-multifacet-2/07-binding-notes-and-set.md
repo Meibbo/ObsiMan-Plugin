@@ -32,6 +32,25 @@ updated_by: claude
 - [x] When N>1, route to filter pane with synthetic
       `aliases has <token>` filter and a notice.
 
+## 2026-05-09 Follow-Up Scope (Not Implemented In Phase 7)
+
+- [ ] Extend `BindingNodeKind` with `plugin`.
+- [ ] Change the future snippet alias rule from raw label to
+      `$snippetname`.
+- [ ] Add plugin alias rule `%pluginname`; prefer manifest id as the stable
+      canonical plugin name unless a future UX decision chooses display
+      names.
+- [ ] Add `pageTools` `tabSnippets` with an explorer over CSS files in
+      `.obsidian/snippets/`. Render an enable/disable toggle in the slot
+      normally used by counts.
+- [ ] Add `pageTools` `tabPlugins` with an explorer over community plugin
+      manifests. Binding-note creation/opening is normal; plugin enable/
+      disable controls must be explicit guarded actions.
+- [ ] Use the research record before implementation:
+      [[docs/work/hardening/research/2026-05-09-node-note-ui-assimilation/index|node note UI assimilation research]].
+- [ ] Follow the promoted next-priority order:
+      [[docs/work/hardening/backlog/2026-05-09-node-notes-next-priority/index|node notes next-priority implementation order]].
+
 ## Tasks (`set` Action)
 
 - [x] Add `set` cmenu entry in every explorer provider

@@ -4,6 +4,7 @@ coverage/
 img/
 dist/
 **/stress-vault/
+stress-test-data/
 .obsidian/
 .vscode/
 .superpowers/
