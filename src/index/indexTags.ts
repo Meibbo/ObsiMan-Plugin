@@ -2,12 +2,15 @@ import type { App } from 'obsidian';
 import type { TagNode, ITagsIndex } from '../types/typeContracts';
 import { createNodeIndex } from './indexNodeCreate';
 
+type MetadataCacheWithTags = App['metadataCache'] & {
+	getTags?: () => Record<string, number>;
+};
+
 export function createTagsIndex(app: App): ITagsIndex {
 	return createNodeIndex<TagNode>({
 		build: () => {
-			const cache = app.metadataCache as any;
-			const rawTags: Record<string, number> =
-				typeof cache.getTags === 'function' ? cache.getTags() : {};
+			const cache = app.metadataCache as MetadataCacheWithTags;
+			const rawTags = typeof cache.getTags === 'function' ? cache.getTags() : {};
 
 			let entries: [string, number][];
 			if (Object.keys(rawTags).length > 0) {

@@ -4,7 +4,7 @@
  *
  * Spec: docs/work/hardening/specs/2026-05-07-multifacet-2/05-note-binding-and-set.md
  *
- * Given a non-file node (tag/prop/value/folder/snippet/template) this service
+ * Given a non-file node (tag/prop/value/folder/snippet/template/plugin) this service
  * computes a per-kind alias token, searches the vault metadataCache for
  * notes whose `aliases` frontmatter contains that token, and then:
  *   - 0 matches: creates a new note in the configured binding folder with
@@ -22,7 +22,14 @@ import { TFile, type App } from 'obsidian';
 import type { TreeNode } from '../types/typeNode';
 import { serviceMessage } from './serviceMessage';
 
-export type BindingNodeKind = 'tag' | 'prop' | 'value' | 'folder' | 'snippet' | 'template';
+export type BindingNodeKind =
+	| 'tag'
+	| 'prop'
+	| 'value'
+	| 'folder'
+	| 'snippet'
+	| 'template'
+	| 'plugin';
 
 export interface BindingNodeInput {
 	kind: BindingNodeKind;
@@ -31,6 +38,8 @@ export interface BindingNodeInput {
 	propName?: string;
 	/** Optional: full tag path when kind is `tag`. Falls back to `label`. */
 	tagPath?: string;
+	/** Optional: stable manifest id when kind is `plugin`. Falls back to `label`. */
+	pluginId?: string;
 }
 
 export interface BindingResult {
@@ -60,9 +69,9 @@ export interface NodeBindingDeps {
  *
  * - prop -> `[propname]`
  * - tag  -> `#tagname`
- * - folder/value/snippet/template -> the node label verbatim
- *   (matches "label==filename" semantics; the alias text equals the
- *   filename a user would create for the binding note).
+ * - snippet -> `$snippetname`
+ * - plugin -> `%pluginid` (manifest id preferred over display label)
+ * - folder/value/template -> the node label verbatim
  */
 export function computeAliasToken(node: BindingNodeInput): string {
 	const label = node.label.trim();
@@ -71,9 +80,12 @@ export function computeAliasToken(node: BindingNodeInput): string {
 			return `[${node.propName ?? label}]`;
 		case 'tag':
 			return `#${(node.tagPath ?? label).replace(/^#/, '')}`;
+		case 'snippet':
+			return `$${label.replace(/^\$/, '')}`;
+		case 'plugin':
+			return `%${(node.pluginId ?? label).trim().replace(/^%/, '')}`;
 		case 'folder':
 		case 'value':
-		case 'snippet':
 		case 'template':
 		default:
 			return label;
@@ -94,6 +106,7 @@ export function nodeToBindingInput(
 	const meta = (node.meta ?? {}) as {
 		propName?: string;
 		tagPath?: string;
+		pluginId?: string;
 		rawValue?: string;
 		isValueNode?: boolean;
 	};
@@ -106,6 +119,9 @@ export function nodeToBindingInput(
 	}
 	if (kind === 'tag') {
 		return { kind, label, tagPath: meta.tagPath };
+	}
+	if (kind === 'plugin') {
+		return { kind, label, pluginId: meta.pluginId };
 	}
 	return { kind, label };
 }

@@ -4,7 +4,7 @@ type: backlog-priority
 status: active
 parent: "[[docs/work/hardening/specs/2026-05-07-multifacet-2/05-note-binding-and-set|binding notes and set]]"
 created: 2026-05-09T03:42:43
-updated: 2026-05-09T03:42:43
+updated: 2026-05-09T06:03:03
 tags:
   - agent/backlog
   - vaultman/node-binding
@@ -36,6 +36,8 @@ files already existed outside this docs change.
 
 ### NN-0 - Contract Correction
 
+Status: done 2026-05-09T05:44:04.
+
 Scope:
 
 - Update `NodeBindingService` tests for:
@@ -47,6 +49,42 @@ Scope:
   community plugin controls.
 
 Why first: every later UI path depends on these semantics.
+
+Outcome:
+
+- `computeAliasToken` now maps snippets to `$snippetname`.
+- `BindingNodeKind` now includes `plugin`.
+- Plugin binding tokens prefer stable manifest ids via
+  `BindingNodeInput.pluginId`, producing `%pluginId`; label fallback remains
+  available only when a manifest id is not supplied.
+- `typeObsidian.ts` now centralizes typed wrappers for `customCss`, CSS snippet
+  toggling/reload, community plugin manifests, enabled state, and loaded state.
+
+Verification:
+
+- `pnpm exec vp test run --project unit --config vitest.config.ts test/unit/services/serviceNodeBinding.test.ts test/unit/types/typeObsidian.test.ts`
+  passed with 2 files and 17 tests.
+- `pnpm exec vp test run --project unit --config vitest.config.ts test/unit/services/serviceContentIndex.test.ts test/unit/services/serviceTagsIndex.test.ts test/unit/services/serviceNodeBinding.test.ts test/unit/types/typeObsidian.test.ts`
+  passed with 4 files and 29 tests.
+- `pnpm run check` passed with 0 errors and 0 warnings.
+- `pnpm run lint` passed with 0 warnings and 0 errors.
+- `pnpm run build` passed and synced Vite+ build artifacts.
+- Scoped `git diff --check` over touched source/test/doc files exited 0.
+
+Verification-adjacent cleanup:
+
+- Restored `node_modules` with `CI=true pnpm install --frozen-lockfile` after
+  stale local junctions pointed at missing `vite-plus`/`vitest` files. The
+  lockfile did not change.
+- Removed a stale unused `fileIndex` local from `indexContent.ts`.
+- Replaced local raw metadata-cache `any` usage in `indexTags.ts` with a typed
+  optional `getTags` view.
+- Moved content-index yield timing to `activeWindow.setTimeout` for Obsidian
+  popout compatibility.
+- Updated `utilDebounce.ts` to use typed tuple args and `activeWindow` timers.
+- Removed two unused test imports flagged by `vp lint`.
+- Added `cachedRead` and a test `activeWindow` fallback to
+  `test/helpers/obsidian-mocks.ts`.
 
 ### NN-1 - Snippets Explorer In pageTools
 
@@ -134,4 +172,3 @@ Why last: it is test infrastructure risk, not product behavior.
 - [[docs/work/hardening/research/2026-05-09-node-note-ui-assimilation/03-tools-snippets-plugins|pageTools snippets and plugins explorers]]
 - [[docs/work/hardening/plans/2026-05-07-multifacet-2/07-binding-notes-and-set|binding notes plan shard]]
 - [[docs/work/hardening/backlog/2026-05-08-backlog-cut-4-view-size/index|pending cut ladder]]
-

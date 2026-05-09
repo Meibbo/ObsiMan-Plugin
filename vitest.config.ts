@@ -17,7 +17,7 @@ export default defineConfig({
 					environment: 'node',
 					include: ['test/integration/**/*.test.ts'],
 					setupFiles: ['test/integration/setup.ts'],
-					// globalSetup: ['obsidian-integration-testing/vitest-global-setup'],
+					globalSetup: ['obsidian-integration-testing/vitest-global-setup'],
 					testTimeout: 60_000,
 					hookTimeout: 60_000,
 				},

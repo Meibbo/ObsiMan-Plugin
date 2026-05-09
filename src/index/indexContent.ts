@@ -72,8 +72,7 @@ export function createContentIndex(app: App): IContentIndex {
 
 					const chunk = files.slice(i, i + chunkSize);
 					await Promise.all(
-						chunk.map(async (file, chunkIdx) => {
-							const fileIndex = i + chunkIdx;
+						chunk.map(async (file) => {
 							const content = await app.vault.cachedRead(file);
 							if (refreshVersion !== currentVersion) return;
 
@@ -117,7 +116,7 @@ export function createContentIndex(app: App): IContentIndex {
 							resultCount: out.length,
 						});
 						// Allow UI to breathe
-						await new Promise((resolve) => setTimeout(resolve, 0));
+						await new Promise<void>((resolve) => activeWindow.setTimeout(resolve, 0));
 					}
 				}
 			};

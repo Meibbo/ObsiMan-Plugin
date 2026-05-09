@@ -1,7 +1,6 @@
 import { explorerProps } from '../../src/providers/explorerProps';
 import { ViewService } from '../../src/services/serviceViews.svelte';
 import { createPerfProbe, setActivePerfProbe } from '../../src/dev/perfProbe';
-import { PropsLogic } from '../../src/logic/logicProps';
 
 // Mock App
 const mockApp = {

@@ -23,11 +23,24 @@ describe('serviceNodeBinding — computeAliasToken', () => {
 		expect(computeAliasToken({ kind: 'tag', label: '#alpha' })).toBe('#alpha');
 	});
 
-	it('uses the label verbatim for value/folder/snippet/template', () => {
+	it('uses the label verbatim for value/folder/template', () => {
 		expect(computeAliasToken({ kind: 'value', label: 'draft' })).toBe('draft');
 		expect(computeAliasToken({ kind: 'folder', label: 'Diaries' })).toBe('Diaries');
-		expect(computeAliasToken({ kind: 'snippet', label: 'mySnip' })).toBe('mySnip');
 		expect(computeAliasToken({ kind: 'template', label: 'tpl' })).toBe('tpl');
+	});
+
+	it('renders snippet tokens as $snippetname', () => {
+		expect(computeAliasToken({ kind: 'snippet', label: 'mySnip' })).toBe('$mySnip');
+	});
+
+	it('renders plugin tokens from the stable manifest id as %pluginid', () => {
+		expect(
+			computeAliasToken({ kind: 'plugin', label: 'Calendar', pluginId: 'calendar-plugin' }),
+		).toBe('%calendar-plugin');
+	});
+
+	it('falls back to the label for plugin tokens when no manifest id is supplied', () => {
+		expect(computeAliasToken({ kind: 'plugin', label: 'Calendar' })).toBe('%Calendar');
 	});
 });
 

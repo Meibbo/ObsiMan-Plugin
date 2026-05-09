@@ -1,5 +1,12 @@
 import { parseYaml as parseYamlImpl, stringifyYaml as stringifyYamlImpl } from './yaml';
 
+type TestGlobal = typeof globalThis & {
+	activeWindow?: Window;
+};
+
+const testGlobal = globalThis as TestGlobal;
+testGlobal.activeWindow ??= globalThis as unknown as Window;
+
 // ===== Class stubs =====
 
 export class TFile {
@@ -217,6 +224,7 @@ export interface Vault {
 	getAbstractFileByPath(path: string): TFile | TFolder | null;
 	getAllFolders(includeRoot?: boolean): TFolder[];
 	read(file: TFile): Promise<string>;
+	cachedRead(file: TFile): Promise<string>;
 	modify(file: TFile, content: string): Promise<void>;
 	create(path: string, content: string): Promise<TFile>;
 	process(file: TFile, fn: (current: string) => string): Promise<void>;
@@ -350,6 +358,7 @@ export function mockApp(opts: MockAppOptions = {}): App {
 			files.find((f) => f.path === path) ?? folders.find((f) => f.path === path) ?? null,
 		getAllFolders: () => [...folders],
 		read: async (file) => adapterFiles.get(file.path) ?? '',
+		cachedRead: async (file) => adapterFiles.get(file.path) ?? '',
 		modify: async (file, content) => {
 			adapterFiles.set(file.path, content);
 		},
