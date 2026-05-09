@@ -47,12 +47,13 @@ import { ViewService } from './services/serviceViews.svelte';
 import { createPerfProbe } from './dev/perfProbe';
 import { registerVaultmanCommands } from './services/serviceCommands';
 import { PerfMeter } from './services/perfMeter';
-import { OpsLogService } from './services/serviceOpsLog.svelte';
+import { DEFAULT_OPS_LOG_RETENTION, OpsLogService } from './services/serviceOpsLog.svelte';
 import { LeafDetachService } from './services/serviceLeafDetach';
-import { debounce } from './utils/utilDebounce';
+import { leadingDebounce } from './utils/utilDebounce';
 import { NodeBindingService } from './services/serviceNodeBinding';
 import { ALL_TAB_IDS, viewTypeFor, type TabId } from './registry/tabRegistry';
 import { VaultmanTabLeafView } from './types/typeTabLeaf';
+import { SvarFileManagerView, TYPE_SVAR_FILEMANAGER } from './types/typeSvarLeaf';
 import type { FnRIslandService } from './services/serviceFnRIsland.svelte';
 import type { PanelExplorerImperativeApi } from './types/typeExplorer';
 import type {
@@ -122,14 +123,16 @@ export class VaultmanPlugin extends Plugin {
 	openContentSearchHook: ((term: string) => void) | null = null;
 
 	async onload(): Promise<void> {
+		// Boot ops-log before the first mark so integration and diagnostics can
+		// inspect the whole startup sequence.
+		this.opsLogService = new OpsLogService();
+		this.opsLogService.bind();
 		PerfMeter.mark('vaultman:boot:start');
 		await this.loadSettings();
+		this.opsLogService.setRetention(this.settings.opsLogRetention ?? DEFAULT_OPS_LOG_RETENTION);
 		PerfMeter.mark('vaultman:boot:settings-loaded');
 		this.updateGlassBlur();
 
-		// Boot ops-log buffer eagerly so it captures records emitted during
-		// the rest of `onload`.
-		this.opsLogService = new OpsLogService({ retention: this.settings.opsLogRetention });
 		const pluginsBefore = snapshotInstalledPlugins(this.app);
 
 		PerfMeter.mark('vaultman:boot:index-refresh:start');
@@ -143,8 +146,8 @@ export class VaultmanPlugin extends Plugin {
 		]);
 		PerfMeter.mark('vaultman:boot:index-refresh:end');
 
-		const debouncedFilesRefresh = debounce(() => void this.filesIndex.refresh(), 250);
-		const debouncedMetadataRefresh = debounce(() => {
+		const debouncedFilesRefresh = leadingDebounce(() => void this.filesIndex.refresh(), 250);
+		const debouncedMetadataRefresh = leadingDebounce(() => {
 			void this.propsIndex.refresh();
 			void this.tagsIndex.refresh();
 		}, 250);
@@ -228,6 +231,7 @@ export class VaultmanPlugin extends Plugin {
 		});
 
 		this.registerView(TYPE_FRAME_VM, (leaf) => new VaultmanFrame(leaf, this));
+		this.registerView(TYPE_SVAR_FILEMANAGER, (leaf) => new SvarFileManagerView(leaf, this));
 
 		// Independent leaf view-types — registered up-front so saved
 		// workspace state can re-instantiate them (phase 6).

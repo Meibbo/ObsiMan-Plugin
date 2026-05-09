@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { evalInObsidian } from 'obsidian-integration-testing';
+import { getTempVault } from 'obsidian-integration-testing/vitest-global-setup';
 import type { App } from 'obsidian';
 import type { OpsLogRecord } from '../../src/services/perfMeter';
 
@@ -11,6 +12,8 @@ interface ExtendedApp extends App {
 }
 
 describe('Vaultman Performance Integration', () => {
+	const vault = getTempVault();
+
 	it('should have boot performance marks in OpsLogService', async () => {
 		const records = await evalInObsidian({
 			fn: ({ app }) => {
@@ -19,6 +22,7 @@ describe('Vaultman Performance Integration', () => {
 				if (!plugin || !plugin.opsLogService) return [];
 				return plugin.opsLogService.getRecords() as OpsLogRecord[];
 			},
+			vaultPath: vault.path,
 		});
 
 		expect(records.length).toBeGreaterThan(0);
@@ -50,6 +54,7 @@ describe('Vaultman Performance Integration', () => {
 				if (!plugin || !plugin.opsLogService) return [];
 				return plugin.opsLogService.getRecords() as OpsLogRecord[];
 			},
+			vaultPath: vault.path,
 		});
 
 		const startMark = records.find((r) => r.label === 'vaultman:boot:index-refresh:start');

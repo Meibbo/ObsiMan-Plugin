@@ -45,6 +45,9 @@ export interface FramePageFabOptions {
 	filtersBaseChooseMode?: boolean;
 	enterBasesImportMode?: () => void;
 	exitBasesImportMode?: () => void;
+	statsPreviewActive?: boolean;
+	openStatsNote?: () => void;
+	showStatsPage?: () => void;
 }
 
 // TODO: esta función podría ser genérica
@@ -67,7 +70,17 @@ export function createFramePageFabs(
 			right: null,
 		},
 		statistics: {
-			left: { icon: 'lucide-blocks', label: 'Add-ons', action: () => {} },
+			left: options.statsPreviewActive
+				? {
+						icon: 'lucide-bar-chart-2',
+						label: 'Show PageStats',
+						action: options.showStatsPage ?? (() => {}),
+					}
+				: {
+						icon: 'lucide-file-search',
+						label: 'Open note',
+						action: options.openStatsNote ?? (() => {}),
+					},
 			right: {
 				icon: 'lucide-settings',
 				label: translate('nav.statistics') ?? 'Settings',

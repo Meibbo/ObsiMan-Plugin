@@ -591,4 +591,5 @@ export const en: Record<string, string> = {
 	'stats.tags': 'Tags',
 	'stats.total_links': 'Total Links',
 	'stats.word_count': 'Word Count',
+	'stats.show_pagestats': 'Show PageStats',
 };

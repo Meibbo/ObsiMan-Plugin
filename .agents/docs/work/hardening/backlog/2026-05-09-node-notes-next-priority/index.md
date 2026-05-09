@@ -4,7 +4,7 @@ type: backlog-priority
 status: active
 parent: "[[docs/work/hardening/specs/2026-05-07-multifacet-2/05-note-binding-and-set|binding notes and set]]"
 created: 2026-05-09T03:42:43
-updated: 2026-05-09T08:11:56
+updated: 2026-05-09T09:30:00
 tags:
   - agent/backlog
   - vaultman/node-binding
@@ -153,6 +153,8 @@ Verification:
 
 ### NN-3 - PageStats Add-ons Note Preview
 
+Status: done 2026-05-09T09:30:00.
+
 Scope:
 
 - Replace the Statistics left FAB stub with an add-ons island.
@@ -164,6 +166,23 @@ Scope:
 Why after pageTools explorers: this is independent, but it depends on the same
 "note as first-class in-frame surface" direction and should not block data
 provider work.
+
+Outcome:
+
+- Replaced the Statistics left FAB stub with `Open note` and
+  `Show PageStats` states.
+- Added a public `FuzzySuggestModal<TFile>` note picker.
+- Rendered selected note markdown in-frame through Obsidian
+  `MarkdownRenderer.render(...)` with an owned `Component` lifecycle.
+- Added component coverage proving renderer invocation and unload behavior.
+
+Verification:
+
+- `pnpm exec vp test run --project component --config vitest.config.ts test/component/pageStatsNotePreview.test.ts test/component/perfProbeDom.test.ts test/component/viewSvarFileManager.test.ts --fileParallelism=false`
+  passed with 3 files and 9 tests.
+- `pnpm run lint`, `pnpm run check`, and `pnpm run build` passed.
+- Full performance/test repair record:
+  [[docs/work/performance/research/2026-05-09-viewtree-latency-test-repair|ViewTree latency and performance-test repair]].
 
 ### NN-4 - Native Obsidian Surface Adapter
 

@@ -19,6 +19,8 @@ export class OpsLogService {
 	private cap: number;
 	private subscribers: Set<Sub> = new Set();
 	private unsubscribers: (() => void)[] = [];
+	private perfBound = false;
+	private queueBound = false;
 
 	constructor(opts?: { retention?: number }) {
 		this.cap = Math.max(1, opts?.retention ?? DEFAULT_OPS_LOG_RETENTION);
@@ -26,9 +28,12 @@ export class OpsLogService {
 
 	/** Subscribe to PerfMeter and (optionally) a queue event source. */
 	bind(opts?: { queue?: QueueEventEmitter | null }): void {
-		const offPerf = PerfMeter.subscribe((rec) => this.push(rec));
-		this.unsubscribers.push(offPerf);
-		if (opts?.queue?.on) {
+		if (!this.perfBound) {
+			const offPerf = PerfMeter.subscribe((rec) => this.push(rec));
+			this.unsubscribers.push(offPerf);
+			this.perfBound = true;
+		}
+		if (opts?.queue?.on && !this.queueBound) {
 			const offQueue = opts.queue.on('changed', () => {
 				this.push({
 					ts: Date.now(),
@@ -37,6 +42,7 @@ export class OpsLogService {
 				});
 			});
 			this.unsubscribers.push(offQueue);
+			this.queueBound = true;
 		}
 	}
 
@@ -90,6 +96,8 @@ export class OpsLogService {
 		}
 		this.unsubscribers = [];
 		this.subscribers.clear();
+		this.perfBound = false;
+		this.queueBound = false;
 	}
 
 	private fanOut(): void {

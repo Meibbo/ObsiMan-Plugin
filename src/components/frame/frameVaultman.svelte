@@ -11,7 +11,7 @@
 <!--...-----------------------(   IMPORTS   )---------------------...-->
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
-	import { setIcon } from 'obsidian';
+	import { setIcon, type TFile } from 'obsidian';
 	import type { VaultmanPlugin } from '../../main';
 	import { explorerFiles } from '../../providers/explorerFiles';
 	import { explorerProps } from '../../providers/explorerProps';
@@ -51,6 +51,7 @@
 	} from './frameFiltersSearch';
 	import { createFnRState } from '../../services/serviceFnR';
 	import type { FnRState } from '../../types/typeFnR';
+	import { openVaultmanFileSuggestModal } from '../../utils/fileSuggestModal';
 
 	// â”€â”€â”€ Props â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€------------------...........
 
@@ -74,6 +75,7 @@
 	let pageOrder = $state<string[]>(initialFrameState.pageOrder);
 	let pageRenderKey = $state(0); // incremented on each reorder to force page content remount
 	let filtersBaseChooseMode = $state(false);
+	let statsPreviewFile = $state<TFile | null>(null);
 	const pageLabels: Record<string, string> = createFramePageLabels();
 	const pageIcons: Record<string, string> = createFramePageIcons();
 	const overlays = initialFrameState.overlays;
@@ -91,6 +93,9 @@
 				filtersBaseChooseMode,
 				enterBasesImportMode,
 				exitBasesImportMode,
+				statsPreviewActive: statsPreviewFile !== null,
+				openStatsNote,
+				showStatsPage,
 			},
 		),
 	);
@@ -136,6 +141,18 @@
 
 	function exitBasesImportMode() {
 		filtersBaseChooseMode = false;
+	}
+
+	function openStatsNote() {
+		openVaultmanFileSuggestModal(plugin.app, (file) => {
+			statsPreviewFile = file;
+			activePage = 'statistics';
+			viewport.applyPageTransform(true);
+		});
+	}
+
+	function showStatsPage() {
+		statsPreviewFile = null;
 	}
 
 	$effect(() => {
@@ -430,7 +447,7 @@
 						{#if pageId === 'ops'}
 							<OperationsPage {plugin} {icon} />
 						{:else if pageId === 'statistics'}
-							<StatisticsPage {plugin} />
+							<StatisticsPage {plugin} previewFile={statsPreviewFile} onShowStats={showStatsPage} />
 						{:else if pageId === 'filters'}
 							<FiltersPage
 								{plugin}

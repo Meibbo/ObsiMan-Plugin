@@ -49,7 +49,9 @@ describe('perf probe DOM scenarios', () => {
 		expect(result.scenario).toBe('tree-scroll');
 		expect(result.counters['scenario.tree-scroll'].count).toBe(1);
 		expect(result.counters['viewTree.scroll'].count).toBeGreaterThan(0);
-		expect(result.counters['viewTree.scroll'].totalRows).toBe(40);
+		expect(result.counters['viewTree.scroll'].totalRows).toBe(
+			40 * result.counters['viewTree.scroll'].count,
+		);
 		await unmount(app);
 		target.remove();
 		clearActivePerfProbe();

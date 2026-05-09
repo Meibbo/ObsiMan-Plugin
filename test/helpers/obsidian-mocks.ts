@@ -186,6 +186,33 @@ export class Modal {
 	onClose?(): void;
 }
 
+export abstract class FuzzySuggestModal<T> extends Modal {
+	getSuggestions(_query: string): Array<{ item: T; match: unknown }> {
+		return this.getItems().map((item) => ({ item, match: null }));
+	}
+	renderSuggestion(item: { item: T }, el: HTMLElement): void {
+		el.textContent = this.getItemText(item.item);
+	}
+	onChooseSuggestion(item: { item: T }, evt: MouseEvent | KeyboardEvent): void {
+		this.onChooseItem(item.item, evt);
+	}
+	abstract getItems(): T[];
+	abstract getItemText(item: T): string;
+	abstract onChooseItem(item: T, evt: MouseEvent | KeyboardEvent): void;
+}
+
+export class MarkdownRenderer {
+	static async render(
+		_app: App,
+		markdown: string,
+		el: HTMLElement,
+		_sourcePath: string,
+		_component: Component,
+	): Promise<void> {
+		el.textContent = markdown;
+	}
+}
+
 export class AbstractInputSuggest<T> {
 	app: App;
 	inputEl: HTMLInputElement;
@@ -230,6 +257,7 @@ export interface Vault {
 	process(file: TFile, fn: (current: string) => string): Promise<void>;
 	adapter: VaultAdapter;
 	on(name: string, cb: (...args: unknown[]) => unknown): { off: () => void };
+	offref(ref: { off: () => void }): void;
 }
 
 export interface VaultAdapter {
@@ -394,6 +422,7 @@ export function mockApp(opts: MockAppOptions = {}): App {
 			},
 		},
 		on: (name, cb) => events.on(name, cb),
+		offref: (ref) => ref.off(),
 	};
 
 	const metadataCache: MetadataCache = {
