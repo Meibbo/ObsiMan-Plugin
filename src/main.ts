@@ -120,6 +120,7 @@ export class VaultmanPlugin extends Plugin {
 	async onload(): Promise<void> {
 		PerfMeter.mark('vaultman:boot:start');
 		await this.loadSettings();
+		PerfMeter.mark('vaultman:boot:settings-loaded');
 		this.updateGlassBlur();
 
 		// Boot ops-log buffer eagerly so it captures records emitted during
@@ -127,6 +128,7 @@ export class VaultmanPlugin extends Plugin {
 		this.opsLogService = new OpsLogService({ retention: this.settings.opsLogRetention });
 		const pluginsBefore = snapshotInstalledPlugins(this.app);
 
+		PerfMeter.mark('vaultman:boot:index-refresh:start');
 		this.filesIndex = createFilesIndex(this.app);
 		this.tagsIndex = createTagsIndex(this.app);
 		this.propsIndex = createPropsIndex(this.app);
@@ -135,6 +137,7 @@ export class VaultmanPlugin extends Plugin {
 			this.tagsIndex.refresh(),
 			this.propsIndex.refresh(),
 		]);
+		PerfMeter.mark('vaultman:boot:index-refresh:end');
 
 		this.registerEvent(
 			this.app.metadataCache.on('changed', () => {
