@@ -72,3 +72,15 @@ export interface SnippetMeta {
 	name: string;
 	enabled: boolean;
 }
+
+export interface PluginMeta {
+	pluginId: string;
+	name: string;
+	enabled: boolean;
+	loaded: boolean;
+	version?: string;
+	author?: string;
+	description?: string;
+	isDesktopOnly?: boolean;
+	isVaultman?: boolean;
+}

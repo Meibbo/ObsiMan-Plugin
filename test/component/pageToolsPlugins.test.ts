@@ -7,48 +7,47 @@ import { ViewService } from '../../src/services/serviceViews.svelte';
 import type { VaultmanPlugin } from '../../src/main';
 
 function makePlugin(): VaultmanPlugin {
-	const app = mockApp() as ReturnType<typeof mockApp> & {
-		customCss: {
-			setCssEnabledStatus: ReturnType<typeof vi.fn>;
-			requestLoadSnippets: ReturnType<typeof vi.fn>;
-		};
-	};
-	let snippetNodes = [{ id: 'cards', name: 'cards', enabled: false }];
-	const snippetSubscribers = new Set<() => void>();
-	app.customCss = {
-		setCssEnabledStatus: vi.fn(async () => undefined),
-		requestLoadSnippets: vi.fn(async () => undefined),
-	};
-	const refreshSnippets = vi.fn(async () => {
-		snippetNodes = snippetNodes.map((node) =>
-			node.id === 'cards' ? { ...node, enabled: true } : node,
+	const app = Object.assign(mockApp(), {
+		plugins: {
+			enablePluginAndSave: vi.fn(async () => undefined),
+			disablePluginAndSave: vi.fn(async () => undefined),
+		},
+	});
+	let pluginNodes = [
+		{ id: 'calendar', pluginId: 'calendar', name: 'Calendar', enabled: false, loaded: false },
+	];
+	const pluginSubscribers = new Set<() => void>();
+	const refreshPlugins = vi.fn(async () => {
+		pluginNodes = pluginNodes.map((node) =>
+			node.id === 'calendar' ? { ...node, enabled: true, loaded: true } : node,
 		);
-		for (const cb of snippetSubscribers) cb();
+		for (const cb of pluginSubscribers) cb();
 	});
 	return {
 		app,
+		manifest: { id: 'vaultman' },
 		addChild: vi.fn(),
 		removeChild: vi.fn(),
 		settings: { contextMenuHideRules: [] },
 		saveSettings: vi.fn(async () => undefined),
 		contextMenuService: { registerAction: vi.fn(), openPanelMenu: vi.fn() },
 		cssSnippetsIndex: {
-			get nodes() {
-				return snippetNodes;
-			},
-			refresh: refreshSnippets,
-			subscribe: vi.fn((cb: () => void) => {
-				snippetSubscribers.add(cb);
-				return () => {
-					snippetSubscribers.delete(cb);
-				};
-			}),
-			byId: vi.fn(),
-		},
-		pluginsIndex: {
 			nodes: [],
 			refresh: vi.fn(),
 			subscribe: vi.fn(() => vi.fn()),
+			byId: vi.fn(),
+		},
+		pluginsIndex: {
+			get nodes() {
+				return pluginNodes;
+			},
+			refresh: refreshPlugins,
+			subscribe: vi.fn((cb: () => void) => {
+				pluginSubscribers.add(cb);
+				return () => {
+					pluginSubscribers.delete(cb);
+				};
+			}),
 			byId: vi.fn(),
 		},
 		operationsIndex: { nodes: [], subscribe: vi.fn(() => vi.fn()) },
@@ -59,7 +58,7 @@ function makePlugin(): VaultmanPlugin {
 	} as unknown as VaultmanPlugin;
 }
 
-describe('pageTools snippets tab', () => {
+describe('pageTools plugins tab', () => {
 	let target: HTMLDivElement;
 	let app: ReturnType<typeof mount> | null = null;
 
@@ -84,11 +83,11 @@ describe('pageTools snippets tab', () => {
 		vi.unstubAllGlobals();
 	});
 
-	it('declares a snippets tab in the Tools tab config', () => {
-		expect(TTabs.some((tab) => tab.id === 'snippets')).toBe(true);
+	it('declares a plugins tab in the Tools tab config', () => {
+		expect(TTabs.some((tab) => tab.id === 'plugins')).toBe(true);
 	});
 
-	it('renders snippets explorer content when the snippets tab is selected', () => {
+	it('renders plugins explorer content when the plugins tab is selected', () => {
 		app = mount(PageTools as unknown as Component<Record<string, unknown>>, {
 			target,
 			props: {
@@ -98,16 +97,16 @@ describe('pageTools snippets tab', () => {
 		});
 		flushSync();
 
-		const snippetsTab = target.querySelector<HTMLElement>('[data-tab="snippets"]');
-		expect(snippetsTab).toBeTruthy();
-		snippetsTab!.click();
+		const pluginsTab = target.querySelector<HTMLElement>('[data-tab="plugins"]');
+		expect(pluginsTab).toBeTruthy();
+		pluginsTab!.click();
 		flushSync();
 
-		expect(target.querySelector('.vm-snippets-tab-content')).toBeTruthy();
-		expect(target.textContent).toContain('cards');
+		expect(target.querySelector('.vm-plugins-tab-content')).toBeTruthy();
+		expect(target.textContent).toContain('Calendar');
 	});
 
-	it('updates the snippets row after toggling enabled state', async () => {
+	it('updates the plugins row after toggling enabled state', async () => {
 		app = mount(PageTools as unknown as Component<Record<string, unknown>>, {
 			target,
 			props: {
@@ -117,11 +116,11 @@ describe('pageTools snippets tab', () => {
 		});
 		flushSync();
 
-		target.querySelector<HTMLElement>('[data-tab="snippets"]')!.click();
+		target.querySelector<HTMLElement>('[data-tab="plugins"]')!.click();
 		flushSync();
 
 		const toggle = [...target.querySelectorAll<HTMLElement>('.vm-badge')].find(
-			(el) => el.getAttribute('aria-label') === 'Enable CSS snippet "cards"',
+			(el) => el.getAttribute('aria-label') === 'Enable community plugin "Calendar"',
 		);
 		expect(toggle).toBeTruthy();
 		toggle!.click();

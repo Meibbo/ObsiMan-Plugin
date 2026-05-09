@@ -6,15 +6,20 @@ const viteBuildDir = path.join(root, 'dist', 'vite');
 const distBuildDir = path.join(root, 'dist', 'build');
 
 // User's specific test vault target
-const testVaultTarget = 'C:/Users/vic_A/Desktop/vaultman/.obsidian/plugins/vaultman';
+const driveVaultTarget = 'C:/Users/vic_A/My Drive (vic_alejandronavas@outlook.com)/plugin-dev/.obsidian/plugins/vaultman';
+const stressVaultTarget = path.join(root, 'test', 'vaults', 'stress-vault', '.obsidian', 'plugins', 'vaultman');
 
 const artifactNames = ['main.js', 'manifest.json', 'styles.css'];
 
 await mkdir(distBuildDir, { recursive: true });
-try {
-	await mkdir(testVaultTarget, { recursive: true });
-} catch (e) {
-	console.warn(`Warning: Could not create/access test vault target: ${testVaultTarget}`);
+const syncTargets = [driveVaultTarget, stressVaultTarget];
+
+for (const target of syncTargets) {
+	try {
+		await mkdir(target, { recursive: true });
+	} catch (e) {
+		console.warn(`Warning: Could not create/access target: ${target}`);
+	}
 }
 
 for (const artifactName of artifactNames) {
@@ -28,14 +33,17 @@ for (const artifactName of artifactNames) {
 	}
 	await cp(rootArtifactPath, path.join(distBuildDir, artifactName), { force: true });
 
-	try {
-		await cp(rootArtifactPath, path.join(testVaultTarget, artifactName), { force: true });
-	} catch (e) {
-		console.warn(`Warning: Could not copy ${artifactName} to test vault target.`);
+	for (const target of syncTargets) {
+		try {
+			await cp(rootArtifactPath, path.join(target, artifactName), { force: true });
+		} catch (e) {
+			console.warn(`Warning: Could not copy ${artifactName} to target: ${target}`);
+		}
 	}
 }
 
 console.log(`Synced Vite+ build artifacts to:`);
 console.log(`- ${root}`);
 console.log(`- ${distBuildDir}`);
-console.log(`- ${testVaultTarget}`);
+console.log(`- ${driveVaultTarget}`);
+console.log(`- ${stressVaultTarget}`);

@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { evalInObsidian } from 'obsidian-integration-testing';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { evalInObsidian, registerVault } from 'obsidian-integration-testing';
 import type { App } from 'obsidian';
+import path from 'node:path';
 
 interface ExtendedApp extends App {
 	plugins: {
@@ -8,9 +9,17 @@ interface ExtendedApp extends App {
 	};
 }
 
+const STRESS_VAULT_PATH = path.resolve('./test/vaults/stress-vault');
+
 describe('Vaultman Stress Test', () => {
+	beforeAll(async () => {
+		await registerVault(STRESS_VAULT_PATH);
+		console.log('Registered stress vault at:', STRESS_VAULT_PATH);
+	});
+
 	it('should handle 10,000 files with acceptable latency', async () => {
 		const metrics = await evalInObsidian({
+			vault: STRESS_VAULT_PATH,
 			fn: async ({ app }) => {
 				const extendedApp = app as ExtendedApp;
 				const plugin = extendedApp.plugins.plugins.vaultman;
@@ -19,6 +28,7 @@ describe('Vaultman Stress Test', () => {
 					return {
 						error: 'filesIndex missing',
 						pluginKeys: Object.keys(plugin),
+						allPluginProps: Object.getOwnPropertyNames(plugin),
 						isPluginInitialized: typeof plugin.onload === 'function'
 					};
 				}
@@ -55,6 +65,7 @@ describe('Vaultman Stress Test', () => {
 
 	it('should maintain low search latency for FULL SCAN of 10,000 files', async () => {
 		const searchMetrics = await evalInObsidian({
+			vault: STRESS_VAULT_PATH,
 			fn: async ({ app }) => {
 				const extendedApp = app as ExtendedApp;
 				const plugin = extendedApp.plugins.plugins.vaultman;

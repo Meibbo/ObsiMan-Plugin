@@ -39,6 +39,7 @@ import { createContentIndex } from './index/indexContent';
 import { createOperationsIndex } from './index/indexOperations';
 import { createActiveFiltersIndex } from './index/indexActiveFilters';
 import { createCSSSnippetsIndex } from './index/indexSnippets';
+import { createCommunityPluginsIndex } from './index/indexPlugins';
 import { createTemplatesIndex } from './services/serviceTemplatesIndex';
 import { OverlayStateService } from './services/serviceOverlayState.svelte';
 import { DecorationManager } from './services/serviceDecorate';
@@ -62,6 +63,7 @@ import type {
 	IOperationsIndex,
 	IActiveFiltersIndex,
 	ICSSSnippetsIndex,
+	ICommunityPluginsIndex,
 	ITemplatesIndex,
 	IOverlayState,
 	IDecorationManager,
@@ -87,6 +89,7 @@ export class VaultmanPlugin extends Plugin {
 	operationsIndex!: IOperationsIndex;
 	activeFiltersIndex!: IActiveFiltersIndex;
 	cssSnippetsIndex!: ICSSSnippetsIndex;
+	pluginsIndex!: ICommunityPluginsIndex;
 	templatesIndex!: ITemplatesIndex;
 	overlayState!: IOverlayState;
 	decorationManager!: IDecorationManager;
@@ -169,12 +172,14 @@ export class VaultmanPlugin extends Plugin {
 		this.operationsIndex = createOperationsIndex(this.queueService);
 		this.activeFiltersIndex = createActiveFiltersIndex(this.filterService);
 		this.cssSnippetsIndex = createCSSSnippetsIndex(this.app);
+		this.pluginsIndex = createCommunityPluginsIndex(this.app);
 		this.templatesIndex = createTemplatesIndex();
 		await Promise.all([
 			this.contentIndex.refresh(),
 			this.operationsIndex.refresh(),
 			this.activeFiltersIndex.refresh(),
 			this.cssSnippetsIndex.refresh(),
+			this.pluginsIndex.refresh(),
 			this.templatesIndex.refresh(),
 		]);
 		this.overlayState = new OverlayStateService();

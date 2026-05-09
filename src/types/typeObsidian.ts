@@ -126,3 +126,27 @@ export function isCommunityPluginEnabled(app: App, id: string): boolean {
 export function isCommunityPluginLoaded(app: App, id: string): boolean {
 	return getCommunityPlugins(app)?.plugins?.[id]?._loaded ?? false;
 }
+
+/** Toggle a community plugin through Obsidian's internal plugin manager. */
+export async function setCommunityPluginEnabled(
+	app: App,
+	id: string,
+	enabled: boolean,
+): Promise<boolean> {
+	const plugins = getCommunityPlugins(app);
+	if (!plugins) return false;
+	if (enabled) {
+		if (plugins.enablePluginAndSave) {
+			await plugins.enablePluginAndSave(id);
+			return true;
+		}
+		if (plugins.enablePlugin) {
+			await plugins.enablePlugin(id);
+			return true;
+		}
+		return false;
+	}
+	if (!plugins.disablePluginAndSave) return false;
+	await plugins.disablePluginAndSave(id);
+	return true;
+}

@@ -7,6 +7,13 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@git-diff-view/svelte':
+        specifier: ^0.1.3
+        version: 0.1.3(svelte@5.55.5(@typescript-eslint/types@8.59.1))
+      '@svar-ui/svelte-filemanager':
+        specifier: ^2.5.0
+        version: 2.5.0
     devDependencies:
       '@eslint/js':
         specifier: ^9.39.4
@@ -625,6 +632,17 @@ packages:
     peerDependenciesMeta:
       '@noble/hashes':
         optional: true
+
+  '@git-diff-view/core@0.1.3':
+    resolution: {integrity: sha512-HNuxWv/DqxFRuZMq4EHmnFL4bVM68ON/GnCoTz35Q9SfIScgN3Qppoh2rj/GEpWV1XG+TjBFuSSoW8XBcx8+ew==}
+
+  '@git-diff-view/lowlight@0.1.3':
+    resolution: {integrity: sha512-X96p4GPc95vpnyhkdfOFnMqL+rD6vyCuwjUmSwk9vHbPL2bLGfYwg9qZ8s7tqmpIgqsDnVgjN0WIA4pIzJwZHQ==}
+
+  '@git-diff-view/svelte@0.1.3':
+    resolution: {integrity: sha512-n7TF6RHhANvi7LqkOKQ2pfouKQT2D5jU3YqKTU+t5gDcfmcQUBITveN5yMAZXn+QF8NAAGCbdaV5AKivnQqv8w==}
+    peerDependencies:
+      svelte: ^5.0.0
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -1618,6 +1636,60 @@ packages:
     resolution: {integrity: sha512-pj0cAALblTZBPtMltWOlZTQSLT07jIaFNeM8TWoJD1cQMgDB9mcMlVMoetiB35OzNJpqQ2b+QEtwiR9f20mADg==}
     engines: {node: '>=8'}
 
+  '@svar-ui/core-locales@2.5.0':
+    resolution: {integrity: sha512-vL8y8B1/YeHd89cd6x5jzSWLxYxNICXZY2Gx4+Op26L8N8IhCR26r8fpuptugodKLIQkyua3fh27ZB+5sJSXHg==}
+
+  '@svar-ui/filemanager-data-provider@2.5.0':
+    resolution: {integrity: sha512-+YPoldkDuSFnpyum7gxAn1kOzIqVMe3W+XvOhoSA09vGtTXUiN3cwulgL/FPKO2ixxXz/aNlTZOdpDxPuhfTOw==}
+
+  '@svar-ui/filemanager-locales@2.5.0':
+    resolution: {integrity: sha512-3GP7unV0tnfGftjFVakhzMiX7DLIHAYvh5qL6N70r7mc3Ate3VBIgyCpanaALoebpdrTgeQpz1SKWl/b/ZLL1A==}
+
+  '@svar-ui/filemanager-store@2.5.0':
+    resolution: {integrity: sha512-wlpaFDbQKD5ERXIfLMqz6JqXMsUoAUz/A+/6dRWlE9g7f0ukCre6rSUBZNwi6+5YUTsN1GmaemWlXRwcsGbLyw==}
+
+  '@svar-ui/grid-data-provider@2.6.0':
+    resolution: {integrity: sha512-l4PiB1rVprLN9bms00d2S5WEehDKu6PoMyWR45Z5dffFIAW+Rr2jIW2AtzBFqDWuj+dM7N+BLF54Y3P33M6/lw==}
+
+  '@svar-ui/grid-locales@2.6.0':
+    resolution: {integrity: sha512-v3DDvYICZlKz7pReXYRlX84YWdSh9FRY6WZTpjjUjchj29OlaROjTeyabAzaBp4GXs3yTNUaB6n8UdCaKO+zqw==}
+
+  '@svar-ui/grid-store@2.6.0':
+    resolution: {integrity: sha512-KFgKeRCBJh1/V+cnaIjlksN8zuWjFASWff3H42tQF5gIBIn81JV4bbuEjD3RzW7zYySfqGZzSBhyuXfUNZ8ieA==}
+
+  '@svar-ui/lib-data-provider@1.7.1':
+    resolution: {integrity: sha512-5Bi9ywngcMTKpGtan0s7q8ivd84Bp0ZnRP+5bLZg6oiRB7YMyN5D5X+apc3CWDAnG4zZn3en4YwS2qc/aHIIuQ==}
+
+  '@svar-ui/lib-dom@0.12.1':
+    resolution: {integrity: sha512-srvDleQqR6stBBDijCgzDHMFTTffI6sv3XCpNPKmurrnE83L1MDNqezqg6j3+0dUVPd4AAEGOez2DvK6byblTQ==}
+
+  '@svar-ui/lib-state@1.9.6':
+    resolution: {integrity: sha512-twoHa8wZvzdxtES68s6Wnp4Xi1WivScNaFFK6sJ6WDgqVYOzJw0ZhVVrdwHQgieLITTKl/DYh/U3nuqtMetKYw==}
+
+  '@svar-ui/lib-svelte@0.5.2':
+    resolution: {integrity: sha512-i+hHMT3zctaGbRpyMDREt9im7YfLpvGwFYvH1ntEp/kYAwUrR/sxMJlEEKIid+Yg2EeMUstGxmYQbkWoMpPG7A==}
+
+  '@svar-ui/svelte-core@2.5.0':
+    resolution: {integrity: sha512-POqG2dL6SeGcrFTYSxWWbbAdHoW9I6sdA7T9pld8/GnRn0X2sYnQBBvIPCMo5wC/zvEHVOpKGRiLZn6evTNQJw==}
+
+  '@svar-ui/svelte-filemanager@2.5.0':
+    resolution: {integrity: sha512-/guThywBtXV4X6yd8cRfrTc6NMX4X5xqvRBwH7uNGPvYeD2MJ3wWsvqjdzGg0ZFuoyVz78a8d5/xFYaBatxwiA==}
+
+  '@svar-ui/svelte-grid@2.6.0':
+    resolution: {integrity: sha512-BjBTCqcqTmCaB9r1mg1D6MVCJh1w6vnSrbLSWWSajQRTI98NdgUeOLosORZtctG2Kek0tmJAXycgdjr9pREmsw==}
+
+  '@svar-ui/svelte-menu@2.5.0':
+    resolution: {integrity: sha512-oQf/ZDbqDUiR8EUmSgFPOu69q9tQuKxxZfc3lDaZ3RmfVRh3CCpjS/7EMbNWKDe5tCN1lFVrwSDYx2+hCKucGA==}
+
+  '@svar-ui/svelte-toolbar@2.5.0':
+    resolution: {integrity: sha512-2TZ67eQrrOSJu9yJuna8tUz/XUexqt553Nd4gLWXnSDCvLXpIV2+z/c+/7hVV5/yQzTfOsVbboQkEj/c0qByaQ==}
+
+  '@svar-ui/svelte-uploader@2.5.0':
+    resolution: {integrity: sha512-V89WTVDT7DFdeYCqNQpRxLnK9nqtp549y2GPNB1vP3imWprJFsn8VWuh0oWvdruVmIXn8W6t8VKRU3aVHcHz2g==}
+
+  '@svar-ui/uploader-locales@2.5.0':
+    resolution: {integrity: sha512-Q2azDcpY5qGadsDVKwbB+hQeKmBb+VN5mr+5ySqj/FFIx10Y75+QsUNVBX5r0B40W8SEf4Mr0q5eBMjg9djfow==}
+
   '@sveltejs/acorn-typescript@1.0.9':
     resolution: {integrity: sha512-lVJX6qEgs/4DOcRTpo56tmKzVPtoWAaVbL4hfO7t7NVwl9AAXzQR6cihesW1BmNMPl+bK6dreu2sOKBP2Q9CIA==}
     peerDependencies:
@@ -1665,6 +1737,9 @@ packages:
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
+
+  '@types/hast@3.0.4':
+    resolution: {integrity: sha512-WPs+bbQw5aCj+x6laNGWLH3wviHtoCv/P3+otBhbOhJgG8qtpdAMlTCxLtsTWA7LH1Oh/bFCHsBn0TPS5m30EQ==}
 
   '@types/http-cache-semantics@4.2.0':
     resolution: {integrity: sha512-L3LgimLHXtGkWikKnsPg0/VFx9OGZaC+eN1u4r+OB1XRqH3meBIAVC2zr1WdMH+RHmnRkqliQAOHNJ/E0j/e0Q==}
@@ -1719,6 +1794,9 @@ packages:
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
+
+  '@types/unist@3.0.3':
+    resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
 
   '@types/which@2.0.2':
     resolution: {integrity: sha512-113D3mDkZDjo+EeUEHCFy0qniNc1ZpecGiAU7WSo7YDoSzolZIQKpYFHrPpjkB2nuyahcKfrmLXeQlh7gqJYdw==}
@@ -2619,6 +2697,10 @@ packages:
   deps-regex@0.2.0:
     resolution: {integrity: sha512-PwuBojGMQAYbWkMXOY9Pd/NWCDNHVH12pnS7WHqZkTSeMESe4hwnKKRp0yR87g37113x4JPbo/oIvXY+s/f56Q==}
 
+  dequal@2.0.3:
+    resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
+    engines: {node: '>=6'}
+
   detect-file@1.0.0:
     resolution: {integrity: sha512-DtCOLG98P007x7wiiOmfI0fi3eIKyWiLTGJ2MDnVi/E04lWGbf+JzrRHMm0rgIIZJGtHpKpbVgLWHrv8xXpc3Q==}
     engines: {node: '>=0.10.0'}
@@ -2632,6 +2714,9 @@ packages:
 
   devalue@5.8.0:
     resolution: {integrity: sha512-2zA9pFEsnp7vWBZbXF5JAgAq0fsUIt/1XPbRiAmRV3lp/2C3upzH+sADiyy66aFCihoLEsrQHxNM5w1gIDfsBg==}
+
+  devlop@1.1.0:
+    resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
 
   devtools-protocol@0.0.1608973:
     resolution: {integrity: sha512-Tpm17fxYzt+J7VrGdc1k8YdRqS3YV7se/M6KeemEqvUbq/n7At1rWVuXMxQgpWkdwSdIEKYbU//Bve+Shm4YNQ==}
@@ -3042,6 +3127,9 @@ packages:
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
 
+  fast-diff@1.3.0:
+    resolution: {integrity: sha512-VxPP4NqbUjj6MaAOafWeUn2cXWLcCtljklUtZf0Ind4XQ+QPtmA0b18zZy0jIQx+ExRVCR/ZQpBmik5lXshNsw==}
+
   fast-fifo@1.3.2:
     resolution: {integrity: sha512-/d9sfos4yxzpwkDkuN7k2SqFKtYNmCTzgfEpz82x34IM9/zc8KGxQoXg1liNC/izpRM/MBdt44Nmx41ZWqk+FQ==}
 
@@ -3286,6 +3374,10 @@ packages:
   he@1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
+
+  highlight.js@11.11.1:
+    resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
+    engines: {node: '>=12.0.0'}
 
   homedir-polyfill@1.0.3:
     resolution: {integrity: sha512-eSmmWE5bZTK2Nou4g0AI3zZ9rswp7GRKoKXS1BLUkvPviOqs4YTN1djQIqrXy9k5gEtdLPy86JjRwsNM9tnDcA==}
@@ -3851,6 +3943,9 @@ packages:
   lowercase-keys@3.0.0:
     resolution: {integrity: sha512-ozCC6gdQ+glXOQsveKD0YsDy8DSQFjDTz4zyzEHNV5+JP5D62LmfDZ6o1cycFx9ouG940M5dE8C8CTewdj2YWQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  lowlight@3.3.0:
+    resolution: {integrity: sha512-0JNhgFoPvP6U6lE/UdVsSq99tn6DhjjpAj5MxG49ewd2mOBVtwWYIT8ClyABhq198aXXODMU6Ox8DrGy/CpTZQ==}
 
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
@@ -5816,6 +5911,28 @@ snapshots:
 
   '@exodus/bytes@1.15.0': {}
 
+  '@git-diff-view/core@0.1.3':
+    dependencies:
+      '@git-diff-view/lowlight': 0.1.3
+      fast-diff: 1.3.0
+      highlight.js: 11.11.1
+      lowlight: 3.3.0
+
+  '@git-diff-view/lowlight@0.1.3':
+    dependencies:
+      '@types/hast': 3.0.4
+      highlight.js: 11.11.1
+      lowlight: 3.3.0
+
+  '@git-diff-view/svelte@0.1.3(svelte@5.55.5(@typescript-eslint/types@8.59.1))':
+    dependencies:
+      '@git-diff-view/core': 0.1.3
+      '@types/hast': 3.0.4
+      fast-diff: 1.3.0
+      highlight.js: 11.11.1
+      lowlight: 3.3.0
+      svelte: 5.55.5(@typescript-eslint/types@8.59.1)
+
   '@humanfs/core@0.19.2':
     dependencies:
       '@humanfs/types': 0.15.0
@@ -6484,6 +6601,90 @@ snapshots:
 
   '@supercharge/promise-pool@3.2.0': {}
 
+  '@svar-ui/core-locales@2.5.0': {}
+
+  '@svar-ui/filemanager-data-provider@2.5.0':
+    dependencies:
+      '@svar-ui/lib-data-provider': 1.7.1
+
+  '@svar-ui/filemanager-locales@2.5.0': {}
+
+  '@svar-ui/filemanager-store@2.5.0':
+    dependencies:
+      '@svar-ui/lib-state': 1.9.6
+
+  '@svar-ui/grid-data-provider@2.6.0':
+    dependencies:
+      '@svar-ui/lib-data-provider': 1.7.1
+
+  '@svar-ui/grid-locales@2.6.0': {}
+
+  '@svar-ui/grid-store@2.6.0':
+    dependencies:
+      '@svar-ui/lib-dom': 0.12.1
+      '@svar-ui/lib-state': 1.9.6
+
+  '@svar-ui/lib-data-provider@1.7.1':
+    dependencies:
+      '@svar-ui/lib-state': 1.9.6
+
+  '@svar-ui/lib-dom@0.12.1': {}
+
+  '@svar-ui/lib-state@1.9.6': {}
+
+  '@svar-ui/lib-svelte@0.5.2':
+    dependencies:
+      '@svar-ui/lib-state': 1.9.6
+
+  '@svar-ui/svelte-core@2.5.0':
+    dependencies:
+      '@svar-ui/core-locales': 2.5.0
+      '@svar-ui/lib-dom': 0.12.1
+      '@svar-ui/lib-svelte': 0.5.2
+
+  '@svar-ui/svelte-filemanager@2.5.0':
+    dependencies:
+      '@svar-ui/filemanager-data-provider': 2.5.0
+      '@svar-ui/filemanager-locales': 2.5.0
+      '@svar-ui/filemanager-store': 2.5.0
+      '@svar-ui/lib-dom': 0.12.1
+      '@svar-ui/lib-state': 1.9.6
+      '@svar-ui/lib-svelte': 0.5.2
+      '@svar-ui/svelte-core': 2.5.0
+      '@svar-ui/svelte-grid': 2.6.0
+      '@svar-ui/svelte-menu': 2.5.0
+      '@svar-ui/svelte-uploader': 2.5.0
+
+  '@svar-ui/svelte-grid@2.6.0':
+    dependencies:
+      '@svar-ui/grid-data-provider': 2.6.0
+      '@svar-ui/grid-locales': 2.6.0
+      '@svar-ui/grid-store': 2.6.0
+      '@svar-ui/lib-dom': 0.12.1
+      '@svar-ui/lib-state': 1.9.6
+      '@svar-ui/lib-svelte': 0.5.2
+      '@svar-ui/svelte-core': 2.5.0
+      '@svar-ui/svelte-menu': 2.5.0
+      '@svar-ui/svelte-toolbar': 2.5.0
+
+  '@svar-ui/svelte-menu@2.5.0':
+    dependencies:
+      '@svar-ui/lib-dom': 0.12.1
+      '@svar-ui/svelte-core': 2.5.0
+
+  '@svar-ui/svelte-toolbar@2.5.0':
+    dependencies:
+      '@svar-ui/lib-dom': 0.12.1
+      '@svar-ui/svelte-core': 2.5.0
+
+  '@svar-ui/svelte-uploader@2.5.0':
+    dependencies:
+      '@svar-ui/lib-dom': 0.12.1
+      '@svar-ui/svelte-core': 2.5.0
+      '@svar-ui/uploader-locales': 2.5.0
+
+  '@svar-ui/uploader-locales@2.5.0': {}
+
   '@sveltejs/acorn-typescript@1.0.9(acorn@8.16.0)':
     dependencies:
       acorn: 8.16.0
@@ -6538,6 +6739,10 @@ snapshots:
 
   '@types/estree@1.0.8': {}
 
+  '@types/hast@3.0.4':
+    dependencies:
+      '@types/unist': 3.0.3
+
   '@types/http-cache-semantics@4.2.0': {}
 
   '@types/istanbul-lib-coverage@2.0.6': {}
@@ -6585,6 +6790,8 @@ snapshots:
       '@types/estree': 1.0.8
 
   '@types/trusted-types@2.0.7': {}
+
+  '@types/unist@3.0.3': {}
 
   '@types/which@2.0.2': {}
 
@@ -7732,6 +7939,8 @@ snapshots:
 
   deps-regex@0.2.0: {}
 
+  dequal@2.0.3: {}
+
   detect-file@1.0.0: {}
 
   detect-libc@2.1.2: {}
@@ -7740,6 +7949,10 @@ snapshots:
     optional: true
 
   devalue@5.8.0: {}
+
+  devlop@1.1.0:
+    dependencies:
+      dequal: 2.0.3
 
   devtools-protocol@0.0.1608973: {}
 
@@ -8360,6 +8573,8 @@ snapshots:
 
   fast-deep-equal@3.1.3: {}
 
+  fast-diff@1.3.0: {}
+
   fast-fifo@1.3.2: {}
 
   fast-glob@3.3.3:
@@ -8642,6 +8857,8 @@ snapshots:
       function-bind: 1.1.2
 
   he@1.2.0: {}
+
+  highlight.js@11.11.1: {}
 
   homedir-polyfill@1.0.3:
     dependencies:
@@ -9212,6 +9429,12 @@ snapshots:
       js-tokens: 4.0.0
 
   lowercase-keys@3.0.0: {}
+
+  lowlight@3.3.0:
+    dependencies:
+      '@types/hast': 3.0.4
+      devlop: 1.1.0
+      highlight.js: 11.11.1
 
   lru-cache@10.4.3: {}
 

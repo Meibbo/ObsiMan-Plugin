@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-handoff.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-09T06:54:22
+updated: 2026-05-09T08:11:56
 tags:
   - agent/current
 created_by: dec
@@ -22,8 +22,8 @@ Archived completed/superseded handoff:
 
 - Latest next implementation lane:
   [[docs/work/hardening/backlog/2026-05-09-node-notes-next-priority/index|Node notes next-priority implementation order]].
-  NN-0 contract correction and NN-1 snippets explorer are done. Resume with
-  NN-2 `tabPlugins`, then NN-3 PageStats Add-ons note preview, and NN-4 native
+  NN-0 contract correction, NN-1 snippets explorer, and NN-2 plugins explorer
+  are done. Resume with NN-3 PageStats Add-ons note preview, then NN-4 native
   Obsidian DOM adapter if smoke tooling is available.
 - Continue [[docs/work/hardening/specs/2026-05-06-node-selection-service/index|Node selection service and viewgrid spec]] and
   [[docs/work/hardening/plans/2026-05-06-node-selection-service/index|Node selection service implementation plan]].
@@ -265,6 +265,15 @@ Archived completed/superseded handoff:
 - Do not move AI files into `main`.
 
 ## Fresh Changes To Preserve
+
+- 2026-05-09 NN-2 plugins explorer changes to preserve:
+  [[docs/work/hardening/plans/2026-05-09-node-notes-nn2-plugins/index|NN-2 plugins explorer plan/result]].
+  `createCommunityPluginsIndex(app)` reads community plugin manifests and state,
+  `explorerPlugins` renders/toggles plugins and refuses to disable Vaultman
+  itself, `tabPlugins.svelte` is wired into `pageTools`, and
+  `plugin.bindingNote` routes to `%pluginId`. Verification: focused unit
+  6 files/30 tests, focused component 2 files/6 tests, `check`, `lint`,
+  `build`, and `git diff --check` passed.
 
 - 2026-05-09 NN-1 snippets explorer changes to preserve:
   [[docs/work/hardening/plans/2026-05-09-node-notes-nn1-snippets/index|NN-1 snippets explorer plan/result]].

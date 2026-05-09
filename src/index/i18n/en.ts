@@ -402,6 +402,7 @@ export const en: Record<string, string> = {
 	'ops.tabs.template': 'Template',
 	'ops.tabs.layout': 'Layout',
 	'ops.tabs.snippets': 'Snippets',
+	'ops.tabs.plugins': 'Plugins',
 	'ops.coming_soon': 'Coming soon',
 	'ops.rename': 'Rename',
 	'ops.delete': 'Delete',

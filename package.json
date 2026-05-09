@@ -90,5 +90,9 @@
 			"obsidian-integration-testing",
 			"svelte-preprocess"
 		]
+	},
+	"dependencies": {
+		"@git-diff-view/svelte": "^0.1.3",
+		"@svar-ui/svelte-filemanager": "^2.5.0"
 	}
 }

@@ -4,6 +4,7 @@
 	import { TTabs } from '../../types/typeTab'; //, type OpsTab
 	import { MenuCuratorPanel } from '../containers/panelCurator';
 	import PageToolsOpsLog from './pageToolsOpsLog.svelte';
+	import TabPlugins from './tabPlugins.svelte';
 	import TabSnippets from './tabSnippets.svelte';
 	import type { OpsLogService } from '../../services/serviceOpsLog.svelte';
 	// import { NavbarTabs } from "../layout/navbarTabs.svelte";
@@ -88,6 +89,11 @@
 	<!-- Snippets tab -->
 	<div class="vm-tab-content" class:is-active={opsTab === 'snippets'}>
 		<TabSnippets {plugin} active={opsTab === 'snippets'} />
+	</div>
+
+	<!-- Plugins tab -->
+	<div class="vm-tab-content" class:is-active={opsTab === 'plugins'}>
+		<TabPlugins {plugin} active={opsTab === 'plugins'} />
 	</div>
 
 	<!-- Ops log tab -->

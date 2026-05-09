@@ -4,7 +4,7 @@ type: backlog-priority
 status: active
 parent: "[[docs/work/hardening/specs/2026-05-07-multifacet-2/05-note-binding-and-set|binding notes and set]]"
 created: 2026-05-09T03:42:43
-updated: 2026-05-09T06:54:22
+updated: 2026-05-09T08:11:56
 tags:
   - agent/backlog
   - vaultman/node-binding
@@ -120,6 +120,8 @@ Verification:
 
 ### NN-2 - Plugins Explorer In pageTools
 
+Status: done 2026-05-09T08:11:56.
+
 Scope:
 
 - Implement plugins index from `app.plugins.manifests`.
@@ -130,6 +132,24 @@ Scope:
 
 Why after snippets: plugin controls mutate Obsidian state and need stricter
 guardrails.
+
+Outcome:
+
+- `createCommunityPluginsIndex(app)` reads `app.plugins.manifests`, enabled
+  state, loaded state, and manifest metadata.
+- `explorerPlugins` renders community plugins in `pageTools`, toggles external
+  plugins through typed Obsidian wrappers, refuses to disable Vaultman itself,
+  and registers `plugin.bindingNote` for `%pluginId` notes.
+- `tabPlugins.svelte` is wired into `pageTools` and `TTabs`.
+
+Verification:
+
+- Focused plugin/snippet/node-binding unit suites passed with 6 files and
+  30 tests.
+- Focused `pageToolsPlugins` plus `pageToolsSnippets` component suites passed
+  with 2 files and 6 tests.
+- `pnpm run check`, `pnpm run lint`, `pnpm run build`, and `git diff --check`
+  passed; diff-check only emitted line-ending normalization warnings.
 
 ### NN-3 - PageStats Add-ons Note Preview
 
@@ -189,5 +209,6 @@ Why last: it is test infrastructure risk, not product behavior.
 - [[docs/work/hardening/research/2026-05-09-node-note-ui-assimilation/index|node note UI assimilation research]]
 - [[docs/work/hardening/research/2026-05-09-node-note-ui-assimilation/03-tools-snippets-plugins|pageTools snippets and plugins explorers]]
 - [[docs/work/hardening/plans/2026-05-09-node-notes-nn1-snippets/index|NN-1 snippets explorer implementation plan]]
+- [[docs/work/hardening/plans/2026-05-09-node-notes-nn2-plugins/index|NN-2 plugins explorer implementation plan]]
 - [[docs/work/hardening/plans/2026-05-07-multifacet-2/07-binding-notes-and-set|binding notes plan shard]]
 - [[docs/work/hardening/backlog/2026-05-08-backlog-cut-4-view-size/index|pending cut ladder]]

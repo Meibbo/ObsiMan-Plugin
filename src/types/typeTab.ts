@@ -65,6 +65,11 @@ export const TTabs: TabConfig[] = [
 		icon: 'lucide-paintbrush',
 	},
 	{
+		id: 'plugins',
+		labelKey: 'ops.tabs.plugins',
+		icon: 'lucide-plug',
+	},
+	{
 		id: 'ops_log',
 		labelKey: 'tools.ops_log.title',
 		icon: 'lucide-activity',

@@ -5,6 +5,7 @@ import type { MenuCtx } from '../types/typeCtxMenu';
 import type { ContentMeta, TreeNode } from '../types/typeNode';
 import type { ContentMatch } from '../types/typeContracts';
 import { buildFileDeleteChange } from '../services/serviceFileQueue';
+import { withViewStateClasses } from '../utils/utilViewLayers';
 
 export class explorerContent implements ExplorerProvider<ContentMeta> {
 	id = 'content';

@@ -65,4 +65,36 @@ describe('createFramePageFabs', () => {
 
 		expect(exitBasesImportMode).toHaveBeenCalledOnce();
 	});
+
+	it('maps the statistics FAB to open a note, then back to PageStats while previewing', () => {
+		const openStatsNote = vi.fn();
+		const showStatsPage = vi.fn();
+		const basePlugin = {
+			app: {},
+			queueService: { processAll: vi.fn(), clearAll: vi.fn() },
+		} as unknown as VaultmanPlugin;
+
+		const normal = createFramePageFabs(basePlugin, vi.fn(), vi.fn(), { openStatsNote });
+		expect(normal.statistics.left).toEqual(
+			expect.objectContaining({
+				icon: 'lucide-file-search',
+				label: 'Open note',
+			}),
+		);
+		normal.statistics.left?.action();
+		expect(openStatsNote).toHaveBeenCalledOnce();
+
+		const previewing = createFramePageFabs(basePlugin, vi.fn(), vi.fn(), {
+			statsPreviewActive: true,
+			showStatsPage,
+		});
+		expect(previewing.statistics.left).toEqual(
+			expect.objectContaining({
+				icon: 'lucide-bar-chart-2',
+				label: 'Show PageStats',
+			}),
+		);
+		previewing.statistics.left?.action();
+		expect(showStatsPage).toHaveBeenCalledOnce();
+	});
 });

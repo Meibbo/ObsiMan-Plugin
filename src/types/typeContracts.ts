@@ -76,6 +76,17 @@ export interface SnippetNode extends NodeBase {
 	enabled: boolean;
 }
 
+export interface PluginNode extends NodeBase {
+	pluginId: string;
+	name: string;
+	enabled: boolean;
+	loaded: boolean;
+	version?: string;
+	author?: string;
+	description?: string;
+	isDesktopOnly?: boolean;
+}
+
 export interface TemplateNode extends NodeBase {
 	name: string;
 	path: string;
@@ -113,6 +124,7 @@ export type IContentIndex = INodeIndex<ContentMatch> & {
 export type IOperationsIndex = INodeIndex<QueueChange>;
 export type IActiveFiltersIndex = INodeIndex<ActiveFilterEntry>;
 export type ICSSSnippetsIndex = INodeIndex<SnippetNode>;
+export type ICommunityPluginsIndex = INodeIndex<PluginNode>;
 export type ITemplatesIndex = INodeIndex<TemplateNode>;
 export type IBasesImportTargetsIndex = INodeIndex<BasesImportTargetNode>;
 

@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-status.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-09T06:54:22
+updated: 2026-05-09T08:11:56
 tags:
   - agent/current
 created_by: dec
@@ -82,6 +82,13 @@ Archived completed/superseded status:
 
 ## Current Verification
 
+- 2026-05-09 NN-2 plugins explorer DONE:
+  [[docs/work/hardening/plans/2026-05-09-node-notes-nn2-plugins/index|Plugins explorer in pageTools]].
+  `pageTools` now exposes a plugins tab backed by `createCommunityPluginsIndex`
+  and `explorerPlugins`; external plugin toggles refresh visible rows, Vaultman
+  self-disable is guarded, and `plugin.bindingNote` routes to `%pluginId`
+  notes. Focused unit 6 files/30 tests, focused component 2 files/6 tests,
+  `check`, `lint`, `build`, and `git diff --check` passed.
 - 2026-05-09 NN-1 snippets explorer DONE:
   [[docs/work/hardening/plans/2026-05-09-node-notes-nn1-snippets/index|Snippets explorer in pageTools]].
   `pageTools` now exposes a snippets tab backed by `createCSSSnippetsIndex(app)`

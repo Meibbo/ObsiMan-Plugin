@@ -71,6 +71,30 @@ describe('OpsLogService', () => {
 		log.dispose();
 	});
 
+	it('can bind perf first and queue later without duplicating perf records', () => {
+		const log = new OpsLogService({ retention: 10 });
+		const listeners: Array<() => void> = [];
+		const queueStub = {
+			on: (event: 'changed', cb: () => void) => {
+				if (event === 'changed') listeners.push(cb);
+				return () => {};
+			},
+		};
+
+		log.bind();
+		PerfMeter.mark('vaultman:boot:start');
+		log.bind({ queue: queueStub });
+		PerfMeter.mark('vaultman:boot:end');
+		listeners.forEach((cb) => cb());
+
+		expect(log.getRecords().map((r) => r.label)).toEqual([
+			'vaultman:boot:start',
+			'vaultman:boot:end',
+			'queue:changed',
+		]);
+		log.dispose();
+	});
+
 	it('setRetention() truncates the buffer when the new cap is smaller', () => {
 		const log = new OpsLogService({ retention: 10 });
 		log.bind();
