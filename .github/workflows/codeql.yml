@@ -33,9 +33,22 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
-          queries: security-extended,security-and-quality
+          config-file: ./.github/codeql/codeql-config.yml
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
         with:
           category: '/language:${{matrix.language}}'
+
+  query-tests:
+    name: Custom query tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup CodeQL
+        uses: github/codeql-action/setup-codeql@v4
+
+      - name: Run custom CodeQL query tests
+        run: codeql test run --additional-packs codeql/queries/javascript codeql/tests --threads=0
