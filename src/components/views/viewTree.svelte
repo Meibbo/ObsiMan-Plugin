@@ -134,6 +134,7 @@
 	const rowVirtualizer = createVirtualizer<HTMLDivElement, HTMLDivElement>({
 		count: 0,
 		getScrollElement: () => outerEl ?? null,
+		getItemKey: (index) => treeVirtualItemKey(flatArray, index),
 		estimateSize: () => rowHeight,
 		observeElementRect: observeTreeRect,
 		overscan: TREE_OVERSCAN,
@@ -147,12 +148,14 @@
 
 	$effect(() => {
 		const count = flatArray.length;
+		const rows = flatArray;
 		const scrollElement = outerEl;
 		const height = rowHeight;
 		untrack(() =>
 			$rowVirtualizer.setOptions({
 				count,
 				getScrollElement: () => scrollElement ?? null,
+				getItemKey: (index) => treeVirtualItemKey(rows, index),
 				estimateSize: () => height,
 				observeElementRect: observeTreeRect,
 				overscan: TREE_OVERSCAN,
@@ -460,6 +463,10 @@
 		};
 		walk(items, 0);
 		return out;
+	}
+
+	function treeVirtualItemKey(items: readonly FlatNode[], index: number): string | number {
+		return items[index]?.node.id ?? index;
 	}
 </script>
 

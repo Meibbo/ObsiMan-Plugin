@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-status.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-09T08:11:56
+updated: 2026-05-09T17:15:00
 tags:
   - agent/current
 created_by: dec
@@ -82,6 +82,33 @@ Archived completed/superseded status:
 
 ## Current Verification
 
+- 2026-05-09 durable virtualizer keys DONE:
+  [[docs/work/performance/research/2026-05-09-durable-virtualizer-keys|Durable TanStack virtualizer keys]].
+  `viewTree`, `ViewNodeGrid`, and `ViewNodeTable` now pass durable
+  `getItemKey` functions to TanStack virtualizers. New mounted component guard
+  covers the contract; focused view regression, `check`, `lint`, and scoped
+  diff-check passed.
+- 2026-05-09 NN-4 native Obsidian surface adapter DONE:
+  [[docs/work/hardening/plans/2026-05-09-node-notes-nn4-native-surface-adapter/index|Native Obsidian surface adapter]].
+  Ctrl/Cmd/Alt/middle clicks on native tag, metadata tag, folder, and
+  breadcrumb surfaces now route through `NodeBindingService`; hover previews
+  fire through `workspace.trigger("hover-link", ...)` only for unique binding
+  note aliases. Focused unit 2 files/28 tests, `check`, `lint`, `build`, and
+  Obsidian CLI smoke passed.
+- 2026-05-09 ecosystem performance and CodeQL research DONE:
+  [[docs/work/performance/research/2026-05-09-ecosystem-performance-codeql-research|Ecosystem performance and CodeQL guardrail research]].
+  Key next actions: configure TanStack virtualizer item keys by durable node ID,
+  add revision-gated explorer model caches, and add CodeQL structural guardrails
+  for debounce regressions, missing virtualizer keys, unbounded vault reads, and
+  unsafe dynamic code/path/HTML patterns.
+- 2026-05-09 NN-3 PageStats Add-ons note preview DONE:
+  [[docs/work/performance/research/2026-05-09-viewtree-latency-test-repair|ViewTree latency and performance-test repair]].
+  Statistics left FAB now opens a public `FuzzySuggestModal<TFile>` note
+  picker; PageStats renders selected markdown in-frame with
+  `MarkdownRenderer.render(...)` and an owned Obsidian `Component`; Show
+  PageStats unloads the preview lifecycle and restores stats. Focused unit
+  5 files/24 tests, focused component 3 files/9 tests, `lint`, `check`,
+  `build`, and integration performance 1 file/2 tests passed.
 - 2026-05-09 NN-2 plugins explorer DONE:
   [[docs/work/hardening/plans/2026-05-09-node-notes-nn2-plugins/index|Plugins explorer in pageTools]].
   `pageTools` now exposes a plugins tab backed by `createCommunityPluginsIndex`

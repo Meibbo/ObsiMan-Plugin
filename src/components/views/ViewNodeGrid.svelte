@@ -127,6 +127,7 @@
 	const rowVirtualizer = createVirtualizer<HTMLDivElement, HTMLDivElement>({
 		count: 0,
 		getScrollElement: () => outerEl ?? null,
+		getItemKey: (index) => gridVirtualRowKey(gridRows, index),
 		estimateSize: () => gridRowBaseHeight,
 		observeElementRect: observeGridRect,
 		overscan: GRID_OVERSCAN,
@@ -145,6 +146,7 @@
 			$rowVirtualizer.setOptions({
 				count,
 				getScrollElement: () => scrollElement ?? null,
+				getItemKey: (index) => gridVirtualRowKey(rows, index),
 				estimateSize: (index) => rows[index]?.height ?? gridRowBaseHeight,
 				observeElementRect: observeGridRect,
 				overscan: GRID_OVERSCAN,
@@ -444,6 +446,10 @@
 
 	function inlineRowKey(rowNodes: TreeNode[], rowIndex: number): string {
 		return `${rowIndex}:${rowNodes.map((node) => node.id).join('\u0000')}`;
+	}
+
+	function gridVirtualRowKey(rows: readonly GridRow[], index: number): string | number {
+		return rows[index]?.key ?? index;
 	}
 </script>
 

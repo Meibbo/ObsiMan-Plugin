@@ -6,7 +6,7 @@ const viteBuildDir = path.join(root, 'dist', 'vite');
 const distBuildDir = path.join(root, 'dist', 'build');
 
 // User's specific test vault target
-const driveVaultTarget = 'C:/Users/vic_A/My Drive (vic_alejandronavas@outlook.com)/plugin-dev/.obsidian/plugins/vaultman';
+const driveVaultTarget = 'C:/Users/vic_A/Desktop/plugin-dev/.obsidian/plugins/vaultman';
 const stressVaultTarget = path.join(root, 'test', 'vaults', 'stress-vault', '.obsidian', 'plugins', 'vaultman');
 
 const artifactNames = ['main.js', 'manifest.json', 'styles.css'];

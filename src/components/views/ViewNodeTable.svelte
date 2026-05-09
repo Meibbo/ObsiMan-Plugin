@@ -106,6 +106,7 @@
 	const rowVirtualizer = createVirtualizer<HTMLDivElement, HTMLDivElement>({
 		count: 0,
 		getScrollElement: () => outerEl ?? null,
+		getItemKey: (index) => tableVirtualRowKey(tableRows, index),
 		estimateSize: () => TABLE_ROW_HEIGHT,
 		observeElementRect: observeTableRect,
 		overscan: TABLE_OVERSCAN,
@@ -129,11 +130,13 @@
 
 	$effect(() => {
 		const count = tableRows.length;
+		const rows = tableRows;
 		const scrollElement = outerEl;
 		untrack(() =>
 			$rowVirtualizer.setOptions({
 				count,
 				getScrollElement: () => scrollElement ?? null,
+				getItemKey: (index) => tableVirtualRowKey(rows, index),
 				estimateSize: () => TABLE_ROW_HEIGHT,
 				observeElementRect: observeTableRect,
 				overscan: TABLE_OVERSCAN,
@@ -225,6 +228,10 @@
 	function cellDisplay(row: ViewRow<TNode>, columnId: string, fallback: unknown): string {
 		const cell = row.cells.find((item) => item.columnId === columnId);
 		return cell?.display ?? (fallback == null ? '' : String(fallback));
+	}
+
+	function tableVirtualRowKey(rows: readonly { id: string }[], index: number): string | number {
+		return rows[index]?.id ?? index;
 	}
 </script>
 

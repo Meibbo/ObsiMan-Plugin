@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-handoff.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-09T08:11:56
+updated: 2026-05-09T17:15:00
 tags:
   - agent/current
 created_by: dec
@@ -20,11 +20,22 @@ Archived completed/superseded handoff:
 
 ## Where To Resume
 
+- Latest completed performance slice:
+  [[docs/work/performance/research/2026-05-09-durable-virtualizer-keys|Durable TanStack virtualizer keys]].
+  Next performance slice should start the CodeQL query pack, beginning with
+  `virtualizer-missing-item-key`.
+- Latest performance research:
+  [[docs/work/performance/research/2026-05-09-ecosystem-performance-codeql-research|Ecosystem performance and CodeQL guardrail research]].
+  Best first implementation slice is durable `getItemKey` on `viewTree` /
+  grid / table virtualizers, followed by revision-gated explorer model caches
+  and a CodeQL query pack for structural performance/security guardrails.
 - Latest next implementation lane:
   [[docs/work/hardening/backlog/2026-05-09-node-notes-next-priority/index|Node notes next-priority implementation order]].
-  NN-0 contract correction, NN-1 snippets explorer, and NN-2 plugins explorer
-  are done. Resume with NN-3 PageStats Add-ons note preview, then NN-4 native
-  Obsidian DOM adapter if smoke tooling is available.
+  NN-0 contract correction, NN-1 snippets explorer, NN-2 plugins explorer, and
+  NN-3 PageStats Add-ons note preview are done. NN-4 native Obsidian DOM
+  adapter is also done with live smoke. NN-5 harness spike is not needed unless
+  a future native-surface regression exposes a harness gap; resume backlog cut
+  10 or the next user-selected polish cut.
 - Continue [[docs/work/hardening/specs/2026-05-06-node-selection-service/index|Node selection service and viewgrid spec]] and
   [[docs/work/hardening/plans/2026-05-06-node-selection-service/index|Node selection service implementation plan]].
 - Latest user-requested plan:
@@ -265,6 +276,25 @@ Archived completed/superseded handoff:
 - Do not move AI files into `main`.
 
 ## Fresh Changes To Preserve
+
+- 2026-05-09 NN-4 native Obsidian surface adapter changes to preserve:
+  [[docs/work/hardening/plans/2026-05-09-node-notes-nn4-native-surface-adapter/index|NN-4 native surface adapter plan/result]].
+  `NativeSurfaceBindingService` registers `vaultman-native-surface`, captures
+  Ctrl/Cmd/Alt/middle clicks on native tags, metadata tag pills, folders, and
+  breadcrumbs, routes them through `NodeBindingService`, and triggers
+  `hover-link` previews only for unique binding aliases. Verification: focused
+  unit 2 files/28 tests, `check`, `lint`, `build`, and Obsidian CLI smoke
+  passed.
+
+- 2026-05-09 NN-3 PageStats Add-ons note preview changes to preserve:
+  [[docs/work/performance/research/2026-05-09-viewtree-latency-test-repair|ViewTree latency and performance-test repair]].
+  Statistics left FAB switches between `Open note` and `Show PageStats`;
+  `openVaultmanFileSuggestModal` uses public `FuzzySuggestModal<TFile>`;
+  `pageStats.svelte` renders selected markdown through
+  `MarkdownRenderer.render(app, markdown, host, file.path, component)` with an
+  owned Obsidian `Component` lifecycle and unload coverage. Verification:
+  focused unit 5 files/24 tests, focused component 3 files/9 tests, `lint`,
+  `check`, `build`, and integration performance 1 file/2 tests passed.
 
 - 2026-05-09 NN-2 plugins explorer changes to preserve:
   [[docs/work/hardening/plans/2026-05-09-node-notes-nn2-plugins/index|NN-2 plugins explorer plan/result]].

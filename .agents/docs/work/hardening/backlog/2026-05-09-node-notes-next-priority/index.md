@@ -4,7 +4,7 @@ type: backlog-priority
 status: active
 parent: "[[docs/work/hardening/specs/2026-05-07-multifacet-2/05-note-binding-and-set|binding notes and set]]"
 created: 2026-05-09T03:42:43
-updated: 2026-05-09T09:30:00
+updated: 2026-05-09T16:14:38
 tags:
   - agent/backlog
   - vaultman/node-binding
@@ -186,6 +186,8 @@ Verification:
 
 ### NN-4 - Native Obsidian Surface Adapter
 
+Status: done 2026-05-09T16:14:38.
+
 Scope:
 
 - Add Tag Wrangler-style Ctrl/Cmd/Alt/middle click handling for native tag and
@@ -197,6 +199,28 @@ Scope:
 
 Why later: this touches private DOM selectors and needs live Obsidian smoke
 coverage.
+
+Outcome:
+
+- Added `NativeSurfaceBindingService` and wired it into `main.ts` after
+  `NodeBindingService`.
+- Native tag, metadata tag, CodeMirror hashtag, folder, and breadcrumb surfaces
+  now support Ctrl/Cmd/Alt/middle-click binding-note creation/opening.
+- Hover previews now use Obsidian's public `hover-link` trigger when a native
+  surface has exactly one matching binding note alias.
+- The adapter preserves native primary-click behavior and only suppresses the
+  event after Vaultman resolves and handles a supported surface.
+
+Verification:
+
+- Focused native-surface plus node-binding unit suites passed with 2 files and
+  28 tests.
+- `pnpm run check`, `pnpm run lint`, and `pnpm run build` passed.
+- Obsidian CLI smoke passed in `plugin-dev`: enable/reload `vaultman`, open
+  Vaultman, inspect `dev:errors`, inspect error console after attaching the
+  debugger, and runtime eval confirming the native-surface service is loaded.
+- Full plan/result:
+  [[docs/work/hardening/plans/2026-05-09-node-notes-nn4-native-surface-adapter/index|NN-4 native Obsidian surface adapter]].
 
 ### NN-5 - Harness Spike Only If Needed
 
@@ -213,15 +237,14 @@ Why last: it is test infrastructure risk, not product behavior.
 
 1. Finish/triage existing dirty worktree state.
 2. NN-0 through NN-3.
-3. NN-4 if live Obsidian smoke tooling is available.
-4. Backlog Cut 10: user-facing view-size control.
-5. Backlog Cut 11: cursor affordance and cheap hover pass.
-6. Backlog Cuts 12-15: release-blocking audits for explorer search,
+3. Backlog Cut 10: user-facing view-size control.
+4. Backlog Cut 11: cursor affordance and cheap hover pass.
+5. Backlog Cuts 12-15: release-blocking audits for explorer search,
    queue/file/grid correctness, active highlighting, and badge bubbling.
-7. Backlog Cuts 16-18: rename decision, overlay behavior, performance
+6. Backlog Cuts 16-18: rename decision, overlay behavior, performance
    verification.
-8. Backlog Cuts 19-24 and TanStack post-MVP table follow-ups.
-9. Backlog Cut 25 stays post-rc.1 holding work.
+7. Backlog Cuts 19-24 and TanStack post-MVP table follow-ups.
+8. Backlog Cut 25 stays post-rc.1 holding work.
 
 ## Source Links
 

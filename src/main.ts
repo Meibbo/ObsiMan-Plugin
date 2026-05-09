@@ -51,6 +51,7 @@ import { DEFAULT_OPS_LOG_RETENTION, OpsLogService } from './services/serviceOpsL
 import { LeafDetachService } from './services/serviceLeafDetach';
 import { leadingDebounce } from './utils/utilDebounce';
 import { NodeBindingService } from './services/serviceNodeBinding';
+import { NativeSurfaceBindingService } from './services/serviceNativeSurfaceBinding';
 import { ALL_TAB_IDS, viewTypeFor, type TabId } from './registry/tabRegistry';
 import { VaultmanTabLeafView } from './types/typeTabLeaf';
 import { SvarFileManagerView, TYPE_SVAR_FILEMANAGER } from './types/typeSvarLeaf';
@@ -108,6 +109,7 @@ export class VaultmanPlugin extends Plugin {
 
 	/** Binding-note resolver (phase 7, multifacet wave 2). */
 	nodeBindingService!: NodeBindingService;
+	nativeSurfaceBindingService!: NativeSurfaceBindingService;
 
 	/**
 	 * Frame-level registries populated by mounted Svelte components so
@@ -210,12 +212,18 @@ export class VaultmanPlugin extends Plugin {
 				});
 			},
 		});
+		this.nativeSurfaceBindingService = new NativeSurfaceBindingService({
+			plugin: this,
+			app: this.app,
+			bindingService: this.nodeBindingService,
+		});
 
 		this.addChild(this.propertyIndex);
 		this.addChild(this.queueService);
 		this.addChild(this.iconicService);
 		this.addChild(this.propertyTypeService);
 		this.addChild(this.contextMenuService);
+		this.addChild(this.nativeSurfaceBindingService);
 
 		this.registerEvent(
 			this.app.metadataCache.on('resolved', () => {
