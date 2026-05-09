@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-status.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-08T20:16:00
+updated: 2026-05-09T06:54:22
 tags:
   - agent/current
 created_by: dec
@@ -82,6 +82,13 @@ Archived completed/superseded status:
 
 ## Current Verification
 
+- 2026-05-09 NN-1 snippets explorer DONE:
+  [[docs/work/hardening/plans/2026-05-09-node-notes-nn1-snippets/index|Snippets explorer in pageTools]].
+  `pageTools` now exposes a snippets tab backed by `createCSSSnippetsIndex(app)`
+  and `explorerSnippets`; snippet enable/disable toggles refresh visible rows,
+  and `snippet.bindingNote` routes to `$snippetname` notes. Focused unit
+  4 files/22 tests, focused component 1 file/3 tests, `check`, `lint`,
+  `build`, and `git diff --check` passed.
 - 2026-05-08 backlog cut 1 DONE:
   [[docs/work/hardening/backlog/2026-05-08-backlog-cut-1/index|navigation, queue removal, all-files explorer, and rename extension safety]].
   Focused unit/component tests, `pnpm run lint`, `pnpm run check`, and

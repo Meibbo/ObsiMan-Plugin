@@ -236,6 +236,7 @@ export interface VaultAdapter {
 	read(path: string): Promise<string>;
 	write(path: string, content: string): Promise<void>;
 	exists(path: string): Promise<boolean>;
+	list(path: string): Promise<{ files: string[]; folders: string[] }>;
 }
 
 export interface MetadataCache {
@@ -383,6 +384,14 @@ export function mockApp(opts: MockAppOptions = {}): App {
 				adapterFiles.set(path, content);
 			},
 			exists: async (path) => adapterFiles.has(path),
+			list: async (path) => {
+				const prefix = path.endsWith('/') ? path : `${path}/`;
+				const files = [...adapterFiles.keys()].filter((candidate) => {
+					if (!candidate.startsWith(prefix)) return false;
+					return !candidate.slice(prefix.length).includes('/');
+				});
+				return { files, folders: [] };
+			},
 		},
 		on: (name, cb) => events.on(name, cb),
 	};

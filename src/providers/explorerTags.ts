@@ -140,8 +140,8 @@ export class explorerTags implements ExplorerProvider<TagMeta> {
 	}
 
 	private _decorateTree(nodes: TreeNode<TagMeta>[], parentDeleted = false): TreeNode<TagMeta>[] {
-		const operations = [...this.plugin.operationsIndex.nodes];
-		const activeFilters = [...this.plugin.activeFiltersIndex.nodes];
+		const operations = this.plugin.operationsIndex.nodes;
+		const activeFilters = this.plugin.activeFiltersIndex.nodes;
 		return nodes.map((node) => {
 			const meta = node.meta;
 			let currentCls = node.cls || '';

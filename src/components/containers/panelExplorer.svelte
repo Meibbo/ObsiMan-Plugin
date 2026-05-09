@@ -201,9 +201,11 @@
 		const refresh = () => untrack(refreshData);
 		const unsubscribeOperations = plugin.operationsIndex.subscribe(refresh);
 		const unsubscribeActiveFilters = plugin.activeFiltersIndex.subscribe(refresh);
+		const unsubscribeProvider = provider.subscribe?.(refresh);
 		return () => {
 			unsubscribeOperations();
 			unsubscribeActiveFilters();
+			unsubscribeProvider?.();
 		};
 	});
 

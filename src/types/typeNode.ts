@@ -21,7 +21,7 @@ export interface NodeBadge {
 	quickAction?: boolean;
 	title?: string;
 	ariaLabel?: string;
-	onClick?: () => void;
+	onClick?: () => void | Promise<void>;
 	/** Queue operation index for click-to-remove. Undefined = visual-only badge. */
 	queueIndex?: number;
 }
@@ -66,4 +66,9 @@ export interface ContentMeta {
 	before?: string;
 	match?: string;
 	after?: string;
+}
+
+export interface SnippetMeta {
+	name: string;
+	enabled: boolean;
 }

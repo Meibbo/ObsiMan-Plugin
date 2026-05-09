@@ -18,6 +18,7 @@ export const es: Record<string, string> = {
 	'tools.ops_log.filter_kind': 'Filtrar por tipo',
 	'tools.ops_log.filter_label': 'Filtrar por etiqueta',
 	'tools.ops_log.empty': 'Sin registros todavía.',
+	'ops.tabs.snippets': 'Snippets',
 
 	// View menu — independent leaves (phase 6 multifacet wave 2)
 	'viewmenu.detach_to_leaf': 'Despegar a panel',

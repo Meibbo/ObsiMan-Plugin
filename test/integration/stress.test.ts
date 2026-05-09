@@ -11,11 +11,17 @@ interface ExtendedApp extends App {
 describe('Vaultman Stress Test', () => {
 	it('should handle 10,000 files with acceptable latency', async () => {
 		const metrics = await evalInObsidian({
-			vault: 'plugin-dev',
 			fn: async ({ app }) => {
 				const extendedApp = app as ExtendedApp;
 				const plugin = extendedApp.plugins.plugins.vaultman;
 				if (!plugin) return { error: 'plugin not found' };
+				if (!plugin.filesIndex) {
+					return {
+						error: 'filesIndex missing',
+						pluginKeys: Object.keys(plugin),
+						isPluginInitialized: typeof plugin.onload === 'function'
+					};
+				}
 
 				const timings: Record<string, number> = {};
 				
@@ -49,7 +55,6 @@ describe('Vaultman Stress Test', () => {
 
 	it('should maintain low search latency for FULL SCAN of 10,000 files', async () => {
 		const searchMetrics = await evalInObsidian({
-			vault: 'plugin-dev',
 			fn: async ({ app }) => {
 				const extendedApp = app as ExtendedApp;
 				const plugin = extendedApp.plugins.plugins.vaultman;
@@ -77,7 +82,6 @@ describe('Vaultman Stress Test', () => {
 
 	it('should generate render model for 10,000 files efficiently', async () => {
 		const renderMetrics = await evalInObsidian({
-			vault: 'plugin-dev',
 			fn: async ({ app }) => {
 				const extendedApp = app as ExtendedApp;
 				const plugin = extendedApp.plugins.plugins.vaultman;

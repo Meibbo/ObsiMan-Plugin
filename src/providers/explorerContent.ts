@@ -37,9 +37,12 @@ export class explorerContent implements ExplorerProvider<ContentMeta> {
 			grouped.set(match.filePath, list);
 		}
 
+		const operations = this.plugin.operationsIndex.nodes;
+		const activeFilters = this.plugin.activeFiltersIndex.nodes;
+
 		return [...grouped.entries()].map(([filePath, matches]) => {
 			const file = this.resolveFile(filePath);
-			return {
+			const node: TreeNode<ContentMeta> = {
 				id: `content:file:${filePath}`,
 				label: filePath,
 				icon: 'lucide-file-text',
@@ -52,6 +55,21 @@ export class explorerContent implements ExplorerProvider<ContentMeta> {
 				},
 				children: matches.map((match) => this.matchNode(match, file)),
 			};
+
+			// Group node decoration
+			const viewRow = this.plugin.viewService.getModel({
+				explorerId: 'content',
+				mode: 'tree',
+				nodes: [node],
+				operations,
+				activeFilters,
+				getLabel: (item) => item.label,
+			}).rows[0];
+
+			node.icon = viewRow.icon;
+			node.cls = withViewStateClasses(node.cls, viewRow.layers);
+
+			return node;
 		});
 	}
 

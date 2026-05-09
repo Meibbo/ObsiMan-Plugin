@@ -1,10 +1,45 @@
+import type { App } from 'obsidian';
 import type { ICSSSnippetsIndex, SnippetNode } from '../types/typeContracts';
+import { getCustomCss } from '../types/typeObsidian';
 import { createNodeIndex } from './indexNodeCreate';
 
-/**
- * Stub. v1.0 has no consumer; structure preserved per ADR-008 + Annex A.2.2.
- * v1.0+1 will read snippets from `app.customCss?.snippets` via obsidian-extended.
- */
-export function createCSSSnippetsIndex(): ICSSSnippetsIndex {
-	return createNodeIndex<SnippetNode>({ build: () => [] });
+export function createCSSSnippetsIndex(app?: App): ICSSSnippetsIndex {
+	return createNodeIndex<SnippetNode>({
+		debugName: 'snippets',
+		build: async () => {
+			if (!app) return [];
+			const customCss = getCustomCss(app);
+			const listed = customCss?.snippets;
+			const names =
+				Array.isArray(listed) && listed.length > 0
+					? listed
+					: await listSnippetNamesFromAdapter(app, customCss?.getSnippetsFolder?.());
+			const enabled = customCss?.enabledSnippets ?? new Set<string>();
+			return [...new Set(names)]
+				.map((name) => name.trim())
+				.filter(Boolean)
+				.sort((a, b) => a.localeCompare(b))
+				.map((name) => ({
+					id: name,
+					name,
+					enabled: enabled.has(name),
+				}));
+		},
+	});
+}
+
+async function listSnippetNamesFromAdapter(
+	app: App,
+	configuredFolder: string | undefined,
+): Promise<string[]> {
+	const folder = configuredFolder || `${app.vault.configDir}/snippets`;
+	try {
+		const listed = await app.vault.adapter.list(folder);
+		return listed.files
+			.filter((path) => path.toLowerCase().endsWith('.css'))
+			.map((path) => path.split('/').pop() ?? path)
+			.map((name) => name.replace(/\.css$/i, ''));
+	} catch {
+		return [];
+	}
 }

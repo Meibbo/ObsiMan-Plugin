@@ -168,7 +168,7 @@ export class VaultmanPlugin extends Plugin {
 		this.contentIndex = createContentIndex(this.app);
 		this.operationsIndex = createOperationsIndex(this.queueService);
 		this.activeFiltersIndex = createActiveFiltersIndex(this.filterService);
-		this.cssSnippetsIndex = createCSSSnippetsIndex();
+		this.cssSnippetsIndex = createCSSSnippetsIndex(this.app);
 		this.templatesIndex = createTemplatesIndex();
 		await Promise.all([
 			this.contentIndex.refresh(),

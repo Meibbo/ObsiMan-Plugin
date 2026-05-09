@@ -4,7 +4,7 @@ type: backlog-priority
 status: active
 parent: "[[docs/work/hardening/specs/2026-05-07-multifacet-2/05-note-binding-and-set|binding notes and set]]"
 created: 2026-05-09T03:42:43
-updated: 2026-05-09T06:03:03
+updated: 2026-05-09T06:54:22
 tags:
   - agent/backlog
   - vaultman/node-binding
@@ -88,6 +88,8 @@ Verification-adjacent cleanup:
 
 ### NN-1 - Snippets Explorer In pageTools
 
+Status: done 2026-05-09T06:54:22.
+
 Scope:
 
 - Implement snippets index from `app.customCss.snippets`, with filesystem
@@ -99,6 +101,22 @@ Scope:
 
 Why before plugins: snippet toggling is narrower than plugin toggling and uses
 an already-known Obsidian internal surface from MySnippets.
+
+Outcome:
+
+- `createCSSSnippetsIndex(app)` reads Obsidian `customCss.snippets`, carries
+  enabled state, and falls back to `.obsidian/snippets/*.css`.
+- `explorerSnippets` renders snippet rows in `pageTools`, toggles enabled state
+  through the typed `customCss` wrapper, refreshes via provider subscriptions,
+  and registers `snippet.bindingNote` for `$snippetname` notes.
+- `tabSnippets.svelte` is wired into `pageTools` and `TTabs`.
+
+Verification:
+
+- Focused snippet/node-binding unit suites passed with 4 files and 22 tests.
+- Focused `pageToolsSnippets` component suite passed with 1 file and 3 tests.
+- `pnpm run check`, `pnpm run lint`, `pnpm run build`, and `git diff --check`
+  passed; diff-check only emitted line-ending normalization warnings.
 
 ### NN-2 - Plugins Explorer In pageTools
 
@@ -170,5 +188,6 @@ Why last: it is test infrastructure risk, not product behavior.
 
 - [[docs/work/hardening/research/2026-05-09-node-note-ui-assimilation/index|node note UI assimilation research]]
 - [[docs/work/hardening/research/2026-05-09-node-note-ui-assimilation/03-tools-snippets-plugins|pageTools snippets and plugins explorers]]
+- [[docs/work/hardening/plans/2026-05-09-node-notes-nn1-snippets/index|NN-1 snippets explorer implementation plan]]
 - [[docs/work/hardening/plans/2026-05-07-multifacet-2/07-binding-notes-and-set|binding notes plan shard]]
 - [[docs/work/hardening/backlog/2026-05-08-backlog-cut-4-view-size/index|pending cut ladder]]

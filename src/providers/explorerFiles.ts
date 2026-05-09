@@ -119,8 +119,8 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 	}
 
 	private _decorateTree(nodes: TreeNode<FileMeta>[]): void {
-		const operations = [...this.plugin.operationsIndex.nodes];
-		const activeFilters = [...this.plugin.activeFiltersIndex.nodes];
+		const operations = this.plugin.operationsIndex.nodes;
+		const activeFilters = this.plugin.activeFiltersIndex.nodes;
 
 		for (const n of nodes) {
 			const viewRow = this.plugin.viewService.getModel({

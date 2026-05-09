@@ -40,6 +40,7 @@ export interface ExplorerProvider<TMeta = unknown> {
 	handleNodeTertiaryAction?(node: TreeNode<TMeta>, selectedNodes?: TreeNode<TMeta>[]): void;
 	handleContextMenu(node: TreeNode<TMeta>, e: MouseEvent, selectedNodes?: TreeNode<TMeta>[]): void;
 	getNodeType?(node: TreeNode<TMeta>): MenuCtx['nodeType'];
+	subscribe?(cb: () => void): () => void;
 	handleBadgeDoubleClick?(queueIndex: number): void;
 	/**
 	 * Optional hook invoked when a hover badge is clicked. The kind is one

@@ -4,6 +4,7 @@
 	import { TTabs } from '../../types/typeTab'; //, type OpsTab
 	import { MenuCuratorPanel } from '../containers/panelCurator';
 	import PageToolsOpsLog from './pageToolsOpsLog.svelte';
+	import TabSnippets from './tabSnippets.svelte';
 	import type { OpsLogService } from '../../services/serviceOpsLog.svelte';
 	// import { NavbarTabs } from "../layout/navbarTabs.svelte";
 	// import TabLinter from "./tabLinter.svelte";
@@ -40,7 +41,7 @@
 </script>
 
 <div class="vm-tab-bar">
-	{#each TTabs as tab}
+	{#each TTabs as tab (tab.id)}
 		<div
 			class="vm-tab nav-action-button"
 			class:is-active={opsTab === tab.id}
@@ -82,6 +83,11 @@
 	<!-- Layout tab -->
 	<div class="vm-tab-content" class:is-active={opsTab === 'layout'}>
 		<div class="vm-layout-curator" use:mountCurator></div>
+	</div>
+
+	<!-- Snippets tab -->
+	<div class="vm-tab-content" class:is-active={opsTab === 'snippets'}>
+		<TabSnippets {plugin} active={opsTab === 'snippets'} />
 	</div>
 
 	<!-- Ops log tab -->

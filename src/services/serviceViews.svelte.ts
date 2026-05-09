@@ -74,6 +74,12 @@ export class ViewService implements IViewService {
 	private readonly focused = new SvelteMap<string, string | null>();
 	private readonly subscribers = new Map<string, Set<() => void>>();
 
+	// Cached indices to avoid O(N * (M+K)) during tree decoration
+	private lastOps: readonly QueueChange[] | undefined;
+	private lastFilters: readonly ActiveFilterEntry[] | undefined;
+	private cachedOpIndex: ReturnType<ViewService['indexOperations']> | undefined;
+	private cachedFilterIndex: ReturnType<ViewService['indexActiveFilters']> | undefined;
+
 	constructor(options: ViewServiceOptions = {}) {
 		this.decorationManager = options.decorationManager;
 		this.defaultMode = options.defaultMode ?? 'tree';
@@ -91,8 +97,8 @@ export class ViewService implements IViewService {
 		input: ExplorerViewInput<TNode>,
 	): ExplorerRenderModel<TNode> {
 		const selected = this.selectionFor(input.explorerId);
-		const opIndex = this.indexOperations(input.operations);
-		const filterIndex = this.indexActiveFilters(input.activeFilters);
+		const opIndex = this.getOpIndex(input.operations);
+		const filterIndex = this.getFilterIndex(input.activeFilters);
 
 		const rows = input.nodes.map((node) => this.toRow(input, node, selected, opIndex, filterIndex));
 
@@ -110,6 +116,20 @@ export class ViewService implements IViewService {
 			capabilities: input.capabilities ?? {},
 			empty: rows.length === 0 ? { label: 'No items' } : undefined,
 		};
+	}
+
+	private getOpIndex(operations: readonly QueueChange[] | undefined) {
+		if (this.lastOps === operations && this.cachedOpIndex) return this.cachedOpIndex;
+		this.lastOps = operations;
+		this.cachedOpIndex = this.indexOperations(operations);
+		return this.cachedOpIndex;
+	}
+
+	private getFilterIndex(filters: readonly ActiveFilterEntry[] | undefined) {
+		if (this.lastFilters === filters && this.cachedFilterIndex) return this.cachedFilterIndex;
+		this.lastFilters = filters;
+		this.cachedFilterIndex = this.indexActiveFilters(filters);
+		return this.cachedFilterIndex;
 	}
 
 	private indexOperations(operations: readonly QueueChange[] | undefined) {

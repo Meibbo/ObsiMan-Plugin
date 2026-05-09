@@ -60,6 +60,11 @@ export const TTabs: TabConfig[] = [
 		icon: 'lucide-layout',
 	},
 	{
+		id: 'snippets',
+		labelKey: 'ops.tabs.snippets',
+		icon: 'lucide-paintbrush',
+	},
+	{
 		id: 'ops_log',
 		labelKey: 'tools.ops_log.title',
 		icon: 'lucide-activity',
