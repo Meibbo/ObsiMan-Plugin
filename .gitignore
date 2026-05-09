@@ -3,14 +3,17 @@ node_modules/
 coverage/
 img/
 dist/
+**/stress-vault/
 .obsidian/
 .vscode/
 .superpowers/
 main.js
+styles.css
 data.json
 settings.local.json
 .DS_Store
 .env
+.log
 *.mjs
 # Temporal ignore of the docs folder.
 docs/*

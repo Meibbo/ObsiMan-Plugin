@@ -47,6 +47,7 @@ export interface FramePageFabOptions {
 	exitBasesImportMode?: () => void;
 }
 
+// TODO: esta función podría ser genérica
 export function createFramePageFabs(
 	plugin: VaultmanPlugin,
 	toggleQueueIsland: () => void,
@@ -91,7 +92,7 @@ export function createFramePageFabs(
 						action: options.exitBasesImportMode ?? (() => {}),
 					}
 				: {
-						icon: 'lucide-sparkles',
+						icon: 'lucide-filters',
 						label: translate('filters.active'),
 						action: toggleFiltersIsland,
 						onDoubleClick: () => plugin.filterService.clearAll(),

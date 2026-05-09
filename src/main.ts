@@ -48,6 +48,7 @@ import { registerVaultmanCommands } from './services/serviceCommands';
 import { PerfMeter } from './services/perfMeter';
 import { OpsLogService } from './services/serviceOpsLog.svelte';
 import { LeafDetachService } from './services/serviceLeafDetach';
+import { debounce } from './utils/utilDebounce';
 import { NodeBindingService } from './services/serviceNodeBinding';
 import { ALL_TAB_IDS, viewTypeFor, type TabId } from './registry/tabRegistry';
 import { VaultmanTabLeafView } from './types/typeTabLeaf';
@@ -139,15 +140,26 @@ export class VaultmanPlugin extends Plugin {
 		]);
 		PerfMeter.mark('vaultman:boot:index-refresh:end');
 
+		const debouncedFilesRefresh = debounce(() => void this.filesIndex.refresh(), 250);
+		const debouncedMetadataRefresh = debounce(() => {
+			void this.propsIndex.refresh();
+			void this.tagsIndex.refresh();
+		}, 250);
+
 		this.registerEvent(
 			this.app.metadataCache.on('changed', () => {
-				void this.propsIndex.refresh();
-				void this.tagsIndex.refresh();
+				debouncedMetadataRefresh();
 			}),
 		);
-		this.registerEvent(this.app.vault.on('create', () => void this.filesIndex.refresh()));
-		this.registerEvent(this.app.vault.on('delete', () => void this.filesIndex.refresh()));
-		this.registerEvent(this.app.vault.on('rename', () => void this.filesIndex.refresh()));
+		this.registerEvent(this.app.vault.on('create', () => debouncedFilesRefresh()));
+		this.registerEvent(this.app.vault.on('delete', () => {
+			debouncedFilesRefresh();
+			debouncedMetadataRefresh();
+		}));
+		this.registerEvent(this.app.vault.on('rename', () => {
+			debouncedFilesRefresh();
+			debouncedMetadataRefresh();
+		}));
 
 		this.propertyIndex = new PropertyIndexService(this.app);
 		this.filterService = new FilterService(this.app, this.filesIndex);

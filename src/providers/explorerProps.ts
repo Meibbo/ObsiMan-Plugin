@@ -55,7 +55,7 @@ export class explorerProps implements ExplorerProvider<PropMeta> {
 	constructor(plugin: VaultmanPlugin, options: ExplorerPropsOptions = {}) {
 		this.plugin = plugin;
 		this.options = options;
-		this.logic = new PropsLogic(plugin.app);
+		this.logic = new PropsLogic(plugin.app, plugin.propsIndex);
 		this.unsubscribePropsIndex = this.plugin.propsIndex.subscribe(() => {
 			getActivePerfProbe()?.count('explorerProps.invalidate');
 			this.logic.invalidate();

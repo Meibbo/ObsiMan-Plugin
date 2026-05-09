@@ -91,7 +91,10 @@ export class ViewService implements IViewService {
 		input: ExplorerViewInput<TNode>,
 	): ExplorerRenderModel<TNode> {
 		const selected = this.selectionFor(input.explorerId);
-		const rows = input.nodes.map((node) => this.toRow(input, node, selected));
+		const opIndex = this.indexOperations(input.operations);
+		const filterIndex = this.indexActiveFilters(input.activeFilters);
+
+		const rows = input.nodes.map((node) => this.toRow(input, node, selected, opIndex, filterIndex));
 
 		return {
 			explorerId: input.explorerId,
@@ -107,6 +110,65 @@ export class ViewService implements IViewService {
 			capabilities: input.capabilities ?? {},
 			empty: rows.length === 0 ? { label: 'No items' } : undefined,
 		};
+	}
+
+	private indexOperations(operations: readonly QueueChange[] | undefined) {
+		const byProp = new Map<string, QueueChange[]>();
+		const byTag = new Map<string, QueueChange[]>();
+		const byFile = new Map<string, QueueChange[]>();
+		const all = operations ?? [];
+
+		for (const op of all) {
+			const c = op.change;
+			if (c.type === 'property') {
+				const key = normalizeProperty(c.property) || '';
+				if (!byProp.has(key)) byProp.set(key, []);
+				byProp.get(key)!.push(op);
+			} else if (c.type === 'tag') {
+				const key = normalizeTag(c.tag) || '';
+				if (!byTag.has(key)) byTag.set(key, []);
+				byTag.get(key)!.push(op);
+			} else if ('files' in c) {
+				for (const f of c.files) {
+					const key = normalizePath(f.path) || '';
+					if (!byFile.has(key)) byFile.set(key, []);
+					byFile.get(key)!.push(op);
+				}
+			}
+		}
+		return { byProp, byTag, byFile, all };
+	}
+
+	private indexActiveFilters(filters: readonly ActiveFilterEntry[] | undefined) {
+		const byProp = new Map<string, ActiveFilterEntry[]>();
+		const byTag = new Map<string, ActiveFilterEntry[]>();
+		const byPath = new Map<string, ActiveFilterEntry[]>();
+		const all = filters ?? [];
+
+		for (const entry of all) {
+			if (!isActiveFilterRuleEntry(entry)) continue;
+			const r = entry.rule;
+			if (r.property) {
+				const key = normalizeProperty(r.property) || '';
+				if (!byProp.has(key)) byProp.set(key, []);
+				byProp.get(key)!.push(entry);
+			}
+			if (r.filterType === 'has_tag' && r.values) {
+				for (const v of r.values) {
+					const key = normalizeTag(v) || '';
+					if (!byTag.has(key)) byTag.set(key, []);
+					byTag.get(key)!.push(entry);
+				}
+			}
+			if (r.filterType === 'file_path' && r.values) {
+				for (const v of r.values) {
+					const key = normalizePath(v) || '';
+					if (!byPath.has(key)) byPath.set(key, []);
+					byPath.get(key)!.push(entry);
+				}
+			}
+		}
+		return { byProp, byTag, byPath, all };
 	}
 
 	setViewMode(explorerId: string, mode: ExplorerViewMode): void {
@@ -175,9 +237,11 @@ export class ViewService implements IViewService {
 		input: ExplorerViewInput<TNode>,
 		node: TNode,
 		selected: ReadonlySet<string>,
+		opIndex: ReturnType<ViewService['indexOperations']>,
+		filterIndex: ReturnType<ViewService['indexActiveFilters']>,
 	): ViewRow<TNode> {
 		const label = input.getLabel?.(node) ?? labelFromNode(node);
-		const layers = this.layersFor(input, node, label);
+		const layers = this.layersFor(input, node, label, opIndex, filterIndex);
 		const isSelected = selected.has(node.id);
 		const rowLayers: ViewLayers = {
 			...layers,
@@ -202,10 +266,12 @@ export class ViewService implements IViewService {
 		input: ExplorerViewInput<TNode>,
 		node: TNode,
 		label: string,
+		opIndex: ReturnType<ViewService['indexOperations']>,
+		filterIndex: ReturnType<ViewService['indexActiveFilters']>,
 	): ViewLayers {
 		const context = input.getDecorationContext?.(node);
 		const decoration = this.decorationManager?.decorate(node, context);
-		const semanticLayers = semanticLayersFor(input, node, context, label);
+		const semanticLayers = semanticLayersFor(node, context, label, opIndex, filterIndex);
 		if (!decoration) return semanticLayers;
 
 		const source = iconSourceFromContext(context);
@@ -278,17 +344,18 @@ function iconSourceFromContext(context: unknown): ViewIconSource {
 }
 
 function semanticLayersFor<TNode extends NodeBase>(
-	input: ExplorerViewInput<TNode>,
 	node: TNode,
 	context: unknown,
 	label: string,
+	opIndex: ReturnType<ViewService['indexOperations']>,
+	filterIndex: ReturnType<ViewService['indexActiveFilters']>,
 ): ViewLayers {
 	const kind = (context as { kind?: string } | undefined)?.kind;
 	if (kind === 'operation' || isQueueChange(node)) return operationLayersFor(node);
 	if (kind === 'filter' || isActiveFilterEntry(node)) return filterLayersFor(node, label);
 	return mergeLayers(
-		matchedOperationLayersFor(node, context, input.operations),
-		matchedActiveFilterLayersFor(node, context, label, input.activeFilters),
+		matchedOperationLayersFor(node, context, opIndex),
+		matchedActiveFilterLayersFor(node, context, label, filterIndex),
 	);
 }
 
@@ -394,16 +461,24 @@ function filterGroupLayersFor(node: ActiveFilterEntry): ViewLayers {
 function matchedOperationLayersFor(
 	node: NodeBase,
 	context: unknown,
-	operations: readonly QueueChange[] | undefined,
+	opIndex: ReturnType<ViewService['indexOperations']>,
 ): ViewLayers {
-	if (!operations || operations.length === 0) return {};
+	if (opIndex.all.length === 0) return {};
 	const target = semanticTargetFor(node, context);
-	const matches = operations
-		.map((operation, index) => ({ operation, index }))
-		.filter(({ operation }) => operationMatchesTarget(operation.change, target));
+
+	let candidates: QueueChange[] = [];
+	if (target.kind === 'prop' && target.property) {
+		candidates = opIndex.byProp.get(target.property) ?? [];
+	} else if (target.kind === 'tag' && target.tag) {
+		candidates = opIndex.byTag.get(target.tag) ?? [];
+	} else if (target.kind === 'file') {
+		candidates = (target.filePath ? opIndex.byFile.get(target.filePath) : null) ?? [];
+	}
+
+	const matches = candidates.filter((operation) => operationMatchesTarget(operation.change, target));
 	if (matches.length === 0) return {};
 
-	const badges: ViewBadge[] = matches.map(({ operation, index }) => {
+	const badges: ViewBadge[] = matches.map((operation, index) => {
 		const intent = operationIntent(operation.change, operation.group);
 		const sourceId = operation.id || operation.change.id || String(index);
 		return {
@@ -416,7 +491,7 @@ function matchedOperationLayersFor(
 		};
 	});
 	const hasDelete = matches.some(
-		({ operation }) => operationIntent(operation.change, operation.group).label === 'delete',
+		(operation) => operationIntent(operation.change, operation.group).label === 'delete',
 	);
 
 	return {
@@ -432,11 +507,21 @@ function matchedActiveFilterLayersFor(
 	node: NodeBase,
 	context: unknown,
 	label: string,
-	activeFilters: readonly ActiveFilterEntry[] | undefined,
+	filterIndex: ReturnType<ViewService['indexActiveFilters']>,
 ): ViewLayers {
-	if (!activeFilters || activeFilters.length === 0) return {};
+	if (filterIndex.all.length === 0) return {};
 	const target = semanticTargetFor(node, context);
-	const matches = activeFilters.flatMap((entry, index) =>
+
+	let candidates: ActiveFilterEntry[] = [];
+	if (target.kind === 'prop' && target.property) {
+		candidates = filterIndex.byProp.get(target.property) ?? [];
+	} else if (target.kind === 'tag' && target.tag) {
+		candidates = filterIndex.byTag.get(target.tag) ?? [];
+	} else if (target.kind === 'file' && target.filePath) {
+		candidates = filterIndex.byPath.get(target.filePath) ?? [];
+	}
+
+	const matches = candidates.flatMap((entry, index) =>
 		isActiveFilterRuleEntry(entry) && filterMatchesTarget(entry.rule, target)
 			? [{ entry, index }]
 			: [],

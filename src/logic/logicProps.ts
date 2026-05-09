@@ -1,6 +1,7 @@
 // src/logic/PropsLogic.ts
 import { prepareSimpleSearch, type App } from 'obsidian';
 import type { TreeNode, PropMeta } from '../types/typeNode';
+import type { IPropsIndex } from '../types/typeContracts';
 
 const COMPATIBLE_TYPES: Record<string, (v: unknown) => boolean> = {
 	checkbox: (v) => v === true || v === false || v === 'true' || v === 'false',
@@ -16,11 +17,13 @@ function isCompatible(value: unknown, type: string): boolean {
 
 export class PropsLogic {
 	private app: App;
+	private index: IPropsIndex;
 	private _cache: TreeNode<PropMeta>[] | null = null;
 	private _stale = true;
 
-	constructor(app: App) {
+	constructor(app: App, index: IPropsIndex) {
 		this.app = app;
+		this.index = index;
 	}
 
 	invalidate(): void {
@@ -83,59 +86,14 @@ export class PropsLogic {
 				}
 			).getAllPropertyInfos?.() ?? {};
 
-		// Map to store values and their frequencies
-		const valueMap = new Map<string, Map<string, number>>();
-		// Map to store which files contain which property (for accurate file count)
-		const propFileMap = new Map<string, Set<string>>();
-		const displayNameMap = new Map<string, string>();
-
-		for (const file of this.app.vault.getMarkdownFiles()) {
-			const fm = this.app.metadataCache.getFileCache(file)?.frontmatter ?? {};
-			for (const [key, val] of Object.entries(fm)) {
-				if (key === 'position') continue;
-
-				// Obsidian properties are case-insensitive for indexing
-				const normalizedKey = key.toLowerCase();
-				if (!displayNameMap.has(normalizedKey)) displayNameMap.set(normalizedKey, key);
-
-				// Track unique files per property
-				if (!propFileMap.has(normalizedKey)) propFileMap.set(normalizedKey, new Set());
-				propFileMap.get(normalizedKey)!.add(file.path);
-
-				// Track value frequencies
-				if (!valueMap.has(normalizedKey)) valueMap.set(normalizedKey, new Map());
-				const vals = Array.isArray(val) ? val : [val];
-				for (const v of vals) {
-					if (v == null) continue;
-					const str = String(v);
-					if (str === '') continue;
-					const vMap = valueMap.get(normalizedKey)!;
-					vMap.set(str, (vMap.get(str) ?? 0) + 1);
-				}
-			}
-		}
-
 		const nodes: TreeNode<PropMeta>[] = [];
-		const propInfoMap = new Map(
-			Object.entries(allProps).map(([propName, info]) => [
-				propName.toLowerCase(),
-				{ propName, info },
-			]),
-		);
-		const propNames = new Set([...propInfoMap.keys(), ...propFileMap.keys()]);
-		for (const normalizedName of propNames) {
-			const indexedInfo = propInfoMap.get(normalizedName);
-			const propName =
-				displayNameMap.get(normalizedName) ?? indexedInfo?.propName ?? normalizedName;
-			const propType = indexedInfo?.info.type ?? 'text';
-			const valuesMap = (valueMap.get(normalizedName) ?? new Map()) as Map<string, number>;
+		for (const propNode of this.index.nodes) {
+			const propName = propNode.property;
+			const propInfo = allProps[propName];
+			const propType = propInfo?.type ?? 'text';
 
-			// Accurate file count: how many unique files have this property
-			const fileCount = propFileMap.get(normalizedName)?.size ?? 0;
-			if (fileCount === 0) continue;
-
-			const valueNodes: TreeNode<PropMeta>[] = Array.from(valuesMap.entries())
-				.map(([rawValue, cnt]: [string, number]) => ({
+			const valueNodes: TreeNode<PropMeta>[] = Object.entries(propNode.valueFrequencies)
+				.map(([rawValue, cnt]) => ({
 					id: `${propName}::${rawValue}`,
 					label: rawValue,
 					count: cnt,
@@ -154,7 +112,7 @@ export class PropsLogic {
 			nodes.push({
 				id: propName,
 				label: propName,
-				count: fileCount,
+				count: propNode.fileCount,
 				depth: 0,
 				children: valueNodes,
 				meta: { propName, propType, isValueNode: false },

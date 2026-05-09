@@ -28,6 +28,7 @@ export interface TagNode extends NodeBase {
 export interface PropNode extends NodeBase {
 	property: string;
 	values: string[];
+	valueFrequencies: Record<string, number>;
 	fileCount: number;
 }
 

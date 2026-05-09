@@ -5,16 +5,28 @@ import { createNodeIndex } from './indexNodeCreate';
 export function createTagsIndex(app: App): ITagsIndex {
 	return createNodeIndex<TagNode>({
 		build: () => {
-			const counts = new Map<string, number>();
-			for (const file of app.vault.getMarkdownFiles()) {
-				const cache = app.metadataCache.getFileCache(file);
-				if (!cache) continue;
-				const tags = (cache.tags ?? []).map((t) => t.tag);
-				for (const t of tags) {
-					counts.set(t, (counts.get(t) ?? 0) + 1);
+			const cache = app.metadataCache as any;
+			const rawTags: Record<string, number> =
+				typeof cache.getTags === 'function' ? cache.getTags() : {};
+
+			let entries: [string, number][];
+			if (Object.keys(rawTags).length > 0) {
+				entries = Object.entries(rawTags);
+			} else {
+				// Fallback to manual scan if getTags() is empty or missing
+				const counts = new Map<string, number>();
+				for (const file of app.vault.getMarkdownFiles()) {
+					const fileCache = app.metadataCache.getFileCache(file);
+					if (!fileCache) continue;
+					const tags = (fileCache.tags ?? []).map((t) => t.tag);
+					for (const t of tags) {
+						counts.set(t, (counts.get(t) ?? 0) + 1);
+					}
 				}
+				entries = Array.from(counts.entries());
 			}
-			return Array.from(counts.entries()).map(([tag, count]) => ({
+
+			return entries.map(([tag, count]) => ({
 				id: tag,
 				tag,
 				count,
