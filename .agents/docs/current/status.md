@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-status.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-09T18:26:27
+updated: 2026-05-09T18:59:22
 tags:
   - agent/current
 created_by: dec
@@ -86,9 +86,13 @@ Archived completed/superseded status:
   [[docs/work/performance/plans/2026-05-09-codeql-guardrails|CodeQL performance guardrails]].
   `vaultman/virtualizer-missing-item-key` now flags TanStack virtualizer
   options passed to `createVirtualizer` or `.setOptions` without durable
-  `getItemKey`; the custom query pack is wired into CodeQL analysis and a
-  query-test workflow job. Local `codeql test run --additional-packs
-  codeql\queries\javascript codeql\tests --threads=0` passed with 1 test.
+  `getItemKey`; `vaultman/trailing-debounce-explorer-refresh` now flags
+  `debounce(...)` and raw `setTimeout(...)` explorer index refresh callbacks
+  that should use `leadingDebounce` or an approved scheduler. The custom query
+  pack is wired into CodeQL analysis and a query-test workflow job. Local
+  `codeql test run --additional-packs codeql\queries\javascript codeql\tests
+  --threads=0` passed with 2 tests. Next static slice:
+  `unbounded-vault-read-promise-all`.
 - 2026-05-09 durable virtualizer keys DONE:
   [[docs/work/performance/research/2026-05-09-durable-virtualizer-keys|Durable TanStack virtualizer keys]].
   `viewTree`, `ViewNodeGrid`, and `ViewNodeTable` now pass durable

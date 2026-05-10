@@ -6,7 +6,7 @@ parent: "[[docs/work/hardening/specs/2026-05-06-node-selection-service/index|nod
 archive_source: "docs/archive/hardening/active-docs/2026-05-06T050935-current-handoff.md"
 compacted: true
 created: 2026-05-04T01:36:20
-updated: 2026-05-09T18:26:27
+updated: 2026-05-09T18:59:22
 tags:
   - agent/current
 created_by: dec
@@ -22,11 +22,11 @@ Archived completed/superseded handoff:
 
 - Latest completed performance slice:
   [[docs/work/performance/plans/2026-05-09-codeql-guardrails|CodeQL performance guardrails]].
-  The `virtualizer-missing-item-key` query pack slice is done and wired into
-  CodeQL analysis plus a custom query-test job. Next performance slice should
-  add the next guardrail (`trailing-debounce-explorer-refresh` or
-  `unbounded-vault-read-promise-all`) or shift to revision-gated explorer model
-  caches.
+  The `virtualizer-missing-item-key` and
+  `trailing-debounce-explorer-refresh` query pack slices are done and wired
+  into CodeQL analysis plus a custom query-test job. Next performance slice
+  should add `unbounded-vault-read-promise-all` or shift to revision-gated
+  explorer model caches.
 - Previous completed performance slice:
   [[docs/work/performance/research/2026-05-09-durable-virtualizer-keys|Durable TanStack virtualizer keys]].
 - Latest performance research:

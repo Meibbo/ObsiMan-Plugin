@@ -48,6 +48,7 @@
 		addMode = false,
 		active = true,
 		showSelectedOnly = false,
+		showHiddenFiles = false,
 		selectedFiles = $bindable(new Set<string>()),
 		nodeExpansionCommand = null,
 		onNodeExpansionSummaryChange,
@@ -64,6 +65,7 @@
 		addMode?: boolean;
 		active?: boolean;
 		showSelectedOnly?: boolean;
+		showHiddenFiles?: boolean;
 		selectedFiles?: Set<string>;
 		nodeExpansionCommand?: ExplorerExpansionCommand | null;
 		onNodeExpansionSummaryChange?: (summary: ExplorerExpansionSummary) => void;
@@ -185,6 +187,7 @@
 		provider.setViewMode?.(viewMode);
 		provider.setAddMode?.(addMode);
 		provider.setShowSelectedOnly?.(showSelectedOnly);
+		provider.setShowHiddenFiles?.(showHiddenFiles);
 		if (active) untrack(refreshData);
 	});
 

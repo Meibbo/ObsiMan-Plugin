@@ -20,6 +20,7 @@
 		viewMode = $bindable('grid'),
 		active = true,
 		showSelectedOnly = false,
+		showHiddenFiles = false,
 		selectedFilePaths = $bindable(new Set<string>()),
 		onSelectionChange,
 		nodeExpansionCommand = null,
@@ -35,6 +36,7 @@
 		viewMode?: any;
 		active?: boolean;
 		showSelectedOnly?: boolean;
+		showHiddenFiles?: boolean;
 		selectedFilePaths: Set<string>;
 		onSelectionChange?: (count: number) => void;
 		nodeExpansionCommand?: ExplorerExpansionCommand | null;
@@ -72,6 +74,7 @@
 			bind:sortDirection
 			{active}
 			{showSelectedOnly}
+			{showHiddenFiles}
 			{nodeExpansionCommand}
 			{onNodeExpansionSummaryChange}
 			{icon}

@@ -29,6 +29,7 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 	private sortDir: 'asc' | 'desc' = 'asc';
 	private addMode = false;
 	private showSelectedOnly = false;
+	private showHiddenFiles = false;
 	private searchName = '';
 	private searchFolder = '';
 
@@ -36,6 +37,7 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 		this.plugin = plugin;
 		this.options = options;
 		this.logic = new FilesLogic(plugin.app);
+		this.showHiddenFiles = plugin.settings?.explorerFilesShowHidden === true;
 		this.registerActions();
 	}
 
@@ -245,6 +247,9 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 	setShowSelectedOnly(active: boolean): void {
 		this.showSelectedOnly = active;
 	}
+	setShowHiddenFiles(active: boolean): void {
+		this.showHiddenFiles = active;
+	}
 
 	private sourceFiles(): TFile[] {
 		if (this.showSelectedOnly)
@@ -267,7 +272,7 @@ export class explorerFiles implements ExplorerProvider<FileMeta> {
 	}
 
 	private visibleFiles(files: TFile[]): TFile[] {
-		if (this.plugin.settings?.explorerFilesShowHidden === true) return files;
+		if (this.showHiddenFiles) return files;
 		return files.filter((file) => !hasHiddenPathSegment(file.path));
 	}
 

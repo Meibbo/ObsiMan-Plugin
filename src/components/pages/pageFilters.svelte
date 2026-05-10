@@ -69,6 +69,7 @@
 		filtersBaseChooseMode = $bindable(false),
 		addMode = $bindable(false),
 		filesShowSelectedOnly = $bindable(false),
+		filesShowHidden = $bindable(plugin.settings.explorerFilesShowHidden === true),
 		tagsExplorer = $bindable(),
 		propExplorer = $bindable(),
 		fileList = $bindable(),
@@ -89,6 +90,7 @@
 		filtersBaseChooseMode?: boolean;
 		addMode?: boolean;
 		filesShowSelectedOnly?: boolean;
+		filesShowHidden?: boolean;
 		tagsExplorer?: explorerTags | undefined;
 		propExplorer?: explorerProps | undefined;
 		fileList?: explorerFiles | undefined;
@@ -274,6 +276,12 @@
 		};
 	}
 
+	function setFilesShowHidden(active: boolean): void {
+		filesShowHidden = active;
+		plugin.settings.explorerFilesShowHidden = active;
+		void plugin.saveSettings?.();
+	}
+
 	function setContentSearch(term: string): void {
 		filtersSearchByTab = setFiltersSearch(filtersSearchByTab, 'content', term);
 	}
@@ -393,7 +401,9 @@
 	bind:addMode
 	bind:operationScope={filtersOperationScope}
 	bind:filesShowSelectedOnly
+	bind:filesShowHidden
 	{onOperationScopeChange}
+	onFilesShowHiddenChange={setFilesShowHidden}
 	{tagsExplorer}
 	{propExplorer}
 	{fileList}
@@ -461,6 +471,7 @@
 				bind:fileList
 				bind:selectedFilePaths
 				showSelectedOnly={filesShowSelectedOnly}
+				showHiddenFiles={filesShowHidden}
 				onSelectionChange={(c) => (selectedCount = c)}
 				active={filtersActiveTab === 'files'}
 				nodeExpansionCommand={nodeExpansionCommands.files}

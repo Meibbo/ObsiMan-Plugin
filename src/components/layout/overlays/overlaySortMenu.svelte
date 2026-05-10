@@ -93,8 +93,10 @@
 		sortDir = $bindable('asc'),
 		operationScope = $bindable('auto'),
 		filesShowSelectedOnly = $bindable(false),
+		filesShowHidden = $bindable(false),
 		nodeExpansionSummary = { canToggle: false, hasExpandedParents: false },
 		onOperationScopeChange,
+		onFilesShowHiddenChange,
 		onToggleNodeExpansion,
 		icon,
 	}: {
@@ -104,8 +106,10 @@
 		sortDir: 'asc' | 'desc';
 		operationScope: 'auto' | 'selected' | 'filtered' | 'all';
 		filesShowSelectedOnly?: boolean;
+		filesShowHidden?: boolean;
 		nodeExpansionSummary?: ExplorerExpansionSummary;
 		onOperationScopeChange?: (value: 'auto' | 'selected' | 'filtered' | 'all') => void;
+		onFilesShowHiddenChange?: (active: boolean) => void;
 		onToggleNodeExpansion?: () => void;
 		icon: (node: HTMLElement, name: string) => { update(n: string): void };
 	} = $props();
@@ -138,7 +142,11 @@
 	}
 
 	const vertTopIcon = $derived(
-		activeTab === 'props'
+		activeTab === 'files'
+			? filesShowHidden
+				? 'lucide-eye'
+				: 'lucide-eye-off'
+			: activeTab === 'props'
 			? 'lucide-list-tree'
 			: activeTab === 'tags'
 				? 'lucide-network'
@@ -168,12 +176,28 @@
 		}
 		drawerOpen = !drawerOpen;
 	}
+
+	function toggleFilesHidden() {
+		filesShowHidden = !filesShowHidden;
+		onFilesShowHiddenChange?.(filesShowHidden);
+	}
 </script>
 
 <div class="vm-sort-popup">
 	<!-- Vert-col: absolute, floats left over tab content -->
 	<div class="vm-sort-vertcol">
-		{#if activeTab === 'props' || activeTab === 'tags'}
+		{#if activeTab === 'files'}
+			<button
+				type="button"
+				class="vm-sort-vertcol-btn"
+				class:is-active={filesShowHidden}
+				aria-label={translate('settings.files_show_hidden')}
+				aria-pressed={filesShowHidden}
+				title={translate('settings.files_show_hidden.desc')}
+				onclick={toggleFilesHidden}
+				use:icon={vertTopIcon}
+			></button>
+		{:else if activeTab === 'props' || activeTab === 'tags'}
 			<div
 				class="vm-sort-vertcol-btn"
 				class:is-active={vertTopActive}

@@ -53,7 +53,9 @@
 		addMode = $bindable(false),
 		operationScope = $bindable('auto'),
 		filesShowSelectedOnly = $bindable(false),
+		filesShowHidden = $bindable(false),
 		onOperationScopeChange,
+		onFilesShowHiddenChange,
 		fnrState,
 		onRenameReplacementChange,
 		onRenameConfirm,
@@ -78,7 +80,9 @@
 		addMode: boolean;
 		operationScope: OperationScope;
 		filesShowSelectedOnly?: boolean;
+		filesShowHidden?: boolean;
 		onOperationScopeChange?: (value: OperationScope) => void;
+		onFilesShowHiddenChange?: (active: boolean) => void;
 		tagsExplorer: explorerTags | null | undefined;
 		propExplorer: explorerProps | undefined;
 		fileList: explorerFiles | undefined;
@@ -632,9 +636,11 @@
 					bind:sortDir={sortDirection}
 					bind:operationScope
 					bind:filesShowSelectedOnly
+					bind:filesShowHidden
 					{nodeExpansionSummary}
 					{onToggleNodeExpansion}
 					{onOperationScopeChange}
+					{onFilesShowHiddenChange}
 					{icon}
 				/>
 			</div>

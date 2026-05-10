@@ -16,8 +16,11 @@ function noopIndex() {
 
 function plugin(): VaultmanPlugin {
 	const baseFile = mockTFile('Dashboards/Projects.base');
+	const visibleFile = mockTFile('Notes/visible.md');
+	const hiddenFile = mockTFile('Notes/.secret.md');
+	const hiddenConfigFile = mockTFile('.obsidian/snippets/theme.css');
 	const app = mockApp({
-		files: [baseFile],
+		files: [baseFile, visibleFile, hiddenFile, hiddenConfigFile],
 		adapterFiles: new Map([
 			[
 				'Dashboards/Projects.base',
@@ -41,10 +44,13 @@ function plugin(): VaultmanPlugin {
 		settings: {
 			filtersShowTabLabels: true,
 			explorerOperationScope: 'filtered',
+			explorerFilesShowHidden: false,
 		},
+		saveSettings: vi.fn(),
 		filterService: {
 			filteredFiles: [],
 			selectedFiles: [],
+			setSelectedFiles: vi.fn(),
 			setFilter: vi.fn(),
 			setSearchFilter: vi.fn(),
 			clearSearchFilter: vi.fn(),
@@ -69,8 +75,13 @@ function plugin(): VaultmanPlugin {
 			subscribe: vi.fn(() => vi.fn()),
 		},
 		viewService: {
-			getModel: vi.fn(() => ({
-				rows: [],
+			getModel: vi.fn(({ nodes }: { nodes: Array<{ id: string; label: string }> }) => ({
+				rows: nodes.map((node) => ({
+					id: node.id,
+					label: node.label,
+					icon: 'lucide-file',
+					layers: [],
+				})),
 				columns: [],
 				groups: [],
 				selection: { ids: new Set() },
@@ -266,5 +277,45 @@ describe('PageFilters Bases choose mode', () => {
 			query: 'status: ',
 			expanded: true,
 		});
+	});
+
+	it('toggles dot-prefixed files from the Files sort menu and persists the setting', () => {
+		const vm = plugin();
+
+		app = mount(PageFilters as unknown as Component<Record<string, unknown>>, {
+			target,
+			props: {
+				plugin: vm,
+				filtersActiveTab: 'files',
+				filtersViewMode: 'tree',
+			},
+		});
+		flushSync();
+
+		expect(target.textContent).toContain('visible');
+		expect(target.textContent).not.toContain('.secret');
+		expect(target.textContent).not.toContain('.obsidian');
+
+		(
+			vm as VaultmanPlugin & {
+				openSortMenuHook?: (() => void) | null;
+			}
+		).openSortMenuHook?.();
+		flushSync();
+
+		const hiddenToggle = target.querySelector<HTMLButtonElement>(
+			'[aria-label="Show hidden files and folders"]',
+		);
+		expect(hiddenToggle).toBeTruthy();
+		expect(hiddenToggle?.getAttribute('aria-pressed')).toBe('false');
+
+		hiddenToggle?.click();
+		flushSync();
+
+		expect(vm.settings.explorerFilesShowHidden).toBe(true);
+		expect(vm.saveSettings).toHaveBeenCalledOnce();
+		expect(target.textContent).toContain('.secret');
+		expect(target.textContent).toContain('.obsidian');
+		expect(hiddenToggle?.getAttribute('aria-pressed')).toBe('true');
 	});
 });

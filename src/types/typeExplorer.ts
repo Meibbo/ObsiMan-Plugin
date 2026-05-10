@@ -58,4 +58,5 @@ export interface ExplorerProvider<TMeta = unknown> {
 	setSortBy?(sortBy: string, direction: 'asc' | 'desc'): void;
 	setAddMode?(active: boolean): void;
 	setShowSelectedOnly?(active: boolean): void;
+	setShowHiddenFiles?(active: boolean): void;
 }

@@ -4,7 +4,7 @@ type: implementation-record
 status: done
 parent: "[[docs/work/performance/research/2026-05-09-ecosystem-performance-codeql-research|ecosystem-performance-codeql-research]]"
 created: 2026-05-09T18:26:27
-updated: 2026-05-09T18:26:27
+updated: 2026-05-09T18:59:22
 tags:
   - agent/performance
   - vaultman/codeql
@@ -18,11 +18,14 @@ updated_by: codex
 ## Scope
 
 Continue the performance lane after durable TanStack virtualizer keys by
-starting the custom CodeQL query pack. The first implemented guardrail is
-`vaultman/virtualizer-missing-item-key`, matching the next action recorded in
+starting the custom CodeQL query pack. Implemented guardrails now include
+`vaultman/virtualizer-missing-item-key` and
+`vaultman/trailing-debounce-explorer-refresh`, matching the next actions recorded in
 [[docs/work/performance/research/2026-05-09-ecosystem-performance-codeql-research|ecosystem performance and CodeQL guardrail research]].
 
 ## Implementation
+
+### Virtualizer Missing Item Key
 
 - Added `codeql/queries/javascript/vaultman/VirtualizerMissingItemKey.ql`.
 - The query flags object-literal options passed to:
@@ -46,7 +49,32 @@ starting the custom CodeQL query pack. The first implemented guardrail is
 codeql test run --additional-packs codeql/queries/javascript codeql/tests --threads=0
 ```
 
+### Trailing Debounce Explorer Refresh
+
+- Added
+  `codeql/queries/javascript/vaultman/TrailingDebounceExplorerRefresh.ql`.
+- The query flags `debounce(...)` and raw `setTimeout(...)` calls whose callback
+  directly refreshes Vaultman explorer indexes:
+  - `filesIndex`
+  - `propsIndex`
+  - `tagsIndex`
+  - `contentIndex`
+  - `operationsIndex`
+  - `activeFiltersIndex`
+  - `cssSnippetsIndex`
+  - `pluginsIndex`
+  - `templatesIndex`
+- The query intentionally does not flag `leadingDebounce(...)`, because that is
+  the approved immediate-first, trailing-coalesced scheduler for explorer UI
+  refresh paths.
+- The query also avoids plain UI timer/debounce callbacks that do not call an
+  explorer index `.refresh()`.
+- Added a CodeQL test fixture under
+  `codeql/tests/javascript/vaultman/trailing-debounce-explorer-refresh/`.
+
 ## TDD Record
+
+### Virtualizer Missing Item Key
 
 1. Initial RED with the existing scaffold failed at pack resolution because the
    local query pack was not passed as an additional pack.
@@ -59,26 +87,47 @@ codeql test run --additional-packs codeql/queries/javascript codeql/tests --thre
 4. The two good fixture cases with `getItemKey` were not reported.
 5. The expected file was updated and the query test passed.
 
+### Trailing Debounce Explorer Refresh
+
+1. RED fixture was added first under
+   `codeql/tests/javascript/vaultman/trailing-debounce-explorer-refresh/`.
+2. Initial RED failed because `TrailingDebounceExplorerRefresh.ql` could not be
+   resolved.
+3. After adding the query, the test failed against the empty expected file with
+   exactly four alerts:
+   - `debounce(() => filesIndex.refresh(), ...)`
+   - `debounce(() => { propsIndex.refresh(); tagsIndex.refresh(); }, ...)`
+   - `activeWindow.setTimeout(() => contentIndex.refresh(), ...)`
+   - `setTimeout(() => activeFiltersIndex.refresh(), ...)`
+4. The good fixture cases were not reported:
+   - `leadingDebounce(() => filesIndex.refresh(), ...)`
+   - `debounce(...)` around a popup refresh helper
+   - `activeWindow.setTimeout(...)` around a CSS transition helper
+5. The expected file was updated and the query test passed.
+
 ## Verification
 
 - `& "C:\Users\vic_A\codeql-home\codeql\codeql.exe" query compile --additional-packs codeql\queries\javascript codeql\queries\javascript\vaultman\VirtualizerMissingItemKey.ql`
   passed.
 - `& "C:\Users\vic_A\codeql-home\codeql\codeql.exe" test run --additional-packs codeql\queries\javascript codeql\tests\javascript\vaultman\virtualizer-missing-item-key --threads=0`
   passed with 1 test.
-- `& "C:\Users\vic_A\codeql-home\codeql\codeql.exe" test run --additional-packs codeql\queries\javascript codeql\tests --threads=0`
+- `& "C:\Users\vic_A\codeql-home\codeql\codeql.exe" test run --additional-packs codeql\queries\javascript codeql\tests\javascript\vaultman\trailing-debounce-explorer-refresh --threads=0`
   passed with 1 test.
+- `& "C:\Users\vic_A\codeql-home\codeql\codeql.exe" test run --additional-packs codeql\queries\javascript codeql\tests --threads=0`
+  passed with 2 tests.
 
 CodeQL on Windows repeatedly reported it could not clean up the generated
-`virtualizer-missing-item-key.testproj` directory after successful test runs.
-The directory was removed manually after verifying its resolved path stayed
-inside the query test fixture directory.
+`.testproj` directories after successful test runs. The generated
+`virtualizer-missing-item-key.testproj` and
+`trailing-debounce-explorer-refresh.testproj` directories were removed manually
+after verifying their resolved paths stayed inside their query test fixture
+directories.
 
 ## Remaining Performance Lane
 
 Recommended next slice:
 
-- Add the next static guardrail from the research list, likely
-  `trailing-debounce-explorer-refresh` or
+- Add the next static guardrail from the research list:
   `unbounded-vault-read-promise-all`.
 - Alternatively switch from static guardrails back to runtime performance by
   implementing revision-gated explorer model caches.
