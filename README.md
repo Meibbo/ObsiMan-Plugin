@@ -22,7 +22,7 @@ This plugin gives you a **control panel for your vault**. It can filter your fil
 3. Enter `Meibbo/VaultMan`
 4. Enable **Vaultman** in Settings → Community Plugins
 
-*Vaultman is not yet in the official Obsidian plugin store. I want to achieve a completely stable version before doing a PR. But you can give your community feedback now if this plugin has its plubic and is really helpful for others*
+*Vaultman is not yet in the official Obsidian plugin store. I want to achieve a completely stable version before public v1.0 release. But you can give your community feedback now if this plugin has its plubic and is really helpful for others*
 
 ## Features
 
