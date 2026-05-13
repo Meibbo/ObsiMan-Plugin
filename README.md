@@ -1,8 +1,8 @@
 # VaultMan
-![](https://img.shields.io/github/v/release/Meibbo/vaultman-Plugin)
+![](https://img.shields.io/github/v/release/Meibbo/vaultman)
 ![Obsidian](https://img.shields.io/badge/Obsidian-%E2%89%A51.12.0-purple)
-![](https://img.shields.io/github/license/Meibbo/vaultman-Plugin) 
-![](https://img.shields.io/github/downloads/Meibbo/vaultman-Plugin/total)
+![](https://img.shields.io/github/license/Meibbo/vaultman) 
+![](https://img.shields.io/github/downloads/Meibbo/vaultman/total)
 
 ![](img/vaultman_icon.png)Vaultman is a Swiss Army Knife of Obsidian tools for managing the files of your vault at scale. Once you have hundreds of notes, the built-in properties view gets limiting fast: you can see your tags and properties listed, rename them one at a time, and that's about it.
 
@@ -14,6 +14,7 @@ This plugin gives you a **control panel for your vault**. It can filter your fil
 - [Filters](#filter-page)
 
 ## Installation
+**Warning**: This project is in Pre-Release state! It is recommended to select the specific version (Beta.15 is the most stable) of your choice and NOT auto update if you want to preserve functionality and stability, I'm releasing experimental versions for multi-platform testing that could slow down your performance or move things from were they are.
 
 ### Via BRAT
 1. Install [BRAT](https://github.com/TfTHacker/obsidian42-brat) from the community plugins store
@@ -21,7 +22,7 @@ This plugin gives you a **control panel for your vault**. It can filter your fil
 3. Enter `Meibbo/VaultMan`
 4. Enable **Vaultman** in Settings → Community Plugins
 
-*Vaultman is not yet in the official Obsidian plugin store. I want to receive community feedback to know if this plugin has its plubic and is really helpful for others*
+*Vaultman is not yet in the official Obsidian plugin store. I want to achieve a completely stable version before doing a PR. But you can give your community feedback now if this plugin has its plubic and is really helpful for others*
 
 ## Features
 
