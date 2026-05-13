@@ -56,6 +56,24 @@ npm run build  # tsc type-check + esbuild production bundle
 npm run lint   # ESLint with obsidianmd rules
 ```
 
+## Built With
+
+This project uses the following open-source technologies:
+
+- Svelte
+- TypeScript
+- D3.js
+- TanStack
+- UnoCSS
+- Bits UI
+- PretextJS
+
+All third-party libraries retain their respective licenses.
+
 ## License
 
 [MIT](LICENSE) — [Meibbo](https://github.com/Meibbo)
+
+## Acknowledgements
+
+Built for the Obsidian community.
