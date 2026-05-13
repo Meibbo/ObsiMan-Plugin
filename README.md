@@ -1,7 +1,7 @@
 # VaultMan
 ![](https://img.shields.io/github/v/release/Meibbo/vaultman)
 ![Obsidian](https://img.shields.io/badge/Obsidian-%E2%89%A51.12.0-purple)
-![](https://img.shields.io/github/license/Meibbo/vaultman/LICENSE.md) 
+![](https://img.shields.io/github/license/Meibbo/vaultman/) 
 ![](https://img.shields.io/github/downloads/Meibbo/vaultman/total)
 
 ![](img/vaultman_icon.png)Vaultman is a Swiss Army Knife of Obsidian tools for managing the files of your vault at scale. Once you have hundreds of notes, the built-in properties view gets limiting fast: you can see your tags and properties listed, rename them one at a time, and that's about it.
