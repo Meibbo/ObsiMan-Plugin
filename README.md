@@ -4,17 +4,20 @@
 ![](https://img.shields.io/github/license/Meibbo/vaultman) 
 ![](https://img.shields.io/github/downloads/Meibbo/vaultman/total)
 ![|240](./img/Vaultman_screenshot.png)
-Vaultman is a Swiss Army Knife of Obsidian tools for files management and organization at scale with scopes. Once you have hundreds of notes, the built-in properties view gets limiting fast: you can see your tags and properties listed, rename them one at a time, and that's about it.
-
-This plugin gives you a **control panel for your data**, imitating the functionality of your system explorer with the power of Obsidian Bases. You can filter your files, select what you care about, queue up a batch of operations (*add, rename, delete, replace properties/values, move files, copy files, etc.*), preview exactly what they will change and apply everything at once (queue and filters templates will come soon).
-
-I designed this plugin for myself, looking for a workflow that helps me with **organizing my vault** without the burden of too many plugins scattered around and disconnected from each other, in a way that would let me manage thousands of notes with hundreds of properties effortlessly every time I want to change or move something. Hope it helps you too!
-
+***
 # Table of Contents
-- [Installation](#installation#via--brat)
+- [Introduction](#introduction)
+- [Installation](#installation)
 - [Features](#features#main-hub)
 - [Development](#development)
 - [License](#license)
+***
+# Introduction
+Vaultman is a Swiss Army Knife of Obsidian tools for Files Management* and *organization* with scopes. Once you have hundreds of notes, the built-in properties view gets limiting fast: *You could see your tags and properties listed, rename them one at a time, and that's it.*
+
+This plugin gives you a **control panel for your data**, imitating the functionality of your system explorer with the power of Obsidian Bases. You can filter your files, select what you care about, queue up a batch of operations (*add, rename, delete, replace properties/values, move files, copy files, etc.*), preview exactly what they will change and apply everything at once (queue and filters templates will come soon).
+
+I designed this plugin for myself, looking for a workflow that could **speed up a lot of operations** without the burden of too many plugins scattered around and disconnected from each other, in a way that would let me manage thousands of notes with hundreds of properties effortlessly every time I want to change or move something. Hope it helps you too!
 
 ## Installation
 
