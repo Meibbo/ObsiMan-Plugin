@@ -1,13 +1,32 @@
+//********************************************************************\\
+//*      ___|^___^|___      .-~*´¨¯¨¯¯¨¯¨`*~-.     ___|^___^|___     *\\
+//*     |   Meibbo   |     |  Vaultman v1.0  |    |  May 2026  |     *\\
+//*     \___/`*´\___/      `-~*´¨¯¨¯¯¨¯¨`*~-´     \___/`*´\___/      *\\
+//*                                                                  *\\
+//*           Made with love for tools that last and help.           *\\
+//*                                                                  *\\
+//*     (づ￣ 3￣)づ    ☆*: .｡. o(≧▽≦)o .｡.:*☆     ╰(*°▽°*)╯      *\\
+//********************************************************************\\
+
+//...--------———————————(   Dev dependencies   )——————————---------...\\
+
+#  & compiled work
+.vscode/
 node_modules/
-docs/
-img/
-.agents/
-.claude/*
-.obsidian
-.superpowers/
+node_modules.partial/
+dist/
+coverage/
+**/stress-vault/
+stress-test-data/
 main.js
-AGENTS.md
-CLAUDE.md
+styles.css
+data.json
 settings.local.json
 .DS_Store
 .env
+.log
+*.mjs
+//...----------—————————————(   CodeQL   )————————————------------...\\
+# codeql/tests/
+codeql-db/
+*.sarif

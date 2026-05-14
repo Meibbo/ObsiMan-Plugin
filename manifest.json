@@ -1,9 +1,9 @@
 {
 	"id": "vaultman",
 	"name": "Vaultman",
-	"version": "1.0.0-beta.15",
+	"version": "1.0.0",
 	"minAppVersion": "1.12.0",
-	"description": "Bulk property editor and vault management tool for Obsidian.",
+	"description": "Files, content and frontmatter explorer like bases, with a pending changes list ",
 	"author": "Meibbo",
 	"authorUrl": "https://github.com/Meibbo",
 	"isDesktopOnly": false
