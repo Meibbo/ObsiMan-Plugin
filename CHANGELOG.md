@@ -8,7 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > **Version history note**: Versions 0.7–0.9 were previously labeled 1.2.2–1.3.0 during private
 > internal development. Renumbered to 0.x to reserve 1.0.0 for the first public stable release.
 
-## [Unreleased]
+## [1.0.0] — 2026-05-14
+
+> Official stable release.
+
+### Added
+- **Find & Replace Content**: fully functional search and replace in file content within the Operations page.
+- **Improved UI Navigation**: fixed regressions in tab navigation and component loading.
+- **Plugin Integrity**: restored missing core components and fixed import paths for the official release.
 
 ---
 
