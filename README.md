@@ -34,10 +34,9 @@ I'll also release experimental "beta" versions for those who want to check the p
 3. Enter `meibbo/vaultman`
 4. Enable **Vaultman** in Settings → Community Plugins
 
-
 Beta versions are more prone to bugs and performance issues, and can break your vault. Use them at your own risk, and always make backups before updating or using them.
-> *This project is in an early state, developing feedback is totally welcomed!*
 
+> *This project is in an early state, developing feedback is totally welcomed!*
 
 ## Features
 
@@ -56,7 +55,6 @@ It also has FAB buttons that opens menus for quickly navigation between overlays
 ***
 
 ### Explorers
-![*This grid view is from an unreleased version*](./img/vm_explorer.png)
 
 **What makes them special**. These components are scrollable, searchable, selectable, draggable (WIP) and can be filtered based on your needs.
 
