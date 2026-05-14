@@ -13,13 +13,13 @@
 - [License](#license)
 ***
 # Introduction
-Vaultman is a Swiss Army Knife of Obsidian tools for Files Management* and *organization* with scopes. Once you have hundreds of notes, the built-in properties view gets limiting fast: *You could see your tags and properties listed, rename them one at a time, and that's it.*
+Vaultman (*aka Node-Notes*) is a Swiss Army Knife of Obsidian tools for Files Management* and *organization* with scopes. Once you have hundreds of notes, the built-in properties view gets limiting fast: *You could see your tags and properties listed, rename them one at a time, and that's it.*
 
 This plugin gives you a **control panel for your data**, imitating the functionality of your system explorer with the power of Obsidian Bases. You can filter your files, select what you care about, queue up a batch of operations (*add, rename, delete, replace properties/values, move files, copy files, etc.*), preview exactly what they will change and apply everything at once (queue and filters templates will come soon).
 
 I designed this plugin for myself, looking for a workflow that could **speed up a lot of operations** without the burden of too many plugins scattered around and disconnected from each other, in a way that would let me manage thousands of notes with hundreds of properties effortlessly every time I want to change or move something. Hope it helps you too!
-
-## Installation
+***
+# Installation
 
 Main workflow is already usable and will help you to decrease some repetitive processes. Although there are some placeholders of functionalities that will be delivered in the upcoming versions.  **Stay tuned!.**
 ### Obsidian Community Plugins
@@ -38,7 +38,7 @@ Beta versions are more prone to bugs and performance issues, and can break your 
 
 > *This project is in an early state, developing feedback is totally welcomed!*
 
-## Features
+# Features
 
 ### Plugin sidebar Frame
 
@@ -54,7 +54,7 @@ It also has FAB buttons that opens menus for quickly navigation between overlays
 - **Queue list** (which actions over files are ready to be processed)
 ***
 
-### Explorers
+## Explorers
 
 **What makes them special**. These components are scrollable, searchable, selectable, draggable (WIP) and can be filtered based on your needs.
 
@@ -78,6 +78,7 @@ This is where the explorers live, from here **you can filter out** the exact opt
 
 > Every explorer has a toolbar with a search box, sorts and different views to facilitate your navigation and only will affect each tab individually
 ***
+
 ### Filters & Operations
 A **node** will be any of the options that are listed from the provider data of the selected tab (*even snippets, plugins and layouts will have their own tabs!*)
 
@@ -86,6 +87,7 @@ Every selected node will apear in the **Active filters island**, where you can s
 
 > This versions only scopes the files tab from selected properties, tags or content. *Showing content or metadata from selected files will be added soon.*
 ***
+
 #### Queue changes
 Every action of edition of any node will be stored by default on the queue changes list, let's you preview exactly what they will change and apply everything at once
 ![](./img/vm_queue.png)
