@@ -1,11 +1,10 @@
 # VaultMan
-![](./img/Vaultman_screenshot.png)
 ![](https://img.shields.io/github/v/release/Meibbo/vaultman)
 ![Obsidian](https://img.shields.io/badge/Obsidian-%E2%89%A51.12.0-purple)
 ![](https://img.shields.io/github/license/Meibbo/vaultman) 
 ![](https://img.shields.io/github/downloads/Meibbo/vaultman/total)
-
-![](./img/vaultman_icon.png)Vaultman is a Swiss Army Knife of Obsidian tools for files management and organization at scale with scopes. Once you have hundreds of notes, the built-in properties view gets limiting fast: you can see your tags and properties listed, rename them one at a time, and that's about it.
+![|240](./img/Vaultman_screenshot.png)
+Vaultman is a Swiss Army Knife of Obsidian tools for files management and organization at scale with scopes. Once you have hundreds of notes, the built-in properties view gets limiting fast: you can see your tags and properties listed, rename them one at a time, and that's about it.
 
 This plugin gives you a **control panel for your data**, imitating the functionality of your system explorer with the power of Obsidian Bases. You can filter your files, select what you care about, queue up a batch of operations (*add, rename, delete, replace properties/values, move files, copy files, etc.*), preview exactly what they will change and apply everything at once (queue and filters templates will come soon).
 
