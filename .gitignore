@@ -25,7 +25,6 @@ settings.local.json
 .DS_Store
 .env
 .log
-*.mjs
 //...----------—————————————(   CodeQL   )————————————------------...\\
 # codeql/tests/
 codeql-db/

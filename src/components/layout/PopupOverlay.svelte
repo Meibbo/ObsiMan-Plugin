@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { VaultmanPlugin } from "../../../main";
+	import type { VaultmanPlugin } from "../../main";
 	import type { PopupType } from "../../types/typeUI";
 	import ActiveFiltersPopup from "./popupFilters.svelte";
 	import ScopePopup from "./popupScope.svelte";

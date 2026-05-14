@@ -1,5 +1,5 @@
 import { setIcon } from 'obsidian';
-import type { VaultmanPlugin } from '../../../main';
+import type { VaultmanPlugin } from "../../main";
 import { LinterModal } from '../../modals/modalLinter';
 import { FileRenameModal } from '../../modals/modalFileRename';
 import { SaveTemplateModal } from '../../modals/modalSaveTemplate';

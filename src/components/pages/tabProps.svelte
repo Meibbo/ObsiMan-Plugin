@@ -1,6 +1,6 @@
 <script lang="ts">
   import { PropsExplorerPanel } from "../containers/explorerProps";
-  import type { VaultmanPlugin } from "../../../main";
+  import type { VaultmanPlugin } from "../../main";
 
   let {
     plugin,

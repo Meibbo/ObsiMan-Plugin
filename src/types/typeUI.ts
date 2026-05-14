@@ -6,7 +6,7 @@ export type PopupType =
 	| "search"
 	| "move";
 
-export type OpsTab = "linter" | "template" | "layout";
+export type OpsTab = "template" | "layout" | "content";
 
 export interface defOpsTab {
 	id: OpsTab;

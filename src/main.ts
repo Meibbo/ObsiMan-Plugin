@@ -1,15 +1,15 @@
 import { Plugin, WorkspaceLeaf } from 'obsidian';
-import type { VaultmanSettings } from './src/types/typeSettings';
-import { DEFAULT_SETTINGS } from './src/types/typeSettings';
-import { PropertyIndexService } from './src/services/servicePropertyIndex';
-import { FilterService } from './src/services/serviceFilter';
-import { OperationQueueService } from './src/services/serviceOperationQueue';
-import { VaultmanFrame, VAULTMAN_FRAME_TYPE } from './src/VaultmanFrame';
-import { IconicService } from './src/services/serviceIcons';
-import { PropertyTypeService } from './src/services/servicePropertyType';
-import { ContextMenuService } from './src/services/serviceContextMenu';
-import { VaultmanSettingsTab } from './src/VaultmanSettings';
-import { setLanguage, translate } from './src/i18n/index';
+import type { VaultmanSettings } from './types/typeSettings';
+import { DEFAULT_SETTINGS } from './types/typeSettings';
+import { PropertyIndexService } from './services/servicePropertyIndex';
+import { FilterService } from './services/serviceFilter';
+import { OperationQueueService } from './services/serviceOperationQueue';
+import { VaultmanFrame, VAULTMAN_FRAME_TYPE } from './VaultmanFrame';
+import { IconicService } from './services/serviceIcons';
+import { PropertyTypeService } from './services/servicePropertyType';
+import { ContextMenuService } from './services/serviceContextMenu';
+import { VaultmanSettingsTab } from './VaultmanSettings';
+import { setLanguage, translate } from './i18n/index';
 
 export class VaultmanPlugin extends Plugin {
 	settings!: VaultmanSettings;
@@ -54,7 +54,7 @@ export class VaultmanPlugin extends Plugin {
 		this.statusBarEl = this.addStatusBarItem();
 		this.statusBarEl.addClass('vaultman-native-statusbar');
 
-		this.addRibbonIcon('lucide-dessert', translate('plugin.open'), () => {
+		this.addRibbonIcon('lucide-vault', translate('plugin.open'), () => {
 			void this.activateView();
 		});
 

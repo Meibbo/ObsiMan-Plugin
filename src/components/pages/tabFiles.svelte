@@ -1,6 +1,6 @@
 <script lang="ts">
   import { FilesExplorerPanel } from "../containers/explorerFiles";
-  import type { VaultmanPlugin } from "../../../main";
+  import type { VaultmanPlugin } from "../../main";
 
   let {
     plugin,

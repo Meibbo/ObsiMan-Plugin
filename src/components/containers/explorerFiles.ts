@@ -1,6 +1,6 @@
 // src/components/FilesExplorerPanel.ts
 import { Component, type TFile } from 'obsidian';
-import type { VaultmanPlugin } from '../../../main';
+import type { VaultmanPlugin } from "../../main";
 import { FilesLogic } from '../../logic/logicsFiles';
 import { GridView } from '../layout/viewGrid';
 import { UnifiedTreeView } from '../layout/viewTree';

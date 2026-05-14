@@ -42,7 +42,7 @@
 		}
 	},
 	"include": [
-		"main.ts",
+		"src/main.ts",
 		"src/**/*.ts",
 		"src/**/*.svelte",
 		"vitest.config.ts",
