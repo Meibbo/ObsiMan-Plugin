@@ -1,0 +1,4616 @@
+/* vaultman — Sidebar Plugin Styles */
+
+/* === CSS Variables (Style Settings compatible) === */
+.vaultman-view,
+.vaultman-frame,
+.vaultman-main-view {
+  --vaultman-accent: var(--interactive-accent);
+  --vaultman-bg-section: var(--background-secondary);
+  --vaultman-bg-hover: var(--background-modifier-hover);
+  --vaultman-border: var(--background-modifier-border);
+  --vaultman-text-muted: var(--text-muted);
+  --vaultman-text-faint: var(--text-faint);
+  --vaultman-diff-added: #2ea04366;
+  --vaultman-diff-deleted: #f8514966;
+  --vaultman-badge-bg: var(--background-modifier-hover);
+}
+
+/* === View Layout (overridden by Svelte redesign rules below) === */
+
+/* === Sections === */
+.vaultman-section {
+  border-bottom: 1px solid var(--vaultman-border);
+  padding: 8px 12px;
+}
+
+.vaultman-section-header h4 {
+  margin: 0 0 6px 0;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--vaultman-text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* === Buttons === */
+.vaultman-btn {
+  font-size: 0.8em;
+  padding: 4px 10px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  background: var(--interactive-normal);
+  border: 1px solid var(--vaultman-border);
+  color: var(--text-normal);
+}
+
+.vaultman-btn:hover {
+  background: var(--vaultman-bg-hover);
+}
+
+.vaultman-btn.mod-cta {
+  background: var(--vaultman-accent);
+  color: var(--text-on-accent);
+  border-color: var(--vaultman-accent);
+}
+
+.vaultman-btn.mod-cta:hover {
+  opacity: 0.9;
+}
+
+.vaultman-btn-small {
+  font-size: 0.75em;
+  padding: 2px 8px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--vaultman-border);
+  color: var(--vaultman-text-muted);
+}
+
+.vaultman-btn-small:hover {
+  background: var(--vaultman-bg-hover);
+}
+
+/* === Filter Section === */
+.vaultman-filter-actions {
+  margin-bottom: 6px;
+}
+
+.vaultman-template-select {
+  width: 100%;
+  font-size: 0.8em;
+}
+
+.vaultman-filter-buttons {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.vaultman-filter-tree {
+  overflow-y: auto;
+}
+
+.vaultman-filter-group {
+  margin-left: 8px;
+  border-left: 2px solid var(--vaultman-border);
+  padding-left: 8px;
+  margin-bottom: 4px;
+}
+
+.vaultman-filter-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.vaultman-filter-logic-badge {
+  font-size: 0.7em;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: var(--radius-s);
+  background: var(--vaultman-badge-bg);
+  color: var(--vaultman-accent);
+}
+
+.vaultman-filter-children {
+  margin-left: 4px;
+}
+
+.vaultman-filter-empty {
+  font-size: 0.75em;
+  color: var(--vaultman-text-faint);
+  font-style: italic;
+  padding: 2px 0;
+}
+
+.vaultman-filter-rule {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0;
+  font-size: 0.8em;
+}
+
+.vaultman-filter-rule-type {
+  font-weight: 500;
+  color: var(--vaultman-text-muted);
+}
+
+.vaultman-filter-rule-detail {
+  color: var(--text-normal);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vaultman-filter-remove-btn {
+  font-size: 1em;
+  padding: 0 4px;
+  line-height: 1;
+  border: none;
+  background: transparent;
+  color: var(--vaultman-text-faint);
+  cursor: pointer;
+}
+
+.vaultman-filter-remove-btn:hover {
+  color: var(--text-error);
+}
+
+/* === File List Section === */
+.vaultman-files-header {
+  margin-bottom: 6px;
+}
+
+.vaultman-files-count {
+  font-size: 0.75em;
+  color: var(--vaultman-text-muted);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.vaultman-files-search {
+  width: 100%;
+  font-size: 0.8em;
+  padding: 4px 8px;
+  border: 1px solid var(--vaultman-border);
+  border-radius: var(--radius-s);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  margin-bottom: 4px;
+}
+
+.vaultman-files-bulk {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.vaultman-files-col-header {
+  display: grid;
+  grid-template-columns: 18px 1fr 50px 50px;
+  gap: 4px;
+  border-bottom: 1px solid var(--vaultman-border);
+  padding-bottom: 2px;
+  margin-bottom: 2px;
+}
+
+.vaultman-col-header {
+  font-size: 0.7em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--vaultman-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 2px 0;
+}
+
+.vaultman-col-header:hover,
+.vaultman-col-header.active {
+  color: var(--text-normal);
+}
+
+.vaultman-file-row {
+  display: grid;
+  grid-template-columns: 18px 1fr 36px 50px;
+  gap: 4px;
+  align-items: center;
+  padding: 2px 0;
+  font-size: 0.8em;
+  border-radius: var(--radius-s);
+}
+
+.vaultman-file-row:hover {
+  background: var(--vaultman-bg-hover);
+}
+
+.vaultman-file-checkbox {
+  width: 14px;
+  height: 14px;
+}
+
+.vaultman-file-name {
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-normal);
+}
+
+.vaultman-file-name:hover {
+  color: var(--vaultman-accent);
+  text-decoration: underline;
+}
+
+.vaultman-file-props {
+  text-align: center;
+  color: var(--vaultman-text-muted);
+  font-size: 0.9em;
+}
+
+.vaultman-file-path {
+  color: var(--vaultman-text-faint);
+  font-size: 0.85em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vaultman-show-more {
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* === Operations Section === */
+.vaultman-ops-buttons {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.vaultman-queue-container {
+  margin-bottom: 8px;
+}
+
+.vaultman-queue-header {
+  margin-bottom: 4px;
+}
+
+.vaultman-queue-title {
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--vaultman-text-muted);
+}
+
+.vaultman-queue-empty {
+  font-size: 0.8em;
+  color: var(--vaultman-text-faint);
+  font-style: italic;
+}
+
+.vaultman-queue-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 0;
+  font-size: 0.8em;
+  border-bottom: 1px solid var(--vaultman-border);
+}
+
+.vaultman-queue-checkbox {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.vaultman-queue-index {
+  color: var(--vaultman-text-faint);
+  font-size: 0.85em;
+  min-width: 18px;
+}
+
+.vaultman-queue-desc {
+  flex: 1;
+  overflow: hidden;
+}
+
+.vaultman-queue-action {
+  font-weight: 500;
+  color: var(--vaultman-accent);
+}
+
+.vaultman-queue-file-count {
+  color: var(--vaultman-text-faint);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+.vaultman-queue-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.vaultman-stats {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--vaultman-border);
+}
+
+.vaultman-stats-text {
+  font-size: 0.75em;
+  color: var(--vaultman-text-faint);
+}
+
+/* === Modals === */
+.vaultman-modal {
+  max-width: 500px;
+}
+
+.vaultman-modal h3 {
+  margin-top: 0;
+}
+
+.vaultman-modal-subtitle {
+  font-size: 0.85em;
+  color: var(--vaultman-text-muted);
+  margin-top: -8px;
+}
+
+/* === Queue Details / Diff === */
+.vaultman-queue-details {
+  max-width: 600px;
+}
+
+.vaultman-diff-container {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.vaultman-diff-file {
+  margin-bottom: 12px;
+  border: 1px solid var(--vaultman-border);
+  border-radius: var(--radius-s);
+  padding: 8px;
+}
+
+.vaultman-diff-path {
+  font-size: 0.85em;
+  margin: 0 0 6px 0;
+  word-break: break-all;
+}
+
+.vaultman-diff-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 2px 4px;
+  margin-bottom: 2px;
+  font-size: 0.8em;
+  font-family: var(--font-monospace);
+}
+
+.vaultman-diff-key {
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+.vaultman-diff-added {
+  background: var(--vaultman-diff-added);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.vaultman-diff-deleted {
+  background: var(--vaultman-diff-deleted);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+/* Enhanced diff styles */
+.vaultman-diff-summary {
+  font-size: 0.85em;
+  color: var(--vaultman-text-muted);
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  background: var(--vaultman-bg-section);
+  border-radius: var(--radius-s);
+}
+
+.vaultman-diff-ops {
+  margin-bottom: 8px;
+  font-size: 0.8em;
+}
+
+.vaultman-diff-op {
+  display: flex;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.vaultman-diff-op-index {
+  color: var(--vaultman-text-faint);
+  min-width: 20px;
+}
+
+.vaultman-diff-op-action {
+  font-weight: 600;
+  color: var(--vaultman-accent);
+  text-transform: uppercase;
+}
+
+.vaultman-diff-op-detail {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vaultman-diff-op-files {
+  color: var(--vaultman-text-faint);
+  white-space: nowrap;
+}
+
+.vaultman-diff-toggle-row {
+  margin-bottom: 8px;
+  font-size: 0.8em;
+}
+
+.vaultman-diff-toggle {
+  cursor: pointer;
+  color: var(--vaultman-text-muted);
+}
+
+.vaultman-diff-file-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-s);
+}
+
+.vaultman-diff-file-header:hover {
+  background: var(--vaultman-bg-hover);
+}
+
+.vaultman-diff-file-toggle {
+  font-size: 0.7em;
+  color: var(--vaultman-text-faint);
+  width: 12px;
+}
+
+.vaultman-diff-change-count {
+  font-size: 0.85em;
+  color: var(--vaultman-text-faint);
+  margin-left: auto;
+}
+
+.vaultman-diff-collapsed {
+  display: none;
+}
+
+.vaultman-diff-unchanged {
+  opacity: 0.5;
+}
+
+.vaultman-diff-same {
+  color: var(--vaultman-text-faint);
+  padding: 1px 4px;
+}
+
+/* === Tags Explorer === */
+
+.vaultman-tags-tree {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.vaultman-tags-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px 3px calc(8px + var(--depth, 0) * 16px);
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: var(--font-ui-small);
+}
+
+.vaultman-tags-row:hover {
+  background: var(--background-modifier-hover);
+}
+
+.vaultman-tags-row.is-active-filter {
+  background: var(--background-modifier-active-hover);
+  color: var(--text-accent);
+}
+
+.vaultman-tags-toggle {
+  display: flex;
+  align-items: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.vaultman-tags-toggle svg {
+  width: 14px;
+  height: 14px;
+}
+
+.vaultman-tags-icon {
+  display: flex;
+  align-items: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.vaultman-tags-icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.vaultman-tags-label {
+  flex: 1;
+  color: var(--text-normal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vaultman-tags-count {
+  color: var(--text-faint);
+  font-size: var(--font-ui-smaller);
+  flex-shrink: 0;
+}
+
+/* === Property Explorer === */
+.vaultman-explorer-container {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.vaultman-explorer-search {
+  margin-bottom: 6px;
+}
+
+.vaultman-explorer-search-input {
+  width: 100%;
+  font-size: 0.8em;
+  padding: 4px 8px;
+  border: 1px solid var(--vaultman-border);
+  border-radius: var(--radius-s);
+  background: var(--background-primary);
+  color: var(--text-normal);
+}
+
+.vaultman-explorer-tree {
+  font-size: 0.8em;
+}
+
+.vaultman-explorer-empty {
+  color: var(--vaultman-text-faint);
+  font-style: italic;
+  padding: 4px 0;
+}
+
+.vaultman-explorer-node {
+  margin-bottom: 1px;
+}
+
+.vaultman-explorer-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  user-select: none;
+}
+
+.vaultman-explorer-header:hover {
+  background: var(--vaultman-bg-hover);
+}
+
+.vaultman-explorer-header.is-expanded {
+  font-weight: 500;
+}
+
+.vaultman-explorer-toggle {
+  font-size: 0.7em;
+  width: 12px;
+  text-align: center;
+  color: var(--vaultman-text-faint);
+  flex-shrink: 0;
+}
+
+.vaultman-explorer-prop-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-normal);
+}
+
+.vaultman-explorer-badge {
+  font-size: 0.8em;
+  color: var(--vaultman-text-faint);
+  min-width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.vaultman-explorer-children {
+  margin-left: 16px;
+  border-left: 1px solid var(--vaultman-border);
+  padding-left: 6px;
+}
+
+.vaultman-explorer-value {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.vaultman-explorer-value:hover {
+  background: var(--vaultman-bg-hover);
+}
+
+.vaultman-explorer-value-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--vaultman-text-muted);
+}
+
+.vaultman-explorer-value:hover .vaultman-explorer-value-text {
+  color: var(--vaultman-accent);
+}
+
+/* Active filter highlight in PropertyExplorer */
+.vaultman-explorer-node.is-active-filter>.vaultman-explorer-header {
+  border-left: 2px solid var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  padding-left: calc(var(--size-4-2) - 2px);
+}
+
+.vaultman-explorer-value.is-active-filter {
+  border-left: 2px solid var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+}
+
+/* Explorer nav toolbar */
+.vaultman-explorer-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-bottom: 1px solid var(--vaultman-border);
+}
+
+.vaultman-explorer-nav .clickable-icon {
+  padding: 4px;
+  border-radius: var(--radius-s);
+  color: var(--vaultman-text-muted);
+}
+
+.vaultman-explorer-nav .clickable-icon:hover {
+  color: var(--text-normal);
+  background: var(--vaultman-bg-hover);
+}
+
+.vaultman-explorer-nav .clickable-icon.is-active {
+  color: var(--vaultman-accent);
+}
+
+/* Collapsible search */
+.vaultman-explorer-search-collapsible {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.15s ease;
+}
+
+.vaultman-explorer-search-collapsible.is-open {
+  max-height: 40px;
+}
+
+.vaultman-explorer-search-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vaultman-explorer-search-input-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.vaultman-explorer-search-input-wrap .vaultman-explorer-search-input {
+  width: 100%;
+  padding-right: 28px;
+  box-sizing: border-box;
+}
+
+.vaultman-explorer-search-clear {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vaultman-explorer-search-clear.is-hidden {
+  display: none;
+}
+
+.vaultman-search-mode-toggle {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.vaultman-search-mode-toggle:hover {
+  background: var(--vaultman-bg-hover);
+  color: var(--text-normal);
+}
+
+.vaultman-search-mode-toggle.is-active {
+  color: var(--vaultman-accent);
+}
+
+/* Iconic icon in explorer */
+.vaultman-explorer-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vaultman-explorer-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.vaultman-explorer-icon-default {
+  opacity: 0.5;
+}
+
+/* Queue preview states */
+.vaultman-explorer-pending {
+  opacity: 0.7;
+  border-left: 2px dashed var(--interactive-accent);
+  padding-left: 4px;
+}
+
+.vaultman-explorer-deleting {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+/* === Linter Modal === */
+.vaultman-linter-modal {
+  max-width: 450px;
+}
+
+.vaultman-linter-warning {
+  color: var(--text-error);
+  font-style: italic;
+}
+
+.vaultman-linter-scope {
+  font-size: 0.85em;
+  color: var(--vaultman-text-muted);
+  margin-bottom: 8px;
+}
+
+.vaultman-linter-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+  border: 1px solid var(--vaultman-border);
+  border-radius: var(--radius-s);
+}
+
+.vaultman-linter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--vaultman-border);
+  font-size: 0.85em;
+}
+
+.vaultman-linter-item:last-child {
+  border-bottom: none;
+}
+
+.vaultman-linter-index {
+  color: var(--vaultman-text-faint);
+  font-size: 0.85em;
+  min-width: 20px;
+  text-align: right;
+}
+
+.vaultman-linter-prop {
+  flex: 1;
+  color: var(--text-normal);
+}
+
+.vaultman-linter-add-row {
+  margin-bottom: 12px;
+}
+
+.vaultman-linter-add-input {
+  width: 100%;
+  font-size: 0.85em;
+  padding: 4px 8px;
+  border: 1px solid var(--vaultman-border);
+  border-radius: var(--radius-s);
+  background: var(--background-primary);
+  color: var(--text-normal);
+}
+
+/* === Explorer panel in main view === */
+.vaultman-content-area {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.vaultman-explorer-panel {
+  width: 260px;
+  min-width: 200px;
+  max-width: 400px;
+  border-right: 1px solid var(--vaultman-border);
+  overflow-y: auto;
+  padding: 8px;
+  flex-shrink: 0;
+}
+
+.vaultman-explorer-hidden {
+  display: none;
+}
+
+/* ============================================
+   MAIN VIEW (Full-screen)
+   ============================================ */
+
+.vaultman-main-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* --- Navbar (dual-orientation) --- */
+.vaultman-navbar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 0;
+  gap: 2px;
+  border-right: 1px solid var(--vaultman-border);
+  background: var(--vaultman-bg-section);
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.vaultman-navbar.is-horizontal {
+  flex-direction: row;
+  width: auto;
+  border-right: none;
+  border-bottom: 1px solid var(--vaultman-border);
+  padding: 4px;
+}
+
+.vaultman-navbar .clickable-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.vaultman-navbar .clickable-icon:hover {
+  background: var(--vaultman-bg-hover);
+  color: var(--text-normal);
+}
+
+.vaultman-navbar .clickable-icon.is-active {
+  color: var(--vaultman-accent);
+}
+
+.vaultman-navbar-badge {
+  font-size: 0.65em;
+  font-weight: 600;
+  color: var(--text-on-accent);
+  background: var(--vaultman-accent);
+  border-radius: 8px;
+  padding: 0 4px;
+  min-width: 14px;
+  text-align: center;
+  line-height: 14px;
+  position: absolute;
+  top: -2px;
+  right: -4px;
+}
+
+.vaultman-navbar .clickable-icon {
+  position: relative;
+}
+
+/* --- (session row removed in dev) --- */
+
+.vaultman-hidden {
+  display: none !important;
+}
+
+/* --- Operations Column (LEFT — smart vertical/horizontal tabs) --- */
+.vaultman-ops-column {
+  display: flex;
+  flex-direction: column;
+  width: 280px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--vaultman-border);
+  transition: width 0.2s ease;
+  overflow: hidden;
+}
+
+.vaultman-ops-column.is-collapsed {
+  width: 36px;
+}
+
+/* Collapsed: vertical icon strip */
+.vaultman-ops-strip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 0;
+  width: 36px;
+  height: 100%;
+}
+
+.vaultman-ops-strip .clickable-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.vaultman-ops-strip .clickable-icon:hover {
+  background: var(--vaultman-bg-hover);
+  color: var(--text-normal);
+}
+
+.vaultman-ops-strip .clickable-icon.is-active {
+  color: var(--vaultman-accent);
+}
+
+.vaultman-ops-strip-toggle {
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--vaultman-border);
+}
+
+/* Expanded: horizontal tab bar + content */
+.vaultman-ops-expanded {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.vaultman-ops-tabbar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: 1px solid var(--vaultman-border);
+  background: var(--vaultman-bg-section);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.vaultman-ops-tabbar-toggle {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin: 2px 4px;
+}
+
+.vaultman-ops-tabbar-toggle:hover {
+  background: var(--vaultman-bg-hover);
+  color: var(--text-normal);
+}
+
+/* --- Properties Panel (RIGHT) --- */
+.vaultman-properties-panel-right {
+  width: 240px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--vaultman-border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.2s ease;
+}
+
+.vaultman-properties-panel-right.is-collapsed {
+  width: 0;
+  border-left: none;
+}
+
+/* Toggle strip between grid and properties */
+.vaultman-props-toggle-strip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 0;
+  flex-shrink: 0;
+}
+
+.vaultman-props-toggle-strip .clickable-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.vaultman-props-toggle-strip .clickable-icon:hover {
+  background: var(--vaultman-bg-hover);
+  color: var(--text-normal);
+}
+
+.vaultman-props-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-bottom: 1px solid var(--vaultman-border);
+  background: var(--vaultman-bg-section);
+  flex-shrink: 0;
+}
+
+.vaultman-props-toolbar .clickable-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.vaultman-props-toolbar .clickable-icon:hover {
+  background: var(--vaultman-bg-hover);
+  color: var(--text-normal);
+}
+
+.vaultman-props-explorer-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.vaultman-popover-anchor {
+  position: relative;
+}
+
+/* Operations panel tabs */
+.vaultman-operations-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--vaultman-border);
+  background: var(--vaultman-bg-section);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.vaultman-operations-tab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  font-size: 0.8em;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.vaultman-operations-tab:hover {
+  color: var(--text-normal);
+  background: var(--vaultman-bg-hover);
+}
+
+.vaultman-operations-tab.is-active {
+  border-bottom-color: var(--vaultman-accent);
+  color: var(--text-normal);
+}
+
+.vaultman-operations-tab svg {
+  width: 14px;
+  height: 14px;
+}
+
+.vaultman-operations-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.vaultman-ops-tab-desc {
+  font-size: 0.85em;
+  margin: 0 0 8px;
+}
+
+.vaultman-template-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.vaultman-template-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border-radius: var(--radius-s);
+}
+
+.vaultman-template-row:hover {
+  background: var(--vaultman-bg-hover);
+}
+
+.vaultman-text-muted {
+  color: var(--text-muted);
+}
+
+/* --- Operations panel split layout (pinned queue) --- */
+.vaultman-operations-split {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.vaultman-operations-top {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.vaultman-operations-top .vaultman-operations-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Pinned queue section (always visible at bottom) */
+.vaultman-operations-pinned-queue {
+  flex-shrink: 0;
+  max-height: 45%;
+  overflow-y: auto;
+  border-top: 1px solid var(--vaultman-border);
+  padding: 6px 8px;
+  background: var(--vaultman-bg-section);
+}
+
+.vaultman-pinned-queue-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.vaultman-pinned-queue-title {
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--vaultman-text-muted);
+}
+
+.vaultman-pinned-queue-badge {
+  font-size: 0.75em;
+  font-weight: 600;
+  color: var(--text-on-accent);
+  background: var(--vaultman-accent);
+  border-radius: 8px;
+  padding: 0 5px;
+  min-width: 16px;
+  text-align: center;
+  line-height: 16px;
+}
+
+.vaultman-pinned-queue-list {
+  margin-bottom: 6px;
+}
+
+.vaultman-pinned-queue-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* --- Toolbar --- */
+.vaultman-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--vaultman-border);
+  background: var(--vaultman-bg-section);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 6px;
+  position: relative;
+}
+
+.vaultman-toolbar-left,
+.vaultman-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vaultman-toolbar-select {
+  font-size: 0.85em;
+  max-width: 200px;
+}
+
+.vaultman-toolbar-btn {
+  font-size: 0.8em;
+  padding: 4px 10px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  background: var(--interactive-normal);
+  border: 1px solid var(--vaultman-border);
+  color: var(--text-normal);
+}
+
+.vaultman-toolbar-btn:hover {
+  background: var(--vaultman-bg-hover);
+}
+
+.vaultman-toolbar-badge {
+  font-size: 0.85em;
+  color: var(--vaultman-accent);
+  font-weight: 600;
+}
+
+/* Sync status indicator */
+.vaultman-sync-indicator {
+  font-size: 0.9em;
+  line-height: 1;
+}
+
+.vaultman-sync-ok {
+  color: #2ea043;
+}
+
+.vaultman-sync-external {
+  color: #d29922;
+}
+
+.vaultman-sync-conflict {
+  color: #f85149;
+}
+
+/* --- Popover panels --- */
+.vaultman-popover {
+  position: absolute;
+  top: 100%;
+  left: 12px;
+  z-index: 10;
+  width: 360px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--background-primary);
+  border: 1px solid var(--vaultman-border);
+  border-radius: var(--radius-m);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+}
+
+.vaultman-popover-hidden {
+  display: none;
+}
+
+.vaultman-popover-header h4 {
+  margin: 0 0 8px 0;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--vaultman-text-muted);
+}
+
+/* --- Grid wrapper --- */
+.vaultman-grid-wrapper {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.vaultman-grid-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--vaultman-border);
+  flex-shrink: 0;
+}
+
+.vaultman-grid-search {
+  flex: 1;
+  max-width: 300px;
+  font-size: 0.85em;
+  padding: 4px 8px;
+  border: 1px solid var(--vaultman-border);
+  border-radius: var(--radius-s);
+  background: var(--background-primary);
+  color: var(--text-normal);
+}
+
+.vaultman-grid-filter-toggle {
+  padding: 4px;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.vaultman-grid-filter-toggle.is-active {
+  color: var(--vaultman-accent);
+  background: color-mix(in srgb, var(--vaultman-accent) 12%, transparent);
+}
+
+/* --- Table --- */
+.vaultman-grid-table-wrapper {
+  flex: 1;
+  overflow: auto;
+}
+
+.vaultman-grid-table {
+  border-collapse: collapse;
+  font-size: 0.85em;
+}
+
+.vaultman-grid-fixed {
+  table-layout: fixed;
+}
+
+.vaultman-grid-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--background-secondary);
+}
+
+.vaultman-grid-th-check {
+  width: 30px;
+  text-align: center;
+  padding: 6px 4px;
+  border-bottom: 2px solid var(--vaultman-border);
+  transition: border-color 0.15s ease;
+}
+
+.vaultman-grid-th-check input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+}
+
+.vaultman-grid-th-check.is-indeterminate {
+  border-color: var(--vaultman-accent);
+}
+
+.vaultman-grid-th-check.is-indeterminate input[type="checkbox"] {
+  border-color: var(--vaultman-accent);
+  box-shadow: 0 0 0 1px var(--vaultman-accent);
+}
+
+.vaultman-grid-th-sortable {
+  position: relative;
+  padding: 6px 8px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9em;
+  color: var(--vaultman-text-muted);
+  white-space: nowrap;
+  border-bottom: 2px solid var(--vaultman-border);
+  user-select: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vaultman-grid-th-label {
+  cursor: pointer;
+}
+
+.vaultman-grid-th-sortable:hover {
+  color: var(--text-normal);
+  background: var(--vaultman-bg-hover);
+}
+
+.vaultman-grid-th-active {
+  color: var(--text-normal);
+}
+
+/* Column resize handle */
+.vaultman-grid-resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 5px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 3;
+}
+
+.vaultman-grid-resize-handle:hover,
+body.vaultman-resizing .vaultman-grid-resize-handle {
+  background: var(--vaultman-accent);
+  opacity: 0.4;
+}
+
+body.vaultman-resizing {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+.vaultman-grid-row {
+  border-bottom: 1px solid var(--vaultman-border);
+  cursor: default;
+  user-select: none;
+}
+
+.vaultman-grid-row:hover {
+  background: var(--vaultman-bg-hover);
+}
+
+.vaultman-grid-row.is-selected {
+  background: color-mix(in srgb, var(--vaultman-accent) 12%, transparent);
+}
+
+.vaultman-grid-row.is-selected:hover {
+  background: color-mix(in srgb, var(--vaultman-accent) 18%, transparent);
+}
+
+.vaultman-grid-td-check {
+  width: 30px;
+  text-align: center;
+  padding: 4px;
+}
+
+.vaultman-grid-td-check input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+}
+
+.vaultman-grid-td-name {
+  padding: 4px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vaultman-grid-name-link {
+  cursor: pointer;
+  color: var(--text-normal);
+}
+
+.vaultman-grid-name-link:hover {
+  color: var(--vaultman-accent);
+  text-decoration: underline;
+}
+
+.vaultman-grid-td-prop {
+  padding: 4px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-normal);
+  cursor: default;
+}
+
+.vaultman-grid-td-prop:hover {
+  background: var(--background-modifier-hover);
+}
+
+/* Inline editing */
+.vaultman-grid-editing {
+  padding: 2px 4px !important;
+}
+
+.vaultman-grid-edit-input {
+  width: 100%;
+  font-size: 1em;
+  padding: 2px 4px;
+  border: 2px solid var(--vaultman-accent);
+  border-radius: var(--radius-s);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  outline: none;
+}
+
+/* Live preview cells */
+.vaultman-grid-live-cell {
+  overflow: hidden;
+}
+
+.vaultman-grid-live-cell p {
+  margin: 0;
+  line-height: inherit;
+}
+
+.vaultman-grid-live-cell .tag {
+  font-size: 0.85em;
+}
+
+.vaultman-grid-live-cell .internal-link {
+  cursor: pointer;
+}
+
+/* Mobile: taller rows for touch targets */
+@media (pointer: coarse) {
+  .vaultman-grid-row {
+    min-height: 44px;
+  }
+}
+
+/* --- Native Status bar item --- */
+.vaultman-native-statusbar {
+  font-size: 0.85em;
+  color: var(--text-muted);
+}
+
+/* --- File Filter Popover --- */
+.vaultman-file-filter-popover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--background-primary);
+  border: 1px solid var(--vaultman-border);
+  border-radius: var(--radius-m);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+}
+
+/* --- Mobile touch targets --- */
+@media (pointer: coarse) {
+  .vaultman-navbar .clickable-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .vaultman-header-bar .clickable-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .vaultman-operations-tab {
+    padding: 8px 12px;
+  }
+}
+
+/* ============================================================
+   Bases attach architecture (v1.1+)
+   ============================================================ */
+
+
+.vaultman-sidebar-toggle-bar {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--vaultman-border);
+  flex-shrink: 0;
+}
+
+.vaultman-sidebar-toggle-spacer {
+  flex: 1;
+}
+
+.vaultman-sidebar-toggle-btn {
+  padding: 4px;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.vaultman-sidebar-toggle-btn:hover {
+  color: var(--text-normal);
+  background: var(--background-modifier-hover);
+}
+
+.vaultman-sidebar-toggle-btn.is-active {
+  color: var(--interactive-accent);
+  background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
+}
+
+.vaultman-sidebar-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.vaultman-sidebar-stats {
+  padding: 8px 4px 12px;
+  border-bottom: 1px solid var(--vaultman-border);
+  margin-bottom: 8px;
+}
+
+.vaultman-sidebar-stat {
+  font-size: 0.8em;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.vaultman-sidebar-stat-pending {
+  color: var(--color-orange);
+}
+
+/* Sliding panels */
+.vaultman-sidebar-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  background: var(--background-primary);
+  border: 1px solid var(--vaultman-border);
+  overflow-y: auto;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.vaultman-sidebar-panel-ops {
+  left: 0;
+  transform: translateX(-100%);
+}
+
+.vaultman-sidebar-panel-ops.is-open {
+  transform: translateX(0);
+}
+
+.vaultman-sidebar-panel-explorer {
+  right: 0;
+  transform: translateX(100%);
+}
+
+.vaultman-sidebar-panel-explorer.is-open {
+  transform: translateX(0);
+}
+
+.vaultman-sidebar-panel-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--vaultman-border);
+  flex-shrink: 0;
+}
+
+.vaultman-sidebar-panel-title {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+/* === Bases table injections === */
+th.vaultman-bases-th-check,
+td.vaultman-bases-td-check {
+  width: 30px;
+  min-width: 30px;
+  max-width: 30px;
+  text-align: center;
+  padding: 4px;
+}
+
+td.vaultman-bases-td-check input[type="checkbox"],
+th.vaultman-bases-th-check input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+/* Selected row highlight */
+table tbody tr.is-selected {
+  background: color-mix(in srgb, var(--interactive-accent) 15%, transparent) !important;
+}
+
+table tbody tr.is-selected:hover {
+  background: color-mix(in srgb, var(--interactive-accent) 22%, transparent) !important;
+}
+
+/* Column separators (opt-in) */
+body.vaultman-bases-column-separators table td,
+body.vaultman-bases-column-separators table th {
+  border-right: 1px solid var(--vaultman-border);
+}
+
+/* === vaultman ops/explorer leaf views === */
+.vaultman-ops-view,
+.vaultman-explorer-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.vaultman-explorer-view .vaultman-props-toolbar {
+  flex-shrink: 0;
+}
+
+.vaultman-explorer-view .vaultman-props-explorer-wrap {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* ============================================================
+   vaultman Sidebar — Page navigation (Iteración 1)
+   ============================================================ */
+
+/* === View shell === */
+.vaultman-view {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  /* anchor for the popup overlay */
+  padding: 0;
+}
+
+/* === Header bar === */
+.vaultman-view-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px 4px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.vaultman-view-title {
+  font-size: var(--font-ui-small);
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.vaultman-view-expand {
+  color: var(--text-muted);
+  padding: 2px;
+}
+
+/* === Page container — slides horizontally === */
+/* Viewport: clips the sliding strip and contains the floating bottom nav */
+/* transition applied only during animation — JS adds/removes this class */
+.vaultman-pages-viewport {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+  /* needed so bottom-nav can position: absolute inside it */
+}
+
+/* Sliding strip: transform applied via JS (see vaultmanView.svelte) */
+.vaultman-page-container {
+  display: flex;
+  height: 100%;
+  /* transform removed — applied via JS */
+}
+
+.vaultman-page-container.is-animating {
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vaultman-page {
+  min-width: 0;
+  flex: 0 0 auto;
+  /* width set explicitly via JS */
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  /* Bottom padding reserves space under the floating nav bar so content
+     is never permanently hidden beneath it when scrolled to the bottom */
+  padding: 4px 4px 0px;
+  box-sizing: border-box;
+}
+
+/* === Bottom navigation: floats over page content === */
+/* position: absolute makes it overlay the viewport instead of pushing content up.
+   A gradient pseudo-element fades content into the nav, signalling scrollability
+   and keeping the nav legible against any background. */
+/* Rising backdrop when island is open */
+.vaultman-bottom-nav::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: inherit;
+  backdrop-filter: inherit;
+  -webkit-backdrop-filter: inherit;
+  border-top: inherit;
+  border-radius: inherit;
+  z-index: -1;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+/* Rising Glass Backdrop */
+.vaultman-island-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  /* Behind everything within viewport */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: transparent;
+}
+
+.vaultman-island-backdrop.is-open {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.vaultman-island-backdrop::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  /* Start at bottom of viewport */
+  height: var(--vaultman-nav-height, 64px);
+  background: color-mix(in srgb, var(--background-secondary) 40%, transparent);
+  backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
+  transition: height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  -webkit-mask-image: linear-gradient(to top, black 50%, transparent 100%);
+  mask-image: linear-gradient(to top, black 50%, transparent 100%);
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.vaultman-island-backdrop.is-open::before {
+  /* Covers slightly more than the island max-height (60vh) */
+  height: 75vh;
+}
+
+.vaultman-bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625em;
+  padding: 0.625em 0.75em;
+  z-index: 10;
+  pointer-events: none;
+  transition: height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), padding 0.3s ease;
+}
+
+/* Responsive nav — collapses to slim bar when frame is very narrow */
+.vaultman-bottom-nav.is-bar-collapsed {
+  height: 8px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.vaultman-bottom-nav.is-bar-collapsed .vaultman-nav-pill,
+.vaultman-bottom-nav.is-bar-collapsed .vaultman-nav-fab,
+.vaultman-bottom-nav.is-bar-collapsed .vaultman-nav-fab-placeholder {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(15px) scale(0.9);
+}
+
+/* Expand animation when collapsed bar is clicked */
+.vaultman-bottom-nav.is-bar-expanding {
+  transition: height 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  height: var(--vaultman-nav-height, 64px);
+}
+
+/* Glass system — glassmorphism shared across bottom bar and popups */
+
+/* Surface: shared visual appearance for all glass elements */
+.vaultman-glass {
+  backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
+}
+
+/* Bottom bar: fixed strip at the bottom of the plugin frame */
+.vaultman-glass--bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+/* Disable main blur on container so children (Pill/FAB) don't get clipped/masked */
+.vaultman-glass.vaultman-glass--bottom {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: transparent;
+}
+
+/* Pseudo-element strictly for the fading gradient background */
+.vaultman-glass.vaultman-glass--bottom::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
+}
+
+/* ── Filters top navbar: sticky glass strip ── */
+.vaultman-navbar-filters {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+  max-width: 520px;
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* Transparent container — blur on ::before pseudo */
+.vaultman-glass.vaultman-glass--top {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: transparent;
+}
+
+/* Fading blur: opaque at top, fades toward bottom */
+.vaultman-glass.vaultman-glass--top::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--vaultman-glass-blur, 12px));
+  -webkit-mask-image: linear-gradient(to top, transparent 0%, black 70%);
+  mask-image: linear-gradient(to top, transparent 0%, black 70%);
+}
+
+
+/* Full frame overlay: covers the entire plugin (blocked state) */
+.vaultman-glass--full {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+}
+
+/* Content area overlay: covers only the tab content (active filters backdrop) */
+.vaultman-glass--content {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+
+/* Frosted glass pill containing page icons */
+.vaultman-nav-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--background-modifier-hover);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 999px;
+  padding: 0.25em 0.375em;
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  pointer-events: auto;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Individual icon nav items inside pill */
+.vaultman-nav-icon {
+  overflow: visible;
+  /* ensure badge is not clipped */
+  width: 2em;
+  height: 2em;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
+}
+
+.vaultman-nav-icon:hover {
+  color: var(--text-normal);
+  background: var(--background-modifier-hover);
+}
+
+.vaultman-nav-icon.is-active {
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+.vaultman-nav-icon svg {
+  width: 1em;
+  height: 1em;
+}
+
+/* Badge on nav icon (queue / filter count) */
+.vaultman-nav-dot-badge {
+  position: absolute;
+  top: 0.25em;
+  right: 0.25em;
+  min-width: 0.875em;
+  height: 0.875em;
+  border-radius: 0.5em;
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
+  pointer-events: none;
+}
+
+/* Navbar reorder mode */
+.vaultman-nav-pill.is-reordering {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.vaultman-nav-pill.is-reordering .vaultman-nav-icon {
+  cursor: grab;
+  opacity: 0.75;
+}
+
+.vaultman-nav-icon.is-reorder-target {
+  background: color-mix(in srgb, var(--color-accent) 25%, transparent);
+  border-radius: 50%;
+  opacity: 1;
+}
+
+/* Floating action buttons — filled with accent color */
+.vaultman-nav-fab {
+  width: 2.25em;
+  height: 2.25em;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-accent) 30%, transparent);
+  pointer-events: auto;
+}
+
+.vaultman-nav-fab.is-add-active {
+  box-shadow: 0 0 0 2px var(--color-accent), 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.vaultman-nav-fab:hover {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
+
+.vaultman-nav-fab svg {
+  width: 1em;
+  height: 1em;
+}
+
+/* Invisible placeholder to keep pill centered when one FAB is absent */
+.vaultman-nav-fab-placeholder {
+  width: 2.25em;
+  height: 2.25em;
+  flex-shrink: 0;
+}
+
+/* === Files page === */
+.vaultman-files-topbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  flex-shrink: 0;
+}
+
+.vaultman-sidebar-stats {
+  flex: 1;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vaultman-active-filters-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: var(--radius-s);
+  border: 1px solid var(--background-modifier-border);
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+.vaultman-active-filters-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--text-normal);
+}
+
+.vaultman-active-filters-label {
+  font-size: var(--font-ui-smaller);
+}
+
+.vaultman-files-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+.vaultman-file-list-container {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* === Filters page === */
+.vaultman-filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+/* === Unified tab bar — shared by Ops and Filters pages === */
+.vaultman-tab-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  border-bottom: 1px solid var(--background-modifier-border);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.vaultman-tab-bar.has-labels {
+  gap: var(--size-4-2, 8px);
+}
+
+.vaultman-tab {
+  /* Inherits theme base from nav-action-button */
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  cursor: pointer;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  user-select: none;
+  transition: color 0.12s, border-color 0.12s;
+}
+
+.vaultman-tab:hover {
+  color: var(--text-normal);
+}
+
+.vaultman-tab.is-active {
+  color: var(--text-normal);
+  border-bottom-color: var(--color-accent);
+  font-weight: 500;
+}
+
+.vaultman-tab-icon {
+  display: flex;
+  align-items: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.vaultman-tab-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+@container (max-width: 220px) {
+  .vaultman-tab-label {
+    display: none;
+  }
+}
+
+.vaultman-tab-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ─── Filters page ──────────────────────────────────────────────────────── */
+
+/* Hack to completely remove strict inner padding on vaultman view, allowing full height sweep */
+.workspace-leaf-content[data-type="vaultman-view"] .view-content,
+.workspace-leaf-content[data-type="vaultman-frame"] .view-content {
+  padding: 0 !important;
+}
+
+.vaultman-pages-viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.vaultman-page-container {
+  display: flex;
+  height: 100%;
+  width: 300%;
+  /* 3 pages */
+  will-change: transform;
+}
+
+.vaultman-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  /* Each page takes full viewport width */
+  height: 100%;
+  flex-shrink: 0;
+}
+
+
+
+/* ─── Filters header (above tabbar) ───────────────────────────────────────── */
+.vaultman-filters-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 4px;
+  flex-shrink: 0;
+}
+
+.vaultman-filters-header-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.12s, color 0.12s;
+}
+
+.vaultman-filters-header-btn:hover {
+  background: var(--vaultman-bg-hover);
+  color: var(--text-normal);
+}
+
+.vaultman-filters-header-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.vaultman-filters-header-search-pill {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  background: var(--background-modifier-form-field);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 999px;
+  padding: 0 6px 0 10px;
+  height: 26px;
+  gap: 4px;
+  transition: border-color 0.12s;
+}
+
+.vaultman-filters-header-search-pill:focus-within {
+  border-color: var(--color-accent);
+}
+
+input.vaultman-filters-search-input {
+  flex: 1;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-normal);
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  /* Reset native search styles */
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background-image: none !important;
+  border-radius: 0 !important;
+}
+
+input.vaultman-filters-search-input::-webkit-search-cancel-button,
+input.vaultman-filters-search-input::-webkit-search-decoration,
+input.vaultman-filters-search-input::-webkit-search-results-button,
+input.vaultman-filters-search-input::-webkit-search-results-decoration {
+  display: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+.vaultman-filters-search-input::placeholder {
+  color: var(--text-faint);
+}
+
+.vaultman-filters-search-clear,
+.vaultman-filters-search-mode {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  opacity: 0.7;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.vaultman-filters-search-clear:hover,
+.vaultman-filters-search-mode:hover {
+  opacity: 1;
+  color: var(--text-normal);
+}
+
+.vaultman-filters-search-clear svg,
+.vaultman-filters-search-mode svg {
+  width: 14px;
+  height: 14px;
+}
+
+.vaultman-filters-explorer-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: 60px;
+  /* spacing for bottom bar */
+}
+
+/* Modifying custom native properties tree elements if needed */
+.tree-item-icon.collapse-icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.tree-item-flair {
+  display: flex;
+}
+
+.tree-item-flair svg {
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+}
+
+/* ─── Search result highlight pulse animation ─────────────────────────────── */
+@keyframes vaultman-search-pulse {
+  0% {
+    background-color: transparent;
+  }
+
+  20% {
+    background-color: var(--background-modifier-active-hover);
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}
+
+.vaultman-search-highlight {
+  animation: vaultman-search-pulse 0.8s ease-out;
+}
+
+.vaultman-filters-view-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--background-primary);
+  border: 1px solid var(--vaultman-border);
+  border-radius: var(--radius-m);
+  padding: 10px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.vaultman-view-panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vaultman-view-panel-label {
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.vaultman-view-panel-option {
+  padding: 4px 8px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+}
+
+/* ── Props grid view (card layout) ── */
+.vaultman-props-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+.vaultman-prop-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px 6px;
+  border-radius: var(--radius-m);
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  cursor: pointer;
+  text-align: center;
+  overflow: hidden;
+  transition: background 0.12s;
+}
+.vaultman-prop-card:hover { background: var(--background-modifier-hover); }
+.vaultman-prop-card-icon { display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+.vaultman-prop-card-icon svg { width: 16px; height: 16px; }
+.vaultman-prop-card-name { font-size: var(--font-ui-smaller); color: var(--text-normal); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.vaultman-prop-card-count { font-size: 10px; color: var(--text-faint); }
+
+.vaultman-view-panel-option:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.vaultman-view-panel-option.is-active {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.vaultman-view-panel-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: var(--font-ui-small);
+  cursor: pointer;
+}
+
+.vaultman-tab-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+
+.vaultman-tab-content.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* File Ops tab */
+.vaultman-ops-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.vaultman-btn-icon {
+  display: inline-flex;
+  vertical-align: middle;
+  margin-right: 3px;
+}
+
+.vaultman-btn-icon svg {
+  width: 13px;
+  height: 13px;
+}
+
+.vaultman-queue-actions {
+  display: flex;
+  gap: 4px;
+  padding: 6px 0 2px;
+  flex-shrink: 0;
+}
+
+/* Linter tab */
+.vaultman-linter-desc {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+/* Coming soon tab */
+.vaultman-coming-soon {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+  padding: 24px 0;
+  text-align: center;
+  font-style: italic;
+}
+
+/* === Popup overlay — slides up from bottom with spring === */
+.vaultman-popup-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  z-index: 100;
+  /* Backdrop fade */
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.vaultman-popup-overlay.is-open {
+  opacity: 1;
+}
+
+.vaultman-popup-overlay.is-hidden {
+  display: none;
+}
+
+.vaultman-popup-content {
+  background: var(--background-primary);
+  border-radius: var(--radius-m) var(--radius-m) 0 0;
+  border: 1px solid var(--vaultman-border);
+  border-bottom: none;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-height: 65%;
+  overflow-y: auto;
+}
+
+.vaultman-popup-overlay.is-open .vaultman-popup-content {
+  transform: translateY(0);
+}
+
+/* Squircle action buttons */
+.vaultman-squircle-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.vaultman-squircle {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--background-modifier-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.vaultman-squircle:hover {
+  background: rgba(var(--mono-rgb-100), 0.1);
+  color: var(--text-normal);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(var(--mono-rgb-100), 0.2);
+}
+
+.vaultman-squircle-reserved {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Active filter rule rows */
+.vaultman-active-filters-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.vaultman-active-filter-rule {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: var(--radius-s);
+  background: var(--background-secondary);
+}
+
+.vaultman-active-filter-rule.is-disabled {
+  opacity: 0.45;
+}
+
+.vaultman-active-filter-rule-text {
+  flex: 1;
+  font-size: var(--font-ui-small);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vaultman-active-filter-toggle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--color-accent);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.vaultman-active-filter-rule:not(.is-disabled) .vaultman-active-filter-toggle {
+  background: var(--color-accent);
+}
+
+.vaultman-active-filter-delete {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.vaultman-active-filters-empty {
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+  padding: 8px;
+  text-align: center;
+}
+
+.vaultman-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.vaultman-popup-title {
+  font-size: var(--font-ui-small);
+  font-weight: 600;
+}
+
+.vaultman-popup-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.vaultman-popup-filter-tree {
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+/* Scope tab description */
+.vaultman-scope-desc {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+/* Scope popup / tab */
+.vaultman-scope-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vaultman-scope-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  font-size: var(--font-ui-small);
+  border: 1px solid transparent;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.vaultman-scope-item:hover {
+  background: var(--background-modifier-hover);
+}
+
+.vaultman-scope-item.is-active {
+  border-color: var(--color-accent);
+  background: var(--background-modifier-hover);
+}
+
+.vaultman-scope-icon {
+  display: inline-flex;
+  color: var(--text-muted);
+}
+
+.vaultman-scope-icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Disabled scope/view-mode item */
+.vaultman-scope-item.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Coming soon badge inside a disabled item */
+.vaultman-coming-soon-badge {
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--background-modifier-border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Search popup inputs */
+.vaultman-search-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.vaultman-search-input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: var(--radius-s);
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary-alt);
+  color: var(--text-normal);
+  font-size: var(--font-ui-small);
+  box-sizing: border-box;
+}
+
+.vaultman-search-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+/* Active filters count badge on the filter button */
+.vaultman-active-filters-count {
+  margin-left: 4px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+  font-size: 9px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+/* === Settings — drag-and-drop page order list === */
+.vaultman-page-order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0 12px;
+}
+
+.vaultman-page-order-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  cursor: grab;
+  user-select: none;
+  transition: background 0.12s, border-color 0.12s, transform 0.1s;
+}
+
+.vaultman-page-order-row:hover {
+  background: var(--background-modifier-hover);
+}
+
+.vaultman-page-order-row.is-dragging {
+  opacity: 0.45;
+  cursor: grabbing;
+}
+
+.vaultman-page-order-row.drag-over {
+  border-color: var(--color-accent);
+  background: var(--background-modifier-hover);
+  transform: scale(1.01);
+}
+
+.vaultman-page-order-handle {
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.vaultman-page-order-pos {
+  font-size: var(--font-ui-smaller);
+  font-weight: 600;
+  color: var(--text-faint);
+  width: 14px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.vaultman-page-order-label {
+  font-size: var(--font-ui-small);
+  color: var(--text-normal);
+  flex: 1;
+}
+
+/* ============================================================
+   Main view — 3-section layout (Filters | Grid | Ops)
+   ============================================================ */
+
+.vaultman-main-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Section shell */
+.vaultman-main-section {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--background-modifier-border);
+  flex-shrink: 0;
+  min-height: 0;
+}
+
+/* Grid section grows to fill remaining space */
+.vaultman-main-grid {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Section header row */
+.vaultman-main-section-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  flex-shrink: 0;
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.vaultman-main-section-toggle {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.vaultman-main-section-title {
+  font-size: var(--font-ui-small);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.vaultman-main-badge {
+  font-size: var(--font-ui-smaller);
+  font-weight: 600;
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+  border-radius: 8px;
+  padding: 0 5px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.vaultman-main-stats {
+  flex: 1;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+.vaultman-main-section-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+/* Section body — scrolls if collapsed */
+.vaultman-main-section-body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 6px 8px;
+}
+
+/* Grid body — no extra padding, grid manages its own scroll */
+.vaultman-main-grid-body {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Collapsed sections: show only header */
+.vaultman-main-section.is-collapsed .vaultman-main-section-body,
+.vaultman-main-section.is-collapsed .vaultman-main-ops-body {
+  display: none;
+}
+
+/* Ops body: slightly taller default, component owns layout */
+.vaultman-main-ops-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ─── Content tab — Find & Replace ─────────────────────────────────────── */
+
+.vaultman-content-find-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.vaultman-content-find-row .vaultman-search-input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.vaultman-icon-toggle {
+  background: var(--background-modifier-form-field);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  color: var(--text-muted);
+  padding: 4px 7px;
+  font-size: var(--font-ui-smaller);
+  cursor: pointer;
+  flex-shrink: 0;
+  min-width: 28px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.vaultman-icon-toggle.is-active {
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+  border-color: var(--color-accent);
+}
+
+.vaultman-content-regex-error {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-error);
+  margin: -2px 0 6px;
+}
+
+.vaultman-content-scope-hint {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  margin: 4px 0 8px;
+}
+
+.vaultman-content-actions {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.vaultman-content-actions .vaultman-btn {
+  flex: 1;
+}
+
+.vaultman-content-preview {
+  font-size: var(--font-ui-smaller);
+}
+
+.vaultman-content-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: var(--text-normal);
+  margin-bottom: 4px;
+  user-select: none;
+}
+
+.vaultman-preview-chevron {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.vaultman-content-preview-file {
+  color: var(--color-accent);
+  margin-top: 4px;
+}
+
+.vaultman-content-preview-snippet {
+  color: var(--text-muted);
+  padding-left: 10px;
+  word-break: break-word;
+}
+
+.vaultman-content-preview-snippet mark {
+  background: var(--text-highlight-bg);
+  color: var(--text-normal);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* ─── Property Browser (Filters page Rules tab) ──────────────────────── */
+.vaultman-prop-browser {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 8px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.vaultman-prop-browser-empty {
+  color: var(--text-muted);
+  font-size: var(--font-smallest);
+  padding: 8px 4px;
+}
+
+.vaultman-prop-browser-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  min-height: 28px;
+}
+
+.vaultman-prop-browser-row:hover {
+  background: var(--background-modifier-hover);
+}
+
+.vaultman-prop-browser-expand {
+  background: none;
+  border: none;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+}
+
+.vaultman-prop-browser-expand:hover {
+  color: var(--text-normal);
+  background: var(--background-modifier-hover);
+}
+
+.vaultman-prop-browser-name {
+  flex: 1;
+  font-size: var(--font-ui-small);
+  color: var(--text-normal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vaultman-prop-browser-count {
+  font-size: var(--font-smallest);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.vaultman-prop-browser-values {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-left: 20px;
+}
+
+.vaultman-prop-browser-value {
+  padding: 3px 6px;
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+  border-radius: 3px;
+  cursor: pointer;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.vaultman-prop-browser-value:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+/* ─── Queue Details — Content Op Snippets ─────────────────────────────── */
+.vaultman-diff-content-section {
+  margin-top: 12px;
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 8px;
+}
+
+.vaultman-diff-content-section-title {
+  font-size: var(--font-ui-small);
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.vaultman-diff-content-file {
+  margin-bottom: 8px;
+}
+
+.vaultman-diff-content-file-path {
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  font-style: italic;
+}
+
+.vaultman-diff-snippet {
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  padding: 4px 8px;
+  background: var(--background-secondary);
+  border-radius: 4px;
+  margin-bottom: 2px;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.vaultman-diff-snippet mark {
+  background: var(--vaultman-diff-deleted);
+  color: inherit;
+  border-radius: 2px;
+}
+
+.vaultman-diff-replace-arrow {
+  color: var(--text-muted);
+  margin: 0 4px;
+}
+
+.vaultman-diff-replace-new {
+  background: var(--vaultman-diff-added);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.vaultman-diff-content-no-matches {
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+  padding: 2px 8px;
+}
+
+/* === Queue Island === */
+.vaultman-queue-island-wrap {
+  position: absolute;
+  bottom: calc(var(--vaultman-nav-height, 64px) + 8px);
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.vaultman-queue-island {
+  pointer-events: auto;
+  margin: 0 12px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 70vh;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.2s ease;
+}
+
+.vaultman-queue-island.is-open {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.vaultman-queue-island-header {
+  font-size: var(--font-ui-smaller);
+  font-weight: 500;
+  color: var(--text-faint);
+  text-align: center;
+  padding-top: 4px;
+  margin-top: 2px;
+}
+
+.vaultman-queue-island-btns {
+  justify-content: center;
+  position: absolute;
+  top: -18px;
+  /* Float above the body */
+  left: 0;
+  right: 0;
+  margin-bottom: 0;
+  z-index: 10;
+}
+
+.vaultman-squircle.is-accent {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.vaultman-squircle.is-accent:hover {
+  background: var(--interactive-accent-hover);
+}
+
+.vaultman-queue-island-list {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 80px;
+}
+
+.vaultman-queue-island-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-size: var(--font-ui-smaller);
+}
+
+.vaultman-queue-island-row:nth-child(odd) {
+  background: var(--background-modifier-hover);
+}
+
+.vaultman-queue-island-row-files {
+  flex-shrink: 0;
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.vaultman-queue-island-row-detail {
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vaultman-queue-island-empty {
+  color: var(--text-faint);
+  font-size: var(--font-ui-small);
+  text-align: center;
+  padding: 12px 0;
+}
+
+/* === Grid View — properties as rows, value chips in col 2 === */
+
+.vaultman-explorer-grid {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.vaultman-grid-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: var(--font-ui-smaller);
+}
+
+.vaultman-grid-td {
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding: 5px 8px;
+  vertical-align: middle;
+}
+
+.vaultman-grid-row:hover .vaultman-grid-td {
+  background: var(--background-modifier-hover);
+}
+
+/* Col 1 — property name */
+.vaultman-grid-td-prop {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  cursor: pointer;
+  min-width: 120px;
+  max-width: 200px;
+  padding-right: 12px;
+}
+
+.vaultman-grid-prop-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+/* Col 2 — value chips */
+.vaultman-grid-td-values {
+  width: 100%;
+  padding-left: 4px;
+}
+
+.vaultman-grid-value-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--background-modifier-hover);
+  border: 1px solid var(--background-modifier-border);
+  margin: 2px 3px;
+  cursor: pointer;
+  font-size: var(--font-ui-smaller);
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.vaultman-grid-value-chip:hover {
+  background: var(--interactive-hover);
+  border-color: var(--interactive-accent);
+}
+
+.vaultman-grid-value-chip.is-active-filter {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border-color: var(--interactive-accent);
+}
+
+.vaultman-grid-chip-text {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vaultman-grid-chip-count {
+  color: var(--text-muted);
+  font-size: 0.85em;
+}
+
+.vaultman-grid-value-chip.is-active-filter .vaultman-grid-chip-count {
+  color: var(--text-on-accent);
+  opacity: 0.8;
+}
+
+/* === Cards View === */
+
+.vaultman-explorer-cards {
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Cards grid — one card per property */
+
+.vaultman-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+
+.vaultman-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  padding: 12px 8px 10px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  text-align: center;
+}
+
+.vaultman-card:hover {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.vaultman-card.is-active-filter {
+  border-color: var(--interactive-accent);
+  background: var(--background-modifier-active-hover);
+}
+
+.vaultman-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.vaultman-card-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.vaultman-card-title {
+  font-weight: 600;
+  font-size: var(--font-ui-small);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  color: var(--text-normal);
+}
+
+.vaultman-card-stats {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  margin-top: 2px;
+}
+
+.vaultman-card-stat-count {
+  color: var(--text-muted);
+}
+
+.vaultman-card-stat-type {
+  display: flex;
+  align-items: center;
+  width: 14px;
+  height: 14px;
+  color: var(--text-faint);
+}
+
+.vaultman-card-stat-type svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Cards drilldown */
+
+.vaultman-cards-drill-topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  margin-bottom: 6px;
+}
+
+.vaultman-cards-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.vaultman-cards-back:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.vaultman-cards-drill-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.vaultman-cards-drill-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.vaultman-cards-drill-title {
+  font-weight: 600;
+  font-size: var(--font-ui-small);
+  color: var(--text-normal);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Badge styling */
+.vaultman-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border-radius: 2px;
+  font-size: 0;
+  /* icon only */
+  color: var(--text-normal);
+  /* Reverted to match request */
+  background: transparent;
+  border: none;
+  flex-shrink: 0;
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+.vaultman-badge.is-undoable {
+  cursor: pointer;
+}
+
+.vaultman-badge.is-undoable:hover {
+  transform: scale(1.2);
+  filter: brightness(1.2);
+}
+
+.vaultman-badge.is-undoable:active {
+  transform: scale(0.9);
+}
+
+.vaultman-badge.is-inherited {
+  opacity: 0.5;
+  /* Subtler for parent-inherited badges */
+}
+
+.vaultman-badge-icon {
+  display: flex !important;
+  width: 10px !important;
+  height: 10px !important;
+  color: inherit;
+}
+
+.vaultman-badge-icon svg {
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.vaultman-badge--blue {
+  color: #007aff;
+}
+
+.vaultman-badge--red {
+  color: #ff3b30;
+}
+
+.vaultman-badge--purple {
+  color: #af52de;
+}
+
+.vaultman-badge--orange {
+  color: #ff9500;
+}
+
+.vaultman-badge--green {
+  color: #34c759;
+}
+
+
+
+.vaultman-tree-count {
+  font-size: 9px;
+  color: var(--text-faint);
+  opacity: 0.8;
+}
+
+.vaultman-tree-icon+.vaultman-tree-label {
+  margin-left: 2px;
+}
+
+/* FAB Badges — Now glass style instead of accent */
+.vaultman-nav-fab-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vaultman-fab-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 4px;
+  /* Glass style: match pill background */
+  background: var(--background-modifier-hover);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-normal);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  font-size: 8px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  z-index: 5;
+  pointer-events: none;
+}
+
+
+/* === Statistics Page === */
+
+.vaultman-statistics-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 8px 80px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.vaultman-statistics-vault-name {
+  font-size: var(--font-ui-large);
+  font-weight: 700;
+  color: var(--text-normal);
+  text-align: center;
+  width: 100%;
+}
+
+/* === Statistics Page (Iteration 15) === */
+.vaultman-statistics-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 12px;
+}
+
+.vaultman-stat-header {
+  display: flex;
+  justify-content: center;
+}
+
+.vaultman-stat-scope-pills {
+  display: flex;
+  gap: 4px;
+  background: var(--background-modifier-hover);
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--vaultman-border);
+}
+
+.vaultman-stat-scope-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vaultman-stat-scope-pill:hover {
+  color: var(--text-normal);
+}
+
+.vaultman-stat-scope-pill.is-active {
+  background: var(--background-primary);
+  color: var(--text-accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.vaultman-pill-icon {
+  display: flex;
+  align-items: center;
+}
+
+.vaultman-pill-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.vaultman-stat-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.vaultman-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 12px 8px;
+  background: var(--background-secondary);
+  border: 1px solid var(--vaultman-border);
+  border-radius: 12px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.vaultman-stat-card:hover {
+  border-color: var(--card-color, var(--vaultman-accent));
+  transform: translateY(-2px);
+}
+
+.vaultman-stat-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--card-color, var(--vaultman-accent));
+  opacity: 0.8;
+}
+
+.vaultman-stat-card-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.vaultman-stat-card-value {
+  display: block;
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--text-normal);
+  line-height: 1;
+}
+
+.vaultman-stat-card-label {
+  display: block;
+  font-size: 0.65em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+
+.vaultman-stat-meta-island {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--background-secondary) 50%, transparent);
+  border: 1px solid var(--vaultman-border);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+}
+
+.vaultman-stat-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-ui-small);
+}
+
+.vaultman-meta-icon {
+  color: var(--text-muted);
+}
+
+.vaultman-meta-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.vaultman-meta-label {
+  flex: 1;
+  color: var(--text-muted);
+}
+
+.vaultman-meta-value {
+  font-weight: 600;
+  color: var(--text-accent);
+}
+
+/* ── Unified Tree ────────────────────────────────── */
+.vaultman-tree-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  height: 26px;
+  /* Increased from 24px for vertical separation */
+  margin-bottom: 1px;
+  /* Extra gap */
+  padding-left: calc(8px + var(--depth, 0) * 16px);
+  cursor: pointer;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  color: var(--text-muted);
+
+  /* Sharp UI Fixes */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transform: translateZ(0);
+}
+
+.vaultman-tree-toggle {
+  color: var(--text-normal);
+  opacity: 0.35;
+  /* Even darker/more subtle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  flex-shrink: 0;
+}
+
+/* Vertical hierarchy guideline */
+.vaultman-tree-row::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--depth, 0) * 16px);
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: var(--background-modifier-border);
+  opacity: 0.6;
+}
+
+.vaultman-tree-row[style*="--depth: 0"]::before,
+.vaultman-tree-row:not([style*="--depth"])::before {
+  display: none;
+}
+
+.vaultman-tree-row:hover {
+  background-color: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.vaultman-tree-row.is-active-filter {
+  background-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  color: var(--text-normal);
+  box-shadow: inset 2px 0 0 0 var(--color-accent);
+  /* Inset doesn't push */
+}
+
+.vaultman-tree-row.is-active-filter :is(.vaultman-tree-toggle, .vaultman-tree-icon, .vaultman-tree-label, .vaultman-tree-count, .vaultman-tree-badge, .vaultman-badge-icon) {
+  opacity: 1;
+}
+
+.vaultman-tree-row.is-deleted-prop,
+.vaultman-tree-row.is-deleted-value,
+.vaultman-tree-row.is-deleted-tag {
+  color: var(--text-faint) !important;
+  opacity: 0.5 !important;
+}
+
+.vaultman-tree-row.is-deleted-prop .vaultman-tree-label,
+.vaultman-tree-row.is-deleted-value .vaultman-tree-label,
+.vaultman-tree-row.is-deleted-tag .vaultman-tree-label {
+  text-decoration: line-through;
+}
+
+.vaultman-tree-row.is-deleted-prop .vaultman-tree-count,
+.vaultman-tree-row.is-deleted-value .vaultman-tree-count,
+.vaultman-tree-row.is-deleted-tag .vaultman-tree-count {
+  color: var(--text-faint);
+}
+
+.vaultman-tree-row.is-editing {
+  background: var(--background-modifier-hover);
+}
+
+.vaultman-tree-row.is-active-filter .vaultman-tree-count {
+  font-weight: 600;
+}
+
+.vaultman-tree-row.is-hidden {
+  display: none;
+}
+
+.vaultman-tree-row.vaultman-badge-warning {
+  outline: 1px solid var(--color-yellow);
+}
+
+.vaultman-tree-toggle {
+  min-width: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: inherit;
+}
+
+.vaultman-tree-icon {
+  min-width: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: inherit;
+}
+
+.vaultman-tree-input {
+  flex: 1;
+  background: var(--background-primary);
+  border: 1px solid var(--color-accent);
+  border-radius: 4px;
+  padding: 1px 4px;
+  margin: -2px 0;
+  height: 20px;
+  font-size: inherit;
+  color: var(--text-normal);
+  font-family: inherit;
+}
+
+.vaultman-tree-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 20%, transparent);
+}
+
+/* Shrink empty icons so they don't consume horizontal space */
+.vaultman-tree-icon:empty {
+  display: none;
+}
+
+.vaultman-tree-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-ui-small);
+  font-weight: normal;
+  color: inherit;
+}
+
+.vaultman-tree-count {
+  flex-shrink: 0;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-normal);
+  opacity: 0.35;
+  /* Matches caret subtlety */
+  background: transparent;
+  padding: 0;
+}
+
+.vaultman-tree-children {
+  /* Removed expanding animation to prevent flashy redraws */
+  transform-origin: top;
+}
+
+.vaultman-search-highlight {
+  background-color: color-mix(in srgb, var(--color-accent) 12%, transparent) !important;
+  color: var(--text-normal) !important;
+  /* Simplified animation: opacity only to avoid sub-pixel blur from translateY */
+  animation: vaultman-fade-in-simple 0.2s ease;
+}
+
+@keyframes vaultman-fade-in-simple {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Menu Curator Panel ──────────────────────────────────────────────────── */
+.vaultman-curator-wrap {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vaultman-curator-title {
+  margin: 0;
+  font-size: var(--font-ui-medium);
+  font-weight: var(--font-semibold);
+  color: var(--text-normal);
+}
+
+.vaultman-curator-desc {
+  margin: 0;
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+}
+
+.vaultman-curator-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vaultman-curator-empty {
+  color: var(--text-faint);
+  font-size: var(--font-ui-small);
+}
+
+.vaultman-curator-rule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-s);
+  background: var(--vaultman-bg-section);
+}
+
+.vaultman-curator-rule-text {
+  flex: 1;
+  font-size: var(--font-ui-small);
+  color: var(--text-normal);
+}
+
+.vaultman-curator-del-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 2px;
+}
+
+.vaultman-curator-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.vaultman-curator-input {
+  flex: 1;
+  min-width: 120px;
+}
+
+.vaultman-curator-add-btn {
+  white-space: nowrap;
+}
+
+/* === Island System (Queue & Filters) === */
+.vaultman-queue-island-wrap,
+.vaultman-filters-island-wrap {
+  position: absolute;
+  bottom: calc(var(--vaultman-nav-height, 64px) + 8px);
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 40;
+}
+
+.vaultman-queue-island,
+.vaultman-active-filters-island {
+  pointer-events: auto;
+  margin: 0 12px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 16px;
+  padding: 12px;
+  padding-top: 36px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 60vh;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+}
+
+.vaultman-queue-island.is-open,
+.vaultman-active-filters-island.is-open {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.vaultman-queue-island .vaultman-squircle-row,
+.vaultman-active-filters-island .vaultman-squircle-row {
+  position: absolute;
+  top: -22px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  z-index: 110;
+  pointer-events: none;
+}
+
+.vaultman-squircle {
+  pointer-events: auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s;
+}
+
+.vaultman-squircle:hover {
+  transform: scale(1.1);
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.vaultman-squircle.is-accent {
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+  border-color: transparent;
+}
+
+/* Island Content Layouts */
+.vaultman-queue-island-header,
+.vaultman-active-filters-island-header {
+  font-size: var(--font-ui-smaller);
+  font-weight: 700;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  text-align: center;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.vaultman-queue-island-list,
+.vaultman-active-filters-island-list {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 80px;
+}
+
+.vaultman-queue-island-row,
+.vaultman-active-filter-island-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: var(--font-ui-smaller);
+}
+
+.vaultman-queue-island-row:nth-child(odd),
+.vaultman-active-filters-island-list .vaultman-active-filter-island-row:nth-child(odd) {
+  background: var(--background-modifier-hover);
+}
+
+.vaultman-queue-island-row-files {
+  flex-shrink: 0;
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.vaultman-queue-island-row-detail,
+.vaultman-active-filter-row-text {
+  flex: 1;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vaultman-active-filter-row-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.vaultman-queue-island-empty,
+.vaultman-active-filters-island-empty {
+  color: var(--text-faint);
+  font-size: var(--font-ui-small);
+  text-align: center;
+  padding: 12px 0;
+}
+
+/* Fix node badges overlapping count */
+.vaultman-tree-badge-zone {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.vaultman-tree-count {
+  margin-left: 2px;
+}
+/* =========================================================
+   Iter 17 — Filters header replacement + popup layouts
+   ========================================================= */
+
+/* Wrapper that gives the header + popups a fixed height so
+   they don't reflow the tab content below. */
+.vaultman-filters-header-wrap {
+  position: relative;
+  overflow: visible;
+}
+
+/* Slide-in animations for Level 4 popups */
+@keyframes vaultman-slide-in-from-left {
+  from { transform: translateX(-100%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes vaultman-slide-in-from-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.vaultman-filters-popup-slot {
+  width: 100%;
+}
+.vaultman-filters-popup-slot.popup-enter-from-left {
+  animation: vaultman-slide-in-from-left 280ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.vaultman-filters-popup-slot.popup-enter-from-right {
+  animation: vaultman-slide-in-from-right 280ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Tab content wrapper for the {#key} fade */
+.vaultman-filters-tab-content {
+  display: contents;
+}
+
+/* ----------------------------------------------------------
+   Sort Popup
+   ---------------------------------------------------------- */
+.vaultman-sort-popup {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 4px 8px;
+  position: relative;
+  overflow: visible;
+}
+
+/* Vert-col: absolute, floats over tab content */
+.vaultman-sort-vertcol {
+  position: absolute;
+  left: 9px;
+  top: 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  z-index: 50;
+  overflow: visible;
+}
+
+.vaultman-sort-vertcol-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  transition: background 150ms ease, color 150ms ease;
+}
+.vaultman-sort-vertcol-btn:hover,
+.vaultman-sort-vertcol-btn.is-active {
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+  border-color: var(--color-accent);
+}
+.vaultman-sort-vertcol-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Drawer inside vert-col */
+.vaultman-sort-vertcol-drawer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: #12101a;
+  border: 1px solid #4a3a6a;
+  border-radius: 6px;
+  padding: 4px 6px;
+  min-width: 80px;
+  margin-top: 2px;
+  z-index: 55;
+  position: relative;
+}
+.vaultman-sort-drawer-item {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 2px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.vaultman-sort-drawer-item:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+/* Main content: rows */
+.vaultman-sort-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  padding-left: 40px; /* leave room for vert-col */
+}
+
+.vaultman-sort-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Scope dropdown */
+.vaultman-sort-scope-select {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-normal);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Circle buttons in sort row */
+.vaultman-sort-circle-btn,
+.vaultman-sort-close-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: background 150ms ease, color 150ms ease;
+}
+.vaultman-sort-circle-btn:hover,
+.vaultman-sort-close-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+.vaultman-sort-circle-btn svg,
+.vaultman-sort-close-btn svg {
+  width: 13px;
+  height: 13px;
+}
+
+.vaultman-sort-row-controls .vaultman-sort-close-btn {
+  margin-left: auto;
+}
+
+/* Direction indicator inside squircle */
+.vaultman-sort-dir {
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+.vaultman-sort-dir svg {
+  width: 10px;
+  height: 10px;
+}
+
+/* Icon span inside squircle */
+.vaultman-squircle-icon {
+  display: flex;
+  align-items: center;
+}
+.vaultman-squircle-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Squircle row in sort popup — bounded/centered */
+.vaultman-sort-squircle-row {
+  justify-content: flex-start;
+}
+
+/* ----------------------------------------------------------
+   View Mode Popup
+   ---------------------------------------------------------- */
+.vaultman-viewmode-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 8px;
+}
+
+.vaultman-viewmode-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vaultman-viewmode-row-controls {
+  overflow: hidden;
+}
+
+/* Close + circle buttons in view-mode row */
+.vaultman-viewmode-close-btn,
+.vaultman-viewmode-circle-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: background 150ms ease, color 150ms ease;
+}
+.vaultman-viewmode-close-btn:hover,
+.vaultman-viewmode-circle-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+.vaultman-viewmode-close-btn svg,
+.vaultman-viewmode-circle-btn svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Pills container: horizontal scroll, no scrollbar */
+.vaultman-viewmode-pills {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+  min-width: 0;
+}
+.vaultman-viewmode-pills::-webkit-scrollbar {
+  display: none;
+}
+
+/* Individual pill */
+.vaultman-viewmode-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  white-space: nowrap;
+  cursor: pointer;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+  flex-shrink: 0;
+}
+.vaultman-viewmode-pill.is-active {
+  background: #7b5ea740;
+  border-color: #7b5ea7;
+  color: #c4a0f8;
+}
+.vaultman-viewmode-pill:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
