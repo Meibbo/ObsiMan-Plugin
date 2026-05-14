@@ -37,7 +37,7 @@ I'll also release experimental "beta" versions for those who want to check the p
 Beta versions are more prone to bugs and performance issues, and can break your vault. Use them at your own risk, and always make backups before updating or using them.
 
 > *This project is in an early state, developing feedback is totally welcomed!*
-
+***
 # Features
 
 ### Plugin sidebar Frame
