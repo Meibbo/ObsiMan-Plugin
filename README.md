@@ -145,7 +145,11 @@ All third-party libraries retain their respective licenses.
 
 ## License
 
-[MIT](LICENSE) — [Meibbo](https://github.com/Meibbo). This product is published *as it is* without any explicit warranty due to its early development state. 
+[Apache License 2.0](LICENSE) — [Meibbo](https://github.com/Meibbo).
+
+Vaultman is distributed as open-source software focused on extensibility, experimentation, and large-scale vault workflows.
+
+> This product is published *as is* without explicit warranty due to its active development state.
 
 > **Disclaimer**: *AI agentic tools were used in the making of this plugin, and was only published after being manually tested and debugged since March 2026*
 
