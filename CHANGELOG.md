@@ -72,6 +72,63 @@ The project history can roughly be divided into these stages:
 
 ---
 
+## [1.0.0-rc.1] — 2026-05-09
+
+> First release candidate published for broader BRAT testing before the stable launch.
+
+### Changed
+- Final pre-release validation for release packaging
+- Stabilization of plugin manifest and release structure
+- Additional testing pass for queue operations and sidebar navigation
+
+### Notes
+- Published as `BRAT rc.1`
+- Intended as the final verification build before 1.0.0
+
+---
+
+## [1.0.0-canary.22] — 2026-05-02
+
+> Experimental canary release used for multi-platform testing and validation.
+
+### Added
+- Early release validation pipeline
+- Additional stress testing for large vaults
+- Canary distribution workflow for rapid iteration
+
+### Notes
+- Internal testing-focused build
+- Not intended for stable production use
+
+---
+
+## [1.0.0-beta.15] — 2026-04-14
+
+> Final beta generation before the canary and release-candidate cycle.
+
+### Changed
+- Continued UI stabilization and workflow polishing
+- Improvements to sidebar navigation consistency
+- Queue interaction refinements
+- Additional fixes for large-vault responsiveness
+
+### Internal
+- Project rename transition from `ObsiMan` to `Vaultman`
+- Cleanup of settings tab naming and internal type references
+
+---
+
+## [1.0.0-beta.12] — 2026-04-14
+
+> Transitional beta release during the project rebranding phase.
+
+### Changed
+- Public release naming still used the `ObsiMan` branding
+- Early migration work toward the final `Vaultman` naming
+- Continued BRAT beta distribution
+
+---
+
 ## [1.0.0-beta.5] — 2026-04-07
 
 > Property browser overhaul, queue diff previews, and content replace UX polish.
@@ -288,7 +345,12 @@ The project history can roughly be divided into these stages:
 > Versions 0.2–0.6 correspond to the Python script predecessor (PKM Manager).
 > See `docs/pkm_manager_python_architecture.md` for that history.
 
-[Unreleased]: https://github.com/Meibbo/Vaultman-Plugin/compare/1.0.0-beta.5...HEAD
+[Unreleased]: https://github.com/Meibbo/Vaultman-Plugin/compare/1.0.0-rc.1...HEAD
+[1.0.0]: https://github.com/Meibbo/Vaultman-Plugin/compare/1.0.0-rc.1...1.0.0
+[1.0.0-rc.1]: https://github.com/Meibbo/Vaultman-Plugin/compare/1.0.0-canary.22...1.0.0-rc.1
+[1.0.0-canary.22]: https://github.com/Meibbo/Vaultman-Plugin/compare/1.0.0-beta.15...1.0.0-canary.22
+[1.0.0-beta.15]: https://github.com/Meibbo/Vaultman-Plugin/compare/1.0.0-beta.12...1.0.0-beta.15
+[1.0.0-beta.12]: https://github.com/Meibbo/Vaultman-Plugin/compare/1.0.0-beta.5...1.0.0-beta.12
 [1.0.0-beta.5]: https://github.com/Meibbo/Vaultman-Plugin/compare/1.0.0-beta.4...1.0.0-beta.5
 [1.0.0-beta.4]: https://github.com/Meibbo/Vaultman-Plugin/compare/1.0.0-beta.3...1.0.0-beta.4
 [1.0.0-beta.3]: https://github.com/Meibbo/Vaultman-Plugin/compare/1.0.0-beta.2...1.0.0-beta.3
