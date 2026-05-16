@@ -8,20 +8,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > **Version history note**: Versions 0.7–0.9 were previously labeled 1.2.2–1.3.0 during private
 > internal development. Renumbered to 0.x to reserve 1.0.0 for the first public stable release.
 
+---
+
+# Project Evolution Overview
+
+Vaultman started as an experimental property-management tool for large Obsidian vaults and progressively evolved into a complete vault operations platform.
+
+The project history can roughly be divided into these stages:
+
+- **0.1.0 → 0.6.x** — foundation stage
+  - Core property explorer
+  - Filter engine
+  - Batch operations
+  - Session management
+  - Python predecessor architecture (PKM Manager)
+
+- **0.7.0 → 0.8.0** — architecture stabilization
+  - Lifecycle cleanup
+  - Metadata cache reliability
+  - Performance optimization
+  - Native Obsidian integrations
+  - Large-vault scalability improvements
+
+- **0.9.0** — smart vault synchronization layer
+  - `.base` integration
+  - Live Obsidian rendering
+  - Advanced query parsing
+  - Editable grid architecture
+
+- **1.0.0-beta.x** — UX redesign and Svelte migration
+  - Complete Svelte 5 rewrite
+  - New navigation system
+  - Queue diff visualization
+  - Content find/replace
+  - In-frame modal system
+  - Batch execution improvements
+
+- **1.0.0** — first public stable release
+  - Core workflows stabilized
+  - Major regressions fixed
+  - Internal architecture cleanup
+  - Public release preparation
+
+---
+
 ## [1.0.0] — 2026-05-14
 
-> Official stable release.
+> First stable public release of Vaultman.
+>
+> This release marks the transition from experimental internal tooling into a fully usable Obsidian plugin focused on large-scale vault management.
 
 ### Added
 - **Find & Replace Content**: fully functional search and replace in file content within the Operations page.
 - **Improved UI Navigation**: fixed regressions in tab navigation and component loading.
 - **Plugin Integrity**: restored missing core components and fixed import paths for the official release.
 
+### Stabilized
+- Queue execution workflow
+- Svelte-based sidebar navigation
+- Property browser interactions
+- Filter management UX
+- Large-vault operation handling
+
 ---
 
 ## [1.0.0-beta.5] — 2026-04-07
 
-> Property browser, queue snippet diffs, and content replace UX polish.
+> Property browser overhaul, queue diff previews, and content replace UX polish.
 
 ### Added
 - **Filters → Property Browser**: the Rules tab now shows a live, scrollable list of all vault properties directly in the Filters page. Click a property name to immediately add a `has_property` filter; expand any property with ▶ to see its known values and click one to add a `specific_value` filter — no modal required. The filter tree (active rules) moved exclusively to the Active Filters popup (FAB).
@@ -40,7 +93,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0-beta.4] — 2026-04-07
 
-> Find & Replace in file content, Move to folder, batch queue performance, UI navigation overhaul.
+> Major UX iteration introducing content-level operations, folder movement, queue scaling, and the modern navigation architecture.
 
 ### Added
 - **Find & Replace Content tab**: search and replace raw file content (including frontmatter) using plain text or regex. Features case-sensitive toggle (`Aa`), regex toggle (`.*`), inline Preview (shows match count + collapsible per-file snippet list), and Queue Replace to stage the operation. Scope adapts to selected files or filtered files automatically.
@@ -68,7 +121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0-beta.3] — 2026-04-06
 
-> Full Svelte 5 migration, redesigned navigation, major layout fixes.
+> The largest architectural rewrite in the project so far: migration from imperative TypeScript views into a fully reactive Svelte 5 interface.
 
 ### Added
 - **Svelte 5 sidebar**: `VaultmanView.svelte` replaces the old imperative TypeScript view — 3-page horizontal slide navigation (Ops | Files | Filters) with CSS `translateX` and `transitionend` guard
@@ -92,7 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0-beta.2] — 2026-03-28
 
-> Bug-fix release addressing four known regressions from v0.9.0.
+> Stabilization release focused on repairing regressions introduced during the rendering-system overhaul.
 
 ### Fixed
 - **Inline rename**: double-clicking a name cell in the property grid now correctly opens the inline edit input
@@ -104,7 +157,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0-beta.1] — 2026-03-27
 
-> First public beta. Core features are functional but several known regressions exist. Not recommended for production vaults.
+> First public beta release.
+>
+> This version exposed the current state of the project for real-world vault testing before the stable release cycle.
 
 ### Added
 - Nothing new since 0.9.0 — this release packages the current state for BRAT beta testing
@@ -124,6 +179,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [0.9.0] — 2026-03-27
+
+> The transition from a property manager into a true vault data platform.
 
 ### Added
 - **Inline file rename**: double-click a name cell in the grid (configurable via `gridEditableColumns` setting) — *note: currently has a bug, see Known Issues*
@@ -149,6 +206,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [0.8.0] — 2026-03-26
+
+> Scalability and reliability release focused on metadata synchronization and large vault performance.
 
 ### Added
 - Custom SVG plugin icon registered via `addIcon()` — replaces generic `settings-2` icon on ribbon, view tabs, and sidebar
@@ -176,6 +235,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.0] — 2026-03-26
 
+> Internal architecture hardening and lifecycle cleanup.
+
 ### Added
 - `onExternalSettingsChange()` lifecycle hook — settings now sync when modified externally (e.g. via cloud sync)
 - `onunload()` cleanup in SessionFileService and PropertyIndexService
@@ -201,6 +262,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [0.1.0] — 2026-03-25
+
+> First TypeScript implementation of Vaultman for Obsidian.
+>
+> This release established the foundation for large-scale vault management workflows.
 
 ### Added
 - Initial release of Vaultman as an Obsidian TypeScript plugin
