@@ -33,13 +33,13 @@
 		"mocha": "^10.8.2",
 		"obsidian": "latest",
 		"obsidian-integration-testing": "^1.1.2",
-		"obsidian-launcher": "^3.0.2",
+		"obsidian-launcher": "^3.0.3",
 		"svelte": "^5.55.1",
 		"type-fest": "^4.41.0",
 		"typescript": "~5.8.0",
 		"typescript-eslint": "8.35.1",
 		"vitest": "^4.1.0",
 		"wdio-obsidian-reporter": "^3.0.2",
-		"wdio-obsidian-service": "^3.0.2"
+		"wdio-obsidian-service": "^3.0.3"
 	}
 }
